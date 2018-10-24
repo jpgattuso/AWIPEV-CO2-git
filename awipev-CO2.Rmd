@@ -34,10 +34,9 @@ knitr::opts_chunk$set(echo = TRUE)
 fig_nums <- captioner()
 table_nums <- captioner(prefix = "Table")
 
-#test_jp
 #define who is the user and define path
-if (Sys.getenv("LOGNAME") == "gattuso") path = "../../pCloud\ Sync/Documents/experiments/exp153_carbonates_point_B/"
-if (Sys.getenv("LOGNAME") == "samir") path = "../../pCloud Sync/exp153_carbonates_point_B/"
+if (Sys.getenv("LOGNAME") == "gattuso") path = "../../pCloud\ Sync/Documents/experiments/exp168_awipev-CO2/"
+if (Sys.getenv("LOGNAME") == "samir") path = "../pCloud\\ Sync/exp153_carbonates_point_B/"
 
 
 ######## function to make regression plot with model I equation in title
@@ -109,7 +108,7 @@ ggplot(fit$model, aes_string(x = names(fit$model)[2], y = names(fit$model)[1])) 
 ```
 
 ```{r read and prepare discrete data, echo=FALSE, warning=FALSE, message=FALSE}
-d <- read.table("../fb_data/Discrete_analyses_AT_CT/Discrete_sampling_AWIPEV.csv", header = T, dec = ".", as.is = T, sep = ";", fill = TRUE) 
+d <- read.table(paste0(path, "fb_data/Discrete_analyses_AT_CT/Discrete_sampling_AWIPEV.csv"), header = T, dec = ".", as.is = T, sep = ";", fill = TRUE)
 d$datetime <- as.POSIXct(d$sampling_date, format="%d/%m/%Y %H:%M", tz="UTC")
 d$measure_date <- dmy(d$measure_date, tz="UTC")
 
