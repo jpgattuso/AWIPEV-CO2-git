@@ -207,7 +207,7 @@ discrete$pco2calc<- carb$pCO2
 
 ```{r Read and prepare ferrybox data, echo=FALSE, warning=FALSE, message=FALSE}
 # xx <- read_tsv("../fb_server/ny-alesund/data/old/All_sensors_731101_2016-08-20.txt", skip=16, col_names=TRUE)
-load(file = "../fb_server/shinyroot/AWIPEV-CO2/nydata_hour_shiny.Rdata")
+load(file = paste0(path, "fb_server/shinyroot/AWIPEV-CO2/nydata_hour_shiny.Rdata"))
 #load(file = "../fb_server/shinyroot/AWIPEV-CO2/nydata_shiny.Rdata") #d
 # load = d_hour
 d_hour <- d_hour %>%
@@ -304,7 +304,7 @@ discrete2merge <- discrete %>%
   rename(datetime=closest_datetime)
 d_all <- full_join(d_all, discrete2merge, by="datetime")
 
-save(file="../fb_data/d_all.Rdata", d_all)
+save(file= paste0(path, "fb_data/d_all.Rdata"), d_all)
 
 ## bind the voltages and deployment ##
 
@@ -546,7 +546,7 @@ calib_p <- ggplot()+
   theme_bw() + theme(axis.text.x = element_text(angle = 45, hjust = 1))+ 
   labs(title= "",y=expression(paste("Total alkalinity (µmoles.",kg^-1,")")), x="Date", color= "CRM",shape= "Deployed instrument")
 
-ggsave("../fb_figures/TA_Analyser/Calibration/TA_calibration_CRM.png", calib_p, units="cm")
+ggsave(paste0(path, "fb_figures/TA_Analyser/Calibration/TA_calibration_CRM.png"), calib_p, units="cm")
 print(calib_p)
 ```
 
@@ -611,7 +611,7 @@ p <- ggplot(calib_ta_first%>%filter(diff_ta <= 50),aes(datetime,diff_ta)) +
                      "P =",signif(summary(fit)$coef[2,4], 5))) + 
   ylab("Difference: Reference - Analyser") + xlab("Time") + scale_x_datetime(date_labels = "%b %Y", date_minor_breaks = "month", timezone="UTC")
 print(p)
-ggsave("../fb_figures/TA_Analyser/Calibration/Diff_ref_TA_first_period.png", p, units="cm")
+ggsave(paste0(path, "fb_figures/TA_Analyser/Calibration/Diff_ref_TA_first_period.png"), p, units="cm")
 ```
 
 #####**Third period**
@@ -646,7 +646,7 @@ p <- ggplot(calib_ta_third,aes(x=datetime, y=diff_ta) )+
                      " P =",signif(summary(fit)$coef[2,4], 5))) + ylab("Difference: Reference - Analyser") + xlab("Time") + 
   scale_x_datetime( date_labels = "%b %Y", date_minor_breaks = "month", timezone="UTC")
 print(p)
-ggsave("../fb_figures/TA_Analyser/Calibration/Diff_ref_TA_third_period.png", p, units="cm")
+ggsave(paste0(path, "fb_figures/TA_Analyser/Calibration/Diff_ref_TA_third_period.png"), p, units="cm")
 ```
 
 #####**Second period**
@@ -750,7 +750,7 @@ at_s <- ggplot(d_all_at_discrete,aes(x=sal_fb, y= at, label = month))+
                        "; P =",signif(summary(fit)$coef[2,4], 5))) +
   theme(aspect.ratio=1,plot.title = element_text(size=7)) + theme_bw() 
 
-ggsave("../fb_figures/Discrete_TA_salinity_AWIPEV.png", at_s, width=15, height =10, units="cm")
+ggsave(paste0(path, "fb_figures/Discrete_TA_salinity_AWIPEV.png"), at_s, width=15, height =10, units="cm")
 
 # Salinity is a predictor of AT -> using the regression defined above
 d_all$at_calc <- slope_s_at * d_all$sal_fb + intercept_s_at
@@ -829,7 +829,7 @@ pco2calc_pCO2_contros_text <-  ggplot(d_all,aes(x=pco2calc, y= PCO2_corr_contros
 The relationship between the Contros and calculated *p*CO~2~ is not good at all in the sense that it is far from the 1:1 line, despite a good r2 (`r round(fit$rsquare, digits=2)`).
 ```{r plot measured vs calculated pCO2, echo=FALSE, warning=FALSE, message=FALSE, out.width='100%', fig.align="center"}
 print(pco2calc_pCO2_contros_text)
-ggsave("../fb_figures/pco2calc_pCO2_contros.png", pco2calc_pCO2_contros_text, width=5, height=5, units="cm")
+ggsave(paste0(path, "fb_figures/pco2calc_pCO2_contros.png"), pco2calc_pCO2_contros_text, width=5, height=5, units="cm")
 ```
 
 ### **Final *p*CO~2~ data**
@@ -1326,8 +1326,8 @@ pdelta_at_snapo
 pdelta_at_snapo_dygraph
 pdelta_ct_snapo
 pdelta_ct_snapo_dygraph
-ggsave("../fb_figures/SNAPO/delta_at_awipev_snapo.png", pdelta_at_snapo, units="cm")
-ggsave("../fb_figures/SNAPO/delta_ct_awipev_snapo.png", pdelta_ct_snapo, units="cm")
+ggsave(paste0(path, "fb_figures/SNAPO/delta_at_awipev_snapo.png"), pdelta_at_snapo, units="cm")
+ggsave(paste0(path, "fb_figures/SNAPO/delta_ct_awipev_snapo.png"), pdelta_ct_snapo, units="cm")
 ```
 
 ##Maintenance
