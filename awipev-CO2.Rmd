@@ -8,7 +8,7 @@ output:
     number_sections: false
     
 ---
-![ ](www/AWIPEV-Logo.jpg){width=250px}
+![ ](Images/AWIPEV-Logo.jpg){width=250px}
 
 ```{r set-up, echo=FALSE, warning=FALSE, message=FALSE}
 Sys.setlocale("LC_ALL", "en_US.UTF-8")
@@ -348,12 +348,10 @@ The AWIPEV-CO2 project aims at starting the first time series for the carbonate 
 <div style="text-align: justify">  
 The AWIPEV Underwater Observatory has been deployed at Ny-Alesund (Spitsbergen, 78°55'18N, 11°56'31E) in June 2012. It is part of the German Project COSYNA (Coastal Observation Systems of the Northern- and Arctic Seas), which aims at increasing the availability of continuous real-time data from remote but climatically-sensitive ecosystems. The AWIPEV underwater observatory comprises a fully remote controlled FerryBox system fed with seawater pumped in front of the old peer at 12 m depth. Temperature, salinity, pressure, turbidity, oxygen, chl-*a* fluorescence are measured. Furthermore, an additional remote controlled underwater sensor unit able to profile from 12 m to the surface at any frequency carries additional sensors for salinity, pressure, turbidity, oxygen chl-*a* fluorescence and PAR. The system also comprises an ADCP for continuous measurements of currents and waves. Besides these standard sensors, the underwater unit is equipped with a webcam and stereo-optical device to remotely assess fish and jellyfish populations. The AWIPEV observatory is specifically designed for polar experimental work under extreme conditions including ice coverage and the inaccessibility for about 7 months during polar winter. During this time, the system is remotely controlled and maintained from Germany. All data sampled by the sensors are continuously sent to a central server system at Helgoland Island where the data are stored and processed. The processed data are open access and available at http://codm.hzg.de/codm.
 
-
 <div style="text-align:center" markdown="1">
-  <img  src="../fb_figures/Photos/Outside/Container.png" width="200" height="200">
-  <img  src="../fb_figures/Photos/Outside/Intake.png" width="200" height="200">
-  <img  src="../fb_figures/Photos/FerryBox/2018-04-17_Ferrybox2.jpg" width="200" height="200">
-  
+  <img  src="./Images/Outside/Container.png" width="200" height="200">
+  <img  src="./Images/Outside/Intake.png" width="200" height="200">
+  <img  src="./Images/FerryBox/2018-04-17_Ferrybox2.jpg" width="200" height="200">
 </div>
 
 ###**Continuous and semi-continuous measurements**
@@ -1385,8 +1383,8 @@ ggsave(paste0(path, "fb_figures/SNAPO/delta_ct_awipev_snapo.png"), pdelta_ct_sna
  - **2015-09-28**: we put the spike.pCO2 (detection of peaks: threshold) at 350 to remove anomalies on the 12 and 15 September. We have to monitor data. If data reach this value, then problem.
 
 <div style="text-align:center" markdown="1">
-<img  src="../fb_figures/Photos/Salt/2016-04-04_leakage_AT_analyser1.jpg" width="200" height="200">
-<img  src="../fb_figures/Photos/Salt/2016-04-04_leakage_AT_analyser3.jpg" width="200" height="200">
+<img  src="./Images/Salt/2016-04-04_leakage_AT_analyser1.jpg" width="200" height="200">
+<img  src="./Images/Salt/2016-04-04_leakage_AT_analyser3.jpg" width="200" height="200">
 </div>
 
 ##Script + data
