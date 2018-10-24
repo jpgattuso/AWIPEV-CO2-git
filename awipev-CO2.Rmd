@@ -34,6 +34,7 @@ knitr::opts_chunk$set(echo = TRUE)
 fig_nums <- captioner()
 table_nums <- captioner(prefix = "Table")
 
+#test_jp
 #define who is the user and define path
 if (Sys.getenv("LOGNAME") == "gattuso") path = "../../pCloud\ Sync/Documents/experiments/exp153_carbonates_point_B/"
 if (Sys.getenv("LOGNAME") == "samir") path = "../../pCloud Sync/exp153_carbonates_point_B/"
