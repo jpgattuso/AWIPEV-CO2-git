@@ -36,7 +36,7 @@ table_nums <- captioner(prefix = "Table")
 
 #define who is the user and define path
 if (Sys.getenv("LOGNAME") == "gattuso") path = "../../pCloud\ Sync/Documents/experiments/exp168_awipev-CO2/"
-if (Sys.getenv("LOGNAME") == "samir") path = "../pCloud\\ Sync/exp153_carbonates_point_B/"
+if (Sys.getenv("LOGNAME") == "samir") path = "../../pCloud\ Sync/exp168_awipev-CO2/"
 
 
 ######## function to make regression plot with model I equation in title
@@ -513,7 +513,7 @@ Since this date, the analyser is calibrated by measuring a CRM with the "measure
 The calibration of the sensor is made against a CRM standard from A. Dickson. We run a standard on the analyser as a regular measurement (measurement mode). Result sof calibrations are shown on the following plot.Dashed lines represent the theoritical value of AT (CRM) and hard lines represent CRM measured AT by the instrument.
 
 ```{r CRM measurements, echo=FALSE, warning=FALSE, message=FALSE, out.width="60%",fig.show='hold', fig.align="center"}
-calib_analyser <-  read.table("../fb_data/Calibration/TA_#1215/measure_CRM_TA.txt", header = T, dec = ".", as.is = T, sep = ",", fill = TRUE) 
+calib_analyser <-  read.table(paste0(path, "fb_data/Calibration/TA_#1215/measure_CRM_TA.txt"), header = T, dec = ".", as.is = T, sep = ",", fill = TRUE)
 
 # To make the mean 
 # Keep dates as Character to plot without date gaps.
