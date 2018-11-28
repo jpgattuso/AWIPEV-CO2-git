@@ -436,7 +436,7 @@ dygraph(seafet_contros_xts, group = "awipev", main="pH seaFET (in situ)", ylab="
 
 # to create periods according to TA deployments
 TAevents <- c("2016-02-26 00:00:00", "2017-02-09 12:00:00", "2017-02-09 12:00:00", "2017-03-10 12:00:00", 
-              "2018-01-07 00:00:00", "2018-07-31 00:00:00","2018-10-30 18:00:00", format(Sys.Date(), "%Y-%m-%d %H:%M:%S"))
+              "2018-01-07 00:00:00", "2018-06-20 00:00:00",  "2018-07-31 00:00:00","2018-10-30 18:00:00", format(Sys.Date(), "%Y-%m-%d %H:%M:%S"))
 
 at_contros_cleaned_xts <- dplyr::select(d_all, datetime,AT_filtered,at)
 at_contros_cleaned_xts <-  as.xts(at_contros_cleaned_xts, order.by = d_all$datetime)
@@ -458,12 +458,13 @@ dygraph(at_contros_cleaned_xts, group = "awipev", main=" Total Alkalinity (in Fe
   dyEvent(as.POSIXct("2017-04-11 06:20:00", tz="GMT"), "CRM measurement", labelLoc = "bottom") %>% 
   dyEvent(as.POSIXct("2018-01-22 13:00:12", tz="GMT"), "CRM measurement", labelLoc = "bottom") %>%
   dyEvent(as.POSIXct("2018-05-16 12:39:39", tz="GMT"), "CRM measurement", labelLoc = "bottom") %>%
+  dyEvent(as.POSIXct("2018-10-31 10:29:27", tz="GMT"), "CRM measurement", labelLoc = "top") %>%
   #dyOptions(colors = RColorBrewer::brewer.pal(3, "Dark2"), pointSize = 4) %>%
   dyShading(from = TAevents[1], to = TAevents[2], color = "#EDEDED") %>%
   dyShading(from = TAevents[3], to = TAevents[4], color = "#C2C2C2") %>%
   dyShading(from = TAevents[5], to = TAevents[6], color = "#EDEDED") %>%
-  dyShading(from = TAevents[6], to = TAevents[7], color = "#C2C2C2") %>%
-  dyShading(from = TAevents[7], to = TAevents[8], color = "#EDEDED") %>%
+  dyShading(from = TAevents[7], to = TAevents[8], color = "#C2C2C2") %>%
+  dyShading(from = TAevents[8], to = TAevents[9], color = "#EDEDED") %>%
   dyAxis("y",valueRange = c(2100, 2550)) %>%
   dyHighlight(highlightCircleSize = 8,highlightSeriesBackgroundAlpha = 0.5,hideOnMouseOut = TRUE) %>%
   dyOptions( strokeWidth= 0) %>%
@@ -476,7 +477,6 @@ sum(f$Freq)
 # numberOutliers <- length(which((dat_ATnoNA$outliers > 0)))
 ```
 
-
 ##Total alkalinity
 
 Since we bought the AT analyser (February 2016), numerous problems happened due to a leak of the degassing unit in each analyser and sudden step changes. Last analyser repaired by Contros was installed back in the FB on 2018-07-31. This was the 3rd analyser on site.
@@ -486,8 +486,9 @@ We identify four periods (see plot at the end of this page with dark and ligth g
 - from the set-up of the instrument on **2016-02-23** to **2017-02-09** during which we try to correct for the drift
 - from **2017-02-09** to **2017-03-10** during which no drift correction is made, just an offset is applied to correct for the sudden shift in the data
 - from the set-up of a new instrument on **2018-01-08** to **2018-06-20**, during which another correction using the discrete samples will be performed. In this period and before to stop it, continuous leakages in the degasing unit happened.
-- from the set-up of a repaired unit on **2018-07-31** to **the present days**. Here, the instrument took wrong salinity to perform AT measurements. The cause is not clear yet but Steffen sent to Samir a protocol on 2018-08-24 to correct those data with right salinity. Also, after this issue, since 2018-08-20, bad data were still measured. Steffen diagnosed a "bubble issue" in the indicator tubbings. Steps will be sent to Marine to solve this issue. After this, it was not a bubble. We decided to switch off the instrument to save reagents and wait until the comming of Steffen in NYA with a new instrument.
-- new instrument was installed with Steffen on **2018-11-31**. This new instrument has a complete new designed membrane which will solve the problem. Steffen also developped a TA webInterface to communicate remotly with the analyser.
+- from the set-up of a repaired unit on **2018-07-31** to **2018-10-31**. Here, the instrument took wrong salinity to perform AT measurements. The cause is not clear yet but Steffen sent to Samir a protocol on 2018-08-24 to correct those data with right salinity. Also, after this issue, since 2018-08-20, bad data were still measured. Steffen diagnosed a "bubble issue" in the indicator tubbings. Steps will be sent to Marine to solve this issue. After this, it was not a bubble. We decided to switch off the instrument to save reagents and wait until the comming of Steffen in NYA with a new instrument.
+
+A new instrument was installed with Steffen on **2018-10-31**. This new instrument has a complete new designed membrane which will solve the problem. Steffen also developped a TA web interface to communicate remotly with the analyser. Samir has all the passwords and ID to connect.
 
 ###**Filtration of AT data: outliers removing**
 
@@ -709,12 +710,13 @@ dygraph(at_contros_cleaned_xts, group = "awipev", main=" Total Alkalinity (in Fe
   dyEvent(as.POSIXct("2017-04-11 06:20:00", tz="GMT"), "CRM measurement", labelLoc = "bottom") %>% 
   dyEvent(as.POSIXct("2018-01-22 13:00:12", tz="GMT"), "CRM measurement", labelLoc = "bottom") %>%
   dyEvent(as.POSIXct("2018-05-16 12:39:39", tz="GMT"), "CRM measurement", labelLoc = "bottom") %>%
+  dyEvent(as.POSIXct("2018-10-31 10:29:27", tz="GMT"), "CRM measurement", labelLoc = "bottom") %>%
   #dyOptions(colors = RColorBrewer::brewer.pal(3, "Dark2"), pointSize = 4) %>%
   dyShading(from = TAevents[1], to = TAevents[2], color = "#EDEDED") %>%
   dyShading(from = TAevents[3], to = TAevents[4], color = "#C2C2C2") %>%
   dyShading(from = TAevents[5], to = TAevents[6], color = "#EDEDED") %>%
-  dyShading(from = TAevents[6], to = TAevents[7], color = "#C2C2C2") %>%
-  dyShading(from = TAevents[7], to = TAevents[8], color = "#EDEDED") %>%
+  dyShading(from = TAevents[7], to = TAevents[8], color = "#C2C2C2") %>%
+  dyShading(from = TAevents[8], to = TAevents[9], color = "#EDEDED") %>%
   dyAxis("y",valueRange = c(1600, 2450)) %>%
   dyHighlight(highlightCircleSize = 8,highlightSeriesBackgroundAlpha = 0.5,hideOnMouseOut = TRUE) %>%
   dyOptions( strokeWidth= 0) %>%
@@ -783,18 +785,19 @@ dygraph(at_contros_calc_xts, group = "awipev", main="", ylab="Total alkalinity")
   dyEvent(as.POSIXct("2017-03-21 12:00:00", tz="GMT"), "TA analyser changed", labelLoc = "bottom", color="red") %>%
   dyEvent(as.POSIXct("2018-01-08 12:55:00", tz="GMT"), "TA analyser changed #TA-0317-001", labelLoc = "bottom", color="red") %>%
   dyEvent(as.POSIXct("2018-07-31 00:00:00", tz="GMT"), "TA analyser changed #TA-1215-001", labelLoc = "bottom", color="red") %>%
-    dyEvent(as.POSIXct("2018-10-30 18:00:00", tz="GMT"), "TA analyser changed #TA-0317-001", labelLoc = "bottom", color="red") %>%
+  dyEvent(as.POSIXct("2018-10-30 18:00:00", tz="GMT"), "TA analyser changed #TA-0317-001", labelLoc = "bottom", color="red") %>%
   dyEvent(as.POSIXct("2016-11-15 09:00:00", tz="GMT"), "CRM measurement", labelLoc = "bottom") %>% 
   dyEvent(as.POSIXct("2017-02-09 12:20:00", tz="GMT"), "CRM measurement", labelLoc = "bottom") %>% 
   dyEvent(as.POSIXct("2017-04-11 06:20:00", tz="GMT"), "CRM measurement", labelLoc = "bottom") %>% 
   dyEvent(as.POSIXct("2018-01-22 13:00:12", tz="GMT"), "CRM measurement", labelLoc = "bottom") %>%
   dyEvent(as.POSIXct("2018-05-16 12:39:39", tz="GMT"), "CRM measurement", labelLoc = "bottom") %>%
+  dyEvent(as.POSIXct("2018-10-31 10:29:27", tz="GMT"), "CRM measurement", labelLoc = "bottom") %>%
   #dyOptions(colors = RColorBrewer::brewer.pal(3, "Dark2"), pointSize = 4) %>%
   dyShading(from = TAevents[1], to = TAevents[2], color = "#EDEDED") %>%
   dyShading(from = TAevents[3], to = TAevents[4], color = "#C2C2C2") %>%
   dyShading(from = TAevents[5], to = TAevents[6], color = "#EDEDED") %>%
-  dyShading(from = TAevents[6], to = TAevents[7], color = "#C2C2C2") %>%
-  dyShading(from = TAevents[7], to = TAevents[8], color = "#EDEDED") %>%
+  dyShading(from = TAevents[7], to = TAevents[8], color = "#C2C2C2") %>%
+  dyShading(from = TAevents[8], to = TAevents[9], color = "#EDEDED") %>%
   dyAxis("y",valueRange = c(2100, 2450)) %>%
   dyHighlight(highlightCircleSize = 8,highlightSeriesBackgroundAlpha = 0.5,hideOnMouseOut = TRUE) %>%
   dyOptions( strokeWidth= 0) %>%
