@@ -10,7 +10,7 @@ output:
 ---
 ![ ](Images/AWIPEV-Logo.jpg){width=250px}
 
-```{r set-up, echo=FALSE, warning=FALSE, message=FALSE}
+```{r set-up, echo=FALSE, warning=FALSE, message=FALSE, include=FALSE}
 Sys.setlocale("LC_ALL", "en_US.UTF-8")
 Sys.setenv(TZ='UTC') # on utilise UTC
 rm(list = ls())
@@ -1331,56 +1331,75 @@ ggsave(paste0(path, "fb_figures/SNAPO/delta_ct_awipev_snapo.png"), pdelta_ct_sna
 
 ##Maintenance
 <div style="text-align: justify"> 
-- **2018-10-15**: FB is stopped after a seawater leakage. 
+
+###**REMOS**
+- **2018-11-24**: REMOS stopped because of an iceberg. At the moment we dont know if instruments are still there/broken.
+
+###**FerryBox**
+- **2018-10-12**: FB is working again. 
 - **2018-10-10**: FB is stopped after a seawater leakage. 
-- **2018-07-31**: TA analyser was received (SN TA-1215-001) and pluged again. First data were received (high: 2450 and low: 2150) but salinity issue since this time. Uwe/Philipp try to find if this comes from comunication issue with the FB.
-- **2018-06-20**: TA analyser was stopped in order to save reagents because leakage in degasing unit is not solved. Email was sent to Steffen.
-- **2018-04-17**: seaFET #1005 was changed on the REMOS and seaFET #007 (from Villefranche) was installed. Continuous mode with external power supply was set and internal pack of baterries was removed. Old seaFET will be brought back to France with Samir.
-- **2018-04-16**: *p*CO~2~ analyser switching by Uwe and Samir. S/N CO2FT-0515-001 is now installed. Old *p*CO~2~ sensor will be brought back to France with Samir.
-- **2018-04-14**: Ferrybox is working again. They made an outlet "by-pass" tube to flush the seawater directly on the beach, not at 11 m.  
-- **2018-03-09**: #007 seaFET currently in USA will be sent by seabird to NYA. #1005 seaFET currently in NYA will be sent to USA for update, following all external issues, for free.
+- **2018-10-08**: FB is working again. 
+- **2018-10-05**: FB is stopped after a seawater leakage. 
+- **2018-09-12**: FB is stopped. Problems inland could be the reason. The same day Marine make it working again.
+- **2018-04-14**: FB is working again. They made an outlet "by-pass" tube to flush the seawater directly on the beach, not at 11 m.
 - **2018-03-08**: Last data at 23:59. Frozen Ferrybox system (outlet tubings) in Svalbard, maybe due to a power failure over night in Kingsbay. UWO parameters (seaFET and SBE38 are still runing)
-- **2018-02-02**: Based on Darrell's advices (SeaBird), Philipp implemented the seaFET as: 1h periodic sampling with the following commands: perdival 1h, navg 5, brstsize 1, opermode periodic. 
-- **2018-01-05**: TA analyser switched on and first communication tests. S/N TA-0317-001.
-- **2017-12-29**: "SVL_20171218_010426.dat" from seaFet data was deleted because of bug with its size (0 octect). pH filter was added to "ny_alesund_cc" file for seaFet data (<7.5 and <8.5).
-- **2017-10-30**: (13:00 UTC) Durafet holder was changed by Benoit and the new one (made by Uwe) more larger (all the durafet's body is plunge in the seawater) was installed.
-- **2017-08-24**: One durafet was installed in the Ferrybox and seaFET #1005 on the REMOS into the field.
-- **2017-08-23**: The 2 TA analysers were sent to Contros for repair, 1 will be sent back to NYA after. No more TA data during this period.
 - **2017-05-24**: FerryBox was shut down due to many connexion issues...see Philipp's email 24/05/2017 18:17.
+- **2017-03-20**: Philipp arrived in NYA to solve the problem.
+- **2017-03-11**: Iceberg destroyed the power-pumps cables (Philipp's email on 2017-03-11 10:40). No more data for all parameters.
+- **2017-01-31**: Beginning of the 14-days FB maintenance by Philipp and Uwe. Gaps in data could be present during this period.
+- **2017-01-17**: Ferrybox stopped for unknown reasons from 2017-01-17 21:00 to 2017-01-19.
+- **2016-09-24**: No data because of maintenance until the 28th. Except for TA wich has data available for this period.
+- **2016-09-20**: Test in the Ferrybox with the seawater. Seawater was "sucked" (not pumped) from 7:40 to 10:00 by a vaccum system in order to test it. This system was installed if the pumps 1 and 2 broke during winter. This is a "plan C". This system is not automatic and we will be informed about its power up in case of emergency. As long as the water is not pumped with this system, we have to monitor the data because changements in gas partial pressure can occur.
+- **2016-09-12**: No data because of maintenance until the 18th.
+- **2016-09-10**: No data because of maintenance until the 11th.
+- **2016-05-09**: data are back.
+- **2016-05-04**: No data for all parameters because of electricity issues. 
+- **2016-04-23**: FerryBox was shut down by AWI team for maintenance.
+- **2016-02-23**: FerryBox was switched on by AWI team after maintenance.
+- **2015-12-20**: FerryBox was shut down because of pump issues. Waiting for the maintenance in February.
+- **2015-11-27**: The ferrybox was down from Nov. 18th until today Nov. 27th. (emails from P.Fischer 2015-11-24 23:09 and Station Leader AWIPEV 2015-11-27 12:57). Tubes frozen.
+ 
+###**TA analyser**
+- **2018-11-26**: TA analyser was stopped in order to save reagents because of filter issues.
+- **2018-10-31**: New TA analyser (SN 0317-001) was installed with a new membrane inside (completely new technology). Tests were made with Steffen from KM Contros.
+- **2018-07-31**: TA analyser was received (SN TA-1215-001) and pluged again. First data were received (high: 2450 and low: 2150) but salinity issue since this time. Uwe/Philipp try to find if this comes from comunication issue with the FB.
+- **2018-06-20**: TA analyser was stopped in order to save reagents because leakage in degasing unit is not solved. Email was sent to Steffen. 
+- **2018-01-05**: TA analyser switched on and first communication tests. S/N TA-0317-001.
+- **2017-08-23**: The 2 TA analysers were sent to Contros for repair, 1 will be sent back to NYA after. No more TA data during this period.
 - **2017-04-06**: (12:30 UTC) Christelle repaired TA analyser by removing air bubbles in Acid tubings (advices from Steffen).
 - **2017-04-01**: No more TA data...waiting for a diagnostic by Contros.
 - **2017-03-31**: (11:00 UTC) Christelle switched on TA analyser.
 - **2017-03-30**: (07:30 UTC) Christelle switched TA analyser on "standby" because of cartridge leakage issue (3 ways connector broken).
 - **2017-03-21**: Philipp changed the TA analyser provided by Contros.
-- **2017-03-20**: Philipp arrived in NYA to solve the problem.
-- **2017-03-11**: Iceberg destroyed the power-pumps cables (Philipp's email on 2017-03-11 10:40). No more data for all parameters.
 - **2017-02-10**: TA cleaning salt crusts.
 - **2017-02-09**: TA calibration with CRM at 12:20.
-- **2017-02-07**: pCO2 analyser switching by Uwe. S/N CO2FT-0215-001 is now installed.
-- **2017-01-31**: Beginning of the 14-days maintenance by Philipp and Uwe. Gaps in data could be present during this period.
 - **2017-01-20**: The date issue with TA analyser since 201-01-07 was fixed by Uwe with a restart of the Ferrybox Module around 14:00 UTC.
-- **2017-01-17**: Ferrybox stopped for unknown reasons from 2017-01-17 21:00 to 2017-01-19 
 - **2016-11-15**: TA calibration done by Christelle with Dickson CRM run as regular sample (measure mode). Data of this calibration do not appear on plot because TA analyser is disconnected from the FerryBox.
- - **2016-09-24**: No data because of maintenance until the 28th. Except for TA wich has data available for this period.
- - **2016-09-20**: Test in the Ferrybox with the seawater. Seawater was "sucked" (not pumped) from 7:40 to 10:00 by a vaccum system in order to test it. This system was installed if the pumps 1 and 2 broke during winter. This is a "plan C". This system is not automatic and we will be informed about its power up in case of emergency. As long as the water is not pumped with this system, we have to monitor the data because changements in gas partial pressure can occur.
- - **2016-09-16**: Cleaning of the TA analyser removing all the salt crusts from the bottom of the degazing unit (Samir).
- - **2016-09-13**: Changement of the *p*CO~2~ S/N CO2FT-0515-001 membrane (Uwe from 4H-Jena).
- - **2016-09-12**: No data because of maintenance until the 18th.
- - **2016-09-10**: No data because of maintenance until the 11th.
- - **2016-07-20**: Cross filter was cleanned by Obs. eng. with 10-15 min tape water flush.
- - **2016-06-24**: BCG cartridge was changed (Christelle, ObsEng).
- - **2016-05-31**: HCL cartridge was changed (Christelle, ObsEng).
- - **2016-05-09**: data are back.
- - **2016-05-04**: No data for all parameters because of electricity issues. 
- - **2016-05-01**: No data for TA.
- - **2016-04-26**: Salt crusts inside the TA analyser appeared during deployment (see pictures) were removed by René Burgi (Observatory engineer) according to Contros advices (email from Steffen Assmann 13/04/2016 10:30).
- - **2016-04-23**: FerryBox was shut down by AWI team for maintenance.
- - **2016-02-28**: *p*CO~2~ analyser (S/N CO2FT-0215-001) was sent to calibration and the second *p*CO~2~ analyser (S/N: CO2FT-0515-001) have been installed.
- - **2016-02-23**: FerryBox was switched on by AWI team after maintenance.
- - **2015-12-20**: FerryBox was shut down because of pump issues. Waiting for the maintenance in February.
- - **2015-11-27**: The ferrybox was down from Nov. 18th until today Nov. 27th. (emails from P.Fischer 2015-11-24 23:09 and Station Leader AWIPEV 2015-11-27 12:57). Tubes frozen.
- - **2015-10-13**: we put back the spike.pCO2 to 600 because data in October reached more than 350 µAtm. We let this like that and we are going to deal with it manually later if needed.
- - **2015-09-28**: we put the spike.pCO2 (detection of peaks: threshold) at 350 to remove anomalies on the 12 and 15 September. We have to monitor data. If data reach this value, then problem.
+- **2016-09-16**: Cleaning of the TA analyser removing all the salt crusts from the bottom of the degazing unit (Samir).
+- **2016-06-24**: BCG cartridge was changed (Christelle, ObsEng).
+- **2016-05-31**: HCL cartridge was changed (Christelle, ObsEng).
+- **2016-05-01**: No data for TA.
+- **2016-04-26**: Salt crusts inside the TA analyser appeared during deployment (see pictures) were removed by René Burgi (Observatory engineer) according to Contros advices (email from Steffen Assmann 13/04/2016 10:30).
+ 
+###**pH seaFET**
+- **2018-04-17**: seaFET #1005 was changed on the REMOS and seaFET #007 (from Villefranche) was installed. Continuous mode with external power supply was set and internal pack of baterries was removed. Old seaFET will be brought back to France with Samir.
+- **2018-03-09**: #007 seaFET currently in USA will be sent by seabird to NYA. #1005 seaFET currently in NYA will be sent to USA for update, following all external issues, for free.
+- **2017-08-24**: seaFET #1005 was installed on the REMOS into the field.
+ 
+###**Cross-Flow filter**
+- **2018-11-01**: The filter clogged a lot of time even after acid cycles. It was not replaced since its initial installation with the TA analyser. We think to replace it soon.
+- **2016-07-20**: Cross filter was cleanned by Obs. eng. with 10-15 min tape water flush.
+
+###**durafet**
+- **2017-10-30**: (13:00 UTC) Durafet holder was changed by Benoit and the new one (made by Uwe) more larger (all the durafet's body is plunge in the seawater) was installed.
+- **2017-08-24**: durafet was installed.
+
+###***p*CO~2~**
+- **2018-10-31**: *p*CO~2~ analyser (S/N: CO2FT-0215-001) have been installed and *p*CO~2~ analyser (S/N: CO2FT-0515-001) was brought back to France and waiting 2019 fundings to bring it for calibration.
+- **2018-04-16**: *p*CO~2~ analyser switching by Uwe and Samir. S/N CO2FT-0515-001 is now installed. Old *p*CO~2~ sensor will be brought back to France with Samir.
+- **2017-02-07**: pCO2 analyser switching by Uwe. S/N CO2FT-0215-001 is now installed.
+- **2016-09-13**: Changement of the *p*CO~2~ S/N CO2FT-0515-001 membrane (Uwe from 4H-Jena).
+- **2016-02-28**: *p*CO~2~ analyser (S/N CO2FT-0215-001) was sent to calibration and the second *p*CO~2~ analyser (S/N: CO2FT-0515-001) have been installed.
 
 <div style="text-align:center" markdown="1">
 <img  src="./Images/2016-04-04_leakage_AT_analyser1.jpg" width="200" height="200">
@@ -1391,14 +1410,21 @@ ggsave(paste0(path, "fb_figures/SNAPO/delta_ct_awipev_snapo.png"), pdelta_ct_sna
 <div style="text-align: justify">  
 Here is reported all important modifications made on *ny-alesund_cc.*. This script is accessible via http://efoce-shiny.obs-vlfr.fr:8787/auth-sign-in.
 
+###**FerryBox**
+- **2018-11-14**: One instrument was removed by Uwe (Chlorophyl-a), that means that one column (CHl_A_Cyclops) was also removed from the Ferrybox data file. Script was modified in consequence.
+
 ###**pH seaFET**
 - **2018-08-30**: voltINT + phINT were filtered from 2017-12-14 to 2018-01-08 and bad data were removed from 2018-01-08 to 2018-02-02. pH spectro from 2018-04-16 07:00:00 was fitted with a mean of 4 days of voltINT in order to make the calibration for this 5th period.
 - **2018-07-30**: Flag location (location_flag) is added in the script to localize seaFET/durafet discrete samples: flag 1 = at the harbor (not takken in consideration) and flag 0 = in the FB for durafet or on site for seaFET (takken in consideration as "normal" sampling"). See seaFET part.
+- **2018-02-02**: Based on Darrell's advices (SeaBird), Philipp implemented the seaFET as: 1h periodic sampling with the following commands: perdival 1h, navg 5, brstsize 1, opermode periodic. 
+- **2017-12-29**: "SVL_20171218_010426.dat" from seaFet data was deleted because of bug with its size (0 octect). pH filter was added to "ny_alesund_cc" file for seaFet data (<7.5 and <8.5).
 
 ###***p*CO~2~**
 - **2018-08-29**: Calibration parameters from #0215-001 were added to "./data/Calibration_pCO2/Data_Processing_sheet_pCO2.csv".
 - **2018-04-20**: For *p*CO~2~ Calibration the previous period (N° 4) was added to the script "ny-alesund_cc" line 466.
-
+- **2015-10-13**: we put back the spike.pCO2 to 600 because data in October reached more than 350 µAtm. We let this like that and we are going to deal with it manually later if needed.
+- **2015-09-28**: we put the spike.pCO2 (detection of peaks: threshold) at 350 to remove anomalies on the 12 and 15 September. We have to monitor data. If data reach this value, then problem.
+ 
 ###**SNAPO**
 - **2018-08-30**: flag of 1 AT duplicate (2205) from 2017-08-31 was put to 3 (dosage douteux).
 
