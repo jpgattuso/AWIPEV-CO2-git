@@ -433,7 +433,7 @@ dygraph(seafet_contros_xts, group = "awipev", main="pH seaFET (in situ)", ylab="
     dyHighlight(highlightCircleSize = 8,highlightSeriesBackgroundAlpha = 0.5,hideOnMouseOut = TRUE) %>%
     dyOptions(drawGrid = TRUE, drawPoints = TRUE, pointSize = c(1,8,1),useDataTimezone = TRUE, digitsAfterDecimal=4) %>%
     dyRangeSelector(height = 30) 
-
+##
 # to create periods according to TA deployments
 TAevents <- c("2016-02-26 00:00:00", "2017-02-09 12:00:00", "2017-02-09 12:00:00", "2017-03-10 12:00:00", 
               "2018-01-07 00:00:00", "2018-06-20 00:00:00",  "2018-07-31 00:00:00","2018-10-30 18:00:00", format(Sys.Date(), "%Y-%m-%d %H:%M:%S"))
