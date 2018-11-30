@@ -374,7 +374,7 @@ dygraph(sal_fb_xts, group = "awipev", main="Salinity", ylab="Salinity") %>%
       dySeries("sal_fb", color = "blue", strokeWidth = 0, label = "S") %>%
       dyHighlight(highlightCircleSize = 8,highlightSeriesBackgroundAlpha =0.2,hideOnMouseOut =TRUE) %>%
       dyOptions(drawGrid = TRUE, drawPoints = TRUE, pointSize = 2,useDataTimezone = TRUE) %>%
-      dyRangeSelector(height = 30)
+      dyRangeSelector(height = 30, dateWindow= NULL)
 # TEMP Ferrybox SBE45
 temp_fb_xts <- dplyr::select(d_all, datetime, temp_fb)
 temp_fb_xts <- as.xts(temp_fb_xts, order.by = temp_fb_xts$datetime)
@@ -383,7 +383,7 @@ dygraph(temp_fb_xts, group = "awipev", main="Temperature (in Ferrybox)", ylab="T
       dyAxis("y", valueRange = c(-2.5, 9.5)) %>%
       dyHighlight(highlightCircleSize = 8,highlightSeriesBackgroundAlpha = 0.5,hideOnMouseOut = TRUE) %>%
       dyOptions(drawGrid = TRUE, drawPoints = TRUE, pointSize = 2,useDataTimezone = TRUE) %>%
-      dyRangeSelector(height = 30)
+      dyRangeSelector(height = 30, dateWindow= NULL)
 # TEMP insitu SBE38
 temp_insitu_xts <- dplyr::select(d_all, datetime, temp_insitu)
 temp_insitu_xts <- as.xts(temp_insitu_xts, order.by = temp_insitu_xts$datetime)
@@ -392,7 +392,7 @@ dygraph(temp_insitu_xts, group = "awipev", main="Temperature (in situ)", ylab="T
       dyAxis("y", valueRange = c(-2.5, 9.5)) %>%
       dyHighlight(highlightCircleSize = 8,highlightSeriesBackgroundAlpha = 0.5,hideOnMouseOut = TRUE) %>%
       dyOptions(drawGrid = TRUE, drawPoints = TRUE, pointSize = 2,useDataTimezone = TRUE) %>%
-      dyRangeSelector(height = 30)
+      dyRangeSelector(height = 30, dateWindow= NULL)
 # PCO2 
 #+ Ajout de la pCO2 corrigé par le script contros (dans R server ny-alesund_cc.R)
 pco2_contros_xts <- dplyr::select(d_all, datetime, pco2calc, pco2_contros, PCO2_Corr_filtered)
@@ -408,7 +408,7 @@ dygraph(pco2_contros_xts, group = "awipev", main="pCO2", ylab="pCO2") %>%
     #dyOptions(colors = RColorBrewer::brewer.pal(3, "Dark2"), pointSize = 4) %>%
     dyHighlight(highlightCircleSize = 8,highlightSeriesBackgroundAlpha = 0.5,hideOnMouseOut = TRUE) %>%
     dyOptions(drawGrid = TRUE, drawPoints = TRUE, pointSize = c(1,8,1),useDataTimezone = TRUE) %>%
-    dyRangeSelector(height = 30)
+    dyRangeSelector(height = 30, dateWindow= NULL)
 # DURAFET 
 durafet_contros_xts <- dplyr::select(d_all, datetime, pH_durafet, pH_s_durafet_temp_field)
 durafet_contros_xts <- as.xts(durafet_contros_xts, order.by = d_all$datetime)
@@ -420,7 +420,7 @@ dygraph(durafet_contros_xts, group = "awipev", main="pH durafet (in Ferrybox)", 
     # dyOptions(colors = RColorBrewer::brewer.pal(3, "Dark2"), pointSize = 4) %>%
     dyHighlight(highlightCircleSize = 8,highlightSeriesBackgroundAlpha = 0.5,hideOnMouseOut = TRUE) %>%
     dyOptions(drawGrid = TRUE, drawPoints = TRUE, pointSize = c(1,8,1),useDataTimezone = TRUE, digitsAfterDecimal=4) %>%
-    dyRangeSelector(height = 30) 
+    dyRangeSelector(height = 30, dateWindow= NULL) 
 # SEAFET 
 seafet_contros_xts <- dplyr::select(d_all, datetime, phINT_filtered,pH_s_seafet_temp_field)
 seafet_contros_xts <- as.xts(seafet_contros_xts, order.by = d_all$datetime)
@@ -432,7 +432,7 @@ dygraph(seafet_contros_xts, group = "awipev", main="pH seaFET (in situ)", ylab="
   dyEvent(as.POSIXct("2018-04-17 12:00:00", tz="GMT"), "seaFET #0007 installed + continuous mode set", labelLoc = "bottom", color="red") %>%
     dyHighlight(highlightCircleSize = 8,highlightSeriesBackgroundAlpha = 0.5,hideOnMouseOut = TRUE) %>%
     dyOptions(drawGrid = TRUE, drawPoints = TRUE, pointSize = c(1,8,1),useDataTimezone = TRUE, digitsAfterDecimal=4) %>%
-    dyRangeSelector(height = 30) 
+    dyRangeSelector(height = 30, dateWindow= NULL) 
 ##
 # to create periods according to TA deployments
 TAevents <- c("2016-02-26 00:00:00", "2017-02-09 12:00:00", "2017-02-09 12:00:00", "2017-03-10 12:00:00", 
@@ -469,7 +469,7 @@ dygraph(at_contros_cleaned_xts, group = "awipev", main=" Total Alkalinity (in Fe
   dyHighlight(highlightCircleSize = 8,highlightSeriesBackgroundAlpha = 0.5,hideOnMouseOut = TRUE) %>%
   dyOptions( strokeWidth= 0) %>%
   dyOptions(drawGrid = TRUE, drawPoints = TRUE,useDataTimezone = TRUE) %>%
-    dyRangeSelector(height = 30) 
+    dyRangeSelector(height = 30, dateWindow= NULL) 
  
 f <- as.data.frame(table(d_all$at))
 sum(f$Freq)
@@ -721,7 +721,7 @@ dygraph(at_contros_cleaned_xts, group = "awipev", main=" Total Alkalinity (in Fe
   dyHighlight(highlightCircleSize = 8,highlightSeriesBackgroundAlpha = 0.5,hideOnMouseOut = TRUE) %>%
   dyOptions( strokeWidth= 0) %>%
   dyOptions(drawGrid = TRUE, drawPoints = TRUE,useDataTimezone = TRUE) %>%
-    dyRangeSelector(height = 30) 
+    dyRangeSelector(height = 30, dateWindow= NULL) 
 
 ```
 
@@ -802,7 +802,7 @@ dygraph(at_contros_calc_xts, group = "awipev", main="", ylab="Total alkalinity")
   dyHighlight(highlightCircleSize = 8,highlightSeriesBackgroundAlpha = 0.5,hideOnMouseOut = TRUE) %>%
   dyOptions( strokeWidth= 0) %>%
   dyOptions(drawGrid = TRUE, drawPoints = TRUE,useDataTimezone = TRUE) %>%
-    dyRangeSelector(height = 30)
+    dyRangeSelector(height = 30, dateWindow= NULL)
 
 # Property plots : x= at (discretes data), y = at_contros/at_contros_rep/at_calibrated/at_calibrated_rep
 ```
@@ -859,7 +859,7 @@ dygraph(pco2_contros_xts, group = "awipev", main="pCO2", ylab="pCO2") %>%
     #dyOptions(colors = RColorBrewer::brewer.pal(3, "Dark2"), pointSize = 4) %>%
     dyHighlight(highlightCircleSize = 8,highlightSeriesBackgroundAlpha = 0.5,hideOnMouseOut = TRUE) %>%
     dyOptions(drawGrid = TRUE, drawPoints = TRUE, pointSize = c(1,8,1),useDataTimezone = TRUE) %>%
-    dyRangeSelector(height = 30)
+    dyRangeSelector(height = 30, dateWindow= NULL)
     ```
 
 ## pH seaFET
@@ -1023,7 +1023,7 @@ dygraph(seafet_contros_xts, group = "awipev", main="pH seaFET (in situ)", ylab="
   dyShading(from = sfinterv[7], to= sfinterv[8], color = "#CCCCCC") %>%
   dyHighlight(highlightCircleSize = 8,highlightSeriesBackgroundAlpha = 0.5,hideOnMouseOut = TRUE) %>%
   dyOptions(drawGrid = TRUE, drawPoints = TRUE, pointSize = c(1,8,1),useDataTimezone = TRUE, digitsAfterDecimal=4) %>%
-  dyRangeSelector(height = 30) 
+  dyRangeSelector(height = 30, dateWindow= NULL) 
 
 # Offset between seafet pH and spec pH 
 sfoffset <- left_join(sfPeriod[,c(1,2)], d_all%>%dplyr::select(datetime, pHint_tot_sf), by="datetime")
@@ -1119,7 +1119,7 @@ durafet_contros_xts <- as.xts(durafet_contros_xts, order.by = d_all$datetime)
     dyShading(from = durinterv[6], to= durinterv[7], color = "#E0E0E0") %>%
     dyHighlight(highlightCircleSize = 8,highlightSeriesBackgroundAlpha = 0.5,hideOnMouseOut = TRUE) %>%
     dyOptions(drawGrid = TRUE, drawPoints = TRUE, pointSize = c(1,8,1),useDataTimezone = TRUE, digitsAfterDecimal=4) %>%
-    dyRangeSelector(height = 30) 
+    dyRangeSelector(height = 30, dateWindow= NULL) 
 
 print(plot_offset_dur)
 ```
@@ -1173,7 +1173,7 @@ dygraph(durafet_sf_contros_xts, group = "awipev", main="pH durafet vs pH seaFET 
     # dyOptions(colors = RColorBrewer::brewer.pal(3, "Dark2"), pointSize = 4) %>%
     dyHighlight(highlightCircleSize = 8,highlightSeriesBackgroundAlpha = 0.5,hideOnMouseOut = TRUE) %>%
     dyOptions(drawGrid = TRUE, drawPoints = TRUE, pointSize = c(1,8,1),useDataTimezone = TRUE, digitsAfterDecimal=4) %>%
-    dyRangeSelector(height = 30) 
+    dyRangeSelector(height = 30, dateWindow= NULL) 
 ```
 
 ###**calculated / durafet pHs**
@@ -1209,7 +1209,7 @@ dygraph(durafet_calc_contros_xts, group = "awipev", main="pH calculated vs pH du
     # dyOptions(colors = RColorBrewer::brewer.pal(3, "Dark2"), pointSize = 4) %>%
     dyHighlight(highlightCircleSize = 8,highlightSeriesBackgroundAlpha = 0.5,hideOnMouseOut = TRUE) %>%
     dyOptions(drawGrid = TRUE, drawPoints = TRUE, pointSize = c(1,8,1),useDataTimezone = TRUE, digitsAfterDecimal=4) %>%
-    dyRangeSelector(height = 30)
+    dyRangeSelector(height = 30, dateWindow= NULL)
 ```
 
 ###**calculated / seaFET pHs**
@@ -1237,7 +1237,7 @@ dygraph(seafet_calc_contros_xts, group = "awipev", main="pH calculated vs pH sea
     # dyOptions(colors = RColorBrewer::brewer.pal(3, "Dark2"), pointSize = 4) %>%
     dyHighlight(highlightCircleSize = 8,highlightSeriesBackgroundAlpha = 0.5,hideOnMouseOut = TRUE) %>%
     dyOptions(drawGrid = TRUE, drawPoints = TRUE, pointSize = c(1,8,1),useDataTimezone = TRUE, digitsAfterDecimal=4) %>%
-    dyRangeSelector(height = 30)
+    dyRangeSelector(height = 30, dateWindow= NULL)
 ```
 
 ## SNAPO-CO2
@@ -1320,7 +1320,7 @@ pdelta_at_snapo_dygraph <- dygraph(at_diff_xts, group = "awipev", main="Discrete
     dyAxis("y2", axisLineColor="blue", axisLabelColor = "blue", axisLineWidth=5) %>%
     dyHighlight(highlightCircleSize = 8,highlightSeriesBackgroundAlpha = 0.5,hideOnMouseOut = TRUE) %>%
     dyOptions(drawGrid = TRUE, drawPoints = TRUE, pointSize = c(1,8,1),useDataTimezone = TRUE, digitsAfterDecimal=2) %>%
-    dyRangeSelector(height = 30) 
+    dyRangeSelector(height = 30, dateWindow= NULL) 
 
 ct_diff_xts <- dplyr::select(diff, datetime, ct_diff, ct)
 ct_diff_xts <- as.xts(ct_diff_xts, order.by = diff$datetime)
@@ -1332,7 +1332,7 @@ pdelta_ct_snapo_dygraph <- dygraph(ct_diff_xts, group = "awipev", main="Discrete
     dyAxis("y2", axisLineColor="blue", axisLabelColor = "blue", axisLineWidth=5) %>%
     dyHighlight(highlightCircleSize = 8,highlightSeriesBackgroundAlpha = 0.5,hideOnMouseOut = TRUE) %>%
     dyOptions(drawGrid = TRUE, drawPoints = TRUE, pointSize = c(1,8,1),useDataTimezone = TRUE, digitsAfterDecimal=2) %>%
-    dyRangeSelector(height = 30) 
+    dyRangeSelector(height = 30, dateWindow= NULL) 
 
 pdelta_at_snapo
 pdelta_at_snapo_dygraph
