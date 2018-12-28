@@ -1065,7 +1065,7 @@ durPeriod <-  durPeriod %>%
   dplyr::mutate(middle=  seconds_to_period(c(0,difftime(time1= datetime[-1], time2= datetime[-nrow(durPeriod)])/2* 3600 *24)))%>%
   dplyr::mutate(dur_interval = datetime + middle[2:nrow(durPeriod)])
 
-#put interval in a list with the start date of seaFET measurements
+#put interval in a list with the start date of durafet measurements
 durinterv <- c( as_datetime("2017-08-24 13:00:00"), durPeriod[,4])
  
 # set deployment period between 2 spectro measurements.
@@ -1077,7 +1077,10 @@ d_all <- d_all %>%
                                 ifelse(datetime >= durinterv[4] & datetime <= durinterv[5], 04,
                                 ifelse(datetime >= durinterv[5] & datetime <= durinterv[6], 05,
                                 ifelse(datetime >= durinterv[6] & datetime <= durinterv[7], 06,
-                                ifelse(datetime >= durinterv[7] & datetime <= durinterv[8], 08, NA ))))))))
+                                ifelse(datetime >= durinterv[7] & datetime <= durinterv[8], 07,
+                                ifelse(datetime >= durinterv[8] & datetime <= durinterv[9], 08,
+                                ifelse(datetime >= durinterv[9] & datetime <= durinterv[10], 09,
+                                ifelse(datetime >= durinterv[10] & datetime <= durinterv[11], 10, NA )))))))))))
 
 # Offset between durafet pH and spec pH 
 duroffset <- left_join(durPeriod[,c(1,2)], d_all[,c(1,18)], by="datetime")
@@ -1089,7 +1092,7 @@ n_offset_dur <- length(!is.na(dat_dur$diff_pH_dur))
 
 plot_offset_dur <- ggplot(data = filter(dat_dur, !is.na(diff_pH_dur))) +
   geom_hline(yintercept=mean(dat_dur$diff_pH_dur, na.rm = TRUE), size=0.3, col="red") +
-  annotate("text", x = dat_dur$datetime[3], y = -0.16, label = "offset mean", color="red")+
+  annotate("text", x = dat_dur$datetime[3], y =-0.16, label = "offset mean", color="red")+
   geom_hline(yintercept=0, size=0.3) +
   geom_point(aes(x = datetime, y = diff_pH_dur), size = 1, colour = "#51C56AFF") +
   labs(x = NULL, y=expression(paste(pH[T], " difference")), title = NULL) +
@@ -1104,7 +1107,11 @@ d_all <- d_all%>%
                                 ifelse(deployment_dur == 3, dat_dur$diff_pH_dur[3],
                                 ifelse(deployment_dur == 4, dat_dur$diff_pH_dur[4],
                                 ifelse(deployment_dur == 5, dat_dur$diff_pH_dur[5],
-                                ifelse(deployment_dur == 6, dat_dur$diff_pH_dur[6], 0)))))),
+                                ifelse(deployment_dur == 6, dat_dur$diff_pH_dur[6],
+                                ifelse(deployment_dur == 7, dat_dur$diff_pH_dur[7],
+                                ifelse(deployment_dur == 8, dat_dur$diff_pH_dur[8],
+                                ifelse(deployment_dur == 9, dat_dur$diff_pH_dur[9],
+                                ifelse(deployment_dur == 10, dat_dur$diff_pH_dur[10], 0)))))))))),
               pH_durafet_corrected = pH_durafet + offset_durafet
               )
 # DURAFET 
@@ -1123,6 +1130,10 @@ durafet_contros_xts <- as.xts(durafet_contros_xts, order.by = d_all$datetime)
     dyShading(from = durinterv[4], to= durinterv[5], color = "#E0E0E0") %>%
     dyShading(from = durinterv[5], to= durinterv[6], color = "#CCCCCC") %>%
     dyShading(from = durinterv[6], to= durinterv[7], color = "#E0E0E0") %>%
+   dyShading(from = durinterv[7], to= durinterv[8], color = "#CCCCCC") %>%
+   dyShading(from = durinterv[8], to= durinterv[9], color = "#E0E0E0") %>%
+   dyShading(from = durinterv[9], to= durinterv[10], color = "#CCCCCC") %>%
+   dyShading(from = durinterv[10], to= durinterv[11], color = "#E0E0E0") %>%
     dyHighlight(highlightCircleSize = 8,highlightSeriesBackgroundAlpha = 0.5,hideOnMouseOut = TRUE) %>%
     dyOptions(drawGrid = TRUE, drawPoints = TRUE, pointSize = c(1,8,1),useDataTimezone = TRUE, digitsAfterDecimal=4) %>%
     dyRangeSelector(height = 30, dateWindow= NULL) 
