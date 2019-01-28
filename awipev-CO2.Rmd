@@ -1391,7 +1391,8 @@ ggsave(paste0(path, "fb_figures/SNAPO/delta_ct_awipev_snapo.png"), pdelta_ct_sna
 - **2015-11-27**: The ferrybox was down from Nov. 18th until today Nov. 27th. (emails from P.Fischer 2015-11-24 23:09 and Station Leader AWIPEV 2015-11-27 12:57). Tubes frozen.
  
 ###**TA analyser**
-- **2019-01-26**: Philipp di the TA caibration: T0 with CRM 145.Beginning of a 3-months period.
+- **2019-01-26**: Philipp did the TA caibration: T0 with CRM 145.Beginning of a 3-months period. Flow filter was also lifted up and the saewater flow was rised up.
+- **2019-01-16**: Bad data since this date. 
 - **2018-12-28**: HCL and BCG cartridges were changed by Marine.
 - **2018-11-26**: TA analyser was stopped in order to save reagents because of filter issues.
 - **2018-11-20**: A web interface was created by KM Contros to access the TA via VPN and Virtual Machine (VNC viewer). Samir received password and access from the AWI in order to communicate from France with the TA.                  
@@ -1421,6 +1422,7 @@ ggsave(paste0(path, "fb_figures/SNAPO/delta_ct_awipev_snapo.png"), pdelta_ct_sna
 - **2017-08-24**: seaFET #1005 was installed on the REMOS into the field.
  
 ###**Cross-Flow filter**
+- **2019-01-26**: The filter was lifted up in order to fix the flow problem. 
 - **2018-11-01**: The filter clogged a lot of time even after acid cycles. It was not replaced since its initial installation with the TA analyser. We think to replace it soon.
 - **2016-07-20**: Cross filter was cleanned by Obs. eng. with 10-15 min tape water flush.
 
