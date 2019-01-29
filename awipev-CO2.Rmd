@@ -1259,11 +1259,9 @@ dygraph(seafet_calc_contros_xts, group = "awipev", main="pH calculated vs pH sea
 ```
 
 ## SNAPO-CO2
-We found that some analysed discrete seawater replicates for AT/CT, performed by SNAPO in Paris sometimes show a large difference between duplicates.
-Arbitrary, we decided to take in consideration replicates with a standard deviation smaller than 10 µmoles.kg-1. In the other case (greater than 10 µmoles.kg-1), the closest replicate from the general trend will be kept with qflag_at/qflag_ct of 2 (correct analysis) and the farthest one will be rejected with a flag of 1.
-There are exceptions when it is difficult to decide which of the replicates need to be eliminated.
+We found that some analysed discrete seawater replicates for AT/CT, performed by SNAPO in Paris sometimes show a large difference between duplicates. Arbitrarily, we decided to take in consideration replicates with a standard deviation smaller than 10 µmoles.kg-1. In the other case (greater than 10 µmoles.kg-1), the closest replicate from the general trend will be kept with qflag_at/qflag_ct of 2 (correct analysis) and the farthest one will be rejected with a flag of 1. There are exceptions when it is difficult to decide which of the replicates need to be eliminated.
 
-For TA, dupicates's flags that have been changed to 1 are:
+For TA, dulpicates's flags that have been changed to 1 are:
 
 - 2015-11-18
 - 2016-07-28
@@ -1281,7 +1279,7 @@ For TA, dupicates's flags that have been changed to 1 are:
 - 2018-06-30
 - 2018-07-27
 
-For CT, dupicates's flags that have been changed to 1 are:
+For CT, duplicates's flags that have been changed to 1 are:
 
 - 2015-08-06
 - 2015-08-13
@@ -1360,6 +1358,10 @@ ggsave(paste0(path, "fb_figures/SNAPO/delta_at_awipev_snapo.png"), pdelta_at_sna
 ggsave(paste0(path, "fb_figures/SNAPO/delta_ct_awipev_snapo.png"), pdelta_ct_snapo, units="cm")
 ```
 
+```{r Klara Wolf}
+
+```
+
 ##Maintenance
 <div style="text-align: justify"> 
 
@@ -1391,7 +1393,7 @@ ggsave(paste0(path, "fb_figures/SNAPO/delta_ct_awipev_snapo.png"), pdelta_ct_sna
 - **2015-11-27**: The ferrybox was down from Nov. 18th until today Nov. 27th. (emails from P.Fischer 2015-11-24 23:09 and Station Leader AWIPEV 2015-11-27 12:57). Tubes frozen.
  
 ###**TA analyser**
-- **2019-01-26**: Philipp did the TA caibration: T0 with CRM 145.Beginning of a 3-months period. Flow filter was also lifted up and the saewater flow was rised up.
+- **2019-01-26**: Philipp did the TA calibration: T0 with CRM 145. Beginning of a 3-months period. Flow filter was also lifted up and the seawater flow has therefore increased.
 - **2019-01-16**: Bad data since this date. 
 - **2018-12-28**: HCL and BCG cartridges were changed by Marine.
 - **2018-11-26**: TA analyser was stopped in order to save reagents because of filter issues.
