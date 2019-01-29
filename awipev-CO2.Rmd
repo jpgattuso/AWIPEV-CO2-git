@@ -491,6 +491,8 @@ We identify four periods (see plot at the end of this page with dark and ligth g
 
 A new instrument was installed with Steffen on **2018-10-31**. This new instrument has a complete new designed membrane which will solve the problem. Steffen also developped a TA web interface to communicate remotly with the analyser. Samir has all the passwords and ID to connect.
 
+The instrument is usually calibrated against CRM standards after deployment, CRMs are run after 3 months as samples (measurement mode, not calibration mode), an then immediately calibrated again. This procedure is repeated every 3 months.
+
 ###**Filtration of AT data: outliers removing**
 
 Outliers are present because of the cleaning operations made on the FerryBox everydays at 12:00am and 12:00pm. We first removed the outliers using a filter and decided, after a Skype conference with Steffen on September 2016, to:
@@ -512,7 +514,11 @@ Since this date, the analyser is calibrated by measuring a CRM with the "measure
   - Two methods to correct the drift are available:
     - based on CRMs 
     - based on AT measurement of discrete samples ("references").
-  
+
+####**Calibration**
+
+- 2019-01-29 14:10: calibration started by Philipp Fisher using CRM XXX (XXXXX umol/kg). The three previous measurements were X1, X2, X3 and the three subsequent measurements were Y1, Y2, Y3.
+
 
 ####**CRM measurements**
 
@@ -1144,8 +1150,7 @@ print(plot_offset_dur)
 The average offset between durafet and references (spectro) data is `r average_offset_dur` pH unit (sd = `r sd_offset_dur`, n = `r n_offset_dur`).
 
 ## pHs 
-Comparaison is done here with **corrected pHs** (**seaFET**, **durafet** and **calculated** (from AT/CT)) and normalized at 4°C with a total alkalinity of 2273 µmoles.kg-1 (mean data). 
-For information, mean temperatures in Ferrybox and *in situ* are repectively 3.5°C and 2.5°C.
+Comparaison is done here with **corrected pHs** (**seaFET**, **durafet** and **calculated** (from AT/CT)) and normalized at 4°C with a total alkalinity of 2273 µmoles kg-1 (mean data). For information, mean temperatures in Ferrybox and *in situ* are repectively 3.5°C and 2.5°C.
 
 ###**seaFET / durafet pHs**
 
@@ -1358,9 +1363,12 @@ ggsave(paste0(path, "fb_figures/SNAPO/delta_at_awipev_snapo.png"), pdelta_at_sna
 ggsave(paste0(path, "fb_figures/SNAPO/delta_ct_awipev_snapo.png"), pdelta_ct_snapo, units="cm")
 ```
 
-```{r Klara Wolf}
-
-```
+<!-- ```{r Klara Wolf} -->
+<!-- wolf <- d_all %>% -->
+<!--   dplyr::select(datetime, PCO2_Corr_filtered, phcalc, pH_calc_norm4) %>% -->
+<!--   dplyr::filter(datetime >= "2016-03-01" & datetime <= "2016-09-30") -->
+<!-- write_csv(path = "wolf.csv", wolf, col_names = TRUE) -->
+<!-- ``` -->
 
 ##Maintenance
 <div style="text-align: justify"> 
