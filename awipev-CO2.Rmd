@@ -519,7 +519,9 @@ Since this date, the analyser is calibrated by measuring a CRM with the "measure
 
 ####**Calibration**
 
-- 2019-01-29 14:10: calibration started by Philipp Fisher using CRM XXX (XXXXX umol/kg). The three previous measurements were X1, X2, X3 and the three subsequent measurements were Y1, Y2, Y3.
+- **2019-01-29 14:10**: Calibration started by Philipp Fisher using CRM 145 (2226.16 umol/kg, 33.572). The three previous measurements were 2314.5, 233.8, 2313.7 (analyser stable) and the six subsequent measurements were 2211.8, 2277.5, 2305.4, 2316.6, 2317.9. Error was done with CRM salinity (Analyser was not unplugged from the FB). 
+Steffen's response:
+> Hence, the serial connection should be cut off or the FB module feeding the analyzer with salinity data should be stopped during calibration. The calibration can be recalculated afterwards in the data post-processing. However, I see that the calibration resulted in very similar pH values 3.540 (September calibration) and 3.543 (January calibration) with very similar correction factors 1.2371 and 1.2365. Also the TA values are very similar to the baseline measurements from before at approx. 2316 µM. So for now, it should be fine.  
 
 
 ####**CRM measurements**
