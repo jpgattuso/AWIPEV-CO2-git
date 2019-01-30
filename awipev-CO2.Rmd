@@ -434,10 +434,10 @@ dygraph(seafet_contros_xts, group = "awipev", main="pH seaFET (in situ)", ylab="
     dyHighlight(highlightCircleSize = 8,highlightSeriesBackgroundAlpha = 0.5,hideOnMouseOut = TRUE) %>%
     dyOptions(drawGrid = TRUE, drawPoints = TRUE, pointSize = c(1,8,1),useDataTimezone = TRUE, digitsAfterDecimal=4) %>%
     dyRangeSelector(height = 30, dateWindow= NULL) 
-##
+# TA
 # to create periods according to TA deployments
 TAevents <- c("2016-02-26 00:00:00", "2017-02-09 12:00:00", "2017-02-09 12:00:00", "2017-03-10 12:00:00", 
-              "2018-01-07 00:00:00", "2018-06-20 00:00:00",  "2018-07-31 00:00:00","2018-10-30 18:00:00", format(Sys.Date(), "%Y-%m-%d %H:%M:%S"))
+              "2018-01-07 00:00:00", "2018-06-20 00:00:00", "2018-07-31 00:00:00", "2018-10-30 18:00:00", "2018-10-31 09:00:00", "2019-01-16 09:00:00", "2019-01-26 13:25:00", format(Sys.Date(), "%Y-%m-%d %H:%M:%S"))
 
 at_contros_cleaned_xts <- dplyr::select(d_all, datetime,AT_filtered,at)
 at_contros_cleaned_xts <-  as.xts(at_contros_cleaned_xts, order.by = d_all$datetime)
@@ -450,23 +450,25 @@ dygraph(at_contros_cleaned_xts, group = "awipev", main=" Total Alkalinity (in Fe
   dyEvent(as.POSIXct("2016-06-24 10:00:00", tz="GMT"), "BCG Changed", labelLoc = "bottom") %>%
   dyEvent(as.POSIXct("2016-02-24 14:00:00", tz="GMT"), "Calibration 1", labelLoc = "bottom") %>%
   dyEvent(as.POSIXct("2016-09-16 10:00:00", tz="GMT"), "Calibration 2", labelLoc = "bottom") %>% 
-  dyEvent(as.POSIXct("2017-03-21 12:00:00", tz="GMT"), "TA analyser changed", labelLoc = "bottom", color="red") %>%
-  dyEvent(as.POSIXct("2018-01-08 12:55:00", tz="GMT"), "TA analyser changed #TA-0317-001", labelLoc = "bottom", color="red") %>%
-  dyEvent(as.POSIXct("2018-07-31 00:00:00", tz="GMT"), "TA analyser changed #TA-1215-001", labelLoc = "bottom", color="red") %>%
-  dyEvent(as.POSIXct("2018-10-30 18:00:00", tz="GMT"), "TA analyser changed #TA-0317-001", labelLoc = "bottom", color="red") %>%
+  dyEvent(as.POSIXct("2017-03-21 12:00:00", tz="GMT"), "TA analyser changed", labelLoc = "top", color="red") %>%
+  dyEvent(as.POSIXct("2018-01-08 12:55:00", tz="GMT"), "TA analyser changed #TA-0317-001", labelLoc = "top", color="red") %>%
+  dyEvent(as.POSIXct("2018-07-31 00:00:00", tz="GMT"), "TA analyser changed #TA-1215-001", labelLoc = "top", color="red") %>%
+  dyEvent(as.POSIXct("2018-10-30 18:00:00", tz="GMT"), "TA analyser changed #TA-0317-001", labelLoc = "top", color="red") %>%
   dyEvent(as.POSIXct("2016-11-15 09:00:00", tz="GMT"), "CRM measurement", labelLoc = "bottom") %>% 
   dyEvent(as.POSIXct("2017-02-09 12:20:00", tz="GMT"), "CRM measurement", labelLoc = "bottom") %>% 
   dyEvent(as.POSIXct("2017-04-11 06:20:00", tz="GMT"), "CRM measurement", labelLoc = "bottom") %>% 
   dyEvent(as.POSIXct("2018-01-22 13:00:12", tz="GMT"), "CRM measurement", labelLoc = "bottom") %>%
   dyEvent(as.POSIXct("2018-05-16 12:39:39", tz="GMT"), "CRM measurement", labelLoc = "bottom") %>%
-  dyEvent(as.POSIXct("2018-10-31 10:29:27", tz="GMT"), "CRM measurement", labelLoc = "top") %>%
+  dyEvent(as.POSIXct("2018-10-31 10:29:27", tz="GMT"), "CRM measurement", labelLoc = "bottom") %>%
+  dyEvent(as.POSIXct("2019-01-26 13:25:20", tz="GMT"), "Calibration mode - CRM", labelLoc = "bottom") %>%
   #dyOptions(colors = RColorBrewer::brewer.pal(3, "Dark2"), pointSize = 4) %>%
   dyShading(from = TAevents[1], to = TAevents[2], color = "#EDEDED") %>%
   dyShading(from = TAevents[3], to = TAevents[4], color = "#C2C2C2") %>%
   dyShading(from = TAevents[5], to = TAevents[6], color = "#EDEDED") %>%
   dyShading(from = TAevents[7], to = TAevents[8], color = "#C2C2C2") %>%
-  dyShading(from = TAevents[8], to = TAevents[9], color = "#EDEDED") %>%
-  dyAxis("y",valueRange = c(2100, 2550)) %>%
+  dyShading(from = TAevents[9], to = TAevents[10], color = "#EDEDED") %>%
+  dyShading(from = TAevents[11], to = TAevents[12], color = "#C2C2C2") %>%
+  dyAxis("y",valueRange = c(2000, 2550)) %>%
   dyHighlight(highlightCircleSize = 8,highlightSeriesBackgroundAlpha = 0.5,hideOnMouseOut = TRUE) %>%
   dyOptions( strokeWidth= 0) %>%
   dyOptions(drawGrid = TRUE, drawPoints = TRUE,useDataTimezone = TRUE) %>%
@@ -517,14 +519,16 @@ Since this date, the analyser is calibrated by measuring a CRM with the "measure
 
 ####**Calibration**
 
-- 2019-01-29 14:10: calibration started by Philipp Fisher using CRM XXX (XXXXX umol/kg). The three previous measurements were X1, X2, X3 and the three subsequent measurements were Y1, Y2, Y3.
+- **2019-01-29 14:10**: Calibration started by Philipp Fisher using CRM 145 (2226.16 umol/kg, 33.572). The three previous measurements were 2314.5, 233.8, 2313.7 (analyser stable) and the six subsequent measurements were 2211.8, 2277.5, 2305.4, 2316.6, 2317.9. Error was done with CRM salinity (Analyser was not unplugged from the FB). 
+Steffen's response:
+> Hence, the serial connection should be cut off or the FB module feeding the analyzer with salinity data should be stopped during calibration. The calibration can be recalculated afterwards in the data post-processing. However, I see that the calibration resulted in very similar pH values 3.540 (September calibration) and 3.543 (January calibration) with very similar correction factors 1.2371 and 1.2365. Also the TA values are very similar to the baseline measurements from before at approx. 2316 µM. So for now, it should be fine.  
 
 
 ####**CRM measurements**
 
 The calibration of the sensor is made against a CRM standard from A. Dickson. We run a standard on the analyser as a regular measurement (measurement mode). Result sof calibrations are shown on the following plot.Dashed lines represent the theoritical value of AT (CRM) and hard lines represent CRM measured AT by the instrument.
 
-```{r CRM measurements, echo=FALSE, warning=FALSE, message=FALSE, out.width="60%",fig.show='hold', fig.align="center"}
+```{r CRM measurements, echo=FALSE, warning=FALSE, message=FALSE, out.width="80%",fig.show='hold', fig.align="center"}
 calib_analyser <-  read.table(paste0(path, "fb_data/Calibration/TA_#1215/measure_CRM_TA.txt"), header = T, dec = ".", as.is = T, sep = ",", fill = TRUE)
 
 # To make the mean 
@@ -592,8 +596,10 @@ d_all <- d_all%>%
 d_all <- d_all %>% 
   dplyr::mutate(TA_period= ifelse(datetime >= "2016-02-26 00:00:00" & datetime < "2017-02-09 12:00:00", "TA1",
                             ifelse(datetime >= "2017-02-09 12:00:00" & datetime < "2017-03-10 12:00:00", "TA2",
-                            ifelse(datetime >= "2018-01-07 00:00:00" & datetime < "2018-07-31 00:00:00", "TA3", 
-                            ifelse(datetime >= "2018-07-31 00:00:00" , "TA4", "TA0")))))
+                            ifelse(datetime >= "2018-01-07 00:00:00" & datetime < "2018-06-20 00:00:00", "TA3", 
+                            ifelse(datetime >= "2018-07-31 00:00:00" & datetime < "2018-10-30 18:00:00", "TA4", 
+                            ifelse(datetime >= "2018-10-31 09:00:00" & datetime < "2019-01-16 09:00:00", "TA5",
+                            ifelse(datetime >= "2019-01-26 13:25:00" , "TA6", "TA0")))))))
 
 #remove outliers
 calib_ta_first <- d_all%>%
@@ -708,22 +714,24 @@ dygraph(at_contros_cleaned_xts, group = "awipev", main=" Total Alkalinity (in Fe
   dyEvent(as.POSIXct("2016-06-24 10:00:00", tz="GMT"), "BCG Changed", labelLoc = "bottom") %>%
   dyEvent(as.POSIXct("2016-02-24 14:00:00", tz="GMT"), "Calibration 1", labelLoc = "bottom") %>%
   dyEvent(as.POSIXct("2016-09-16 10:00:00", tz="GMT"), "Calibration 2", labelLoc = "bottom") %>% 
-  dyEvent(as.POSIXct("2017-03-21 12:00:00", tz="GMT"), "TA analyser changed", labelLoc = "bottom", color="red") %>%
-  dyEvent(as.POSIXct("2018-01-08 12:55:00", tz="GMT"), "TA analyser changed #TA-0317-001", labelLoc = "bottom", color="red") %>%
-  dyEvent(as.POSIXct("2018-07-31 00:00:00", tz="GMT"), "TA analyser changed #TA-1215-001", labelLoc = "bottom", color="red") %>%
-  dyEvent(as.POSIXct("2018-10-30 18:00:00", tz="GMT"), "TA analyser changed #TA-0317-001", labelLoc = "bottom", color="red") %>%
+  dyEvent(as.POSIXct("2017-03-21 12:00:00", tz="GMT"), "TA analyser changed", labelLoc = "top", color="red") %>%
+  dyEvent(as.POSIXct("2018-01-08 12:55:00", tz="GMT"), "TA analyser changed #TA-0317-001", labelLoc = "top", color="red") %>%
+  dyEvent(as.POSIXct("2018-07-31 00:00:00", tz="GMT"), "TA analyser changed #TA-1215-001", labelLoc = "top", color="red") %>%
+  dyEvent(as.POSIXct("2018-10-30 18:00:00", tz="GMT"), "TA analyser changed #TA-0317-001", labelLoc = "top", color="red") %>%
   dyEvent(as.POSIXct("2016-11-15 09:00:00", tz="GMT"), "CRM measurement", labelLoc = "bottom") %>% 
   dyEvent(as.POSIXct("2017-02-09 12:20:00", tz="GMT"), "CRM measurement", labelLoc = "bottom") %>% 
   dyEvent(as.POSIXct("2017-04-11 06:20:00", tz="GMT"), "CRM measurement", labelLoc = "bottom") %>% 
   dyEvent(as.POSIXct("2018-01-22 13:00:12", tz="GMT"), "CRM measurement", labelLoc = "bottom") %>%
   dyEvent(as.POSIXct("2018-05-16 12:39:39", tz="GMT"), "CRM measurement", labelLoc = "bottom") %>%
   dyEvent(as.POSIXct("2018-10-31 10:29:27", tz="GMT"), "CRM measurement", labelLoc = "bottom") %>%
+  dyEvent(as.POSIXct("2019-01-26 13:25:20", tz="GMT"), "Calibration mode - CRM", labelLoc = "bottom") %>%
   #dyOptions(colors = RColorBrewer::brewer.pal(3, "Dark2"), pointSize = 4) %>%
   dyShading(from = TAevents[1], to = TAevents[2], color = "#EDEDED") %>%
   dyShading(from = TAevents[3], to = TAevents[4], color = "#C2C2C2") %>%
   dyShading(from = TAevents[5], to = TAevents[6], color = "#EDEDED") %>%
   dyShading(from = TAevents[7], to = TAevents[8], color = "#C2C2C2") %>%
-  dyShading(from = TAevents[8], to = TAevents[9], color = "#EDEDED") %>%
+  dyShading(from = TAevents[9], to = TAevents[10], color = "#EDEDED") %>%
+  dyShading(from = TAevents[11], to = TAevents[12], color = "#C2C2C2") %>%
   dyAxis("y",valueRange = c(1600, 2450)) %>%
   dyHighlight(highlightCircleSize = 8,highlightSeriesBackgroundAlpha = 0.5,hideOnMouseOut = TRUE) %>%
   dyOptions( strokeWidth= 0) %>%
@@ -789,23 +797,25 @@ dygraph(at_contros_calc_xts, group = "awipev", main="", ylab="Total alkalinity")
   dyEvent(as.POSIXct("2016-06-24 10:00:00", tz="GMT"), "BCG Changed", labelLoc = "bottom") %>%
   dyEvent(as.POSIXct("2016-02-24 14:00:00", tz="GMT"), "Calibration 1", labelLoc = "bottom") %>%
   dyEvent(as.POSIXct("2016-09-16 10:00:00", tz="GMT"), "Calibration 2", labelLoc = "bottom") %>% 
-  dyEvent(as.POSIXct("2017-03-21 12:00:00", tz="GMT"), "TA analyser changed", labelLoc = "bottom", color="red") %>%
-  dyEvent(as.POSIXct("2018-01-08 12:55:00", tz="GMT"), "TA analyser changed #TA-0317-001", labelLoc = "bottom", color="red") %>%
-  dyEvent(as.POSIXct("2018-07-31 00:00:00", tz="GMT"), "TA analyser changed #TA-1215-001", labelLoc = "bottom", color="red") %>%
-  dyEvent(as.POSIXct("2018-10-30 18:00:00", tz="GMT"), "TA analyser changed #TA-0317-001", labelLoc = "bottom", color="red") %>%
+  dyEvent(as.POSIXct("2017-03-21 12:00:00", tz="GMT"), "TA analyser changed", labelLoc = "top", color="red") %>%
+  dyEvent(as.POSIXct("2018-01-08 12:55:00", tz="GMT"), "TA analyser changed #TA-0317-001", labelLoc = "top", color="red") %>%
+  dyEvent(as.POSIXct("2018-07-31 00:00:00", tz="GMT"), "TA analyser changed #TA-1215-001", labelLoc = "top", color="red") %>%
+  dyEvent(as.POSIXct("2018-10-30 18:00:00", tz="GMT"), "TA analyser changed #TA-0317-001", labelLoc = "top", color="red") %>%
   dyEvent(as.POSIXct("2016-11-15 09:00:00", tz="GMT"), "CRM measurement", labelLoc = "bottom") %>% 
   dyEvent(as.POSIXct("2017-02-09 12:20:00", tz="GMT"), "CRM measurement", labelLoc = "bottom") %>% 
   dyEvent(as.POSIXct("2017-04-11 06:20:00", tz="GMT"), "CRM measurement", labelLoc = "bottom") %>% 
   dyEvent(as.POSIXct("2018-01-22 13:00:12", tz="GMT"), "CRM measurement", labelLoc = "bottom") %>%
   dyEvent(as.POSIXct("2018-05-16 12:39:39", tz="GMT"), "CRM measurement", labelLoc = "bottom") %>%
   dyEvent(as.POSIXct("2018-10-31 10:29:27", tz="GMT"), "CRM measurement", labelLoc = "bottom") %>%
+  dyEvent(as.POSIXct("2019-01-26 13:25:20", tz="GMT"), "Calibration mode - CRM", labelLoc = "bottom") %>%
   #dyOptions(colors = RColorBrewer::brewer.pal(3, "Dark2"), pointSize = 4) %>%
   dyShading(from = TAevents[1], to = TAevents[2], color = "#EDEDED") %>%
   dyShading(from = TAevents[3], to = TAevents[4], color = "#C2C2C2") %>%
   dyShading(from = TAevents[5], to = TAevents[6], color = "#EDEDED") %>%
   dyShading(from = TAevents[7], to = TAevents[8], color = "#C2C2C2") %>%
-  dyShading(from = TAevents[8], to = TAevents[9], color = "#EDEDED") %>%
-  dyAxis("y",valueRange = c(2100, 2450)) %>%
+  dyShading(from = TAevents[9], to = TAevents[10], color = "#EDEDED") %>%
+  dyShading(from = TAevents[11], to = TAevents[12], color = "#C2C2C2") %>%
+  dyAxis("y",valueRange = c(2000, 2450)) %>%
   dyHighlight(highlightCircleSize = 8,highlightSeriesBackgroundAlpha = 0.5,hideOnMouseOut = TRUE) %>%
   dyOptions( strokeWidth= 0) %>%
   dyOptions(drawGrid = TRUE, drawPoints = TRUE,useDataTimezone = TRUE) %>%
@@ -1377,6 +1387,9 @@ ggsave(paste0(path, "fb_figures/SNAPO/delta_ct_awipev_snapo.png"), pdelta_ct_sna
 - **2018-11-24**: REMOS stopped because of an iceberg. At the moment we dont know if instruments are still there/broken.
 
 ###**FerryBox**
+- **2019-01-17**: FB is stopped until 19th January 
+- **2019-01-11**: FB is stopped until 12th Decmeber. 
+- **2018-12-28**: FB is stopped until 31st Decmeber. 
 - **2018-10-12**: FB is working again. 
 - **2018-10-10**: FB is stopped after a seawater leakage. 
 - **2018-10-08**: FB is working again. 
