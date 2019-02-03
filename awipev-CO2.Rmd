@@ -209,7 +209,8 @@ discrete$pco2calc<- carb$pCO2
 
 ```{r Read and prepare ferrybox data, echo=FALSE, warning=FALSE, message=FALSE}
 # xx <- read_tsv("../fb_server/ny-alesund/data/old/All_sensors_731101_2016-08-20.txt", skip=16, col_names=TRUE)
-load(file = paste0(path, "fb_server/shinyroot/AWIPEV-CO2/nydata_hour_shiny.Rdata"))
+load(file = paste0(path, "fb_awipev-co2_server/ny-alesund/data/processed/nydata_hour.Rdata"))
+#load(file = paste0(path, "fb_server/shinyroot/AWIPEV-CO2/nydata_hour_shiny.Rdata"))
 #load(file = "../fb_server/shinyroot/AWIPEV-CO2/nydata_shiny.Rdata") #d
 # load = d_hour
 d_hour <- d_hour %>%
@@ -1274,6 +1275,10 @@ dygraph(seafet_calc_contros_xts, group = "awipev", main="pH calculated vs pH sea
 ```
 
 ## SNAPO-CO2
+Since November 2018, informations on weekly Ferrybox and monthly durafet/seaFET samplings are collected in a online document that can be consulted at anytime:
+
+[weekly and monthly samplings](https://docs.google.com/spreadsheets/d/1bNh9q4bkNoh2ra78XC451EmGb9Q8kMf4ByBnKngeHOg/edit?usp=sharing) 
+
 We found that some analysed discrete seawater replicates for AT/CT, performed by SNAPO in Paris sometimes show a large difference between duplicates. Arbitrarily, we decided to take in consideration replicates with a standard deviation smaller than 10 µmoles.kg-1. In the other case (greater than 10 µmoles.kg-1), the closest replicate from the general trend will be kept with qflag_at/qflag_ct of 2 (correct analysis) and the farthest one will be rejected with a flag of 1. There are exceptions when it is difficult to decide which of the replicates need to be eliminated.
 
 For TA, dulpicates's flags that have been changed to 1 are:
@@ -1467,7 +1472,10 @@ ggsave(paste0(path, "fb_figures/SNAPO/delta_ct_awipev_snapo.png"), pdelta_ct_sna
 
 ##Script + data
 <div style="text-align: justify">  
-Here is reported all important modifications made on *ny-alesund_cc.*. This script is accessible via http://efoce-shiny.obs-vlfr.fr:8787/auth-sign-in.
+Here is reported all important modifications made on *ny-alesund_cc.*.
+All documents concerning maintenance, tasks to do, calibration... are accessible by the AWIPEV staff on this link with special access:
+
+[wiki document](https://spaces.awi.de/confluence/login.action?os_destination=%2Fpages%2Fviewpage.action%3FspaceKey%3DMOS%26title%3DWater%2Bsampling&permissionViolation=true)
 
 ###**FerryBox**
 - **2018-11-14**: One instrument was removed by Uwe (Chlorophyl-a), that means that one column (CHl_A_Cyclops) was also removed from the Ferrybox data file. Script was modified in consequence.
