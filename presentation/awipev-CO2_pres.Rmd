@@ -154,7 +154,7 @@ class: center, middle, title-slide
 ]
 
 ---
-# History and instruments
+# Instruments installed 
 
 - Water pumped from 12 m water depth at Ny-Ålesund
 - **Since July 2015**: Two pCO2 sensors rotating every year (in FerryBox, 1 min) 
@@ -167,15 +167,31 @@ class: center, middle, title-slide
 - Regular maintenance twice a year
 
 ---
-# Data available in near real-time: https://awipev-co2.obs-vlfr.fr
+## Instruments in the FerryBox
+.pull-left[
+![ ](images/container.png)
+]
+.pull-right[
+![ ](images/ferrybox.jpg)
+]
 
-![ ](images/web_page_small.png)
+
+
+---
+## seaFET pH on the REMOS
+![ ](images/seafet.png)
+
+---
+## Near real-time: https://awipev-co2.obs-vlfr.fr
+![ ](images/web_page_cropped.png)
+<!-- .element height="50%" width="50%" -->
 
 ---
 ```{r whole time series, fig.width=10, fig.height=4, echo=FALSE, message= FALSE}
 load(file= paste0(path, "fb_data/d_all.Rdata"))
 ```
 
+## pCO2
 ```{r pCO2, fig.width=10, fig.height=4, echo=FALSE, message= FALSE}
 # PCO2
 #+ Ajout de la pCO2 corrigé par le script contros (dans R server ny-alesund_cc.R)
@@ -195,26 +211,14 @@ pco2_dyg <- dygraph(pco2_contros_xts, group = "awipev", main="pCO2", ylab="pCO2"
     dyRangeSelector(height = 30, dateWindow= NULL)
 frameWidget(pco2_dyg)
 ```
----
-
-```{r seafet, fig.width=10, fig.height=4, echo=FALSE, message= FALSE}
-# SEAFET
-seafet_contros_xts <- dplyr::select(d_all, datetime, phINT_filtered,pH_s_seafet_temp_field)
-seafet_contros_xts <- as.xts(seafet_contros_xts, order.by = d_all$datetime)
-seafet_dyg <- dygraph(seafet_contros_xts, group = "awipev", main="pH seaFET (in situ)", ylab="pHT") %>%
-  dySeries("phINT_filtered", label = "Raw data INT", color ="blue", strokeWidth=0, pointSize=2) %>%
-  dySeries("pH_s_seafet_temp_field", label = "pH spectro", color =  "red", strokeWidth = 0, pointSize = 4 ) %>%
-  dyEvent(as.POSIXct("2017-08-24 12:00:00", tz="GMT"), "seaFET #1005 installed", labelLoc = "bottom", color="red") %>%
-  dyEvent(as.POSIXct("2018-02-02 09:00:00", tz="GMT"), "seaFET settings changed to every 1H", labelLoc = "bottom", color="red") %>%
-  dyEvent(as.POSIXct("2018-04-17 12:00:00", tz="GMT"), "seaFET #0007 installed + continuous mode set", labelLoc = "bottom", color="red") %>%
-    dyHighlight(highlightCircleSize = 8,highlightSeriesBackgroundAlpha = 0.5,hideOnMouseOut = TRUE) %>%
-    dyOptions(drawGrid = TRUE, drawPoints = TRUE, pointSize = c(1,8,1),useDataTimezone = TRUE, digitsAfterDecimal=4) %>%
-    dyRangeSelector(height = 30, dateWindow= NULL)
-frameWidget(seafet_dyg)
-```
 
 ---
+## Measured vs calculated pCO2
 
+![ ](../figures/pco2calc_pCO2_contros.png)
+
+---
+## Total alkalinity
 ```{r at, fig.width=10, fig.height=4, echo=FALSE, message= FALSE}
 # TA
 # to create periods according to TA deployments
@@ -223,7 +227,7 @@ TAevents <- c("2016-02-26 00:00:00", "2017-02-09 12:00:00", "2017-02-09 12:00:00
 
 at_contros_cleaned_xts <- dplyr::select(d_all, datetime,AT_filtered,at)
 at_contros_cleaned_xts <-  as.xts(at_contros_cleaned_xts, order.by = d_all$datetime)
-at_dyg <- dygraph(at_contros_cleaned_xts, group = "awipev", main=" Total Alkalinity (in Ferrybox)", ylab="Total alkalinity") %>%
+at_dyg <- dygraph(at_contros_cleaned_xts, group = "awipev", main="", ylab="Total alkalinity") %>%
    #dySeries("at_contros", color = RColorBrewer::brewer.pal(3, "Set2"), strokeWidth = 0, pointSize=2) %>%
   #dySeries("AT_filtered2", color = RColorBrewer::brewer.pal(4, "Set2"), strokeWidth = 0, pointSize=2) %>%
   dySeries("AT_filtered", label= "Raw TA", color = "blue", strokeWidth = 0, pointSize=2) %>%
@@ -255,65 +259,19 @@ at_dyg <- dygraph(at_contros_cleaned_xts, group = "awipev", main=" Total Alkalin
   dyOptions( strokeWidth= 0) %>%
   dyOptions(drawGrid = TRUE, drawPoints = TRUE,useDataTimezone = TRUE) %>%
     dyRangeSelector(height = 30, dateWindow= NULL)
-
 frameWidget(at_dyg)
-
 ```
-```{r others not used, fig.width=10, fig.height=4, echo=FALSE, message= FALSE}
-#SAL
-# sal_fb_xts <- dplyr::select(d_all, datetime, sal_fb)%>%
-#   dplyr::filter(sal_fb >28)
-# sal_fb_xts <- as.xts(sal_fb_xts, order.by = sal_fb_xts$datetime)
-# sal_dyg <- dygraph(sal_fb_xts, group = "awipev", main="Salinity", ylab="Salinity") %>%
-#       dySeries("sal_fb", color = "blue", strokeWidth = 0, label = "S") %>%
-#       dyHighlight(highlightCircleSize = 8,highlightSeriesBackgroundAlpha =0.2,hideOnMouseOut =TRUE) %>%
-#       dyOptions(drawGrid = TRUE, drawPoints = TRUE, pointSize = 2,useDataTimezone = TRUE) %>%
-#       dyRangeSelector(height = 30, dateWindow= NULL)
-# frameWidget(sal_dyg)
 
-# # TEMP Ferrybox SBE45
-# temp_fb_xts <- dplyr::select(d_all, datetime, temp_fb)
-# temp_fb_xts <- as.xts(temp_fb_xts, order.by = temp_fb_xts$datetime)
-# dygraph(temp_fb_xts, group = "awipev", main="Temperature (in Ferrybox)", ylab="Temperature") %>%
-#       dySeries("temp_fb", color = "blue", strokeWidth = 0, label = "T") %>%
-#       dyAxis("y", valueRange = c(-2.5, 9.5)) %>%
-#       dyHighlight(highlightCircleSize = 8,highlightSeriesBackgroundAlpha = 0.5,hideOnMouseOut = TRUE) %>%
-#       dyOptions(drawGrid = TRUE, drawPoints = TRUE, pointSize = 2,useDataTimezone = TRUE) %>%
-#       dyRangeSelector(height = 30, dateWindow= NULL)
-# # TEMP insitu SBE38
-# temp_insitu_xts <- dplyr::select(d_all, datetime, temp_insitu)
-# temp_insitu_xts <- as.xts(temp_insitu_xts, order.by = temp_insitu_xts$datetime)
-# dygraph(temp_insitu_xts, group = "awipev", main="Temperature (in situ)", ylab="Temperature") %>%
-#       dySeries("temp_insitu", color = "blue", strokeWidth = 0, label = "T") %>%
-#       dyAxis("y", valueRange = c(-2.5, 9.5)) %>%
-#       dyHighlight(highlightCircleSize = 8,highlightSeriesBackgroundAlpha = 0.5,hideOnMouseOut = TRUE) %>%
-#       dyOptions(drawGrid = TRUE, drawPoints = TRUE, pointSize = 2,useDataTimezone = TRUE) %>%
-#       dyRangeSelector(height = 30, dateWindow= NULL)
-
-
-# # DURAFET 
-# durafet_contros_xts <- dplyr::select(d_all, datetime, pH_durafet, pH_s_durafet_temp_field)
-# durafet_contros_xts <- as.xts(durafet_contros_xts, order.by = d_all$datetime)
-# dygraph(durafet_contros_xts, group = "awipev", main="pH durafet (in Ferrybox)", ylab="pHT") %>%
-#     dySeries("pH_durafet", label = "Raw durafet pH", color ="blue", strokeWidth=0, pointSize=2) %>%
-#     dySeries("pH_s_durafet_temp_field", label = "pH spectro", color =  "red", strokeWidth = 0, pointSize = 4 ) %>%
-#     dyEvent(as.POSIXct("2017-08-24 12:00:00", tz="GMT"), "durafet installed", labelLoc = "bottom", color="red") %>%
-#     dyEvent(as.POSIXct("2017-10-30 13:00:00", tz="GMT"), "New holder installed", labelLoc = "bottom", color="red") %>% 
-#     # dyOptions(colors = RColorBrewer::brewer.pal(3, "Dark2"), pointSize = 4) %>%
-#     dyHighlight(highlightCircleSize = 8,highlightSeriesBackgroundAlpha = 0.5,hideOnMouseOut = TRUE) %>%
-#     dyOptions(drawGrid = TRUE, drawPoints = TRUE, pointSize = c(1,8,1),useDataTimezone = TRUE, digitsAfterDecimal=4) %>%
-#     dyRangeSelector(height = 30, dateWindow= NULL) 
-```
 ---
-## Relationship between discrete AT and salinity
+## Discrete total alkalinity vs salinity
 
 ![ ](../figures/Discrete_TA_salinity_AWIPEV.png)
 ---
-#### **Final TA re-calculated data (Salinity relationship)**
+#### **Final TA re-calculated data**
 ```{r Plot TA calc TA meas, echo=FALSE, warning=FALSE, message=FALSE,out.width='100%',fig.align='hold'}
-at_contros_calc_xts <- dplyr::select(d_all, datetime,at_calc, AT_filtered, at)
+at_contros_calc_xts <- dplyr::select(d_all, datetime, at_calc, AT_filtered, at)
 at_contros_calc_xts <-  as.xts(at_contros_calc_xts, order.by =d_all$datetime)
-dygraph(at_contros_calc_xts, group = "awipev", main="", ylab="Total alkalinity") %>%
+at_contros_calc_dyg <- dygraph(at_contros_calc_xts, group = "awipev", main="", ylab="Total alkalinity") %>%
   dySeries("AT_filtered", label= "Raw filtered TA", color ="blue", strokeWidth = 0, pointSize=2) %>%
   dySeries("at_calc", label="TA calculated from Salinity",color = RColorBrewer::brewer.pal(3, "Dark2")[1], strokeWidth = 0, pointSize=2) %>%
   dySeries("at", label="TA reference",color = "red", strokeWidth = 0, pointSize=4) %>%
@@ -344,17 +302,97 @@ dygraph(at_contros_calc_xts, group = "awipev", main="", ylab="Total alkalinity")
   dyOptions( strokeWidth= 0) %>%
   dyOptions(drawGrid = TRUE, drawPoints = TRUE,useDataTimezone = TRUE) %>%
     dyRangeSelector(height = 30, dateWindow= NULL)
+frameWidget(at_contros_calc_dyg)
 ```
 
 
 ---
+## seaFET pH (in situ)
+```{r seafet final, echo=FALSE, warning=FALSE, message=FALSE,out.width='100%',fig.align='hold'}
+seafet_contros_xts <- dplyr::select(d_all, datetime, phINT_filtered, pH_s_seafet_temp_field, pHint_tot_sf)
+seafet_contros_xts <- as.xts(seafet_contros_xts, order.by = d_all$datetime)
+seafet_dy <- dygraph(seafet_contros_xts, group = "awipev", main="", ylab="pHT") %>%
+  #dySeries("voltINT", label = "Raw data INT", color ="blue", strokeWidth=0, pointSize=2) %>%
+  dySeries("phINT_filtered", label = "Raw data INT", color ="blue", strokeWidth=0, pointSize=2) %>%
+  dySeries("pHint_tot_sf", label = "pHT corrected", color =  RColorBrewer::brewer.pal(3, "Dark2")[1], strokeWidth = 0, pointSize = 2) %>%
+  dySeries("pH_s_seafet_temp_field", label = "pH spectro", color =  "red", strokeWidth = 0, pointSize = 4 ) %>%
+  dyEvent(as.POSIXct("2017-08-24 12:00:00", tz="GMT"), "seaFET #1005 installed", labelLoc = "bottom", color="red") %>%
+  dyEvent(as.POSIXct("2018-02-02 09:00:00", tz="GMT"), "seaFET settings changed to every 1H", labelLoc = "bottom", color="red") %>% 
+  dyEvent(as.POSIXct("2018-04-17 12:00:00", tz="GMT"), "seaFET #0007 installed + continuous mode set", labelLoc = "bottom", color="red") %>%
+  # dyShading(from =  sfinterv[1], to= sfinterv[2], color = "#CCCCCC") %>%
+  # dyShading(from = sfinterv[2], to= sfinterv[3], color = "#E0E0E0") %>%
+  # dyShading(from = sfinterv[3], to= sfinterv[4], color = "#CCCCCC") %>%
+  # dyShading(from = sfinterv[4], to= sfinterv[5], color = "#E0E0E0") %>%
+  # dyShading(from = sfinterv[5], to= sfinterv[6], color = "#CCCCCC") %>%
+  # dyShading(from = sfinterv[6], to= sfinterv[7], color = "#E0E0E0") %>%
+  # dyShading(from = sfinterv[7], to= sfinterv[8], color = "#CCCCCC") %>%
+  # dyShading(from = sfinterv[8], to= sfinterv[9], color = "#E0E0E0") %>%
+  # dyShading(from = sfinterv[9], to= sfinterv[10], color = "#CCCCCC") %>%
+  #  dyShading(from = sfinterv[10], to= sfinterv[11], color = "#E0E0E0") %>%
+  dyHighlight(highlightCircleSize = 8,highlightSeriesBackgroundAlpha = 0.5,hideOnMouseOut = TRUE) %>%
+  dyOptions(drawGrid = TRUE, drawPoints = TRUE, pointSize = c(1,8,1),useDataTimezone = TRUE, digitsAfterDecimal=4) %>%
+  dyRangeSelector(dateWindow = c("2017-08-01", substr(d_all$datetime[1], 1, 10)))
+  #dyRangeSelector(height = 30, dateWindow= NULL) 
+frameWidget(seafet_dy)
+```
+---
+## Durafet pH (in FerryBox)
 
-# Difficulties with logistics
-```{r}
+```{r durafet, echo=FALSE, warning=FALSE, message=FALSE,out.width='100%',fig.align='hold'}
+durafet_contros_xts <- dplyr::select(d_all, datetime, pH_durafet, pH_s_durafet_temp_field,pH_durafet_corrected)
+durafet_contros_xts <- as.xts(durafet_contros_xts, order.by = d_all$datetime)
+pH_durafet_dyg <- dygraph(durafet_contros_xts, group = "awipev", main="", ylab="pHT") %>%
+    dySeries("pH_durafet", label = "Raw durafet pH", color ="blue", strokeWidth=0, pointSize=2) %>%
+    dySeries("pH_durafet_corrected", label = "pH durafet corrected", color =  RColorBrewer::brewer.pal(3, "Dark2")[1], strokeWidth = 0, pointSize = 2 ) %>%
+    dySeries("pH_s_durafet_temp_field", label = "pH spectro", color =  "red", strokeWidth = 0, pointSize = 4 ) %>%
+    dyEvent(as.POSIXct("2017-10-30 13:00:00", tz="GMT"), "New holder installed", labelLoc = "bottom", color="red") %>% 
+    dyEvent(as.POSIXct("2017-08-24 12:00:00", tz="GMT"), "durafet installed", labelLoc = "bottom", color="red") %>%
+   #  # dyOptions(colors = RColorBrewer::brewer.pal(3, "Dark2"), pointSize = 4) %>%
+   #  dyShading(from =  durinterv[1], to= durinterv[2], color = "#CCCCCC") %>%
+   #  dyShading(from = durinterv[2], to= durinterv[3], color = "#E0E0E0") %>%
+   #  dyShading(from = durinterv[3], to= durinterv[4], color = "#CCCCCC") %>%
+   #  dyShading(from = durinterv[4], to= durinterv[5], color = "#E0E0E0") %>%
+   #  dyShading(from = durinterv[5], to= durinterv[6], color = "#CCCCCC") %>%
+   #  dyShading(from = durinterv[6], to= durinterv[7], color = "#E0E0E0") %>%
+   # dyShading(from = durinterv[7], to= durinterv[8], color = "#CCCCCC") %>%
+   # dyShading(from = durinterv[8], to= durinterv[9], color = "#E0E0E0") %>%
+   # dyShading(from = durinterv[9], to= durinterv[10], color = "#CCCCCC") %>%
+   # dyShading(from = durinterv[10], to= durinterv[11], color = "#E0E0E0") %>%
+    dyHighlight(highlightCircleSize = 8,highlightSeriesBackgroundAlpha = 0.5,hideOnMouseOut = TRUE) %>%
+    dyOptions(drawGrid = TRUE, drawPoints = TRUE, pointSize = c(1,8,1),useDataTimezone = TRUE, digitsAfterDecimal=4) %>%
+    dyRangeSelector(dateWindow = c("2017-08-01", substr(d_all$datetime[1], 1, 10)))
+    #dyRangeSelector(height = 30, dateWindow= NULL) 
+frameWidget(pH_durafet_dyg)
+```   
 
+---
+## SeaFET pH vs DuraFET pH (normalized at 4°C)
+
+```{r comparing pH, echo=FALSE, warning=FALSE, message=FALSE,out.width='100%',fig.align='hold'}
+durafet_sf_contros_xts <- dplyr::select(d_all, datetime, pH_durafet_norm4, pHint_tot_sf_norm4)
+durafet_sf_contros_xts <- as.xts(durafet_sf_contros_xts, order.by = d_all$datetime)
+durafet_sf_contros_dyg <- dygraph(durafet_sf_contros_xts, group = "awipev", main="pH durafet vs pH seaFET at 4°C", ylab="pHT") %>%
+    dySeries("pH_durafet_norm4", label = "pH durafet", color ="blue", strokeWidth=0, pointSize=2) %>%
+    dySeries("pHint_tot_sf_norm4", label = "pH seaFET", color =  "red", strokeWidth = 0, pointSize = 2 ) %>%
+    # dyOptions(colors = RColorBrewer::brewer.pal(3, "Dark2"), pointSize = 4) %>%
+    dyHighlight(highlightCircleSize = 8,highlightSeriesBackgroundAlpha = 0.5,hideOnMouseOut = TRUE) %>%
+    dyOptions(drawGrid = TRUE, drawPoints = TRUE, pointSize = c(1,8,1),useDataTimezone = TRUE, digitsAfterDecimal=4) %>%
+    dyRangeSelector(dateWindow = c("2017-08-01", substr(d_all$datetime[1], 1, 10)))
+    #dyRangeSelector(height = 30, dateWindow= NULL) 
+frameWidget(durafet_sf_contros_dyg)
 ```
 
-- Bullet 1
-- Bullet 2
-- Bullet 3
+
+---
+## Logistics
+
+- **Assets**: 
+  - Excellent support from AWIPEV staff
+  - IPEV support secured for another 4-year period (2019-2022)
+- **Difficulties**:
+  - Challenging environment; divers needed to sort out issues
+  - Difficult and costly to gather a team and organize field trip at short notice
+  - Winter sampling essential (once a month this season, more frequently would be more desirable)
+  - Demanding for AWIPEV staff
+  - IPEV does not cover the cost of analyses required for calibration (ca. 1000 €)
 

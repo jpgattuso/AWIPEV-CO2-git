@@ -858,7 +858,7 @@ pco2calc_pCO2_contros_text <-  ggplot(d_all,aes(x=pco2calc, y= PCO2_corr_contros
 The relationship between the Contros and calculated *p*CO~2~ is not good at all in the sense that it is far from the 1:1 line, despite a good r2 (`r round(fit$rsquare, digits=2)`).
 ```{r plot measured vs calculated pCO2, echo=FALSE, warning=FALSE, message=FALSE, out.width='100%', fig.align="center"}
 print(pco2calc_pCO2_contros_text)
-ggsave(paste0("figures/pco2calc_pCO2_contros.png"), pco2calc_pCO2_contros_text, width=5, height=5, units="cm")
+ggsave(paste0("figures/pco2calc_pCO2_contros.png"), pco2calc_pCO2_contros_text, units="cm")
 ```
 
 ### **Final *p*CO~2~ data**
