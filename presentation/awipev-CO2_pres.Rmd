@@ -308,6 +308,44 @@ frameWidget(at_dyg)
 ## Relationship between discrete AT and salinity
 
 ![ ](../figures/Discrete_TA_salinity_AWIPEV.png)
+---
+#### **Final TA re-calculated data (Salinity relationship)**
+```{r Plot TA calc TA meas, echo=FALSE, warning=FALSE, message=FALSE,out.width='100%',fig.align='hold'}
+at_contros_calc_xts <- dplyr::select(d_all, datetime,at_calc, AT_filtered, at)
+at_contros_calc_xts <-  as.xts(at_contros_calc_xts, order.by =d_all$datetime)
+dygraph(at_contros_calc_xts, group = "awipev", main="", ylab="Total alkalinity") %>%
+  dySeries("AT_filtered", label= "Raw filtered TA", color ="blue", strokeWidth = 0, pointSize=2) %>%
+  dySeries("at_calc", label="TA calculated from Salinity",color = RColorBrewer::brewer.pal(3, "Dark2")[1], strokeWidth = 0, pointSize=2) %>%
+  dySeries("at", label="TA reference",color = "red", strokeWidth = 0, pointSize=4) %>%
+  dyEvent(as.POSIXct("2016-05-31 10:00:00", tz="GMT"), "HCl Changed", labelLoc = "bottom") %>%
+  dyEvent(as.POSIXct("2016-06-24 10:00:00", tz="GMT"), "BCG Changed", labelLoc = "bottom") %>%
+  dyEvent(as.POSIXct("2016-02-24 14:00:00", tz="GMT"), "Calibration 1", labelLoc = "bottom") %>%
+  dyEvent(as.POSIXct("2016-09-16 10:00:00", tz="GMT"), "Calibration 2", labelLoc = "bottom") %>% 
+  dyEvent(as.POSIXct("2017-03-21 12:00:00", tz="GMT"), "TA analyser changed", labelLoc = "top", color="red") %>%
+  dyEvent(as.POSIXct("2018-01-08 12:55:00", tz="GMT"), "TA analyser changed #TA-0317-001", labelLoc = "top", color="red") %>%
+  dyEvent(as.POSIXct("2018-07-31 00:00:00", tz="GMT"), "TA analyser changed #TA-1215-001", labelLoc = "top", color="red") %>%
+  dyEvent(as.POSIXct("2018-10-30 18:00:00", tz="GMT"), "TA analyser changed #TA-0317-001", labelLoc = "top", color="red") %>%
+  dyEvent(as.POSIXct("2016-11-15 09:00:00", tz="GMT"), "CRM measurement", labelLoc = "bottom") %>% 
+  dyEvent(as.POSIXct("2017-02-09 12:20:00", tz="GMT"), "CRM measurement", labelLoc = "bottom") %>% 
+  dyEvent(as.POSIXct("2017-04-11 06:20:00", tz="GMT"), "CRM measurement", labelLoc = "bottom") %>% 
+  dyEvent(as.POSIXct("2018-01-22 13:00:12", tz="GMT"), "CRM measurement", labelLoc = "bottom") %>%
+  dyEvent(as.POSIXct("2018-05-16 12:39:39", tz="GMT"), "CRM measurement", labelLoc = "bottom") %>%
+  dyEvent(as.POSIXct("2018-10-31 10:29:27", tz="GMT"), "CRM measurement", labelLoc = "bottom") %>%
+  dyEvent(as.POSIXct("2019-01-26 13:25:20", tz="GMT"), "Calibration mode - CRM", labelLoc = "bottom") %>%
+  #dyOptions(colors = RColorBrewer::brewer.pal(3, "Dark2"), pointSize = 4) %>%
+  dyShading(from = TAevents[1], to = TAevents[2], color = "#EDEDED") %>%
+  dyShading(from = TAevents[3], to = TAevents[4], color = "#C2C2C2") %>%
+  dyShading(from = TAevents[5], to = TAevents[6], color = "#EDEDED") %>%
+  dyShading(from = TAevents[7], to = TAevents[8], color = "#C2C2C2") %>%
+  dyShading(from = TAevents[9], to = TAevents[10], color = "#EDEDED") %>%
+  dyShading(from = TAevents[11], to = TAevents[12], color = "#C2C2C2") %>%
+  dyAxis("y",valueRange = c(2000, 2450)) %>%
+  dyHighlight(highlightCircleSize = 8,highlightSeriesBackgroundAlpha = 0.5,hideOnMouseOut = TRUE) %>%
+  dyOptions( strokeWidth= 0) %>%
+  dyOptions(drawGrid = TRUE, drawPoints = TRUE,useDataTimezone = TRUE) %>%
+    dyRangeSelector(height = 30, dateWindow= NULL)
+```
+
 
 ---
 
