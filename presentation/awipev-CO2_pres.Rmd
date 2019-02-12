@@ -41,6 +41,10 @@ library(xts)
 library(seismicRoll)
 library(scales)
 library(widgetframe)
+# # install http://phantomjs.org/download.html
+# library(webshot)
+# # remotes::install_github(c('rstudio/pagedown', 'yihui/xaringan'))
+# library(pagedown)
 
 knitr::opts_chunk$set(echo = TRUE)
 
@@ -129,12 +133,10 @@ if (Sys.getenv("LOGNAME") == "samir") path = "../../../pCloud\ Sync/exp168_awipe
 
 class: center, middle, title-slide
 
-# AWIPEV-CO2: First time-series of carbonate chemistry in the Arctic
+# AWIPEV-CO<sub>2</sub>: First high-frequency time series of carbonate chemistry in the Arctic
 
 ### Jean-Pierre Gattuso (1,2), Samir Alliouane (1) & Philipp Fischer (3)
-(1) CNRS and Sorbonne University
-(2) Iddri
-(3) AWI
+(1) CNRS and Sorbonne University, (2) Iddri, (3) AWI
 
 18 February 2019
 
@@ -144,10 +146,10 @@ class: center, middle, title-slide
 # What is ocean acidification?
 
 .pull-left[
-- CO2 is an acid gas (it produces acid when combined with water)
-- Each of us adds 4 kg CO2 per day to the ocean (increasing acidity, reducing pH)
-- The Arctic It will become corrosive for aragonite: 50% in 2050, 100% in 2100
-- Critical to document the changes but no time-series until recently
+- CO<sub>2</sub> is an acid gas (it produces a weak acid when combined with water)
+- Each of us adds 4 kg CO<sub>2</sub> per day to the ocean (increasing acidity, reducing pH)
+- Arctic surface water will become corrosive for aragonite: 50% in 2050, 100% in 2100
+- Critical to document the changes but no high frequency time-series
 ]
 .pull-right[
 ![ ](images/steinacher.png)
@@ -157,7 +159,7 @@ class: center, middle, title-slide
 # Instruments installed 
 
 - Water pumped from 12 m water depth at Ny-Ålesund
-- **Since July 2015**: Two pCO2 sensors rotating every year (in FerryBox, 1 min) 
+- **Since July 2015**: Two pCO<sub>2</sub> sensors rotating every year (in FerryBox, 1 min) 
 - **Since February 2016**: Total alkalinity analyser (in FerryBox, 90 min) but lots of technical issues
 - For calibration and quality insurance: weekly discrete samples for high-precision measurements of dissolved inorganic carbon and total alkalinity
 - **Since August 2017**: pH measurements
@@ -191,13 +193,13 @@ class: center, middle, title-slide
 load(file= paste0(path, "fb_data/d_all.Rdata"))
 ```
 
-## pCO2
+## pCO<sub>2</sub>
 ```{r pCO2, fig.width=10, fig.height=4, echo=FALSE, message= FALSE}
 # PCO2
 #+ Ajout de la pCO2 corrigé par le script contros (dans R server ny-alesund_cc.R)
 pco2_contros_xts <- dplyr::select(d_all, datetime, pco2calc, pco2_contros, PCO2_Corr_filtered)
 pco2_contros_xts <- as.xts(pco2_contros_xts, order.by = d_all$datetime)
-pco2_dyg <- dygraph(pco2_contros_xts, group = "awipev", main="pCO2", ylab="pCO2") %>%
+pco2_dyg <- dygraph(pco2_contros_xts, group = "awipev", main="", ylab="") %>%
     dySeries("PCO2_Corr_filtered", label="Raw pCO2",color ="blue", strokeWidth = 0, pointSize = 2) %>%
     dySeries("pco2_contros", label="Corrected pCO2", color=  RColorBrewer::brewer.pal(3, "Dark2")[1],strokeWidth=0, pointSize=2) %>%
     dySeries("pco2calc", label="calculated pCO2",color = "red", strokeWidth = 0, pointSize = 4 ) %>%
@@ -213,7 +215,7 @@ frameWidget(pco2_dyg)
 ```
 
 ---
-## Measured vs calculated pCO2
+## Measured vs calculated pCO<sub>2</sub>
 
 ![ ](../figures/pco2calc_pCO2_contros.png)
 
@@ -227,7 +229,7 @@ TAevents <- c("2016-02-26 00:00:00", "2017-02-09 12:00:00", "2017-02-09 12:00:00
 
 at_contros_cleaned_xts <- dplyr::select(d_all, datetime,AT_filtered,at)
 at_contros_cleaned_xts <-  as.xts(at_contros_cleaned_xts, order.by = d_all$datetime)
-at_dyg <- dygraph(at_contros_cleaned_xts, group = "awipev", main="", ylab="Total alkalinity") %>%
+at_dyg <- dygraph(at_contros_cleaned_xts, group = "awipev", main="", ylab="") %>%
    #dySeries("at_contros", color = RColorBrewer::brewer.pal(3, "Set2"), strokeWidth = 0, pointSize=2) %>%
   #dySeries("AT_filtered2", color = RColorBrewer::brewer.pal(4, "Set2"), strokeWidth = 0, pointSize=2) %>%
   dySeries("AT_filtered", label= "Raw TA", color = "blue", strokeWidth = 0, pointSize=2) %>%
@@ -264,14 +266,14 @@ frameWidget(at_dyg)
 
 ---
 ## Discrete total alkalinity vs salinity
-
 ![ ](../figures/Discrete_TA_salinity_AWIPEV.png)
+
 ---
 #### **Final TA re-calculated data**
 ```{r Plot TA calc TA meas, echo=FALSE, warning=FALSE, message=FALSE,out.width='100%',fig.align='hold'}
 at_contros_calc_xts <- dplyr::select(d_all, datetime, at_calc, AT_filtered, at)
 at_contros_calc_xts <-  as.xts(at_contros_calc_xts, order.by =d_all$datetime)
-at_contros_calc_dyg <- dygraph(at_contros_calc_xts, group = "awipev", main="", ylab="Total alkalinity") %>%
+at_contros_calc_dyg <- dygraph(at_contros_calc_xts, group = "awipev", main="", ylab="") %>%
   dySeries("AT_filtered", label= "Raw filtered TA", color ="blue", strokeWidth = 0, pointSize=2) %>%
   dySeries("at_calc", label="TA calculated from Salinity",color = RColorBrewer::brewer.pal(3, "Dark2")[1], strokeWidth = 0, pointSize=2) %>%
   dySeries("at", label="TA reference",color = "red", strokeWidth = 0, pointSize=4) %>%
@@ -301,17 +303,17 @@ at_contros_calc_dyg <- dygraph(at_contros_calc_xts, group = "awipev", main="", y
   dyHighlight(highlightCircleSize = 8,highlightSeriesBackgroundAlpha = 0.5,hideOnMouseOut = TRUE) %>%
   dyOptions( strokeWidth= 0) %>%
   dyOptions(drawGrid = TRUE, drawPoints = TRUE,useDataTimezone = TRUE) %>%
-    dyRangeSelector(height = 30, dateWindow= NULL)
+  dyRangeSelector(height = 30, dateWindow= NULL)
 frameWidget(at_contros_calc_dyg)
 ```
 
 
 ---
-## seaFET pH (in situ)
+## seaFET pH<sub>total scale</sub> (in situ)
 ```{r seafet final, echo=FALSE, warning=FALSE, message=FALSE,out.width='100%',fig.align='hold'}
 seafet_contros_xts <- dplyr::select(d_all, datetime, phINT_filtered, pH_s_seafet_temp_field, pHint_tot_sf)
 seafet_contros_xts <- as.xts(seafet_contros_xts, order.by = d_all$datetime)
-seafet_dy <- dygraph(seafet_contros_xts, group = "awipev", main="", ylab="pHT") %>%
+seafet_dy <- dygraph(seafet_contros_xts, group = "awipev", main="", ylab="") %>%
   #dySeries("voltINT", label = "Raw data INT", color ="blue", strokeWidth=0, pointSize=2) %>%
   dySeries("phINT_filtered", label = "Raw data INT", color ="blue", strokeWidth=0, pointSize=2) %>%
   dySeries("pHint_tot_sf", label = "pHT corrected", color =  RColorBrewer::brewer.pal(3, "Dark2")[1], strokeWidth = 0, pointSize = 2) %>%
@@ -336,7 +338,7 @@ seafet_dy <- dygraph(seafet_contros_xts, group = "awipev", main="", ylab="pHT") 
 frameWidget(seafet_dy)
 ```
 ---
-## Durafet pH (in FerryBox)
+## Durafet pH<sub>total scale</sub> (in FerryBox)
 
 ```{r durafet, echo=FALSE, warning=FALSE, message=FALSE,out.width='100%',fig.align='hold'}
 durafet_contros_xts <- dplyr::select(d_all, datetime, pH_durafet, pH_s_durafet_temp_field,pH_durafet_corrected)
@@ -366,7 +368,7 @@ frameWidget(pH_durafet_dyg)
 ```   
 
 ---
-## SeaFET pH vs DuraFET pH (normalized at 4°C)
+## SeaFET pH<sub>T</sub> vs DuraFET pH<sub>T</sub> (both normalized at 4°C)
 
 ```{r comparing pH, echo=FALSE, warning=FALSE, message=FALSE,out.width='100%',fig.align='hold'}
 durafet_sf_contros_xts <- dplyr::select(d_all, datetime, pH_durafet_norm4, pHint_tot_sf_norm4)
@@ -388,7 +390,7 @@ frameWidget(durafet_sf_contros_dyg)
 
 - **First** high-frequency time series of the carbonate system in the Arctic 
 - **Positive aspects**: 
-  - Excellent support from AWIPEV staff
+  - Excellent support from AWIPEV staff but work overload
   - IPEV support secured for another 4-year period (2019-2022)
 - **Logistical difficulties**:
   - Challenging environment; divers needed to sort out issues
