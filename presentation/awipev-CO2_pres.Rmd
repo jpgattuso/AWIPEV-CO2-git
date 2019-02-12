@@ -384,12 +384,13 @@ frameWidget(durafet_sf_contros_dyg)
 
 
 ---
-## Logistics
+## Conclusion
 
-- **Assets**: 
+- **First** high-frequency time series of the carbonate system in the Arctic 
+- **Positive aspects**: 
   - Excellent support from AWIPEV staff
   - IPEV support secured for another 4-year period (2019-2022)
-- **Difficulties**:
+- **Logistical difficulties**:
   - Challenging environment; divers needed to sort out issues
   - Difficult and costly to gather a team and organize field trip at short notice
   - Winter sampling essential (once a month this season, more frequently would be more desirable)
