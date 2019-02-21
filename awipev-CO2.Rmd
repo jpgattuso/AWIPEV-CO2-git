@@ -61,23 +61,30 @@ which.closest <- function(x, table, ...) {
 
 #################### Regression function
 # function regression plot with model II equation (MA) in title
-## Dans labs ajout de la variable title pour mettre title avant chaque graphe
-ggreg2 <- function (fit, x, y, point.size=5) { # x and y are the names of the variables
+## Dans labs ajout de la variable TITRE pour mettre titre avant chaque graphe
+ggreg2 <- function (fit, xdata, ydata) { # x and y are the names of the variables
   fit_data <- data.frame(fit$x, fit$y)
-  colnames(fit_data) = c(x, y)
+  colnames(fit_data) = c(xdata, ydata)
 reg <- fit$regression.results[2,] #one selects MA only
 intercept <- reg$Intercept
 slope <- reg$Slope
-  ggplot(data = fit_data, aes_string(x = x, y = y)) + 
-  geom_point(size = point.size, col = "blue") +
+  ggplot(data = fit_data, aes_string(x = xdata, y = ydata)) + 
+  geom_point(size = 3, col = "blue") +
   geom_abline(aes(intercept = fit$regression.results[2,2], slope = fit$regression.results[2,3]),
-              colour = "blue") +
-  labs(title = paste(title,"\n Adj R2 = ", signif(fit$rsquare, 3),
+              colour = "blue")  + 
+  labs(title = paste(titre,"\n Adj R2 = ", signif(fit$rsquare, 3),
                      "; Intercept =", signif(intercept, 3),
                      "; Slope =", signif(slope, 3),
-                     "; P =", signif(fit$P.param, 3))) +
-    theme(plot.title = element_text(size=7))
+                     "; P =", signif(fit$P.param, 3)))
 }
+
+mytheme <- theme_bw() +
+  theme(axis.text.x=element_text(size=16, color="black"),
+        axis.title.x=element_text(face="bold", size=16),
+        axis.text.y=element_text(size=16, color="black"),
+        axis.title.y=element_text(face="bold", size=16),
+        plot.title = element_text(face="bold", size=14)
+)
 
 #################### Mytheme
 Mytheme <- function(size_labs = 7, face_font="plain") {
@@ -674,7 +681,7 @@ ggsave(paste0("figures/Diff_ref_TA_third_period.png"), p, units="cm")
 
 #remove outliers and remove period without TA measurements 
 calib_ta_second <- d_all%>%
-  dplyr::select(datetime, closest_datetime,AT_filtered, AT_filtered_interp, at,diff_ta, TA_period)%>%
+  dplyr::select(datetime, closest_datetime, AT_filtered, AT_filtered_interp, at, diff_ta, TA_period)%>%
   dplyr::filter(TA_period == "TA2" & !is.na(at))
 
 mean_offset <- mean(calib_ta_second$diff_ta)
@@ -821,8 +828,29 @@ dygraph(at_contros_calc_xts, group = "awipev", main="", ylab="Total alkalinity")
   dyOptions( strokeWidth= 0) %>%
   dyOptions(drawGrid = TRUE, drawPoints = TRUE,useDataTimezone = TRUE) %>%
     dyRangeSelector(height = 30, dateWindow= NULL)
+```
 
-# Property plots : x= at (discretes data), y = at_contros/at_contros_rep/at_calibrated/at_calibrated_rep
+There are a lot of outliers in the 4th period (since the new analyzer was set up in Nov. 2018). We use the desplike function to remove them.
+
+#### **TA since November 2018 (final installation)**
+```{r TA since November 2018, echo=FALSE, warning=FALSE, message=FALSE,out.width='100%',fig.align='hold'}
+# select subset of data and remove obvious outliers
+at_nov_2018 <- 
+  dplyr::select(d_all, datetime, at_calc, AT_filtered, at) %>%
+  filter(datetime > "2018-11-01", AT_filtered > 2250)
+#despike
+at_nov_2018 <- mutate(at_nov_2018, AT_filtered_despike = despike(AT_filtered, reference= "median", n=0.5, k=10, replace="NA"))
+#plot
+at_datetime <- ggplot(data = at_nov_2018, aes(x=datetime)) +
+  geom_point(aes(y=AT_filtered, colour = "before")) +
+  geom_point(aes(y=AT_filtered_despike, colour = "after")) +
+  labs(x = "Time", y = "Total alkalinity", color = "despike") 
+print(at_datetime)
+
+at_nov_2018_no_NA <- dplyr::filter(at_nov_2018, at_calc != "NA" & AT_filtered_despike != "NA")
+titre <- "Contros AT vs Calculated AT"
+fit <- lmodel2(data = at_nov_2018_no_NA, AT_filtered_despike ~ at_calc, nperm = 99)
+ggreg2(fit, x = "at_calc", y = "AT_filtered_despike")
 ```
 
 ## *p*CO~2~
