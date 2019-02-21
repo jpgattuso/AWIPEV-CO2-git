@@ -918,7 +918,7 @@ Plots of E0int25 and E0ext25 returned by the function "pHCalib" for each period 
 
 ```{r seaFET calibration sf_calib, echo=FALSE, message= FALSE, warning=FALSE, out.width= "60%"}
 
-# deployment period between 2 spectro measurements.
+# deployment period between 2 spectro measurements
 sfPeriod <- d_all%>%
   dplyr::select(datetime, pH_s_seafet_temp_field)%>%
   dplyr::filter(!is.na(pH_s_seafet_temp_field))
