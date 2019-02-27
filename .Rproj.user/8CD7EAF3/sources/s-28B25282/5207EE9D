@@ -1,0 +1,22 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1546603008692.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "1452200622",
+    "id" : "5207EE9D",
+    "lastKnownWriteTime" : 1551259661,
+    "last_content_update" : 1551259661591,
+    "path" : "~/not_synced_git/AWIPEV-CO2-git/awipev-CO2.Rmd",
+    "project_path" : "awipev-CO2.Rmd",
+    "properties" : {
+        "cursorPosition" : "1394,39",
+        "scrollLine" : "1384"
+    },
+    "relative_order" : 1,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_markdown"
+}
