@@ -1429,6 +1429,8 @@ save(file= paste0(path, "fb_data/d_all.Rdata"), d_all)
 - **2018-11-24**: REMOS stopped because of an iceberg. At the moment we dont know if instruments are still there/broken.
 
 ###**FerryBox**
+- **2019-02-27**: FB is working again. 
+- **2019-02-26**: FB is stopped because of a "leakage" issue. 
 - **2019-01-17**: FB is stopped until 19th January 
 - **2019-01-11**: FB is stopped until 12th Decmeber. 
 - **2018-12-28**: FB is stopped until 31st Decmeber. 
@@ -1456,6 +1458,7 @@ save(file= paste0(path, "fb_data/d_all.Rdata"), d_all)
 - **2015-11-27**: The ferrybox was down from Nov. 18th until today Nov. 27th. (emails from P.Fischer 2015-11-24 23:09 and Station Leader AWIPEV 2015-11-27 12:57). Tubes frozen.
  
 ###**TA analyser**
+- **2019-02-15**: No data from 15th (14:08:21 UTC) to 19th February (14:58:46 UTC). files transfered but no data. No explanation.
 - **2019-01-26**: Philipp did the TA calibration: T0 with CRM 145. Beginning of a 3-months period. Flow filter was also lifted up and the seawater flow has therefore increased.
 - **2019-01-16**: Bad data since this date. 
 - **2018-12-28**: HCL and BCG cartridges were changed by Marine.

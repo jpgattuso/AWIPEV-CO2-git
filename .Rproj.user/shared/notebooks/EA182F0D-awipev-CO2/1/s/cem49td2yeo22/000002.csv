@@ -1,0 +1,5 @@
+"0","#remove outliers and remove period without TA measurements "
+"0","calib_ta_second <- d_all%>%"
+"0","  dplyr::select(datetime, closest_datetime,AT_filtered, AT_filtered_interp, at,diff_ta, TA_period)%>%"
+"0","  dplyr::filter(TA_period == ""TA2"" & !is.na(at))"
+"0","mean_offset <- mean(calib_ta_second$diff_ta)"

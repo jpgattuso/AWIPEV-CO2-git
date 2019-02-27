@@ -1,0 +1,225 @@
+]0;~/not_synced_git/AWIPEV-CO2-git[?1034hMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ [KMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git pull awipev master
+fatal: 'awipev' does not appear to be a git repository
+fatal: Could not read from remote repository.
+
+Please make sure you have the correct access rights
+and the repository exists.
+]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git pull awipev master[1Pmaster/master
+fatal: 'awipev/master' does not appear to be a git repository
+fatal: Could not read from remote repository.
+
+Please make sure you have the correct access rights
+and the repository exists.
+]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git pull awipev/master master[1P[1@A
+From https://github.com/jpgattuso/AWIPEV-CO2-git
+ * branch            master     -> FETCH_HEAD
+Already up to date.
+]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git c[K-am c[K[K[K[K[Kcommit -am "TA pero[Kiods updates[Kd"
+[master 624e8f8] TA periods updated
+ 1 file changed, 34 insertions(+), 23 deletions(-)
+]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git push origin master
+Enumerating objects: 14, done.
+Counting objects:   7% (1/14)   Counting objects:  14% (2/14)   Counting objects:  21% (3/14)   Counting objects:  28% (4/14)   Counting objects:  35% (5/14)   Counting objects:  42% (6/14)   Counting objects:  50% (7/14)   Counting objects:  57% (8/14)   Counting objects:  64% (9/14)   Counting objects:  71% (10/14)   Counting objects:  78% (11/14)   Counting objects:  85% (12/14)   Counting objects:  92% (13/14)   Counting objects: 100% (14/14)   Counting objects: 100% (14/14), done.
+Delta compression using up to 4 threads
+Compressing objects:  10% (1/10)   Compressing objects:  20% (2/10)   Compressing objects:  30% (3/10)   Compressing objects:  40% (4/10)   Compressing objects:  50% (5/10)   Compressing objects:  60% (6/10)   Compressing objects:  70% (7/10)   Compressing objects:  80% (8/10)   Compressing objects:  90% (9/10)   Compressing objects: 100% (10/10)   Compressing objects: 100% (10/10), done.
+Writing objects:  10% (1/10)   Writing objects:  20% (2/10)   Writing objects:  30% (3/10)   Writing objects:  40% (4/10)   Writing objects:  50% (5/10)   Writing objects:  60% (6/10)   Writing objects:  70% (7/10)   Writing objects:  80% (8/10)   Writing objects:  90% (9/10)   Writing objects: 100% (10/10)   Writing objects: 100% (10/10), 2.56 KiB | 69.00 KiB/s, done.
+Total 10 (delta 6), reused 0 (delta 0)
+remote: Resolving deltas:   0% (0/6)   [Kremote: Resolving deltas:  50% (3/6)   [Kremote: Resolving deltas: 100% (6/6)   [Kremote: Resolving deltas: 100% (6/6), completed with 2 local objects.[K
+To https://github.com/samirLOV1/AWIPEV-CO2-git.git
+   5d1dd34..624e8f8  master -> master
+]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git pull Awipev/master
+fatal: 'Awipev/master' does not appear to be a git repository
+fatal: Could not read from remote repository.
+
+Please make sure you have the correct access rights
+and the repository exists.
+]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git pull Awipev/master[1Pmaster master
+From https://github.com/jpgattuso/AWIPEV-CO2-git
+ * branch            master     -> FETCH_HEAD
+Already up to date.
+]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git commit -am "TA calibration part updated"
+[master d514945] TA calibration part updated
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git push orin[Kgin master
+Enumerating objects: 5, done.
+Counting objects:  20% (1/5)   Counting objects:  40% (2/5)   Counting objects:  60% (3/5)   Counting objects:  80% (4/5)   Counting objects: 100% (5/5)   Counting objects: 100% (5/5), done.
+Delta compression using up to 4 threads
+Compressing objects:  33% (1/3)   Compressing objects:  66% (2/3)   Compressing objects: 100% (3/3)   Compressing objects: 100% (3/3), done.
+Writing objects:  33% (1/3)   Writing objects:  66% (2/3)   Writing objects: 100% (3/3)   Writing objects: 100% (3/3), 815 bytes | 815.00 KiB/s, done.
+Total 3 (delta 2), reused 0 (delta 0)
+remote: Resolving deltas:   0% (0/2)   [Kremote: Resolving deltas:  50% (1/2)   [Kremote: Resolving deltas: 100% (2/2)   [Kremote: Resolving deltas: 100% (2/2), completed with 2 local objects.[K
+To https://github.com/samirLOV1/AWIPEV-CO2-git.git
+   624e8f8..d514945  master -> master
+git pull awipev origin[K[K[K[K[K[Kmaster
+fatal: 'awipev' does not appear to be a git repository
+fatal: Could not read from remote repository.
+
+Please make sure you have the correct access rights
+and the repository exists.
+]0;~/not_synced_git/AWIPEV-CO2-gitmacbook-pro-de-samir:AWIPEV-CO2-git samir$ git pull awipev master[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K remote -v
+Awipev	https://github.com/jpgattuso/AWIPEV-CO2-git.git (fetch)
+Awipev	https://github.com/jpgattuso/AWIPEV-CO2-git.git (push)
+origin	https://github.com/samirLOV1/AWIPEV-CO2-git.git (fetch)
+origin	https://github.com/samirLOV1/AWIPEV-CO2-git.git (push)
+]0;~/not_synced_git/AWIPEV-CO2-gitmacbook-pro-de-samir:AWIPEV-CO2-git samir$ git remote -vpull awipev master[1P[1@A
+remote: Enumerating objects: 1, done.[K
+remote: Counting objects: 100% (1/1)   [Kremote: Counting objects: 100% (1/1), done.[K
+remote: Total 1 (delta 0), reused 0 (delta 0), pack-reused 0[K
+Unpacking objects: 100% (1/1)   Unpacking objects: 100% (1/1), done.
+From https://github.com/jpgattuso/AWIPEV-CO2-git
+ * branch            master     -> FETCH_HEAD
+   f9d078d..9923997  master     -> Awipev/master
+Updating d514945..9923997
+Fast-forward
+]0;~/not_synced_git/AWIPEV-CO2-gitmacbook-pro-de-samir:AWIPEV-CO2-git samir$ [Kmacbook-pro-de-samir:AWIPEV-CO2-git samir$ git a[Kcommit -am "path to access to data server chage[K[Knged in reason of the nex[Kws [K[K server name"
+[master a147404] path to access to data server changed in reason of the new server name
+ 1 file changed, 10 insertions(+), 2 deletions(-)
+]0;~/not_synced_git/AWIPEV-CO2-gitmacbook-pro-de-samir:AWIPEV-CO2-git samir$ git commit -am "path to access to data server changed in reason of the new server name"[1P"[1P"[1P"[1P"[1P"[1P"[1P"[1P"[1P"[1P"[1P"[1P"[1P"[1P"[1P"[1P"[1P"[1P"[1P"[1P"[1P"[1P"[1P"[1P"[1P"[1P"[1P"[1P"[1P"[1P"[1P"[1P"[1P"[1P"[1P"[1P"[1P"[1P"[1P"[1P"[1P"[1P"[1P"[1P"[1P"[1P"[1P"[1P"[1P"[1P"[1P"[1P"[1P"[1P"[1P"[1P"[1P"[1P"[1P"[1P"[1P"[1P"[1P"[1P"[1P"[1P"[1P"[1P"[1P"[1P"w"i"k"i" "d"o"c"u"m"e"n"t" "+" "d"a"t"a" "s"h"e"e"t"[1P"[1P"[1P"[1P"[1P"[1P"[1P"a"s"h"e"e"t" "l"o"g"f"i"l"e" "a"d"d"[1P"[1P"[1P"l"i"n"k"s" "a"d"d"e"d"
+On branch master
+Your branch is ahead of 'origin/master' by 2 commits.
+  (use "git push" to publish your local commits)
+
+Untracked files:
+	[31m.Rhistory[m
+	[31m.Rproj.user/[m
+	[31mAWIPEV-CO2-git.Rproj[m
+	[31mawipev-CO2.html[m
+
+nothing added to commit but untracked files present
+]0;~/not_synced_git/AWIPEV-CO2-gitmacbook-pro-de-samir:AWIPEV-CO2-git samir$ git commit -am "wiki document + datasheet logfile links added"[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[Kpush origin master
+Enumerating objects: 8, done.
+Counting objects:  12% (1/8)   Counting objects:  25% (2/8)   Counting objects:  37% (3/8)   Counting objects:  50% (4/8)   Counting objects:  62% (5/8)   Counting objects:  75% (6/8)   Counting objects:  87% (7/8)   Counting objects: 100% (8/8)   Counting objects: 100% (8/8), done.
+Delta compression using up to 4 threads
+Compressing objects:  25% (1/4)   Compressing objects:  50% (2/4)   Compressing objects:  75% (3/4)   Compressing objects: 100% (4/4)   Compressing objects: 100% (4/4), done.
+Writing objects:  25% (1/4)   Writing objects:  50% (2/4)   Writing objects:  75% (3/4)   Writing objects: 100% (4/4)   Writing objects: 100% (4/4), 1.41 KiB | 1.41 MiB/s, done.
+Total 4 (delta 2), reused 0 (delta 0)
+^[[Aremote: Resolving deltas:   0% (0/2)   [Kremote: Resolving deltas:  50% (1/2)   [Kremote: Resolving deltas: 100% (2/2)   [Kremote: Resolving deltas: 100% (2/2), completed with 2 local objects.[K
+^[[ATo https://github.com/samirLOV1/AWIPEV-CO2-git.git
+   d514945..a147404  master -> master
+]0;~/not_synced_git/AWIPEV-CO2-gitmacbook-pro-de-samir:AWIPEV-CO2-git samir$ git push origin mastercommit -am "wiki document + datasheet logfile links added"path to access to data server changed in reason of the new server name"[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[25Pwiki document + datasheet logfile links added"
+On branch master
+Your branch is up to date with 'origin/master'.
+
+Untracked files:
+	[31m.Rhistory[m
+	[31m.Rproj.user/[m
+	[31mAWIPEV-CO2-git.Rproj[m
+	[31mawipev-CO2.html[m
+
+nothing added to commit but untracked files present
+]0;~/not_synced_git/AWIPEV-CO2-gitmacbook-pro-de-samir:AWIPEV-CO2-git samir$ git commit -am "wiki document + datasheet logfile links added"[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[Cpush origin master[K
+Everything up-to-date
+[KMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git -v remote
+unknown option: -v
+usage: git [--version] [--help] [-C <path>] [-c <name>=<value>]
+           [--exec-path[=<path>]] [--html-path] [--man-path] [--info-path]
+           [-p | --paginate | -P | --no-pager] [--no-replace-objects] [--bare]
+           [--git-dir=<path>] [--work-tree=<path>] [--namespace=<name>]
+           <command> [<args>]
+]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git remote -v
+Awipev	https://github.com/jpgattuso/AWIPEV-CO2-git.git (fetch)
+Awipev	https://github.com/jpgattuso/AWIPEV-CO2-git.git (push)
+origin	https://github.com/samirLOV1/AWIPEV-CO2-git.git (fetch)
+origin	https://github.com/samirLOV1/AWIPEV-CO2-git.git (push)
+]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git Awipev master
+git: 'Awipev' is not a git command. See 'git --help'.
+]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git pull Awipev master
+remote: Enumerating objects: 51, done.[K
+remote: Counting objects:   1% (1/51)   [Kremote: Counting objects:   3% (2/51)   [Kremote: Counting objects:   5% (3/51)   [Kremote: Counting objects:   7% (4/51)   [Kremote: Counting objects:   9% (5/51)   [Kremote: Counting objects:  11% (6/51)   [Kremote: Counting objects:  13% (7/51)   [Kremote: Counting objects:  15% (8/51)   [Kremote: Counting objects:  17% (9/51)   [Kremote: Counting objects:  19% (10/51)   [Kremote: Counting objects:  21% (11/51)   [Kremote: Counting objects:  23% (12/51)   [Kremote: Counting objects:  25% (13/51)   [Kremote: Counting objects:  27% (14/51)   [Kremote: Counting objects:  29% (15/51)   [Kremote: Counting objects:  31% (16/51)   [Kremote: Counting objects:  33% (17/51)   [Kremote: Counting objects:  35% (18/51)   [Kremote: Counting objects:  37% (19/51)   [Kremote: Counting objects:  39% (20/51)   [Kremote: Counting objects:  41% (21/51)   [Kremote: Counting objects:  43% (22/51)   [Kremote: Counting objects:  45% (23/51)   [Kremote: Counting objects:  47% (24/51)   [Kremote: Counting objects:  49% (25/51)   [Kremote: Counting objects:  50% (26/51)   [Kremote: Counting objects:  52% (27/51)   [Kremote: Counting objects:  54% (28/51)   [Kremote: Counting objects:  56% (29/51)   [Kremote: Counting objects:  58% (30/51)   [Kremote: Counting objects:  60% (31/51)   [Kremote: Counting objects:  62% (32/51)   [Kremote: Counting objects:  64% (33/51)   [Kremote: Counting objects:  66% (34/51)   [Kremote: Counting objects:  68% (35/51)   [Kremote: Counting objects:  70% (36/51)   [Kremote: Counting objects:  72% (37/51)   [Kremote: Counting objects:  74% (38/51)   [Kremote: Counting objects:  76% (39/51)   [Kremote: Counting objects:  78% (40/51)   [Kremote: Counting objects:  80% (41/51)   [Kremote: Counting objects:  82% (42/51)   [Kremote: Counting objects:  84% (43/51)   [Kremote: Counting objects:  86% (44/51)   [Kremote: Counting objects:  88% (45/51)   [Kremote: Counting objects:  90% (46/51)   [Kremote: Counting objects:  92% (47/51)   [Kremote: Counting objects:  94% (48/51)   [Kremote: Counting objects:  96% (49/51)   [Kremote: Counting objects:  98% (50/51)   [Kremote: Counting objects: 100% (51/51)   [Kremote: Counting objects: 100% (51/51), done.[K
+remote: Compressing objects:   3% (1/29)   [Kremote: Compressing objects:   6% (2/29)   [Kremote: Compressing objects:  10% (3/29)   [Kremote: Compressing objects:  13% (4/29)   [Kremote: Compressing objects:  17% (5/29)   [Kremote: Compressing objects:  20% (6/29)   [Kremote: Compressing objects:  24% (7/29)   [Kremote: Compressing objects:  27% (8/29)   [Kremote: Compressing objects:  31% (9/29)   [Kremote: Compressing objects:  34% (10/29)   [Kremote: Compressing objects:  37% (11/29)   [Kremote: Compressing objects:  41% (12/29)   [Kremote: Compressing objects:  44% (13/29)   [Kremote: Compressing objects:  48% (14/29)   [Kremote: Compressing objects:  51% (15/29)   [Kremote: Compressing objects:  55% (16/29)   [Kremote: Compressing objects:  58% (17/29)   [Kremote: Compressing objects:  62% (18/29)   [Kremote: Compressing objects:  65% (19/29)   [Kremote: Compressing objects:  68% (20/29)   [Kremote: Compressing objects:  72% (21/29)   [Kremote: Compressing objects:  75% (22/29)   [Kremote: Compressing objects:  79% (23/29)   [Kremote: Compressing objects:  82% (24/29)   [Kremote: Compressing objects:  86% (25/29)   [Kremote: Compressing objects:  89% (26/29)   [Kremote: Compressing objects:  93% (27/29)   [Kremote: Compressing objects:  96% (28/29)   [Kremote: Compressing objects: 100% (29/29)   [Kremote: Compressing objects: 100% (29/29), done.[K
+Receiving objects:   0% (1/161)   Receiving objects:   1% (2/161)   Receiving objects:   2% (4/161)   Receiving objects:   3% (5/161)   Receiving objects:   4% (7/161)   Receiving objects:   4% (8/161), 2.32 MiB | 2.13 MiB/s   Receiving objects:   4% (8/161), 5.87 MiB | 2.77 MiB/s   Receiving objects:   4% (8/161), 9.67 MiB | 3.10 MiB/s   Receiving objects:   5% (9/161), 11.68 MiB | 3.22 MiB/s   Receiving objects:   6% (10/161), 11.68 MiB | 3.22 MiB/s   Receiving objects:   7% (12/161), 11.68 MiB | 3.22 MiB/s   Receiving objects:   8% (13/161), 11.68 MiB | 3.22 MiB/s   Receiving objects:   9% (15/161), 11.68 MiB | 3.22 MiB/s   Receiving objects:  10% (17/161), 11.68 MiB | 3.22 MiB/s   Receiving objects:  11% (18/161), 11.68 MiB | 3.22 MiB/s   Receiving objects:  12% (20/161), 11.68 MiB | 3.22 MiB/s   Receiving objects:  13% (21/161), 11.68 MiB | 3.22 MiB/s   Receiving objects:  14% (23/161), 11.68 MiB | 3.22 MiB/s   Receiving objects:  15% (25/161), 11.68 MiB | 3.22 MiB/s   Receiving objects:  16% (26/161), 11.68 MiB | 3.22 MiB/s   Receiving objects:  17% (28/161), 11.68 MiB | 3.22 MiB/s   Receiving objects:  18% (29/161), 11.68 MiB | 3.22 MiB/s   Receiving objects:  19% (31/161), 11.68 MiB | 3.22 MiB/s   Receiving objects:  20% (33/161), 11.68 MiB | 3.22 MiB/s   Receiving objects:  21% (34/161), 11.68 MiB | 3.22 MiB/s   Receiving objects:  22% (36/161), 13.21 MiB | 3.20 MiB/s   Receiving objects:  23% (38/161), 13.21 MiB | 3.20 MiB/s   Receiving objects:  24% (39/161), 13.21 MiB | 3.20 MiB/s   Receiving objects:  25% (41/161), 13.21 MiB | 3.20 MiB/s   Receiving objects:  26% (42/161), 13.21 MiB | 3.20 MiB/s   Receiving objects:  27% (44/161), 13.21 MiB | 3.20 MiB/s   Receiving objects:  28% (46/161), 13.21 MiB | 3.20 MiB/s   Receiving objects:  29% (47/161), 13.21 MiB | 3.20 MiB/s   Receiving objects:  30% (49/161), 13.21 MiB | 3.20 MiB/s   Receiving objects:  31% (50/161), 13.21 MiB | 3.20 MiB/s   Receiving objects:  32% (52/161), 13.21 MiB | 3.20 MiB/s   Receiving objects:  33% (54/161), 13.21 MiB | 3.20 MiB/s   Receiving objects:  34% (55/161), 13.21 MiB | 3.20 MiB/s   Receiving objects:  35% (57/161), 13.21 MiB | 3.20 MiB/s   Receiving objects:  36% (58/161), 13.21 MiB | 3.20 MiB/s   Receiving objects:  37% (60/161), 13.21 MiB | 3.20 MiB/s   Receiving objects:  38% (62/161), 13.21 MiB | 3.20 MiB/s   Receiving objects:  39% (63/161), 13.21 MiB | 3.20 MiB/s   Receiving objects:  40% (65/161), 13.21 MiB | 3.20 MiB/s   Receiving objects:  41% (67/161), 13.21 MiB | 3.20 MiB/s   Receiving objects:  42% (68/161), 13.21 MiB | 3.20 MiB/s   Receiving objects:  43% (70/161), 13.21 MiB | 3.20 MiB/s   Receiving objects:  44% (71/161), 13.21 MiB | 3.20 MiB/s   Receiving objects:  45% (73/161), 13.21 MiB | 3.20 MiB/s   Receiving objects:  46% (75/161), 13.21 MiB | 3.20 MiB/s   Receiving objects:  47% (76/161), 13.21 MiB | 3.20 MiB/s   Receiving objects:  48% (78/161), 13.21 MiB | 3.20 MiB/s   Receiving objects:  49% (79/161), 13.21 MiB | 3.20 MiB/s   Receiving objects:  50% (81/161), 13.21 MiB | 3.20 MiB/s   Receiving objects:  51% (83/161), 14.93 MiB | 3.22 MiB/s   Receiving objects:  52% (84/161), 14.93 MiB | 3.22 MiB/s   Receiving objects:  53% (86/161), 14.93 MiB | 3.22 MiB/s   Receiving objects:  54% (87/161), 14.93 MiB | 3.22 MiB/s   Receiving objects:  55% (89/161), 14.93 MiB | 3.22 MiB/s   Receiving objects:  56% (91/161), 14.93 MiB | 3.22 MiB/s   Receiving objects:  57% (92/161), 14.93 MiB | 3.22 MiB/s   Receiving objects:  58% (94/161), 14.93 MiB | 3.22 MiB/s   Receiving objects:  59% (95/161), 14.93 MiB | 3.22 MiB/s   Receiving objects:  60% (97/161), 14.93 MiB | 3.22 MiB/s   Receiving objects:  61% (99/161), 14.93 MiB | 3.22 MiB/s   Receiving objects:  62% (100/161), 14.93 MiB | 3.22 MiB/s   Receiving objects:  63% (102/161), 14.93 MiB | 3.22 MiB/s   Receiving objects:  64% (104/161), 14.93 MiB | 3.22 MiB/s   Receiving objects:  65% (105/161), 14.93 MiB | 3.22 MiB/s   Receiving objects:  66% (107/161), 14.93 MiB | 3.22 MiB/s   Receiving objects:  67% (108/161), 14.93 MiB | 3.22 MiB/s   Receiving objects:  68% (110/161), 16.27 MiB | 3.33 MiB/s   Receiving objects:  69% (112/161), 16.27 MiB | 3.33 MiB/s   Receiving objects:  70% (113/161), 16.27 MiB | 3.33 MiB/s   Receiving objects:  71% (115/161), 16.27 MiB | 3.33 MiB/s   Receiving objects:  72% (116/161), 16.27 MiB | 3.33 MiB/s   Receiving objects:  73% (118/161), 16.27 MiB | 3.33 MiB/s   Receiving objects:  74% (120/161), 16.27 MiB | 3.33 MiB/s   Receiving objects:  75% (121/161), 16.27 MiB | 3.33 MiB/s   Receiving objects:  76% (123/161), 16.27 MiB | 3.33 MiB/s   Receiving objects:  77% (124/161), 16.27 MiB | 3.33 MiB/s   Receiving objects:  78% (126/161), 16.27 MiB | 3.33 MiB/s   Receiving objects:  79% (128/161), 16.27 MiB | 3.33 MiB/s   Receiving objects:  80% (129/161), 17.10 MiB | 3.25 MiB/s   Receiving objects:  81% (131/161), 17.10 MiB | 3.25 MiB/s   Receiving objects:  82% (133/161), 17.10 MiB | 3.25 MiB/s   Receiving objects:  83% (134/161), 17.10 MiB | 3.25 MiB/s   Receiving objects:  84% (136/161), 17.10 MiB | 3.25 MiB/s   Receiving objects:  85% (137/161), 17.10 MiB | 3.25 MiB/s   Receiving objects:  86% (139/161), 17.10 MiB | 3.25 MiB/s   Receiving objects:  87% (141/161), 17.10 MiB | 3.25 MiB/s   Receiving objects:  88% (142/161), 17.10 MiB | 3.25 MiB/s   Receiving objects:  89% (144/161), 17.10 MiB | 3.25 MiB/s   Receiving objects:  90% (145/161), 17.10 MiB | 3.25 MiB/s   Receiving objects:  91% (147/161), 17.10 MiB | 3.25 MiB/s   Receiving objects:  92% (149/161), 17.10 MiB | 3.25 MiB/s   Receiving objects:  93% (150/161), 17.94 MiB | 3.14 MiB/s   Receiving objects:  94% (152/161), 17.94 MiB | 3.14 MiB/s   Receiving objects:  95% (153/161), 17.94 MiB | 3.14 MiB/s   Receiving objects:  95% (153/161), 19.69 MiB | 2.64 MiB/s   Receiving objects:  95% (153/161), 21.13 MiB | 2.08 MiB/s   Receiving objects:  95% (153/161), 22.59 MiB | 1.68 MiB/s   Receiving objects:  95% (153/161), 24.15 MiB | 1.54 MiB/s   Receiving objects:  95% (153/161), 25.71 MiB | 1.50 MiB/s   Receiving objects:  95% (153/161), 27.25 MiB | 1.48 MiB/s   Receiving objects:  95% (153/161), 28.89 MiB | 1.52 MiB/s   Receiving objects:  95% (153/161), 30.54 MiB | 1.56 MiB/s   remote: Total 161 (delta 26), reused 39 (delta 18), pack-reused 110[K
+Receiving objects:  96% (155/161), 30.54 MiB | 1.56 MiB/s   Receiving objects:  97% (157/161), 30.54 MiB | 1.56 MiB/s   Receiving objects:  98% (158/161), 30.54 MiB | 1.56 MiB/s   Receiving objects:  99% (160/161), 30.54 MiB | 1.56 MiB/s   Receiving objects: 100% (161/161), 30.54 MiB | 1.56 MiB/s   Receiving objects: 100% (161/161), 30.57 MiB | 2.13 MiB/s, done.
+Resolving deltas:   0% (0/62)   Resolving deltas:   3% (2/62)   Resolving deltas:   4% (3/62)   Resolving deltas:   6% (4/62)   Resolving deltas:  11% (7/62)   Resolving deltas:  16% (10/62)   Resolving deltas:  22% (14/62)   Resolving deltas:  24% (15/62)   Resolving deltas:  25% (16/62)   Resolving deltas:  35% (22/62)   Resolving deltas:  37% (23/62)   Resolving deltas:  38% (24/62)   Resolving deltas:  40% (25/62)   Resolving deltas:  41% (26/62)   Resolving deltas:  43% (27/62)   Resolving deltas:  80% (50/62)   Resolving deltas:  88% (55/62)   Resolving deltas:  91% (57/62)   Resolving deltas:  95% (59/62)   Resolving deltas: 100% (62/62)   Resolving deltas: 100% (62/62), completed with 1 local object.
+From https://github.com/jpgattuso/AWIPEV-CO2-git
+ * branch            master     -> FETCH_HEAD
+   9923997..b366977  master     -> Awipev/master
+Updating a147404..b366977
+error: The following untracked working tree files would be overwritten by merge:
+	AWIPEV-CO2-git.Rproj
+Please move or remove them before you merge.
+Aborting
+]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git fetch Awipev
+]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git add AWIPEV-CO2-git.Rproj [K[K[K[K[K[KRmd[1Pt.Rmd[1Pt.Rmd[1Pt.Rmd[1Pt.Rmd[C[1P.Rmd2.Rmd
+]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ gir[Kt commint[K[Kt -m "miantenance updated"[1P[1P[1@a[1@i
+On branch master
+Your branch is up to date with 'origin/master'.
+
+Untracked files:
+	[31m.Rhistory[m
+	[31m.Rproj.user/[m
+	[31mAWIPEV-CO2-git.Rproj[m
+	[31mawipev-CO2.html[m
+
+nothing added to commit but untracked files present
+]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git origin[K[K[K[K[K[Kpush origin master
+Everything up-to-date
+]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git push origin master
+Username for 'https://github.com': samirLOV1
+Password for 'https://samirLOV1@github.com': 
+Everything up-to-date
+]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git push origin mastercommit -m "maintenance updated"[13Padd AWIPEV-CO2.Rmd[6Pfetch Awipevadd AWIPEV-CO2.Rmd
+]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git add AWIPEV-CO2.Rmdpush origin mastercommit -m "maintenance updated"
+On branch master
+Your branch is up to date with 'origin/master'.
+
+Changes not staged for commit:
+	[31mmodified:   awipev-CO2.Rmd[m
+
+Untracked files:
+	[31m.Rhistory[m
+	[31m.Rproj.user/[m
+	[31mAWIPEV-CO2-git.Rproj[m
+	[31mawipev-CO2.html[m
+
+no changes added to commit
+]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git commit -m "maintenance updated"[13Padd AWIPEV-CO2.Rmdpush origin mastercommit -m "maintenance updated"[13Padd AWIPEV-CO2.Rmd[6Pfetch Awipevadd AWIPEV-CO2.Rmd
+]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git add AWIPEV-CO2.Rmdcommit -m "maintenance updated"
+On branch master
+Your branch is up to date with 'origin/master'.
+
+Changes not staged for commit:
+	[31mmodified:   awipev-CO2.Rmd[m
+
+Untracked files:
+	[31m.Rhistory[m
+	[31m.Rproj.user/[m
+	[31mAWIPEV-CO2-git.Rproj[m
+	[31mawipev-CO2.html[m
+
+no changes added to commit
+]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git add AWIPEV-CO2-git.Rproj 
+.Rhistory             .git/                 Images/               awipev-CO2.Rmd        
+.Rproj.user/          AWIPEV-CO2-git.Rproj  README.md             awipev-CO2.html       
+MacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git add AWIPEV-CO2-git.Rproj 
+.Rhistory             .git/                 Images/               awipev-CO2.Rmd        
+.Rproj.user/          AWIPEV-CO2-git.Rproj  README.md             awipev-CO2.html       
+MacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git add AWIPEV-CO2-git.Rproj 
+.Rhistory             .git/                 Images/               awipev-CO2.Rmd        
+.Rproj.user/          AWIPEV-CO2-git.Rproj  README.md             awipev-CO2.html       
+MacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git add AWIPEV-CO2-git.Rproj 
+AWIPEV-CO2-git.Rproj
+MacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git add AWIPEV-CO2-git.Rproj [1P [1P [1P [1P [1P [1P [1P [1P [1P [1P -git.Rproj [1P [1P [1P [1P [1P [1P [1P [1P [1P [1P . R M D [1P [1P m d [1P [1P [1P [1P [1P [1P [1P [1P [1P [1P [1P [1P [1P [1P a wipev-CO2. r [1P [1P . R md 
+]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git add awipev-CO2.Rmd commit -m "maintenance updated"
+[master a64f457] maintenance updated
+ 1 file changed, 2 insertions(+)
+]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git commit -m "maintenance updated"[12Padd awipev-CO2.Rmd commit -m "maintenance updated"[13Padd AWIPEV-CO2.Rmdcommit -m "maintenance updated"[13Padd AWIPEV-CO2.Rmdpush origin mastercommit -m "maintenance updated"[13Ppush origin master
+Username for 'https://github.com': samirLOV1
+Password for 'https://samirLOV1@github.com': 
+Enumerating objects: 5, done.
+Counting objects:  20% (1/5)   Counting objects:  40% (2/5)   Counting objects:  60% (3/5)   Counting objects:  80% (4/5)   Counting objects: 100% (5/5)   Counting objects: 100% (5/5), done.
+Delta compression using up to 4 threads
+Compressing objects:  33% (1/3)   Compressing objects:  66% (2/3)   Compressing objects: 100% (3/3)   Compressing objects: 100% (3/3), done.
+Writing objects:  33% (1/3)   Writing objects:  66% (2/3)   Writing objects: 100% (3/3)   Writing objects: 100% (3/3), 457 bytes | 457.00 KiB/s, done.
+Total 3 (delta 2), reused 0 (delta 0)
+remote: Resolving deltas:   0% (0/2)   [Kremote: Resolving deltas:  50% (1/2)   [Kremote: Resolving deltas: 100% (2/2)   [Kremote: Resolving deltas: 100% (2/2), completed with 2 local objects.[K
+To https://github.com/samirLOV1/AWIPEV-CO2-git.git
+   a147404..a64f457  master -> master
+]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git pull Awipev master
+From https://github.com/jpgattuso/AWIPEV-CO2-git
+ * branch            master     -> FETCH_HEAD
+error: The following untracked working tree files would be overwritten by merge:
+	AWIPEV-CO2-git.Rproj
+Please move or remove them before you merge.
+Aborting
+]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git z[Kadd -A
+]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git add -A
