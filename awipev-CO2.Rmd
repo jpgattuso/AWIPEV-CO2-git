@@ -373,7 +373,10 @@ In August 2017, a seaFET Ocean pH sensor (Sea-Bird Scientific) has been added to
 
 In August 2017, a Durafet III pH electrode connected to a UDA2128 Analyser (Honeywell) was also implemented to the Ferrybox flow-through system. This electrode continuously measures pH, in the Ferrybox, through an ISFET. According to the manufacturer, the measuring range is between 0 and 14 pH units.
 
-##Key plots
+### **Data availability**
+TO DO: add here an horizontal bar plot showing the percent availability of the data
+
+## Whole time series
 ```{r whole time series, fig.width=10, fig.height=4, echo=FALSE, message= FALSE}
 #SAL
 sal_fb_xts <- dplyr::select(d_all, datetime, sal_fb)%>%
