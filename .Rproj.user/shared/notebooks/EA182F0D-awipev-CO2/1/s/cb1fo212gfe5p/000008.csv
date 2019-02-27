@@ -1,0 +1,18 @@
+"0","# xx <- read_tsv(""../fb_server/ny-alesund/data/old/All_sensors_731101_2016-08-20.txt"", skip=16, col_names=TRUE)"
+"0","load(file = paste0(path, ""fb_awipev-co2_server/ny-alesund/data/processed/nydata_hour.Rdata""))"
+"2","Warning message:
+"
+"2","Unknown or uninitialised column: 'closest_datetime'. 
+"
+"0","#load(file = paste0(path, ""fb_server/shinyroot/AWIPEV-CO2/nydata_hour_shiny.Rdata""))"
+"0","#load(file = ""../fb_server/shinyroot/AWIPEV-CO2/nydata_shiny.Rdata"") #d"
+"0","# load = d_hour"
+"0","d_hour <- d_hour %>%"
+"0","  dplyr::select(-date) %>%"
+"0","  dplyr::mutate(AT = ifelse(datetime > ""2016-02-26 12:00:00"", AT, NA), # beginning of data series for AT"
+"0","         AT = ifelse(AT == ""NaN"", NA, AT), #3 columns are character"
+"0","         pH_AT = ifelse(pH_AT == ""NaN"", NA, pH_AT),"
+"0","         PCO2_Corr_Zero2 = ifelse(PCO2_Corr_Zero2 %in% c(""NaN"", 66666), NA, PCO2_Corr_Zero2)"
+"0","         ) %>%"
+"0","  dplyr::rename(at_contros=AT, ph_at_contros=pH_AT, pco2_contros=PCO2_corr_contros_filtered, zero_contros=PCO2_Corr_Zero2, "
+"0","         sal_fb=Salinity_filtered, temp_fb=Temperature_filtered, pH_durafet=HW_pH1_filtered, temp_insitu=Temp_SBE38_filtered)"
