@@ -61,23 +61,30 @@ which.closest <- function(x, table, ...) {
 
 #################### Regression function
 # function regression plot with model II equation (MA) in title
-## Dans labs ajout de la variable title pour mettre title avant chaque graphe
-ggreg2 <- function (fit, x, y, point.size=5) { # x and y are the names of the variables
+## Dans labs ajout de la variable TITRE pour mettre titre avant chaque graphe
+ggreg2 <- function (fit, xdata, ydata) { # x and y are the names of the variables
   fit_data <- data.frame(fit$x, fit$y)
-  colnames(fit_data) = c(x, y)
+  colnames(fit_data) = c(xdata, ydata)
 reg <- fit$regression.results[2,] #one selects MA only
 intercept <- reg$Intercept
 slope <- reg$Slope
-  ggplot(data = fit_data, aes_string(x = x, y = y)) + 
-  geom_point(size = point.size, col = "blue") +
+  ggplot(data = fit_data, aes_string(x = xdata, y = ydata)) + 
+  geom_point(size = 3, col = "blue") +
   geom_abline(aes(intercept = fit$regression.results[2,2], slope = fit$regression.results[2,3]),
-              colour = "blue") +
-  labs(title = paste(title,"\n Adj R2 = ", signif(fit$rsquare, 3),
+              colour = "blue")  + 
+  labs(title = paste(titre,"\n Adj R2 = ", signif(fit$rsquare, 3),
                      "; Intercept =", signif(intercept, 3),
                      "; Slope =", signif(slope, 3),
-                     "; P =", signif(fit$P.param, 3))) +
-    theme(plot.title = element_text(size=7))
+                     "; P =", signif(fit$P.param, 3)))
 }
+
+mytheme <- theme_bw() +
+  theme(axis.text.x=element_text(size=16, color="black"),
+        axis.title.x=element_text(face="bold", size=16),
+        axis.text.y=element_text(size=16, color="black"),
+        axis.title.y=element_text(face="bold", size=16),
+        plot.title = element_text(face="bold", size=14)
+)
 
 #################### Mytheme
 Mytheme <- function(size_labs = 7, face_font="plain") {
@@ -366,7 +373,10 @@ In August 2017, a seaFET Ocean pH sensor (Sea-Bird Scientific) has been added to
 
 In August 2017, a Durafet III pH electrode connected to a UDA2128 Analyser (Honeywell) was also implemented to the Ferrybox flow-through system. This electrode continuously measures pH, in the Ferrybox, through an ISFET. According to the manufacturer, the measuring range is between 0 and 14 pH units.
 
-##Key plots
+### **Data availability**
+TO DO: add here an horizontal bar plot showing the percent availability of the data
+
+## Whole time series
 ```{r whole time series, fig.width=10, fig.height=4, echo=FALSE, message= FALSE}
 #SAL
 sal_fb_xts <- dplyr::select(d_all, datetime, sal_fb)%>%
@@ -563,7 +573,7 @@ calib_p <- ggplot()+
   theme_bw() + theme(axis.text.x = element_text(angle = 45, hjust = 1))+ 
   labs(title= "",y=expression(paste("Total alkalinity (µmoles.",kg^-1,")")), x="Date", color= "CRM",shape= "Deployed instrument")
 
-ggsave(paste0(path, "fb_figures/TA_Analyser/Calibration/TA_calibration_CRM.png"), calib_p, units="cm")
+ggsave("figures/TA_calibration_CRM.png", calib_p, units="cm")
 print(calib_p)
 ```
 
@@ -630,7 +640,7 @@ p <- ggplot(calib_ta_first%>%filter(diff_ta <= 50),aes(datetime,diff_ta)) +
                      "P =",signif(summary(fit)$coef[2,4], 5))) + 
   ylab("Difference: Reference - Analyser") + xlab("Time") + scale_x_datetime(date_labels = "%b %Y", date_minor_breaks = "month", timezone="UTC")
 print(p)
-ggsave(paste0(path, "fb_figures/TA_Analyser/Calibration/Diff_ref_TA_first_period.png"), p, units="cm")
+ggsave(paste0("figures/Diff_ref_TA_first_period.png"), p, units="cm")
 ```
 
 #####**Third period**
@@ -665,7 +675,7 @@ p <- ggplot(calib_ta_third,aes(x=datetime, y=diff_ta) )+
                      " P =",signif(summary(fit)$coef[2,4], 5))) + ylab("Difference: Reference - Analyser") + xlab("Time") + 
   scale_x_datetime( date_labels = "%b %Y", date_minor_breaks = "month", timezone="UTC")
 print(p)
-ggsave(paste0(path, "fb_figures/TA_Analyser/Calibration/Diff_ref_TA_third_period.png"), p, units="cm")
+ggsave(paste0("figures/Diff_ref_TA_third_period.png"), p, units="cm")
 ```
 
 #####**Second period**
@@ -674,7 +684,7 @@ ggsave(paste0(path, "fb_figures/TA_Analyser/Calibration/Diff_ref_TA_third_period
 
 #remove outliers and remove period without TA measurements 
 calib_ta_second <- d_all%>%
-  dplyr::select(datetime, closest_datetime,AT_filtered, AT_filtered_interp, at,diff_ta, TA_period)%>%
+  dplyr::select(datetime, closest_datetime, AT_filtered, AT_filtered_interp, at, diff_ta, TA_period)%>%
   dplyr::filter(TA_period == "TA2" & !is.na(at))
 
 mean_offset <- mean(calib_ta_second$diff_ta)
@@ -774,7 +784,7 @@ at_s <- ggplot(d_all_at_discrete,aes(x=sal_fb, y= at, label = month))+
                        "; P =",signif(summary(fit)$coef[2,4], 5))) +
   theme(aspect.ratio=1,plot.title = element_text(size=7)) + theme_bw() 
 
-ggsave(paste0(path, "fb_figures/Discrete_TA_salinity_AWIPEV.png"), at_s, width=15, height =10, units="cm")
+ggsave(paste0("figures/Discrete_TA_salinity_AWIPEV.png"), at_s, width=15, height =10, units="cm")
 
 # Salinity is a predictor of AT -> using the regression defined above
 d_all$at_calc <- slope_s_at * d_all$sal_fb + intercept_s_at
@@ -821,8 +831,29 @@ dygraph(at_contros_calc_xts, group = "awipev", main="", ylab="Total alkalinity")
   dyOptions( strokeWidth= 0) %>%
   dyOptions(drawGrid = TRUE, drawPoints = TRUE,useDataTimezone = TRUE) %>%
     dyRangeSelector(height = 30, dateWindow= NULL)
+```
 
-# Property plots : x= at (discretes data), y = at_contros/at_contros_rep/at_calibrated/at_calibrated_rep
+There are a lot of outliers in the 4th period (since the new analyzer was set up in Nov. 2018). We use the desplike function to remove them.
+
+#### **TA since November 2018 (final installation)**
+```{r TA since November 2018, echo=FALSE, warning=FALSE, message=FALSE,out.width='100%',fig.align='hold'}
+# select subset of data and remove obvious outliers
+at_nov_2018 <- 
+  dplyr::select(d_all, datetime, at_calc, AT_filtered, at) %>%
+  filter(datetime > "2018-11-01", AT_filtered > 2250)
+#despike
+at_nov_2018 <- mutate(at_nov_2018, AT_filtered_despike = despike(AT_filtered, reference= "median", n=0.5, k=10, replace="NA"))
+#plot
+at_datetime <- ggplot(data = at_nov_2018, aes(x=datetime)) +
+  geom_point(aes(y=AT_filtered, colour = "before")) +
+  geom_point(aes(y=AT_filtered_despike, colour = "after")) +
+  labs(x = "Time", y = "Total alkalinity", color = "despike") 
+print(at_datetime)
+
+at_nov_2018_no_NA <- dplyr::filter(at_nov_2018, at_calc != "NA" & AT_filtered_despike != "NA")
+titre <- "Contros AT vs Calculated AT"
+fit <- lmodel2(data = at_nov_2018_no_NA, AT_filtered_despike ~ at_calc, nperm = 99)
+ggreg2(fit, x = "at_calc", y = "AT_filtered_despike")
 ```
 
 ## *p*CO~2~
@@ -858,7 +889,7 @@ pco2calc_pCO2_contros_text <-  ggplot(d_all,aes(x=pco2calc, y= PCO2_corr_contros
 The relationship between the Contros and calculated *p*CO~2~ is not good at all in the sense that it is far from the 1:1 line, despite a good r2 (`r round(fit$rsquare, digits=2)`).
 ```{r plot measured vs calculated pCO2, echo=FALSE, warning=FALSE, message=FALSE, out.width='100%', fig.align="center"}
 print(pco2calc_pCO2_contros_text)
-ggsave(paste0(path, "fb_figures/pco2calc_pCO2_contros.png"), pco2calc_pCO2_contros_text, width=5, height=5, units="cm")
+ggsave(paste0("figures/pco2calc_pCO2_contros.png"), pco2calc_pCO2_contros_text, units="cm")
 ```
 
 ### **Final *p*CO~2~ data**
@@ -890,7 +921,7 @@ Plots of E0int25 and E0ext25 returned by the function "pHCalib" for each period 
 
 ```{r seaFET calibration sf_calib, echo=FALSE, message= FALSE, warning=FALSE, out.width= "60%"}
 
-# deployment period between 2 spectro measurements.
+# deployment period between 2 spectro measurements
 sfPeriod <- d_all%>%
   dplyr::select(datetime, pH_s_seafet_temp_field)%>%
   dplyr::filter(!is.na(pH_s_seafet_temp_field))
@@ -1374,9 +1405,18 @@ pdelta_at_snapo
 pdelta_at_snapo_dygraph
 pdelta_ct_snapo
 pdelta_ct_snapo_dygraph
-ggsave(paste0(path, "fb_figures/SNAPO/delta_at_awipev_snapo.png"), pdelta_at_snapo, units="cm")
-ggsave(paste0(path, "fb_figures/SNAPO/delta_ct_awipev_snapo.png"), pdelta_ct_snapo, units="cm")
+ggsave(paste0("figures/delta_at_awipev_snapo.png"), pdelta_at_snapo, units="cm")
+ggsave(paste0("figures/delta_ct_awipev_snapo.png"), pdelta_ct_snapo, units="cm")
 ```
+```{r save all, echo=FALSE, message= FALSE, warning=FALSE}
+# d_hour is the real data set that is read at the beginning of the script
+# d_all comprises additional columns calculated in this script
+# These additional variablrs are useful elsewhere (for example in "presentation")
+# Hence, here we save it for this use
+save(file= paste0(path, "fb_data/d_all.Rdata"), d_all)
+```
+
+
 
 <!-- ```{r Klara Wolf} -->
 <!-- wolf <- d_all %>% -->
@@ -1503,6 +1543,39 @@ All documents concerning maintenance, tasks to do, calibration... are accessible
 - **2018-03-21**: Files issues. FerryBox instruments are down because of freezing but UWO instrument as seaFET and SBE38 are OK. Removing of one 0 octet file from seaFET20180317_1404 and put back seaFET files from 20180309 to 20180312 in seaFET folder. They were in SBE38 folder...Weird. Additionnal script lines were added in order to deal with the issue of "in situ" created date whereas "Ferrybox" created data ware not. Since "in situ" parameters are running (d df) and not "in ferrybox" parameters (z df), the new datetime lines are not taking in consideration with the left_join function we have to add them during Ferrybox shutdown.
 - **2018-03-09**: Script issue solved with first negative values encountred in SBE38 files. We find a regex solution to take "space + space or negative value" in consideration.
 - **2017-11-07**: Wrong seaFET files (wrong datetime starting on the 5th September) from 24 to 26 October were fixed. File "SVL_20171024_030426_to_20171026_110425_SeaFet-1005.txt" were created in SeaFet_archive.
+
+##Server
+
+- Serveur : awipev-co2 (193.50.85.104)
+- 3 comptes: awipev (partagé avec Samir), gattuso, nydata (pour l’envoi des données par P. Fischer).
+- Pour se connecter à awipev-co2.obs-vlfr.fr
+    - ssh awipev@awipev-co2.obs-vlfr.fr
+- Intervention sur le serveur :
+    - ssh awipev@awipev-co2.obs-vlfr.fr
+    - rebooting Ubuntu server: sudo shutdown -r now
+    - to check versions:
+        - dpkg -l | grep shiny
+        - dpkg -l | grep r-base
+    - To update Ubuntu, R and its packages:
+        - sudo su
+        - apt-get upgrade
+    - To restart shiny server: sudo systemctl restart shiny-server
+    - update shiny server: follow procedure detailed on the shiny web page Data processing
+- Every night at 01:00 (?) two data files ("all sensors" and AT) are sent by ftp to:
+    - awipev-co2.obs-vlfr.fr
+    - User name: nydata
+    - password:
+- Every hour a crontab action runs the script ny-alesund/R/ny-alesund_cc.R. This script essentially appends the daily files added each day around 01:00 and cleans the data
+- Every night at 03:00 the web page is generated
+- Every night at 05:00 the files are copied to gattuso’s iMac crontab awipev@awipev-co2.obs-vlfr.fr si on veut remplacer intégralement les fichiers de pCloud par ceux de awipev-co2 : ajouter “--delete” à la commande rsync # m h dom mon dow command 00 */1 * * * cd ; R --vanilla < ny-alesund/R/ny-alesund_cc.R 00 03 * * * bash web/awipev-co2.sh > web/awipev-co2.log 2>&1 00 05 * * * /usr/bin/rsync -e "ssh -o StrictHostKeyChecking=no" -avh /home/awipev/awipev-co2_web 'gattuso@gattuso.obs-vlfr.fr:/Users/gattuso/pCloud\ Sync/Documents/experiments/exp168_awipev-CO2/fb_awipev-co2_server/' 00 05 * * * /usr/bin/rsync -e "ssh -o StrictHostKeyChecking=no" -avh /home/awipev/web 'gattuso@gattuso.obs-vlfr.fr:/Users/gattuso/pCloud\ Sync/Documents/experiments/exp168_awipev-CO2/fb_awipev-co2_server/' 00 05 * * * /usr/bin/rsync -e "ssh -o StrictHostKeyChecking=no" -avh /home/awipev/ny-alesund 'gattuso@gattuso.obs-vlfr.fr:/Users/gattuso/pCloud\ Sync/Documents/experiments/exp168_awipev-CO2/fb_awipev-co2_server/' Web page
+- La page web index.html est faite sur awipev@awipev-co2.obs-vlfr.fr
+- Création du répertoire web qui contient ce qu’il faut pour générer la page web:
+    - AWIPEV-Logo.jpg
+    - Discrete_sampling_AWIPEV.csv
+    - awipev-CO2_web.Rmd
+    - awipev-co2.sh (lancer par bash awipev-co2.sh)
+- Accessible https://awipev-co2.obs-vlfr.fr On utilise un shell script awipev-co2.sh: #!/bin/bash # script de lancement via crontab echo '---------deb awipev-co2.sh -----------' # On lance la fabrication du html cd web; R -e 'library("rmarkdown");library("knitr");rmarkdown::render("awipev-CO2_web.Rmd")'; cp awipev-CO2_web.html ../awipev-CO2_web/index.html echo '---------fin awipev-co2.sh -----------'
+
 
 <!-- ```{r Graph pour proposal, echo=FALSE, message= FALSE, warning=FALSE} -->
 
