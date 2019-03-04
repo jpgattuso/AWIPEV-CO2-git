@@ -1544,6 +1544,39 @@ All documents concerning maintenance, tasks to do, calibration... are accessible
 - **2018-03-09**: Script issue solved with first negative values encountred in SBE38 files. We find a regex solution to take "space + space or negative value" in consideration.
 - **2017-11-07**: Wrong seaFET files (wrong datetime starting on the 5th September) from 24 to 26 October were fixed. File "SVL_20171024_030426_to_20171026_110425_SeaFet-1005.txt" were created in SeaFet_archive.
 
+##Server
+
+- Serveur : awipev-co2 (193.50.85.104)
+- 3 comptes: awipev (partagé avec Samir), gattuso, nydata (pour l’envoi des données par P. Fischer).
+- Pour se connecter à awipev-co2.obs-vlfr.fr
+    - ssh awipev@awipev-co2.obs-vlfr.fr
+- Intervention sur le serveur :
+    - ssh awipev@awipev-co2.obs-vlfr.fr
+    - rebooting Ubuntu server: sudo shutdown -r now
+    - to check versions:
+        - dpkg -l | grep shiny
+        - dpkg -l | grep r-base
+    - To update Ubuntu, R and its packages:
+        - sudo su
+        - apt-get upgrade
+    - To restart shiny server: sudo systemctl restart shiny-server
+    - update shiny server: follow procedure detailed on the shiny web page Data processing
+- Every night at 01:00 (?) two data files ("all sensors" and AT) are sent by ftp to:
+    - awipev-co2.obs-vlfr.fr
+    - User name: nydata
+    - password:
+- Every hour a crontab action runs the script ny-alesund/R/ny-alesund_cc.R. This script essentially appends the daily files added each day around 01:00 and cleans the data
+- Every night at 03:00 the web page is generated
+- Every night at 05:00 the files are copied to gattuso’s iMac crontab awipev@awipev-co2.obs-vlfr.fr si on veut remplacer intégralement les fichiers de pCloud par ceux de awipev-co2 : ajouter “--delete” à la commande rsync # m h dom mon dow command 00 */1 * * * cd ; R --vanilla < ny-alesund/R/ny-alesund_cc.R 00 03 * * * bash web/awipev-co2.sh > web/awipev-co2.log 2>&1 00 05 * * * /usr/bin/rsync -e "ssh -o StrictHostKeyChecking=no" -avh /home/awipev/awipev-co2_web 'gattuso@gattuso.obs-vlfr.fr:/Users/gattuso/pCloud\ Sync/Documents/experiments/exp168_awipev-CO2/fb_awipev-co2_server/' 00 05 * * * /usr/bin/rsync -e "ssh -o StrictHostKeyChecking=no" -avh /home/awipev/web 'gattuso@gattuso.obs-vlfr.fr:/Users/gattuso/pCloud\ Sync/Documents/experiments/exp168_awipev-CO2/fb_awipev-co2_server/' 00 05 * * * /usr/bin/rsync -e "ssh -o StrictHostKeyChecking=no" -avh /home/awipev/ny-alesund 'gattuso@gattuso.obs-vlfr.fr:/Users/gattuso/pCloud\ Sync/Documents/experiments/exp168_awipev-CO2/fb_awipev-co2_server/' Web page
+- La page web index.html est faite sur awipev@awipev-co2.obs-vlfr.fr
+- Création du répertoire web qui contient ce qu’il faut pour générer la page web:
+    - AWIPEV-Logo.jpg
+    - Discrete_sampling_AWIPEV.csv
+    - awipev-CO2_web.Rmd
+    - awipev-co2.sh (lancer par bash awipev-co2.sh)
+- Accessible https://awipev-co2.obs-vlfr.fr On utilise un shell script awipev-co2.sh: #!/bin/bash # script de lancement via crontab echo '---------deb awipev-co2.sh -----------' # On lance la fabrication du html cd web; R -e 'library("rmarkdown");library("knitr");rmarkdown::render("awipev-CO2_web.Rmd")'; cp awipev-CO2_web.html ../awipev-CO2_web/index.html echo '---------fin awipev-co2.sh -----------'
+
+
 <!-- ```{r Graph pour proposal, echo=FALSE, message= FALSE, warning=FALSE} -->
 
 <!-- p_sal <- ggplot() + -->
