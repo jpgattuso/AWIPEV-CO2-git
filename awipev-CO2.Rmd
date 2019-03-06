@@ -1520,12 +1520,19 @@ All documents concerning maintenance, tasks to do, calibration... are accessible
 
 [wiki document](https://spaces.awi.de/confluence/login.action?os_destination=%2Fpages%2Fviewpage.action%3FspaceKey%3DMOS%26title%3DWater%2Bsampling&permissionViolation=true)
 
+[UWO-Ferrybox variables from our sensors](https://docs.google.com/spreadsheets/d/1arKYfUjmg3YrgQ5g9LN_XFwUORyz7nqlKNWq3uYok3U/edit?ts=5c7e1d16#gid=393659093)
+
+[All UWO-Ferrybox data / NearRealTime (NRT) AWI database](https://dashboard.awi.de/data-xxl/overview.jsp)
+
+[Procedure to download NRT data](https://spaces.awi.de/confluence/display/MOS/NRT+data+download+procedures)
+
+
 ###**FerryBox**
 - **2018-11-14**: One instrument was removed by Uwe (Chlorophyl-a), that means that one column (CHl_A_Cyclops) was also removed from the Ferrybox data file. Script was modified in consequence.
 
 ###**pH seaFET**
 - **2018-08-30**: voltINT + phINT were filtered from 2017-12-14 to 2018-01-08 and bad data were removed from 2018-01-08 to 2018-02-02. pH spectro from 2018-04-16 07:00:00 was fitted with a mean of 4 days of voltINT in order to make the calibration for this 5th period.
-- **2018-07-30**: Flag location (location_flag) is added in the script to localize seaFET/durafet discrete samples: flag 1 = at the harbor (not takken in consideration) and flag 0 = in the FB for durafet or on site for seaFET (takken in consideration as "normal" sampling"). See seaFET part.
+- **2018-07-30**: Flag location (location_flag) is added in the script to localize seaFET/durafet discrete samples: flag 1 = at the harbor (not taken in consideration) and flag 0 = in the FB for durafet or on site for seaFET (takken in consideration as "normal" sampling"). See seaFET part.
 - **2018-02-02**: Based on Darrell's advices (SeaBird), Philipp implemented the seaFET as: 1h periodic sampling with the following commands: perdival 1h, navg 5, brstsize 1, opermode periodic. 
 - **2017-12-29**: "SVL_20171218_010426.dat" from seaFet data was deleted because of bug with its size (0 octect). pH filter was added to "ny_alesund_cc" file for seaFet data (<7.5 and <8.5).
 
@@ -1544,7 +1551,7 @@ All documents concerning maintenance, tasks to do, calibration... are accessible
 - **2018-03-09**: Script issue solved with first negative values encountred in SBE38 files. We find a regex solution to take "space + space or negative value" in consideration.
 - **2017-11-07**: Wrong seaFET files (wrong datetime starting on the 5th September) from 24 to 26 October were fixed. File "SVL_20171024_030426_to_20171026_110425_SeaFet-1005.txt" were created in SeaFet_archive.
 
-##Server
+## Villefranche Server informations
 
 - Serveur : awipev-co2 (193.50.85.104)
 - 3 comptes: awipev (partagé avec Samir), gattuso, nydata (pour l’envoi des données par P. Fischer).
@@ -1560,21 +1567,45 @@ All documents concerning maintenance, tasks to do, calibration... are accessible
         - sudo su
         - apt-get upgrade
     - To restart shiny server: sudo systemctl restart shiny-server
-    - update shiny server: follow procedure detailed on the shiny web page Data processing
+    - update shiny server: follow procedure detailed on the shiny web page 
+
+**Data processing**
+
 - Every night at 01:00 (?) two data files ("all sensors" and AT) are sent by ftp to:
     - awipev-co2.obs-vlfr.fr
     - User name: nydata
     - password:
 - Every hour a crontab action runs the script ny-alesund/R/ny-alesund_cc.R. This script essentially appends the daily files added each day around 01:00 and cleans the data
 - Every night at 03:00 the web page is generated
-- Every night at 05:00 the files are copied to gattuso’s iMac crontab awipev@awipev-co2.obs-vlfr.fr si on veut remplacer intégralement les fichiers de pCloud par ceux de awipev-co2 : ajouter “--delete” à la commande rsync # m h dom mon dow command 00 */1 * * * cd ; R --vanilla < ny-alesund/R/ny-alesund_cc.R 00 03 * * * bash web/awipev-co2.sh > web/awipev-co2.log 2>&1 00 05 * * * /usr/bin/rsync -e "ssh -o StrictHostKeyChecking=no" -avh /home/awipev/awipev-co2_web 'gattuso@gattuso.obs-vlfr.fr:/Users/gattuso/pCloud\ Sync/Documents/experiments/exp168_awipev-CO2/fb_awipev-co2_server/' 00 05 * * * /usr/bin/rsync -e "ssh -o StrictHostKeyChecking=no" -avh /home/awipev/web 'gattuso@gattuso.obs-vlfr.fr:/Users/gattuso/pCloud\ Sync/Documents/experiments/exp168_awipev-CO2/fb_awipev-co2_server/' 00 05 * * * /usr/bin/rsync -e "ssh -o StrictHostKeyChecking=no" -avh /home/awipev/ny-alesund 'gattuso@gattuso.obs-vlfr.fr:/Users/gattuso/pCloud\ Sync/Documents/experiments/exp168_awipev-CO2/fb_awipev-co2_server/' Web page
+- Every night at 05:00 the files are copied to gattuso’s iMac 
+
+**crontab awipev@awipev-co2.obs-vlfr.fr**
+
+si on veut remplacer intégralement les fichiers de pCloud par ceux de awipev-co2 : ajouter “--delete” à la commande rsync # m h dom mon dow command 
+00 */1 * * * cd ; R --vanilla < ny-alesund/R/ny-alesund_cc.R 
+00 03 * * * bash web/awipev-co2.sh > web/awipev-co2.log 2>&1 00 05 * * * /usr/bin/rsync -e "ssh -o StrictHostKeyChecking=no" -avh /home/awipev/awipev-co2_web 'gattuso@gattuso.obs-vlfr.fr:/Users/gattuso/pCloud\ Sync/Documents/experiments/exp168_awipev-CO2/fb_awipev-co2_server/' 
+00 05 * * * /usr/bin/rsync -e "ssh -o StrictHostKeyChecking=no" -avh /home/awipev/web 'gattuso@gattuso.obs-vlfr.fr:/Users/gattuso/pCloud\ Sync/Documents/experiments/exp168_awipev-CO2/fb_awipev-co2_server/' 
+00 05 * * * /usr/bin/rsync -e "ssh -o StrictHostKeyChecking=no" -avh /home/awipev/ny-alesund 'gattuso@gattuso.obs-vlfr.fr:/Users/gattuso/pCloud\ Sync/Documents/experiments/exp168_awipev-CO2/fb_awipev-co2_server/' 
+
+**Web page**
+
 - La page web index.html est faite sur awipev@awipev-co2.obs-vlfr.fr
 - Création du répertoire web qui contient ce qu’il faut pour générer la page web:
     - AWIPEV-Logo.jpg
     - Discrete_sampling_AWIPEV.csv
     - awipev-CO2_web.Rmd
     - awipev-co2.sh (lancer par bash awipev-co2.sh)
-- Accessible https://awipev-co2.obs-vlfr.fr On utilise un shell script awipev-co2.sh: #!/bin/bash # script de lancement via crontab echo '---------deb awipev-co2.sh -----------' # On lance la fabrication du html cd web; R -e 'library("rmarkdown");library("knitr");rmarkdown::render("awipev-CO2_web.Rmd")'; cp awipev-CO2_web.html ../awipev-CO2_web/index.html echo '---------fin awipev-co2.sh -----------'
+- Accessible https://awipev-co2.obs-vlfr.fr 
+
+**On utilise un shell script awipev-co2.sh:**
+
+ #!/bin/bash 
+ 
+ # script de lancement via crontab echo '---------deb awipev-co2.sh -----------' 
+ 
+ # On lance la fabrication du html cd web; R -e 'library("rmarkdown");library("knitr");rmarkdown::render("awipev-CO2_web.Rmd")'; cp awipev-CO2_web.html ../awipev-CO2_web/index.html 
+ 
+echo '---------fin awipev-co2.sh -----------'
 
 
 <!-- ```{r Graph pour proposal, echo=FALSE, message= FALSE, warning=FALSE} -->
