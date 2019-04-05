@@ -796,3 +796,18 @@ Changes not staged for commit:
 
 no changes added to commit
 ]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git commit -m "text format updted in Villefranche server part"[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[Cpull Awipev master[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[Kadd -A
+Switched to branch 'master'
+Your branch is up to date with 'origin/master'.
+]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git branch -d work1
+error: The branch 'work1' is not fully merged.
+If you are sure you want to delete it, run 'git branch -D work1'.
+]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git merge work1
+Updating c144880..cddf461
+error: Your local changes to the following files would be overwritten by merge:
+	.Rproj.user/8CD7EAF3/console06/D159EF1D
+	.Rproj.user/8CD7EAF3/console06/D159EF1D.env
+	.Rproj.user/8CD7EAF3/sources/prop/4F48A00B
+	.Rproj.user/shared/notebooks/paths
+Please commit your changes or stash them before you merge.
+Aborting
+]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git add -A
