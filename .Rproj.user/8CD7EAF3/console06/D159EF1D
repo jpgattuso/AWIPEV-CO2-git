@@ -796,3 +796,80 @@ Changes not staged for commit:
 
 no changes added to commit
 ]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git commit -m "text format updted in Villefranche server part"[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[Cpull Awipev master[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[Kadd -A
+Switched to branch 'master'
+Your branch is up to date with 'origin/master'.
+]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git branch -d work1
+error: The branch 'work1' is not fully merged.
+If you are sure you want to delete it, run 'git branch -D work1'.
+]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git merge work1
+Updating c144880..cddf461
+error: Your local changes to the following files would be overwritten by merge:
+	.Rproj.user/8CD7EAF3/console06/D159EF1D
+	.Rproj.user/8CD7EAF3/console06/D159EF1D.env
+	.Rproj.user/8CD7EAF3/sources/prop/4F48A00B
+	.Rproj.user/shared/notebooks/paths
+Please commit your changes or stash them before you merge.
+Aborting
+]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git add -A
+]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git add -Amerge work1
+Updating c144880..cddf461
+error: Your local changes to the following files would be overwritten by merge:
+	.Rproj.user/8CD7EAF3/console06/D159EF1D
+	.Rproj.user/8CD7EAF3/console06/D159EF1D.env
+	.Rproj.user/8CD7EAF3/sources/prop/4F48A00B
+Please commit your changes or stash them before you merge.
+Aborting
+]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git chou[K[Keckout work1
+error: Your local changes to the following files would be overwritten by checkout:
+	.Rproj.user/8CD7EAF3/console06/D159EF1D
+	.Rproj.user/8CD7EAF3/console06/D159EF1D.env
+	.Rproj.user/8CD7EAF3/sources/prop/4F48A00B
+Please commit your changes or stash them before you switch branches.
+error: Your local changes to the following files would be overwritten by checkout:
+	.Rproj.user/8CD7EAF3/console06/INDEX001
+	.Rproj.user/8CD7EAF3/pcs/files-pane.pper
+Please commit your changes or stash them before you switch branches.
+Aborting
+]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git commit -m "test"
+[master 3e5e875] test
+ 4 files changed, 20 insertions(+), 4 deletions(-)
+]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git commit -m "test"[2Pheckout work1
+error: Your local changes to the following files would be overwritten by checkout:
+	.Rproj.user/8CD7EAF3/console06/D159EF1D
+	.Rproj.user/8CD7EAF3/console06/INDEX001
+	.Rproj.user/8CD7EAF3/pcs/files-pane.pper
+Please commit your changes or stash them before you switch branches.
+Aborting
+]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git push[K[K[K[K[K[K[K[Kgit status
+On branch master
+Your branch is ahead of 'origin/master' by 1 commit.
+  (use "git push" to publish your local commits)
+
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git checkout -- <file>..." to discard changes in working directory)
+
+	[31mmodified:   .Rproj.user/8CD7EAF3/console06/D159EF1D[m
+	[31mmodified:   .Rproj.user/8CD7EAF3/console06/INDEX001[m
+	[31mmodified:   .Rproj.user/8CD7EAF3/pcs/files-pane.pper[m
+	[31mmodified:   .Rproj.user/8CD7EAF3/pcs/source-pane.pper[m
+	[31mmodified:   .Rproj.user/8CD7EAF3/pcs/windowlayoutstate.pper[m
+
+no changes added to commit (use "git add" and/or "git commit -a")
+]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git branch
+[?1h=* [32mmaster[m[m
+  work1[m[m
+[K[?1l>]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git branchstatuscheckout work1ommit -m "test"[2Pheckout work1ommit -m "test"
+On branch master
+Your branch is ahead of 'origin/master' by 1 commit.
+  (use "git push" to publish your local commits)
+
+Changes not staged for commit:
+	[31mmodified:   .Rproj.user/8CD7EAF3/console06/D159EF1D[m
+	[31mmodified:   .Rproj.user/8CD7EAF3/console06/INDEX001[m
+	[31mmodified:   .Rproj.user/8CD7EAF3/pcs/files-pane.pper[m
+	[31mmodified:   .Rproj.user/8CD7EAF3/pcs/source-pane.pper[m
+	[31mmodified:   .Rproj.user/8CD7EAF3/pcs/windowlayoutstate.pper[m
+
+no changes added to commit
+]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git add -AA[K
