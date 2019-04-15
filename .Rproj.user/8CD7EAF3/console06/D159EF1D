@@ -1378,3 +1378,104 @@ error: Your local changes to the following files would be overwritten by checkou
 Please commit your changes or stash them before you switch branches.
 Aborting
 ]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git add -A
+]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git commit -m "new commit"
+[master 86b578d] new commit
+ 1 file changed, 44 insertions(+)
+]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git merge work [K1
+error: Your local changes to the following files would be overwritten by merge:
+	.Rproj.user/8CD7EAF3/console06/D159EF1D
+Please commit your changes or stash them before you merge.
+Aborting
+]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git merge work1commit -m "new commit"add -A[Kcheckout work1[8Pbranchstatuspull Awipev mastersh origin[C[C[C[C[C[C[C
+Enumerating objects: 17, done.
+Counting objects:   5% (1/17)   Counting objects:  11% (2/17)   Counting objects:  17% (3/17)   Counting objects:  23% (4/17)   Counting objects:  29% (5/17)   Counting objects:  35% (6/17)   Counting objects:  41% (7/17)   Counting objects:  47% (8/17)   Counting objects:  52% (9/17)   Counting objects:  58% (10/17)   Counting objects:  64% (11/17)   Counting objects:  70% (12/17)   Counting objects:  76% (13/17)   Counting objects:  82% (14/17)   Counting objects:  88% (15/17)   Counting objects:  94% (16/17)   Counting objects: 100% (17/17)   Counting objects: 100% (17/17), done.
+Delta compression using up to 4 threads
+Compressing objects:  14% (1/7)   Compressing objects:  28% (2/7)   Compressing objects:  42% (3/7)   Compressing objects:  57% (4/7)   Compressing objects:  71% (5/7)   Compressing objects:  85% (6/7)   Compressing objects: 100% (7/7)   Compressing objects: 100% (7/7), done.
+Writing objects:  14% (1/7)   Writing objects:  28% (2/7)   Writing objects:  42% (3/7)   Writing objects:  57% (4/7)   Writing objects:  71% (5/7)   Writing objects:  85% (6/7)   Writing objects: 100% (7/7)   Writing objects: 100% (7/7), 3.04 KiB | 135.00 KiB/s, done.
+Total 7 (delta 3), reused 0 (delta 0)
+remote: Resolving deltas:   0% (0/3)   [Kremote: Resolving deltas:  33% (1/3)   [Kremote: Resolving deltas:  66% (2/3)   [Kremote: Resolving deltas: 100% (3/3)   [Kremote: Resolving deltas: 100% (3/3), completed with 3 local objects.[K
+To https://github.com/samirLOV1/AWIPEV-CO2-git.git
+   0b444bf..86b578d  master -> master
+]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git pull Awipev master
+remote: Enumerating objects: 1, done.[K
+remote: Counting objects: 100% (1/1)   [Kremote: Counting objects: 100% (1/1), done.[K
+remote: Total 1 (delta 0), reused 0 (delta 0), pack-reused 0[K
+Unpacking objects: 100% (1/1)   Unpacking objects: 100% (1/1), done.
+From https://github.com/jpgattuso/AWIPEV-CO2-git
+ * branch            master     -> FETCH_HEAD
+   0ba7ae0..c13e4c0  master     -> Awipev/master
+Updating 86b578d..c13e4c0
+Fast-forward
+]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git branch
+[?1h=* [32mmaster[m[m
+  work1[m[m
+[K[?1l>]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git branchpull Awipev mastersh origin[C[C[C[C[C[C[C[7Pmerge work1commit -m "new commit"add -A[Kcheckout work1[8Pbranchcheckout work1
+error: Your local changes to the following files would be overwritten by checkout:
+	.Rproj.user/8CD7EAF3/console06/D159EF1D
+Please commit your changes or stash them before you switch branches.
+Aborting
+]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git status
+On branch master
+Your branch is ahead of 'origin/master' by 1 commit.
+  (use "git push" to publish your local commits)
+
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git checkout -- <file>..." to discard changes in working directory)
+
+	[31mmodified:   .Rproj.user/8CD7EAF3/console06/D159EF1D[m
+
+no changes added to commit (use "git add" and/or "git commit -a")
+]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git statuscheckout work1[K[K[K[K[K[K[K[K[K[K[K[K[K[Kadd[K[K[Kbranchpull Awipev master
+remote: Enumerating objects: 4, done.[K
+remote: Counting objects:  25% (1/4)   [Kremote: Counting objects:  50% (2/4)   [Kremote: Counting objects:  75% (3/4)   [Kremote: Counting objects: 100% (4/4)   [Kremote: Counting objects: 100% (4/4), done.[K
+remote: Compressing objects:  50% (1/2)   [Kremote: Compressing objects: 100% (2/2)   [Kremote: Compressing objects: 100% (2/2), done.[K
+remote: Total 3 (delta 1), reused 3 (delta 1), pack-reused 0[K
+Unpacking objects:  33% (1/3)   Unpacking objects:  66% (2/3)   Unpacking objects: 100% (3/3)   Unpacking objects: 100% (3/3), done.
+From https://github.com/jpgattuso/AWIPEV-CO2-git
+ * branch            master     -> FETCH_HEAD
+   c13e4c0..896ed99  master     -> Awipev/master
+Updating c13e4c0..896ed99
+Fast-forward
+ .gitignore | 40 [32m++++++++++++++++++++++++++++++++++++++++[m
+ 1 file changed, 40 insertions(+)
+ create mode 100644 .gitignore
+]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git branch
+[?1h=* [32mmaster[m[m
+  work1[m[m
+[K[?1l>]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git checkout work1
+error: Your local changes to the following files would be overwritten by checkout:
+	.Rproj.user/8CD7EAF3/console06/D159EF1D
+Please commit your changes or stash them before you switch branches.
+Aborting
+]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git status
+On branch master
+Your branch is ahead of 'origin/master' by 2 commits.
+  (use "git push" to publish your local commits)
+
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git checkout -- <file>..." to discard changes in working directory)
+
+	[31mmodified:   .Rproj.user/8CD7EAF3/console06/D159EF1D[m
+
+no changes added to commit (use "git add" and/or "git commit -a")
+]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git push origin master$[K
+Enumerating objects: 6, done.
+Counting objects:  16% (1/6)   Counting objects:  33% (2/6)   Counting objects:  50% (3/6)   Counting objects:  66% (4/6)   Counting objects:  83% (5/6)   Counting objects: 100% (6/6)   Counting objects: 100% (6/6), done.
+Delta compression using up to 4 threads
+Compressing objects:  25% (1/4)   Compressing objects:  50% (2/4)   Compressing objects:  75% (3/4)   Compressing objects: 100% (4/4)   Compressing objects: 100% (4/4), done.
+Writing objects:  25% (1/4)   Writing objects:  50% (2/4)   Writing objects:  75% (3/4)   Writing objects: 100% (4/4)   Writing objects: 100% (4/4), 1.20 KiB | 1.20 MiB/s, done.
+Total 4 (delta 1), reused 0 (delta 0)
+remote: Resolving deltas:   0% (0/1)   [Kremote: Resolving deltas: 100% (1/1)   [Kremote: Resolving deltas: 100% (1/1), completed with 1 local object.[K
+To https://github.com/samirLOV1/AWIPEV-CO2-git.git
+   86b578d..896ed99  master -> master
+]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git co[Kommit -m " [Ktrying solvint[Kg problem"
+On branch master
+Your branch is up to date with 'origin/master'.
+
+Changes not staged for commit:
+	[31mmodified:   .Rproj.user/8CD7EAF3/console06/D159EF1D[m
+
+no changes added to commit
+]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git add -A
