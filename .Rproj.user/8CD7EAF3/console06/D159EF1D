@@ -873,3 +873,464 @@ Changes not staged for commit:
 
 no changes added to commit
 ]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git add -AA[K
+]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git add -Acommit -m "test"
+[master 9db89a9] test
+ 5 files changed, 72 insertions(+), 10 deletions(-)
+ rewrite .Rproj.user/8CD7EAF3/console06/INDEX001 (86%)
+]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git merge work1
+error: Your local changes to the following files would be overwritten by merge:
+	.Rproj.user/8CD7EAF3/console06/D159EF1D
+Please commit your changes or stash them before you merge.
+Aborting
+]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git merge work1commit -m "test"
+On branch master
+Your branch is ahead of 'origin/master' by 2 commits.
+  (use "git push" to publish your local commits)
+
+Changes not staged for commit:
+	[31mmodified:   .Rproj.user/8CD7EAF3/console06/D159EF1D[m
+
+no changes added to commit
+]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git push origin master
+Enumerating objects: 41, done.
+Counting objects:   2% (1/41)   Counting objects:   4% (2/41)   Counting objects:   7% (3/41)   Counting objects:   9% (4/41)   Counting objects:  12% (5/41)   Counting objects:  14% (6/41)   Counting objects:  17% (7/41)   Counting objects:  19% (8/41)   Counting objects:  21% (9/41)   Counting objects:  24% (10/41)   Counting objects:  26% (11/41)   Counting objects:  29% (12/41)   Counting objects:  31% (13/41)   Counting objects:  34% (14/41)   Counting objects:  36% (15/41)   Counting objects:  39% (16/41)   Counting objects:  41% (17/41)   Counting objects:  43% (18/41)   Counting objects:  46% (19/41)   Counting objects:  48% (20/41)   Counting objects:  51% (21/41)   Counting objects:  53% (22/41)   Counting objects:  56% (23/41)   Counting objects:  58% (24/41)   Counting objects:  60% (25/41)   Counting objects:  63% (26/41)   Counting objects:  65% (27/41)   Counting objects:  68% (28/41)   Counting objects:  70% (29/41)   Counting objects:  73% (30/41)   Counting objects:  75% (31/41)   Counting objects:  78% (32/41)   Counting objects:  80% (33/41)   Counting objects:  82% (34/41)   Counting objects:  85% (35/41)   Counting objects:  87% (36/41)   Counting objects:  90% (37/41)   Counting objects:  92% (38/41)   Counting objects:  95% (39/41)   Counting objects:  97% (40/41)   Counting objects: 100% (41/41)   Counting objects: 100% (41/41), done.
+Delta compression using up to 4 threads
+Compressing objects:   4% (1/21)   Compressing objects:   9% (2/21)   Compressing objects:  14% (3/21)   Compressing objects:  19% (4/21)   Compressing objects:  23% (5/21)   Compressing objects:  28% (6/21)   Compressing objects:  33% (7/21)   Compressing objects:  38% (8/21)   Compressing objects:  42% (9/21)   Compressing objects:  47% (10/21)   Compressing objects:  52% (11/21)   Compressing objects:  57% (12/21)   Compressing objects:  61% (13/21)   Compressing objects:  66% (14/21)   Compressing objects:  71% (15/21)   Compressing objects:  76% (16/21)   Compressing objects:  80% (17/21)   Compressing objects:  85% (18/21)   Compressing objects:  90% (19/21)   Compressing objects:  95% (20/21)   Compressing objects: 100% (21/21)   Compressing objects: 100% (21/21), done.
+Writing objects:   4% (1/24)   Writing objects:   8% (2/24)   Writing objects:  12% (3/24)   Writing objects:  16% (4/24)   Writing objects:  20% (5/24)   Writing objects:  25% (6/24)   Writing objects:  29% (7/24)   Writing objects:  33% (8/24)   Writing objects:  37% (9/24)   Writing objects:  41% (10/24)   Writing objects:  45% (11/24)   Writing objects:  50% (12/24)   Writing objects:  54% (13/24)   Writing objects:  58% (14/24)   Writing objects:  62% (15/24)   Writing objects:  66% (16/24)   Writing objects:  70% (17/24)   Writing objects:  75% (18/24)   Writing objects:  79% (19/24)   Writing objects:  83% (20/24)   Writing objects:  87% (21/24)   Writing objects:  91% (22/24)   Writing objects:  95% (23/24)   Writing objects: 100% (24/24)   Writing objects: 100% (24/24), 2.68 KiB | 391.00 KiB/s, done.
+Total 24 (delta 9), reused 0 (delta 0)
+remote: Resolving deltas:   0% (0/9)   [Kremote: Resolving deltas:  22% (2/9)   [Kremote: Resolving deltas:  44% (4/9)   [Kremote: Resolving deltas:  55% (5/9)   [Kremote: Resolving deltas:  66% (6/9)   [Kremote: Resolving deltas:  77% (7/9)   [Kremote: Resolving deltas:  88% (8/9)   [Kremote: Resolving deltas: 100% (9/9)   [Kremote: Resolving deltas: 100% (9/9), completed with 7 local objects.[K
+To https://github.com/samirLOV1/AWIPEV-CO2-git.git
+   c144880..9db89a9  master -> master
+[KMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git pull [K[K[K[K[Kremote -v
+Awipev	https://github.com/jpgattuso/AWIPEV-CO2-git.git (fetch)
+Awipev	https://github.com/jpgattuso/AWIPEV-CO2-git.git (push)
+origin	https://github.com/samirLOV1/AWIPEV-CO2-git.git (fetch)
+origin	https://github.com/samirLOV1/AWIPEV-CO2-git.git (push)
+]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git pull Awipev master
+remote: Enumerating objects: 6, done.[K
+remote: Counting objects:  16% (1/6)   [Kremote: Counting objects:  33% (2/6)   [Kremote: Counting objects:  50% (3/6)   [Kremote: Counting objects:  66% (4/6)   [Kremote: Counting objects:  83% (5/6)   [Kremote: Counting objects: 100% (6/6)   [Kremote: Counting objects: 100% (6/6), done.[K
+remote: Compressing objects:  25% (1/4)   [Kremote: Compressing objects:  50% (2/4)   [Kremote: Compressing objects:  75% (3/4)   [Kremote: Compressing objects: 100% (4/4)   [Kremote: Compressing objects: 100% (4/4), done.[K
+remote: Total 4 (delta 2), reused 0 (delta 0), pack-reused 0[K
+Unpacking objects:  25% (1/4)   Unpacking objects:  50% (2/4)   Unpacking objects:  75% (3/4)   Unpacking objects: 100% (4/4)   Unpacking objects: 100% (4/4), done.
+From https://github.com/jpgattuso/AWIPEV-CO2-git
+ * branch            master     -> FETCH_HEAD
+   c144880..238b50d  master     -> Awipev/master
+Updating 9db89a9..238b50d
+Fast-forward
+ .gitignore | 40 [31m----------------------------------------[m
+ 1 file changed, 40 deletions(-)
+ delete mode 100644 .gitignore
+]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git feth[Kch Awipev
+]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git branch
+[?1h=* [32mmaster[m[m
+  work1[m[m
+[K[?1l>]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git branch -d work1
+error: The branch 'work1' is not fully merged.
+If you are sure you want to delete it, run 'git branch -D work1'.
+]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git merge work1
+error: Your local changes to the following files would be overwritten by merge:
+	.Rproj.user/8CD7EAF3/console06/D159EF1D
+	.Rproj.user/8CD7EAF3/console06/D159EF1D.env
+	.Rproj.user/8CD7EAF3/console06/INDEX001
+	.Rproj.user/8CD7EAF3/sources/prop/4F48A00B
+Please commit your changes or stash them before you merge.
+Aborting
+]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git checkout work1
+error: Your local changes to the following files would be overwritten by checkout:
+	.Rproj.user/8CD7EAF3/console06/D159EF1D
+	.Rproj.user/8CD7EAF3/console06/D159EF1D.env
+	.Rproj.user/8CD7EAF3/console06/INDEX001
+	.Rproj.user/8CD7EAF3/pcs/source-pane.pper
+	.Rproj.user/8CD7EAF3/pcs/windowlayoutstate.pper
+	.Rproj.user/8CD7EAF3/sources/prop/4F48A00B
+Please commit your changes or stash them before you switch branches.
+Aborting
+]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git co[K[Kadd -A
+]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git commit -m "test"
+[master 343eecc] test
+ 28 files changed, 3135 insertions(+), 196 deletions(-)
+ rewrite .Rproj.user/8CD7EAF3/console06/INDEX001 (86%)
+ create mode 100644 .Rproj.user/8CD7EAF3/sources/prop/11E3F2A7
+ create mode 100644 .Rproj.user/8CD7EAF3/sources/prop/78B1BAEA
+ create mode 100644 .Rproj.user/8CD7EAF3/sources/prop/B8235C58
+ create mode 100644 .Rproj.user/8CD7EAF3/sources/s-693E38AE/5207EE9D
+ create mode 100644 .Rproj.user/8CD7EAF3/sources/s-693E38AE/5207EE9D-contents
+ create mode 100644 .Rproj.user/8CD7EAF3/sources/s-693E38AE/55FA810D
+ create mode 100644 .Rproj.user/8CD7EAF3/sources/s-693E38AE/55FA810D-contents
+ create mode 100644 .Rproj.user/8CD7EAF3/sources/s-693E38AE/lock_file
+ create mode 100644 .Rproj.user/shared/notebooks/EA182F0D-awipev-CO2/1/8CD7EAF31E2790E3/chunks.json
+ create mode 100644 .Rproj.user/shared/notebooks/EA182F0D-awipev-CO2/1/8CD7EAF3770104E5/chunks.json
+ create mode 100644 .Rproj.user/shared/notebooks/EA182F0D-awipev-CO2/1/8CD7EAF3995ECB2F/chunks.json
+ create mode 100644 .Rproj.user/shared/notebooks/EA182F0D-awipev-CO2/1/8CD7EAF3B4744AA/chunks.json
+ create mode 100644 .Rproj.user/shared/notebooks/EA182F0D-awipev-CO2/1/s/c27rqgluncc1g/000002.csv
+ create mode 100644 .Rproj.user/shared/notebooks/EA182F0D-awipev-CO2/1/s/ca5k9gcl6wd1p/000002.csv
+ create mode 100644 .Rproj.user/shared/notebooks/EA182F0D-awipev-CO2/1/s/chya51zci0oaq/000002.csv
+ create mode 100644 .Rproj.user/shared/notebooks/EA182F0D-awipev-CO2/1/s/ciby4x6rpxqmc/000002.csv
+ create mode 100644 .Rproj.user/shared/notebooks/EA182F0D-awipev-CO2/1/s/crbuqdopwgxl9/000002.csv
+ create mode 100644 .Rproj.user/shared/notebooks/EA182F0D-awipev-CO2/1/s/cs5rudulygezn/00000d.csv
+ create mode 100644 .Rproj.user/shared/notebooks/EA182F0D-awipev-CO2/1/s/cs5rudulygezn/00000e.error
+ create mode 100644 awipev-CO2.html
+]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git branch
+[?1h=* [32mmaster[m[m
+  work1[m[m
+[K[?1l>]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git branc[K[K[K[K[Kcheckout work1
+error: Your local changes to the following files would be overwritten by checkout:
+	.Rproj.user/8CD7EAF3/console06/D159EF1D
+Please commit your changes or stash them before you switch branches.
+Aborting
+]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git add AWIPEV-CO2-git.Rproj [K
+]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git add AWIPEV-CO2-git.Rproj[10Pcheckout work1[8Pbranchcommit -m "test"
+On branch master
+Your branch is ahead of 'origin/master' by 3 commits.
+  (use "git push" to publish your local commits)
+
+Changes not staged for commit:
+	[31mmodified:   .Rproj.user/8CD7EAF3/console06/D159EF1D[m
+
+no changes added to commit
+]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git checkout work1
+error: Your local changes to the following files would be overwritten by checkout:
+	.Rproj.user/8CD7EAF3/console06/D159EF1D
+Please commit your changes or stash them before you switch branches.
+Aborting
+]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git fetch origin
+]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git checkout work1
+error: Your local changes to the following files would be overwritten by checkout:
+	.Rproj.user/8CD7EAF3/console06/D159EF1D
+Please commit your changes or stash them before you switch branches.
+Aborting
+]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git pull -s recursive -X theirs[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K remot[K[K[Kset --hard origin master
+fatal: Cannot do hard reset with paths.
+]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git reset --hard origin master[C[C[C[C[C[C[C[C[C[C[C[C[C[C[12Pcheckout work1reset --hard origin master[Kgit reset --hard origin master[C[C[C[C[1Pr[1Pr[1Pr[1Pr[1Pr[1Pr/rmrartrsrer[Cr[K
+fatal: ambiguous argument 'origin/matser': unknown revision or path not in the working tree.
+Use '--' to separate paths from revisions, like this:
+'git <command> [<revision>...] -- [<file>...]'
+]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git pull --rebase
+error: cannot pull with rebase: You have unstaged changes.
+error: please commit or stash them.
+]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git co[K[Kas[Kdd -A
+]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git commit -m[Kam "test1"
+[master b8b4ced] test1
+ 1 file changed, 65 insertions(+), 1 deletion(-)
+]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git checkout work1
+error: Your local changes to the following files would be overwritten by checkout:
+	.Rproj.user/8CD7EAF3/console06/D159EF1D
+Please commit your changes or stash them before you switch branches.
+Aborting
+]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git checkout work1ommit -am "test1"
+[master 78a5d0d] test1
+ 1 file changed, 9 insertions(+), 1 deletion(-)
+]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git branch
+[?1h=* [32mmaster[m[m
+  work1[m[m
+[K[?1l>]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git merge work1
+error: Your local changes to the following files would be overwritten by merge:
+	.Rproj.user/8CD7EAF3/console06/D159EF1D
+Please commit your changes or stash them before you merge.
+Aborting
+]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git merge work1[5Pbranchcommit -am "test1"[4Pheckout work1ommit -am "test1"[12Padd -Apull --rebasereset --hard origin/matser[K[K[K[K[K[Kwork1
+fatal: ambiguous argument 'origin/work1': unknown revision or path not in the working tree.
+Use '--' to separate paths from revisions, like this:
+'git <command> [<revision>...] -- [<file>...]'
+]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git fetch
+]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git fetchreset --hard origin/work1[14Pmerge work1
+error: Your local changes to the following files would be overwritten by merge:
+	.Rproj.user/8CD7EAF3/console06/D159EF1D
+Please commit your changes or stash them before you merge.
+Aborting
+]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git merge work1[6Pfetch
+^[[A]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git fetchmerge work1[6Pfetchreset --hard origin/work1[14Pmerge work1[5Pbranchcommit -am "test1"[4Pheckout work1
+error: Your local changes to the following files would be overwritten by checkout:
+	.Rproj.user/8CD7EAF3/console06/D159EF1D
+Please commit your changes or stash them before you switch branches.
+Aborting
+]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git checkout work1[9Pfetch
+]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git fetchcheckout work1[9Pfetchcheckout work1
+error: Your local changes to the following files would be overwritten by checkout:
+	.Rproj.user/8CD7EAF3/console06/D159EF1D
+Please commit your changes or stash them before you switch branches.
+Aborting
+]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git pull -s recursive -X theirs
+Already up to date.
+]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git pull -s recursive -X theirs[13Pcheckout work1[9Pfetchcheckout work1[9Pfetchmerge work1[6Pfetchreset --hard origin/work1[14Pmerge work1reset --hard origin/work1
+fatal: ambiguous argument 'origin/work1': unknown revision or path not in the working tree.
+Use '--' to separate paths from revisions, like this:
+'git <command> [<revision>...] -- [<file>...]'
+]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git pushreset --hard origin/work1pull -s recursive -X theirs[13Pcheckout work1[9Pfetchcheckout work1[9Pfetchmerge work1[6Pfetchreset --hard origin/work1[14Pmerge work1[5Pbranchcommit -am "test1"[4Pheckout work1ommit -am "test1"[12Padd -Apull --rebasereset --hard origin/matser master[12Pcheckout work1[2Pfetch origincheckout work1ommit -m "test"add AWIPEV-CO2-git.Rproj[10Pcheckout work1[8Pbranchcommit -m "test"[10Padd -Acheckout work1[3Pmerge[C[C[C[C[C[C[4@branch -d[C[C[C[C[C[C[Kfetch Awipevpull Awipev master[9Premote -vbranch -d work1[Kpull Awipev master[Kcheckout master[K[K[K[K[K[K[K[K[K[K[K[K[K[K[Kbransh
+git: 'bransh' is not a git command. See 'git --help'.
+
+The most similar command is
+	branch
+]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git branch
+[?1h=* [32mmaster[m[m
+  work1[m[m
+[K[?1l>]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git push [K[K[K[K[K[K[K[K[Kgit rebase -i origin/master
+Cannot rebase: You have unstaged changes.
+Please commit or stash them.
+]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ fi[K[Kgit push [K[K[K[K[Kdiff master work1
+[?1h=[1mdiff --git a/.Rhistory b/.Rhistory[m[m
+[1mindex 870c1eb..8b8ead5 100644[m[m
+[1m--- a/.Rhistory[m[m
+[1m+++ b/.Rhistory[m[m
+[36m@@ -1,44 +1,159 @@[m[m
+[31m-discrete$phcalc<- carb$pH[m[m
+[31m-discrete$pco2calc<- carb$pCO2[m[m
+[31m-# xx <- read_tsv("../fb_server/ny-alesund/data/old/All_sensors_731101_2016-08-20.txt", skip=16, col_names=TRUE)[m[m
+[31m-load(file = paste0(path, "fb_awipev-co2_server/ny-alesund/data/processed/nydata_hour.Rdata"))[m[m
+[31m-#load(file = paste0(path, "fb_server/shinyroot/AWIPEV-CO2/nydata_hour_shiny.Rdata"))[m[m
+[31m-#load(file = "../fb_server/shinyroot/AWIPEV-CO2/nydata_shiny.Rdata") #d[m[m
+[31m-# load = d_hour[m[m
+[31m-d_hour <- d_hour %>%[m[m
+[31m-dplyr::select(-date) %>%[m[m
+[31m-dplyr::mutate(AT = ifelse(datetime > "2016-02-26 12:00:00", AT, NA), # beginning of data series for AT[m[m
+[31m-AT = ifelse(AT == "NaN", NA, AT), #3 columns are character[m[m
+[31m-pH_AT = ifelse(pH_AT == "NaN", NA, pH_AT),[m[m
+[31m-PCO2_Corr_Zero2 = ifelse(PCO2_Corr_Zero2 %in% c("NaN", 66666), NA, PCO2_Corr_Zero2)[m[m
+[31m-) %>%[m[m
+:[K[K[31m-dplyr::rename(at_contros=AT, ph_at_contros=pH_AT, pco2_contros=PCO2_corr_contros_filtered, zero_contros=PCO2_Corr_Zero2,[m[m
+:[K[K[31m-sal_fb=Salinity_filtered, temp_fb=Temperature_filtered, pH_durafet=HW_pH1_filtered, temp_insitu=Temp_SBE38_filtered)[m[m
+:[K[K[31m-View(d_hour)[m[m
+:[K[K[31m-d_all <- d_hour #d_all will be the merger[m[m
+:[K[K[31m-d_all<- d_all%>%[m[m
+:[K[K[31m-dplyr::mutate(month = month(month(datetime)))[m[m
+:[K[K[31m-# at[m[m
+:[K[K[31m-closest <- which.closest(discrete$datetime, d_all$datetime) # closest date and time[m[m
+:[K[K[31m-discrete$closest_datetime <- d_all$datetime[closest][m[m
+:[K[K[31m-# if the closest value is more than 30 min away, then we do not take it[m[m
+:[K[K[31m-discrete$closest_datetime[abs(discrete$datetime - d_all$datetime[closest]) > 30*60] <- NA[m[m
+:[K[K[31m-# remove the drop_na() because of seafet/durafet line with na[m[m
+:[K[K[31m-discrete2merge <- discrete %>%[m[m
+:[K[K[31m-#drop_na() %>%[m[m
+:[K[K[31m-dplyr::select(closest_datetime, at, qflag_at) %>%[m[m
+:[K[K[31m-rename(datetime=closest_datetime)[m[m
+:[K[K[31m-d_all <- full_join(d_all, discrete2merge, by="datetime")[m[m
+:[K[K[31m-# ct[m[m
+:[K[K[31m-# closest <- which.closest(discrete$datetime, d$datetime) # closest date and time[m[m
+:[K[K[31m-# discrete$closest_datetime <- d$datetime[closest][m[m
+:[K[K[31m-# # if the closest value is more than 30 min away, then we do not take it[m[m
+:[K[K[31m-# discrete$closest_datetime[abs(discrete$datetime - d$datetime[closest]) > 30*60] <- NA[m[m
+:[K[K[31m-discrete2merge <- discrete %>%[m[m
+:[K[K[31m-#drop_na() %>%[m[m
+:[K[K[31m-dplyr::select(closest_datetime, ct, qflag_ct) %>%[m[m
+:[K[K[31m-rename(datetime=closest_datetime)[m[m
+:[K[K[31m-View(d_all)[m[m
+:[K[K[32m+[m[32mdyShading(from = TAevents[7], to = TAevents[8], color = "#C2C2C2") %>%[m[m
+:[K[K[32m+[m[32mdyShading(from = TAevents[9], to = TAevents[10], color = "#EDEDED") %>%[m[m
+:[K[K[32m+[m[32mdyShading(from = TAevents[11], to = TAevents[12], color = "#C2C2C2") %>%[m[m
+:[K[K[32m+[m[32mdyAxis("y",valueRange = c(2000, 2550)) %>%[m[m
+:[K[K[32m+[m[32mdyHighlight(highlightCircleSize = 8,highlightSeriesBackgroundAlpha = 0.5,hideOnMouseOut = TRUE) %>%[m[m
+:[K[K[32m+[m[32mdyOptions( strokeWidth= 0) %>%[m[m
+:[K[K[32m+[m[32mdyOptions(drawGrid = TRUE, drawPoints = TRUE,useDataTimezone = TRUE) %>%[m[m
+:[K[K[32m+[m[32mdyRangeSelector(height = 30, dateWindow= NULL)[m[m
+:[K[K[32m+[m[32mf <- as.data.frame(table(d_all$at))[m[m
+:[K[K[32m+[m[32msum(f$Freq)[m[m
+:[K[K[32m+[m[32m# Number of outliers removed in the dataset[m[m
+:[K[K[32m+[m[32m# numberOutliers <- length(which((dat_ATnoNA$outliers > 0)))[m[m
+:[K[K[32m+[m[32mcalib_analyser <-  read.table(paste0(path, "fb_data/Calibration/TA_#1215/measure_CRM_TA.txt"), header = T, dec = ".", as.is [m :[K[K[32m[m[32m= T, sep = ",", fill = TRUE)[m[m
+:[K[K[32m+[m[32m# To make the mean[m[m
+:[K[K[32m+[m[32m# Keep dates as Character to plot without date gaps.[m[m
+:[K[K[32m+[m[32mcalib_analyser3 <- calib_analyser %>%[m[m
+:[K[K[32m+[m[32mdplyr::filter(analyser == "TA3")[m[m
+:[K[K[32m+[m[32mmeanTA3 <- calib_analyser3 %>%[m[m
+:[K[K[32m+[m[32mgroup_by(day) %>%[m[m
+:[K[K[32m+[m[32msummarise (meanTA = mean(TA))[m[m
+:[K[K[32m+[m[32mmelt_calib <- melt(calib_analyser, id.vars=c("analyser", "TA_theo", "datetime", "CRM"), measure.vars=c("TA"))[m[m
+:[K[K[32m+[m[32mcalib_p <- ggplot()+[m[m
+:[K[K[32m+[m[32mgeom_point(data= melt_calib, aes(x=datetime, y=value, color=factor(CRM), shape= factor(analyser)) , size=3) +[m[m
+:[K[K[32m+[m[32mscale_color_manual(values=c("blue","red"))+[m[m
+:[K[K[32m+[m[32m# set dashed lines for theoritical CRM[m[m
+:[K[K[32m+[m[32mgeom_segment(aes(x=1,xend=20,y=2226.16,yend=2226.16), linetype="dashed", color="blue")+[m[m
+:[K[K[32m+[m[32mannotate("text", x = 11, y = 2228, label = "Batch #145 = 2226.16", color="blue")+[m[m
+:[K[K[32m+[m[32mgeom_segment(aes(x=20,xend=23,y=2213.59,yend=2213.59), linetype="dashed", color="red")+[m[m
+:[K[K[32m+[m[32mannotate("text", x = 15.5, y = 2213.59, label = "Batch #159 = 2213.59", color="red")+[m[m
+:[K[K[32m+[m[32m# set hard lines for measured CRM[m[m
+:[K[K[32m+[m[32mgeom_segment(aes(x=1,xend=5,y=2254,yend=2254), color="blue") +[m[m
+:[K[K[32m+[m[32mannotate("text", x = 3, y = 2249, label = "2254", color="blue")+[m[m
+:[K[K[32m+[m[32mgeom_segment(aes(x=6,xend=10,y=2251.6,yend=2251.6), color="blue") +[m[m
+:[K[K[32m+[m[32mannotate("text", x = 8, y = 2247, label = "2251.6", color="blue")+[m[m
+:[K[K[32m+[m[32mgeom_segment(aes(x=11,xend=15,y=2190.4,yend=2190.4), color="blue")+[m[m
+:[K[K[32m+[m[32mannotate("text", x = 14, y = 2195, label = "2190.4", color="blue")+[m[m
+:[K[K[32m+[m[32mgeom_segment(aes(x=16,xend=20,y=2203.5,yend=2203.5), color="blue")+[m[m
+:[K[K[32m+[m[32mannotate("text", x = 18, y = 2200, label = "2203.5", color="blue")+[m[m
+:[K[K[32m+[m[32mgeom_segment(aes(x=21,xend=23,y=2224.20,yend=2224.20), color="red")+[m[m
+:[K[K[32m+[m[32mannotate("text", x = 22, y = 2230, label = "2224.2", color="red") +[m[m
+:[K[K[32m+[m[32mtheme_bw() + theme(axis.text.x = element_text(angle = 45, hjust = 1))+[m[m
+:[K[K[32m+[m[32mlabs(title= "",y=expression(paste("Total alkalinity (µmoles.",kg^-1,")")), x="Date", color= "CRM",shape= "Deployed instrumen[m :[K[K[32m[m[32mt")[m[m
+:[K[K[32m+[m[32mggsave(paste0(path, "fb_figures/TA_Analyser/Calibration/TA_calibration_CRM.png"), calib_p, units="cm")[m[m
+:[K[K[32m+[m[32mprint(calib_p)[m[m
+:[K[K[32m+[m[32m#Interpolation of continuous sensor data to match a maximum of reference data.[m[m
+:[K[K[32m+[m[32mTAinterp_all <-approx(d_all$datetime, d_all$AT_filtered, xout=d_all$datetime, method="linear", rule=2)[m[m
+:[K[K[32m+[m[32mnames(TAinterp_all) <- c("datetime", "AT_filtered_interp")[m[m
+:[K[K[32m+[m[32mTAinterp_all <- as.data.frame(TAinterp_all)[m[m
+:[K[K[32m+[m[32md_all$AT_filtered_interp <- TAinterp_all$AT_filtered_interp[m[m
+:[K[K[32m+[m[32m# create a column with difference between sensor and ref[m[m
+:[K[K[32m+[m[32md_all <- d_all%>%[m[m
+:[K[K[32m+[m[32mdplyr::mutate(diff_ta =  at-AT_filtered_interp )[m[m
+:[K[K[32m+[m[32m# create colum with instrument number[m[m
+:[K[K[32m+[m[32md_all <- d_all %>%[m[m
+:[K[K[32m+[m[32mdplyr::mutate(TA_period= ifelse(datetime >= "2016-02-26 00:00:00" & datetime < "2017-02-09 12:00:00", "TA1",[m[m
+:[K[K[32m+[m[32mifelse(datetime >= "2017-02-09 12:00:00" & datetime < "2017-03-10 12:00:00", "TA2",[m[m
+:[K[K[32m+[m[32mifelse(datetime >= "2018-01-07 00:00:00" & datetime < "2018-06-20 00:00:00", "TA3",[m[m
+:[K[K[32m+[m[32mifelse(datetime >= "2018-07-31 00:00:00" & datetime < "2018-10-31 00:00:00", "TA4",[m[m
+:[K[K[32m+[m[32mifelse(datetime >= "2019-01-26 00:00:00" , "TA5", "TA0"))))))[m[m
+:[K[K[32m+[m[32m#remove outliers[m[m
+:[K[K[32m+[m[32mcalib_ta_first <- d_all%>%[m[m
+:[K[K[32m+[m[32mdplyr::select(datetime, closest_datetime,AT_filtered, AT_filtered_interp, at,diff_ta,TA_period)%>%[m[m
+:[K[K[32m+[m[32mdplyr::filter(TA_period =="TA1" & !is.na(at))[m[m
+:[K[K[32m+[m[32m#dplyr::filter( !is.na(at))#, diff_ta > -40 & diff_ta < 20 )[m[m
+:[K[K[32m+[m[32m# & datetime != "2016-08-18 08:00:00" & datetime != "2016-12-29 12:00:00 ",!is.na(at))[m[m
+:[K[K[32m+[m[32m# Parameters of regression[m[m
+:[K[K[32m+[m[32mfit <- lm( data=calib_ta_first%>%filter(diff_ta <= 50), diff_ta ~ datetime)[m[m
+:[K[K[32m+[m[32mat_slope_TA1 <- round(fit$coefficients[[2]] , digits=6)[m[m
+:[K[K[32m+[m[32mat_slope1 <- round(at_slope_TA1 * 3600 *24 * 365.24, digits=2)[m[m
+:[K[K[32m+[m[32mat_intercept1 <- round(fit$coefficients[[1]], digits= 2)[m[m
+:[K[K[32m+[m[32m# Plot of regression[m[m
+:[K[K[32m+[m[32mp <- ggplot(calib_ta_first%>%filter(diff_ta <= 50),aes(datetime,diff_ta)) +[m[m
+:[K[K[32m+[m[32mgeom_point() + geom_smooth(method='lm', se=FALSE)+[m[m
+:[K[K[32m+[m[32mgeom_point(data= calib_ta_first%>%filter(diff_ta >= 50), aes(x=datetime, y=diff_ta), color="red")  +[m[m
+:[K[K[32m+[m[32mgeom_hline(yintercept = 0, linetype="dashed" )+[m[m
+:[K[K[32m+[m[32mlabs(title = paste("Adj R2 = ",signif(summary(fit)$adj.r.squared, 5),[m[m
+:[K[K[32m+[m[32m"Intercept =",signif(fit$coef[[1]],5 ),[m[m
+:[K[K[32m+[m[32m"Slope =",signif(fit$coef[[2]], 5),[m[m
+:[K[K[32m+[m[32m"P =",signif(summary(fit)$coef[2,4], 5))) +[m[m
+:[K[K[32m+[m[32mylab("Difference: Reference - Analyser") + xlab("Time") + scale_x_datetime(date_labels = "%b %Y", date_minor_breaks = "month[m :[K[K[32m[m[32m", timezone="UTC")[m[m
+:[K[K[32m+[m[32mprint(p)[m[m
+:[K[K[32m+[m[32mggsave(paste0(path, "fb_figures/TA_Analyser/Calibration/Diff_ref_TA_first_period.png"), p, units="cm")[m[m
+:[K[K[32m+[m[32m#remove outliers and remove period without TA measurements[m[m
+:[K[K[32m+[m[32mcalib_ta_third <- d_all%>%[m[m
+:[K[K[32m+[m[32mdplyr::select(datetime, closest_datetime,AT_filtered, AT_filtered_interp, at,diff_ta, TA_period)%>%[m[m
+:[K[K[32m+[m[32mdplyr::filter(TA_period == "TA3" & !is.na(at))[m[m
+:[K[K[32m+[m[32m# Parameters of regression[m[m
+:[K[K[32m+[m[32mfit <- lm( data=calib_ta_third, diff_ta ~ datetime)[m[m
+:[K[K[32m+[m[32mat_slope_TA3 <- round(fit$coefficients[[2]] , digits=8)[m[m
+:[K[K[32m+[m[32mat_slope3 <- round(at_slope_TA3 * 3600 *24 * 365.24, digits=2)[m[m
+:[K[K[32m+[m[32mat_intercept3 <- round(fit$coefficients[[1]], digits= 2) # pas besoin ici.[m[m
+:[K[K[32m+[m[32m# Plot of regression[m[m
+:[K[K[32m+[m[32mp <- ggplot(calib_ta_third,aes(x=datetime, y=diff_ta) )+[m[m
+:[K[K[32m+[m[32mgeom_point() + geom_smooth(method='lm', se=FALSE)+[m[m
+:[K[K[32m+[m[32m#geom_point(data= calib_ta_third%>%filter(diff_ta < -40 & diff_ta<20), aes(x=datetime, y=diff_ta), color="red")  +[m[m
+:[K[K[32m+[m[32mgeom_hline(yintercept = 0, linetype="dashed" )+[m[m
+:[K[K[32m+[m[32mgeom_vline(xintercept = as.POSIXct("2018-01-08 12:55:00", tz="UTC"), colour="red", linetype = "longdash") +[m[m
+:[K[K[32m+[m[32m#geom_text(aes(xintercept=as.POSIXct("2018-01-01 12:55:00"),label="TA "), colour="red", vjust=1.2)+[m[m
+:[K[K[32m+[m[32mlabs(title = paste("Adj R2 = ",signif(summary(fit)$adj.r.squared, 5),[m[m
+:[K[K[32m+[m[32m"Intercept =",signif(fit$coef[[1]],5 ),[m[m
+:[K[K[32m+[m[32m" Slope =",signif(fit$coef[[2]], 5),[m[m
+:[K[K[32m+[m[32m" P =",signif(summary(fit)$coef[2,4], 5))) + ylab("Difference: Reference - Analyser") + xlab("Time") +[m[m
+:[K[K[32m+[m[32mscale_x_datetime( date_labels = "%b %Y", date_minor_breaks = "month", timezone="UTC")[m[m
+:[K[K[32m+[m[32mprint(p)[m[m
+:[K[K[32m+[m[32mggsave(paste0(path, "fb_figures/TA_Analyser/Calibration/Diff_ref_TA_third_period.png"), p, units="cm")[m[m
+:[K[K[32m+[m[32m#remove outliers and remove period without TA measurements[m[m
+:[K[K[32m+[m[32mcalib_ta_second <- d_all%>%[m[m
+:[K[K[32m+[m[32mdplyr::select(datetime, closest_datetime,AT_filtered, AT_filtered_interp, at,diff_ta, TA_period)%>%[m[m
+:[K[K[32m+[m[32mdplyr::filter(TA_period == "TA2" & !is.na(at))[m[m
+:[K[K[32m+[m[32mmean_offset <- mean(calib_ta_second$diff_ta)[m[m
+:[K[K[32m+[m[32m# Correction for the 3 periods is apply[m[m
+:[K[K[32m+[m[32md_all <- d_all%>%[m[m
+:[K[K[32m+[m[32mdplyr::mutate(datetime_reg = as.numeric(datetime),[m[m
+:[K[K[32m+[m[32mat_intercept = ifelse(TA_period == "TA1", at_intercept1,[m[m
+:[K[K[32m+[m[32mifelse(TA_period == "TA3", at_intercept3, NA)),[m[m
+:[K[K[32m+[m[32mat_slope = ifelse(TA_period == "TA1", at_slope_TA1,[m[m
+:[K[K[32m+[m[32mifelse(TA_period == "TA3", at_slope_TA3, NA))[m[m
+:[K[K[32m+[m[32m)[m[m
+:[K[K[32m+[m[32md_all <- d_all%>%[m[m
+:[K[K[32m+[m[32mdplyr::mutate(TA_reg_corrected = ifelse(TA_period == "TA1", (AT_filtered + (d_all$datetime_reg * d_all$at_slope + at_interce[m :[K[K[32m[m[32mpt)),[m[m
+:[K[K[32m+[m[32mifelse(TA_period == "TA2", (AT_filtered + mean_offset),[m[m
+:[K[K[32m+[m[32mifelse(TA_period == "TA3", (AT_filtered + (datetime_reg * at_slope)+ at_intercept), NA))))[m[m
+:[K[K[32m+[m[32mat_contros_cleaned_xts <- dplyr::select(d_all, datetime,AT_filtered,at,TA_reg_corrected)[m[m
+:[K[K[32m+[m[32mat_contros_cleaned_xts <-  as.xts(at_contros_cleaned_xts, order.by = d_all$datetime)[m[m
+:[K[K[32m+[m[32mdygraph(at_contros_cleaned_xts, group = "awipev", main=" Total Alkalinity (in Ferrybox)", ylab="Total alkalinity") %>%[m[m
+:[K[K[32m+[m[32m#dySeries("at_contros", color = RColorBrewer::brewer.pal(3, "Set2"), strokeWidth = 0, pointSize=2) %>%[m[m
+:[K[K[32m+[m[32mdySeries("AT_filtered", label= "Raw TA", color = "blue", strokeWidth = 0, pointSize=2) %>%[m[m
+:[K[K[32m+[m[32mdySeries("TA_reg_corrected", label= "Corrected TA", color = RColorBrewer::brewer.pal(3, "Dark2")[1], strokeWidth = 0, pointS[m :[K[K[32m[m[32mize=2) %>%[m[m
+:[K[K[32m+[m[32mdySeries("at", label="TA reference",color = "red", strokeWidth = 0, pointSize=4) %>%[m[m
+:[K[K[32m+[m[32mdyEvent(as.POSIXct("2016-05-31 10:00:00", tz="GMT"), "HCl Changed", labelLoc = "bottom") %>%[m[m
+:[K[K[32m+[m[32mdyEvent(as.POSIXct("2016-06-24 10:00:00", tz="GMT"), "BCG Changed", labelLoc = "bottom") %>%[m[m
+:[K[K[32m+[m[32mdyEvent(as.POSIXct("2016-02-24 14:00:00", tz="GMT"), "Calibration 1", labelLoc = "bottom") %>%[m[m
+:[K[K[32m+[m[32mdyEvent(as.POSIXct("2016-09-16 10:00:00", tz="GMT"), "Calibration 2", labelLoc = "bottom") %>%[m[m
+:[K[K[32m+[m[32mdyEvent(as.POSIXct("2017-03-21 12:00:00", tz="GMT"), "TA analyser changed", labelLoc = "top", color="red") %>%[m[m
+:[K[K[32m+[m[32mdyEvent(as.POSIXct("2018-01-08 12:55:00", tz="GMT"), "TA analyser changed #TA-0317-001", labelLoc = "top", color="red") %>%[m[m
+:[K[K[32m+[m[32mdyEvent(as.POSIXct("2018-07-31 00:00:00", tz="GMT"), "TA analyser changed #TA-1215-001", labelLoc = "top", color="red") %>%[m[m
+:[K[K[32m+[m[32mdyEvent(as.POSIXct("2018-10-30 18:00:00", tz="GMT"), "TA analyser changed #TA-0317-001", labelLoc = "top", color="red") %>%[m[m
+:[K[K[32m+[m[32mdyEvent(as.POSIXct("2016-11-15 09:00:00", tz="GMT"), "CRM measurement", labelLoc = "bottom") %>%[m[m
+:[K[K[32m+[m[32mdyEvent(as.POSIXct("2017-02-09 12:20:00", tz="GMT"), "CRM measurement", labelLoc = "bottom") %>%[m[m
+:[K[K[32m+[m[32mdyEvent(as.POSIXct("2017-04-11 06:20:00", tz="GMT"), "CRM measurement", labelLoc = "bottom") %>%[m[m
+:[K[K[32m+[m[32mdyEvent(as.POSIXct("2018-01-22 13:00:12", tz="GMT"), "CRM measurement", labelLoc = "bottom") %>%[m[m
+:[K[K[32m+[m[32mdyEvent(as.POSIXct("2018-05-16 12:39:39", tz="GMT"), "CRM measurement", labelLoc = "bottom") %>%[m[m
+:[K[K[32m+[m[32mdyEvent(as.POSIXct("2018-10-31 10:29:27", tz="GMT"), "CRM measurement", labelLoc = "bottom") %>%[m[m
+:[K[K[32m+[m[32mdyEvent(as.POSIXct("2019-01-26 13:25:20", tz="GMT"), "Calibration mode - CRM", labelLoc = "bottom") %>%[m[m
+:[K[K[32m+[m[32m#dyOptions(colors = RColorBrewer::brewer.pal(3, "Dark2"), pointSize = 4) %>%[m[m
+:[K[K[32m+[m[32mdyShading(from = TAevents[1], to = TAevents[2], color = "#EDEDED") %>%[m[m
+:[K[K[32m+[m[32mdyShading(from = TAevents[3], to = TAevents[4], color = "#C2C2C2") %>%[m[m
+:[K[K[32m+[m[32mdyShading(from = TAevents[5], to = TAevents[6], color = "#EDEDED") %>%[m[m
+:[K[K[32m+[m[32mdyShading(from = TAevents[7], to = TAevents[8], color = "#C2C2C2") %>%[m[m
+:[K[K[32m+[m[32mdyShading(from = TAevents[9], to = TAevents[10], color = "#EDEDED") %>%[m[m
+:[K[K[32m+[m[32mdyShading(from = TAevents[11], to = TAevents[12], color = "#C2C2C2") %>%[m[m
+:[K[K[32m+[m[32mdyAxis("y",valueRange = c(1600, 2450)) %>%[m[m
+:[K[K[32m+[m[32mdyHighlight(highlightCircleSize = 8,highlightSeriesBackgroundAlpha = 0.5,hideOnMouseOut = TRUE) %>%[m[m
+:[K[K[32m+[m[32mdyOptions( strokeWidth= 0) %>%[m[m
+:[K[K[32m+[m[32mdyOptions(drawGrid = TRUE, drawPoints = TRUE,useDataTimezone = TRUE) %>%[m[m
+:[K[K[32m+[m[32mdyRangeSelector(height = 30, dateWindow= NULL)[m[m
+:[K[K #[m[m
+:[K[K Sys.setlocale("LC_ALL", "en_US.UTF-8")[m[m
+:[K[K Sys.setenv(TZ='UTC') # on utilise UTC[m[m
+:[K[K[36m@@ -83,29 +198,23 @@[m [mround(approx(x=table, y=1:length(table), xout=x, ...)$y)[m[m
+:[K[K }[m[m
+:[K[K #################### Regression function[m[m
+:[K[K # function regression plot with model II equation (MA) in title[m[m
+:[K[K[31m-## Dans labs ajout de la variable TITRE pour mettre titre avant chaque graphe[m[m
+:[K[K[31m-ggreg2 <- function (fit, xdata, ydata) { # x and y are the names of the variables[m[m
+:[K[K[32m+[m[32m## Dans labs ajout de la variable title pour mettre title avant chaque graphe[m[m
+:[K[K[32m+[m[32mggreg2 <- function (fit, x, y, point.size=5) { # x and y are the names of the variables[m[m
+:[K[K fit_data <- data.frame(fit$x, fit$y)[m[m
+:[K[K[31m-colnames(fit_data) = c(xdata, ydata)[m[m
+:[K[K[32m+[m[32mcolnames(fit_data) = c(x, y)[m[m
+:[K[K reg <- fit$regression.results[2,] #one selects MA only[m[m
+:[K[K intercept <- reg$Intercept[m[m
+:[K[K slope <- reg$Slope[m[m
+:[K[K[31m-ggplot(data = fit_data, aes_string(x = xdata, y = ydata)) +[m[m
+:[K[K[31m-geom_point(size = 3, col = "blue") +[m[m
+:[K[K[32m+[m[32mggplot(data = fit_data, aes_string(x = x, y = y)) +[m[m
+:[K[K[?1l>]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git status
+On branch master
+Your branch is ahead of 'origin/master' by 5 commits.
+  (use "git push" to publish your local commits)
+
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git checkout -- <file>..." to discard changes in working directory)
+
+	[31mmodified:   .Rproj.user/8CD7EAF3/console06/D159EF1D[m
+
+no changes added to commit (use "git add" and/or "git commit -a")
+]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git -a
+unknown option: -a
+usage: git [--version] [--help] [-C <path>] [-c <name>=<value>]
+           [--exec-path[=<path>]] [--html-path] [--man-path] [--info-path]
+           [-p | --paginate | -P | --no-pager] [--no-replace-objects] [--bare]
+           [--git-dir=<path>] [--work-tree=<path>] [--namespace=<name>]
+           <command> [<args>]
+]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git branch -a
+[?1h=* [32mmaster[m[m
+  work1[m[m
+  [31mremotes/Awipev/master[m[m
+  [31mremotes/origin/HEAD[m -> origin/master[m
+  [31mremotes/origin/master[m[m
+[K[?1l>]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git status
+On branch master
+Your branch is ahead of 'origin/master' by 5 commits.
+  (use "git push" to publish your local commits)
+
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git checkout -- <file>..." to discard changes in working directory)
+
+	[31mmodified:   .Rproj.user/8CD7EAF3/console06/D159EF1D[m
+
+no changes added to commit (use "git add" and/or "git commit -a")
+]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git fetch origin
+]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git remote -v
+Awipev	https://github.com/jpgattuso/AWIPEV-CO2-git.git (fetch)
+Awipev	https://github.com/jpgattuso/AWIPEV-CO2-git.git (push)
+origin	https://github.com/samirLOV1/AWIPEV-CO2-git.git (fetch)
+origin	https://github.com/samirLOV1/AWIPEV-CO2-git.git (push)
+]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ [KMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git add -A 
