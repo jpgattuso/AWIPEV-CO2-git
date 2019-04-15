@@ -946,3 +946,67 @@ error: Your local changes to the following files would be overwritten by checkou
 Please commit your changes or stash them before you switch branches.
 Aborting
 ]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git co[K[Kadd -A
+]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git commit -m "test"
+[master 343eecc] test
+ 28 files changed, 3135 insertions(+), 196 deletions(-)
+ rewrite .Rproj.user/8CD7EAF3/console06/INDEX001 (86%)
+ create mode 100644 .Rproj.user/8CD7EAF3/sources/prop/11E3F2A7
+ create mode 100644 .Rproj.user/8CD7EAF3/sources/prop/78B1BAEA
+ create mode 100644 .Rproj.user/8CD7EAF3/sources/prop/B8235C58
+ create mode 100644 .Rproj.user/8CD7EAF3/sources/s-693E38AE/5207EE9D
+ create mode 100644 .Rproj.user/8CD7EAF3/sources/s-693E38AE/5207EE9D-contents
+ create mode 100644 .Rproj.user/8CD7EAF3/sources/s-693E38AE/55FA810D
+ create mode 100644 .Rproj.user/8CD7EAF3/sources/s-693E38AE/55FA810D-contents
+ create mode 100644 .Rproj.user/8CD7EAF3/sources/s-693E38AE/lock_file
+ create mode 100644 .Rproj.user/shared/notebooks/EA182F0D-awipev-CO2/1/8CD7EAF31E2790E3/chunks.json
+ create mode 100644 .Rproj.user/shared/notebooks/EA182F0D-awipev-CO2/1/8CD7EAF3770104E5/chunks.json
+ create mode 100644 .Rproj.user/shared/notebooks/EA182F0D-awipev-CO2/1/8CD7EAF3995ECB2F/chunks.json
+ create mode 100644 .Rproj.user/shared/notebooks/EA182F0D-awipev-CO2/1/8CD7EAF3B4744AA/chunks.json
+ create mode 100644 .Rproj.user/shared/notebooks/EA182F0D-awipev-CO2/1/s/c27rqgluncc1g/000002.csv
+ create mode 100644 .Rproj.user/shared/notebooks/EA182F0D-awipev-CO2/1/s/ca5k9gcl6wd1p/000002.csv
+ create mode 100644 .Rproj.user/shared/notebooks/EA182F0D-awipev-CO2/1/s/chya51zci0oaq/000002.csv
+ create mode 100644 .Rproj.user/shared/notebooks/EA182F0D-awipev-CO2/1/s/ciby4x6rpxqmc/000002.csv
+ create mode 100644 .Rproj.user/shared/notebooks/EA182F0D-awipev-CO2/1/s/crbuqdopwgxl9/000002.csv
+ create mode 100644 .Rproj.user/shared/notebooks/EA182F0D-awipev-CO2/1/s/cs5rudulygezn/00000d.csv
+ create mode 100644 .Rproj.user/shared/notebooks/EA182F0D-awipev-CO2/1/s/cs5rudulygezn/00000e.error
+ create mode 100644 awipev-CO2.html
+]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git branch
+[?1h=* [32mmaster[m[m
+  work1[m[m
+[K[?1l>]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git branc[K[K[K[K[Kcheckout work1
+error: Your local changes to the following files would be overwritten by checkout:
+	.Rproj.user/8CD7EAF3/console06/D159EF1D
+Please commit your changes or stash them before you switch branches.
+Aborting
+]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git add AWIPEV-CO2-git.Rproj [K
+]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git add AWIPEV-CO2-git.Rproj[10Pcheckout work1[8Pbranchcommit -m "test"
+On branch master
+Your branch is ahead of 'origin/master' by 3 commits.
+  (use "git push" to publish your local commits)
+
+Changes not staged for commit:
+	[31mmodified:   .Rproj.user/8CD7EAF3/console06/D159EF1D[m
+
+no changes added to commit
+]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git checkout work1
+error: Your local changes to the following files would be overwritten by checkout:
+	.Rproj.user/8CD7EAF3/console06/D159EF1D
+Please commit your changes or stash them before you switch branches.
+Aborting
+]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git fetch origin
+]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git checkout work1
+error: Your local changes to the following files would be overwritten by checkout:
+	.Rproj.user/8CD7EAF3/console06/D159EF1D
+Please commit your changes or stash them before you switch branches.
+Aborting
+]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git pull -s recursive -X theirs[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K remot[K[K[Kset --hard origin master
+fatal: Cannot do hard reset with paths.
+]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git reset --hard origin master[C[C[C[C[C[C[C[C[C[C[C[C[C[C[12Pcheckout work1reset --hard origin master[Kgit reset --hard origin master[C[C[C[C[1Pr[1Pr[1Pr[1Pr[1Pr[1Pr/rmrartrsrer[Cr[K
+fatal: ambiguous argument 'origin/matser': unknown revision or path not in the working tree.
+Use '--' to separate paths from revisions, like this:
+'git <command> [<revision>...] -- [<file>...]'
+]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git pull --rebase
+error: cannot pull with rebase: You have unstaged changes.
+error: please commit or stash them.
+]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git co[K[Kas[Kdd -A
+]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git commit -m[Kam "test1"
