@@ -1,0 +1,22 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1551347887826.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "0",
+    "id" : "55FA810D",
+    "lastKnownWriteTime" : 1551347662,
+    "last_content_update" : 1551347662,
+    "path" : "~/not_synced_git/AWIPEV-CO2-git/.gitignore",
+    "project_path" : ".gitignore",
+    "properties" : {
+        "cursorPosition" : "39,6",
+        "scrollLine" : "0"
+    },
+    "relative_order" : 2,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "gitignore"
+}

@@ -1,0 +1,5 @@
+"0","temp_insitu_xts <- as.xts(temp_insitu_xts, order.by = temp_insitu_xts$datetime)
+"
+"2","Error in xts(x, order.by = order.by, frequency = frequency, ...) : 
+  'order.by' cannot contain 'NA', 'NaN', or 'Inf'
+"
