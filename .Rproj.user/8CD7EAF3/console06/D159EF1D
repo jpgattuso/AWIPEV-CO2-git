@@ -1010,3 +1010,11 @@ error: cannot pull with rebase: You have unstaged changes.
 error: please commit or stash them.
 ]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git co[K[Kas[Kdd -A
 ]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git commit -m[Kam "test1"
+[master b8b4ced] test1
+ 1 file changed, 65 insertions(+), 1 deletion(-)
+]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git checkout work1
+error: Your local changes to the following files would be overwritten by checkout:
+	.Rproj.user/8CD7EAF3/console06/D159EF1D
+Please commit your changes or stash them before you switch branches.
+Aborting
+]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git checkout work1ommit -am "test1"
