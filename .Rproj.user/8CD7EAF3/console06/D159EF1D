@@ -1,1537 +1,0 @@
-]0;~/not_synced_git/AWIPEV-CO2-git[?1034hMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ [KMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git pull awipev master
-fatal: 'awipev' does not appear to be a git repository
-fatal: Could not read from remote repository.
-
-Please make sure you have the correct access rights
-and the repository exists.
-]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git pull awipev master[1Pmaster/master
-fatal: 'awipev/master' does not appear to be a git repository
-fatal: Could not read from remote repository.
-
-Please make sure you have the correct access rights
-and the repository exists.
-]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git pull awipev/master master[1P[1@A
-From https://github.com/jpgattuso/AWIPEV-CO2-git
- * branch            master     -> FETCH_HEAD
-Already up to date.
-]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git c[K-am c[K[K[K[K[Kcommit -am "TA pero[Kiods updates[Kd"
-[master 624e8f8] TA periods updated
- 1 file changed, 34 insertions(+), 23 deletions(-)
-]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git push origin master
-Enumerating objects: 14, done.
-Counting objects:   7% (1/14)   Counting objects:  14% (2/14)   Counting objects:  21% (3/14)   Counting objects:  28% (4/14)   Counting objects:  35% (5/14)   Counting objects:  42% (6/14)   Counting objects:  50% (7/14)   Counting objects:  57% (8/14)   Counting objects:  64% (9/14)   Counting objects:  71% (10/14)   Counting objects:  78% (11/14)   Counting objects:  85% (12/14)   Counting objects:  92% (13/14)   Counting objects: 100% (14/14)   Counting objects: 100% (14/14), done.
-Delta compression using up to 4 threads
-Compressing objects:  10% (1/10)   Compressing objects:  20% (2/10)   Compressing objects:  30% (3/10)   Compressing objects:  40% (4/10)   Compressing objects:  50% (5/10)   Compressing objects:  60% (6/10)   Compressing objects:  70% (7/10)   Compressing objects:  80% (8/10)   Compressing objects:  90% (9/10)   Compressing objects: 100% (10/10)   Compressing objects: 100% (10/10), done.
-Writing objects:  10% (1/10)   Writing objects:  20% (2/10)   Writing objects:  30% (3/10)   Writing objects:  40% (4/10)   Writing objects:  50% (5/10)   Writing objects:  60% (6/10)   Writing objects:  70% (7/10)   Writing objects:  80% (8/10)   Writing objects:  90% (9/10)   Writing objects: 100% (10/10)   Writing objects: 100% (10/10), 2.56 KiB | 69.00 KiB/s, done.
-Total 10 (delta 6), reused 0 (delta 0)
-remote: Resolving deltas:   0% (0/6)   [Kremote: Resolving deltas:  50% (3/6)   [Kremote: Resolving deltas: 100% (6/6)   [Kremote: Resolving deltas: 100% (6/6), completed with 2 local objects.[K
-To https://github.com/samirLOV1/AWIPEV-CO2-git.git
-   5d1dd34..624e8f8  master -> master
-]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git pull Awipev/master
-fatal: 'Awipev/master' does not appear to be a git repository
-fatal: Could not read from remote repository.
-
-Please make sure you have the correct access rights
-and the repository exists.
-]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git pull Awipev/master[1Pmaster master
-From https://github.com/jpgattuso/AWIPEV-CO2-git
- * branch            master     -> FETCH_HEAD
-Already up to date.
-]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git commit -am "TA calibration part updated"
-[master d514945] TA calibration part updated
- 1 file changed, 3 insertions(+), 1 deletion(-)
-]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git push orin[Kgin master
-Enumerating objects: 5, done.
-Counting objects:  20% (1/5)   Counting objects:  40% (2/5)   Counting objects:  60% (3/5)   Counting objects:  80% (4/5)   Counting objects: 100% (5/5)   Counting objects: 100% (5/5), done.
-Delta compression using up to 4 threads
-Compressing objects:  33% (1/3)   Compressing objects:  66% (2/3)   Compressing objects: 100% (3/3)   Compressing objects: 100% (3/3), done.
-Writing objects:  33% (1/3)   Writing objects:  66% (2/3)   Writing objects: 100% (3/3)   Writing objects: 100% (3/3), 815 bytes | 815.00 KiB/s, done.
-Total 3 (delta 2), reused 0 (delta 0)
-remote: Resolving deltas:   0% (0/2)   [Kremote: Resolving deltas:  50% (1/2)   [Kremote: Resolving deltas: 100% (2/2)   [Kremote: Resolving deltas: 100% (2/2), completed with 2 local objects.[K
-To https://github.com/samirLOV1/AWIPEV-CO2-git.git
-   624e8f8..d514945  master -> master
-git pull awipev origin[K[K[K[K[K[Kmaster
-fatal: 'awipev' does not appear to be a git repository
-fatal: Could not read from remote repository.
-
-Please make sure you have the correct access rights
-and the repository exists.
-]0;~/not_synced_git/AWIPEV-CO2-gitmacbook-pro-de-samir:AWIPEV-CO2-git samir$ git pull awipev master[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K remote -v
-Awipev	https://github.com/jpgattuso/AWIPEV-CO2-git.git (fetch)
-Awipev	https://github.com/jpgattuso/AWIPEV-CO2-git.git (push)
-origin	https://github.com/samirLOV1/AWIPEV-CO2-git.git (fetch)
-origin	https://github.com/samirLOV1/AWIPEV-CO2-git.git (push)
-]0;~/not_synced_git/AWIPEV-CO2-gitmacbook-pro-de-samir:AWIPEV-CO2-git samir$ git remote -vpull awipev master[1P[1@A
-remote: Enumerating objects: 1, done.[K
-remote: Counting objects: 100% (1/1)   [Kremote: Counting objects: 100% (1/1), done.[K
-remote: Total 1 (delta 0), reused 0 (delta 0), pack-reused 0[K
-Unpacking objects: 100% (1/1)   Unpacking objects: 100% (1/1), done.
-From https://github.com/jpgattuso/AWIPEV-CO2-git
- * branch            master     -> FETCH_HEAD
-   f9d078d..9923997  master     -> Awipev/master
-Updating d514945..9923997
-Fast-forward
-]0;~/not_synced_git/AWIPEV-CO2-gitmacbook-pro-de-samir:AWIPEV-CO2-git samir$ [Kmacbook-pro-de-samir:AWIPEV-CO2-git samir$ git a[Kcommit -am "path to access to data server chage[K[Knged in reason of the nex[Kws [K[K server name"
-[master a147404] path to access to data server changed in reason of the new server name
- 1 file changed, 10 insertions(+), 2 deletions(-)
-]0;~/not_synced_git/AWIPEV-CO2-gitmacbook-pro-de-samir:AWIPEV-CO2-git samir$ git commit -am "path to access to data server changed in reason of the new server name"[1P"[1P"[1P"[1P"[1P"[1P"[1P"[1P"[1P"[1P"[1P"[1P"[1P"[1P"[1P"[1P"[1P"[1P"[1P"[1P"[1P"[1P"[1P"[1P"[1P"[1P"[1P"[1P"[1P"[1P"[1P"[1P"[1P"[1P"[1P"[1P"[1P"[1P"[1P"[1P"[1P"[1P"[1P"[1P"[1P"[1P"[1P"[1P"[1P"[1P"[1P"[1P"[1P"[1P"[1P"[1P"[1P"[1P"[1P"[1P"[1P"[1P"[1P"[1P"[1P"[1P"[1P"[1P"[1P"[1P"w"i"k"i" "d"o"c"u"m"e"n"t" "+" "d"a"t"a" "s"h"e"e"t"[1P"[1P"[1P"[1P"[1P"[1P"[1P"a"s"h"e"e"t" "l"o"g"f"i"l"e" "a"d"d"[1P"[1P"[1P"l"i"n"k"s" "a"d"d"e"d"
-On branch master
-Your branch is ahead of 'origin/master' by 2 commits.
-  (use "git push" to publish your local commits)
-
-Untracked files:
-	[31m.Rhistory[m
-	[31m.Rproj.user/[m
-	[31mAWIPEV-CO2-git.Rproj[m
-	[31mawipev-CO2.html[m
-
-nothing added to commit but untracked files present
-]0;~/not_synced_git/AWIPEV-CO2-gitmacbook-pro-de-samir:AWIPEV-CO2-git samir$ git commit -am "wiki document + datasheet logfile links added"[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[Kpush origin master
-Enumerating objects: 8, done.
-Counting objects:  12% (1/8)   Counting objects:  25% (2/8)   Counting objects:  37% (3/8)   Counting objects:  50% (4/8)   Counting objects:  62% (5/8)   Counting objects:  75% (6/8)   Counting objects:  87% (7/8)   Counting objects: 100% (8/8)   Counting objects: 100% (8/8), done.
-Delta compression using up to 4 threads
-Compressing objects:  25% (1/4)   Compressing objects:  50% (2/4)   Compressing objects:  75% (3/4)   Compressing objects: 100% (4/4)   Compressing objects: 100% (4/4), done.
-Writing objects:  25% (1/4)   Writing objects:  50% (2/4)   Writing objects:  75% (3/4)   Writing objects: 100% (4/4)   Writing objects: 100% (4/4), 1.41 KiB | 1.41 MiB/s, done.
-Total 4 (delta 2), reused 0 (delta 0)
-^[[Aremote: Resolving deltas:   0% (0/2)   [Kremote: Resolving deltas:  50% (1/2)   [Kremote: Resolving deltas: 100% (2/2)   [Kremote: Resolving deltas: 100% (2/2), completed with 2 local objects.[K
-^[[ATo https://github.com/samirLOV1/AWIPEV-CO2-git.git
-   d514945..a147404  master -> master
-]0;~/not_synced_git/AWIPEV-CO2-gitmacbook-pro-de-samir:AWIPEV-CO2-git samir$ git push origin mastercommit -am "wiki document + datasheet logfile links added"path to access to data server changed in reason of the new server name"[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[25Pwiki document + datasheet logfile links added"
-On branch master
-Your branch is up to date with 'origin/master'.
-
-Untracked files:
-	[31m.Rhistory[m
-	[31m.Rproj.user/[m
-	[31mAWIPEV-CO2-git.Rproj[m
-	[31mawipev-CO2.html[m
-
-nothing added to commit but untracked files present
-]0;~/not_synced_git/AWIPEV-CO2-gitmacbook-pro-de-samir:AWIPEV-CO2-git samir$ git commit -am "wiki document + datasheet logfile links added"[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[Cpush origin master[K
-Everything up-to-date
-[KMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git -v remote
-unknown option: -v
-usage: git [--version] [--help] [-C <path>] [-c <name>=<value>]
-           [--exec-path[=<path>]] [--html-path] [--man-path] [--info-path]
-           [-p | --paginate | -P | --no-pager] [--no-replace-objects] [--bare]
-           [--git-dir=<path>] [--work-tree=<path>] [--namespace=<name>]
-           <command> [<args>]
-]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git remote -v
-Awipev	https://github.com/jpgattuso/AWIPEV-CO2-git.git (fetch)
-Awipev	https://github.com/jpgattuso/AWIPEV-CO2-git.git (push)
-origin	https://github.com/samirLOV1/AWIPEV-CO2-git.git (fetch)
-origin	https://github.com/samirLOV1/AWIPEV-CO2-git.git (push)
-]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git Awipev master
-git: 'Awipev' is not a git command. See 'git --help'.
-]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git pull Awipev master
-remote: Enumerating objects: 51, done.[K
-remote: Counting objects:   1% (1/51)   [Kremote: Counting objects:   3% (2/51)   [Kremote: Counting objects:   5% (3/51)   [Kremote: Counting objects:   7% (4/51)   [Kremote: Counting objects:   9% (5/51)   [Kremote: Counting objects:  11% (6/51)   [Kremote: Counting objects:  13% (7/51)   [Kremote: Counting objects:  15% (8/51)   [Kremote: Counting objects:  17% (9/51)   [Kremote: Counting objects:  19% (10/51)   [Kremote: Counting objects:  21% (11/51)   [Kremote: Counting objects:  23% (12/51)   [Kremote: Counting objects:  25% (13/51)   [Kremote: Counting objects:  27% (14/51)   [Kremote: Counting objects:  29% (15/51)   [Kremote: Counting objects:  31% (16/51)   [Kremote: Counting objects:  33% (17/51)   [Kremote: Counting objects:  35% (18/51)   [Kremote: Counting objects:  37% (19/51)   [Kremote: Counting objects:  39% (20/51)   [Kremote: Counting objects:  41% (21/51)   [Kremote: Counting objects:  43% (22/51)   [Kremote: Counting objects:  45% (23/51)   [Kremote: Counting objects:  47% (24/51)   [Kremote: Counting objects:  49% (25/51)   [Kremote: Counting objects:  50% (26/51)   [Kremote: Counting objects:  52% (27/51)   [Kremote: Counting objects:  54% (28/51)   [Kremote: Counting objects:  56% (29/51)   [Kremote: Counting objects:  58% (30/51)   [Kremote: Counting objects:  60% (31/51)   [Kremote: Counting objects:  62% (32/51)   [Kremote: Counting objects:  64% (33/51)   [Kremote: Counting objects:  66% (34/51)   [Kremote: Counting objects:  68% (35/51)   [Kremote: Counting objects:  70% (36/51)   [Kremote: Counting objects:  72% (37/51)   [Kremote: Counting objects:  74% (38/51)   [Kremote: Counting objects:  76% (39/51)   [Kremote: Counting objects:  78% (40/51)   [Kremote: Counting objects:  80% (41/51)   [Kremote: Counting objects:  82% (42/51)   [Kremote: Counting objects:  84% (43/51)   [Kremote: Counting objects:  86% (44/51)   [Kremote: Counting objects:  88% (45/51)   [Kremote: Counting objects:  90% (46/51)   [Kremote: Counting objects:  92% (47/51)   [Kremote: Counting objects:  94% (48/51)   [Kremote: Counting objects:  96% (49/51)   [Kremote: Counting objects:  98% (50/51)   [Kremote: Counting objects: 100% (51/51)   [Kremote: Counting objects: 100% (51/51), done.[K
-remote: Compressing objects:   3% (1/29)   [Kremote: Compressing objects:   6% (2/29)   [Kremote: Compressing objects:  10% (3/29)   [Kremote: Compressing objects:  13% (4/29)   [Kremote: Compressing objects:  17% (5/29)   [Kremote: Compressing objects:  20% (6/29)   [Kremote: Compressing objects:  24% (7/29)   [Kremote: Compressing objects:  27% (8/29)   [Kremote: Compressing objects:  31% (9/29)   [Kremote: Compressing objects:  34% (10/29)   [Kremote: Compressing objects:  37% (11/29)   [Kremote: Compressing objects:  41% (12/29)   [Kremote: Compressing objects:  44% (13/29)   [Kremote: Compressing objects:  48% (14/29)   [Kremote: Compressing objects:  51% (15/29)   [Kremote: Compressing objects:  55% (16/29)   [Kremote: Compressing objects:  58% (17/29)   [Kremote: Compressing objects:  62% (18/29)   [Kremote: Compressing objects:  65% (19/29)   [Kremote: Compressing objects:  68% (20/29)   [Kremote: Compressing objects:  72% (21/29)   [Kremote: Compressing objects:  75% (22/29)   [Kremote: Compressing objects:  79% (23/29)   [Kremote: Compressing objects:  82% (24/29)   [Kremote: Compressing objects:  86% (25/29)   [Kremote: Compressing objects:  89% (26/29)   [Kremote: Compressing objects:  93% (27/29)   [Kremote: Compressing objects:  96% (28/29)   [Kremote: Compressing objects: 100% (29/29)   [Kremote: Compressing objects: 100% (29/29), done.[K
-Receiving objects:   0% (1/161)   Receiving objects:   1% (2/161)   Receiving objects:   2% (4/161)   Receiving objects:   3% (5/161)   Receiving objects:   4% (7/161)   Receiving objects:   4% (8/161), 2.32 MiB | 2.13 MiB/s   Receiving objects:   4% (8/161), 5.87 MiB | 2.77 MiB/s   Receiving objects:   4% (8/161), 9.67 MiB | 3.10 MiB/s   Receiving objects:   5% (9/161), 11.68 MiB | 3.22 MiB/s   Receiving objects:   6% (10/161), 11.68 MiB | 3.22 MiB/s   Receiving objects:   7% (12/161), 11.68 MiB | 3.22 MiB/s   Receiving objects:   8% (13/161), 11.68 MiB | 3.22 MiB/s   Receiving objects:   9% (15/161), 11.68 MiB | 3.22 MiB/s   Receiving objects:  10% (17/161), 11.68 MiB | 3.22 MiB/s   Receiving objects:  11% (18/161), 11.68 MiB | 3.22 MiB/s   Receiving objects:  12% (20/161), 11.68 MiB | 3.22 MiB/s   Receiving objects:  13% (21/161), 11.68 MiB | 3.22 MiB/s   Receiving objects:  14% (23/161), 11.68 MiB | 3.22 MiB/s   Receiving objects:  15% (25/161), 11.68 MiB | 3.22 MiB/s   Receiving objects:  16% (26/161), 11.68 MiB | 3.22 MiB/s   Receiving objects:  17% (28/161), 11.68 MiB | 3.22 MiB/s   Receiving objects:  18% (29/161), 11.68 MiB | 3.22 MiB/s   Receiving objects:  19% (31/161), 11.68 MiB | 3.22 MiB/s   Receiving objects:  20% (33/161), 11.68 MiB | 3.22 MiB/s   Receiving objects:  21% (34/161), 11.68 MiB | 3.22 MiB/s   Receiving objects:  22% (36/161), 13.21 MiB | 3.20 MiB/s   Receiving objects:  23% (38/161), 13.21 MiB | 3.20 MiB/s   Receiving objects:  24% (39/161), 13.21 MiB | 3.20 MiB/s   Receiving objects:  25% (41/161), 13.21 MiB | 3.20 MiB/s   Receiving objects:  26% (42/161), 13.21 MiB | 3.20 MiB/s   Receiving objects:  27% (44/161), 13.21 MiB | 3.20 MiB/s   Receiving objects:  28% (46/161), 13.21 MiB | 3.20 MiB/s   Receiving objects:  29% (47/161), 13.21 MiB | 3.20 MiB/s   Receiving objects:  30% (49/161), 13.21 MiB | 3.20 MiB/s   Receiving objects:  31% (50/161), 13.21 MiB | 3.20 MiB/s   Receiving objects:  32% (52/161), 13.21 MiB | 3.20 MiB/s   Receiving objects:  33% (54/161), 13.21 MiB | 3.20 MiB/s   Receiving objects:  34% (55/161), 13.21 MiB | 3.20 MiB/s   Receiving objects:  35% (57/161), 13.21 MiB | 3.20 MiB/s   Receiving objects:  36% (58/161), 13.21 MiB | 3.20 MiB/s   Receiving objects:  37% (60/161), 13.21 MiB | 3.20 MiB/s   Receiving objects:  38% (62/161), 13.21 MiB | 3.20 MiB/s   Receiving objects:  39% (63/161), 13.21 MiB | 3.20 MiB/s   Receiving objects:  40% (65/161), 13.21 MiB | 3.20 MiB/s   Receiving objects:  41% (67/161), 13.21 MiB | 3.20 MiB/s   Receiving objects:  42% (68/161), 13.21 MiB | 3.20 MiB/s   Receiving objects:  43% (70/161), 13.21 MiB | 3.20 MiB/s   Receiving objects:  44% (71/161), 13.21 MiB | 3.20 MiB/s   Receiving objects:  45% (73/161), 13.21 MiB | 3.20 MiB/s   Receiving objects:  46% (75/161), 13.21 MiB | 3.20 MiB/s   Receiving objects:  47% (76/161), 13.21 MiB | 3.20 MiB/s   Receiving objects:  48% (78/161), 13.21 MiB | 3.20 MiB/s   Receiving objects:  49% (79/161), 13.21 MiB | 3.20 MiB/s   Receiving objects:  50% (81/161), 13.21 MiB | 3.20 MiB/s   Receiving objects:  51% (83/161), 14.93 MiB | 3.22 MiB/s   Receiving objects:  52% (84/161), 14.93 MiB | 3.22 MiB/s   Receiving objects:  53% (86/161), 14.93 MiB | 3.22 MiB/s   Receiving objects:  54% (87/161), 14.93 MiB | 3.22 MiB/s   Receiving objects:  55% (89/161), 14.93 MiB | 3.22 MiB/s   Receiving objects:  56% (91/161), 14.93 MiB | 3.22 MiB/s   Receiving objects:  57% (92/161), 14.93 MiB | 3.22 MiB/s   Receiving objects:  58% (94/161), 14.93 MiB | 3.22 MiB/s   Receiving objects:  59% (95/161), 14.93 MiB | 3.22 MiB/s   Receiving objects:  60% (97/161), 14.93 MiB | 3.22 MiB/s   Receiving objects:  61% (99/161), 14.93 MiB | 3.22 MiB/s   Receiving objects:  62% (100/161), 14.93 MiB | 3.22 MiB/s   Receiving objects:  63% (102/161), 14.93 MiB | 3.22 MiB/s   Receiving objects:  64% (104/161), 14.93 MiB | 3.22 MiB/s   Receiving objects:  65% (105/161), 14.93 MiB | 3.22 MiB/s   Receiving objects:  66% (107/161), 14.93 MiB | 3.22 MiB/s   Receiving objects:  67% (108/161), 14.93 MiB | 3.22 MiB/s   Receiving objects:  68% (110/161), 16.27 MiB | 3.33 MiB/s   Receiving objects:  69% (112/161), 16.27 MiB | 3.33 MiB/s   Receiving objects:  70% (113/161), 16.27 MiB | 3.33 MiB/s   Receiving objects:  71% (115/161), 16.27 MiB | 3.33 MiB/s   Receiving objects:  72% (116/161), 16.27 MiB | 3.33 MiB/s   Receiving objects:  73% (118/161), 16.27 MiB | 3.33 MiB/s   Receiving objects:  74% (120/161), 16.27 MiB | 3.33 MiB/s   Receiving objects:  75% (121/161), 16.27 MiB | 3.33 MiB/s   Receiving objects:  76% (123/161), 16.27 MiB | 3.33 MiB/s   Receiving objects:  77% (124/161), 16.27 MiB | 3.33 MiB/s   Receiving objects:  78% (126/161), 16.27 MiB | 3.33 MiB/s   Receiving objects:  79% (128/161), 16.27 MiB | 3.33 MiB/s   Receiving objects:  80% (129/161), 17.10 MiB | 3.25 MiB/s   Receiving objects:  81% (131/161), 17.10 MiB | 3.25 MiB/s   Receiving objects:  82% (133/161), 17.10 MiB | 3.25 MiB/s   Receiving objects:  83% (134/161), 17.10 MiB | 3.25 MiB/s   Receiving objects:  84% (136/161), 17.10 MiB | 3.25 MiB/s   Receiving objects:  85% (137/161), 17.10 MiB | 3.25 MiB/s   Receiving objects:  86% (139/161), 17.10 MiB | 3.25 MiB/s   Receiving objects:  87% (141/161), 17.10 MiB | 3.25 MiB/s   Receiving objects:  88% (142/161), 17.10 MiB | 3.25 MiB/s   Receiving objects:  89% (144/161), 17.10 MiB | 3.25 MiB/s   Receiving objects:  90% (145/161), 17.10 MiB | 3.25 MiB/s   Receiving objects:  91% (147/161), 17.10 MiB | 3.25 MiB/s   Receiving objects:  92% (149/161), 17.10 MiB | 3.25 MiB/s   Receiving objects:  93% (150/161), 17.94 MiB | 3.14 MiB/s   Receiving objects:  94% (152/161), 17.94 MiB | 3.14 MiB/s   Receiving objects:  95% (153/161), 17.94 MiB | 3.14 MiB/s   Receiving objects:  95% (153/161), 19.69 MiB | 2.64 MiB/s   Receiving objects:  95% (153/161), 21.13 MiB | 2.08 MiB/s   Receiving objects:  95% (153/161), 22.59 MiB | 1.68 MiB/s   Receiving objects:  95% (153/161), 24.15 MiB | 1.54 MiB/s   Receiving objects:  95% (153/161), 25.71 MiB | 1.50 MiB/s   Receiving objects:  95% (153/161), 27.25 MiB | 1.48 MiB/s   Receiving objects:  95% (153/161), 28.89 MiB | 1.52 MiB/s   Receiving objects:  95% (153/161), 30.54 MiB | 1.56 MiB/s   remote: Total 161 (delta 26), reused 39 (delta 18), pack-reused 110[K
-Receiving objects:  96% (155/161), 30.54 MiB | 1.56 MiB/s   Receiving objects:  97% (157/161), 30.54 MiB | 1.56 MiB/s   Receiving objects:  98% (158/161), 30.54 MiB | 1.56 MiB/s   Receiving objects:  99% (160/161), 30.54 MiB | 1.56 MiB/s   Receiving objects: 100% (161/161), 30.54 MiB | 1.56 MiB/s   Receiving objects: 100% (161/161), 30.57 MiB | 2.13 MiB/s, done.
-Resolving deltas:   0% (0/62)   Resolving deltas:   3% (2/62)   Resolving deltas:   4% (3/62)   Resolving deltas:   6% (4/62)   Resolving deltas:  11% (7/62)   Resolving deltas:  16% (10/62)   Resolving deltas:  22% (14/62)   Resolving deltas:  24% (15/62)   Resolving deltas:  25% (16/62)   Resolving deltas:  35% (22/62)   Resolving deltas:  37% (23/62)   Resolving deltas:  38% (24/62)   Resolving deltas:  40% (25/62)   Resolving deltas:  41% (26/62)   Resolving deltas:  43% (27/62)   Resolving deltas:  80% (50/62)   Resolving deltas:  88% (55/62)   Resolving deltas:  91% (57/62)   Resolving deltas:  95% (59/62)   Resolving deltas: 100% (62/62)   Resolving deltas: 100% (62/62), completed with 1 local object.
-From https://github.com/jpgattuso/AWIPEV-CO2-git
- * branch            master     -> FETCH_HEAD
-   9923997..b366977  master     -> Awipev/master
-Updating a147404..b366977
-error: The following untracked working tree files would be overwritten by merge:
-	AWIPEV-CO2-git.Rproj
-Please move or remove them before you merge.
-Aborting
-]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git fetch Awipev
-]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git add AWIPEV-CO2-git.Rproj [K[K[K[K[K[KRmd[1Pt.Rmd[1Pt.Rmd[1Pt.Rmd[1Pt.Rmd[C[1P.Rmd2.Rmd
-]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ gir[Kt commint[K[Kt -m "miantenance updated"[1P[1P[1@a[1@i
-On branch master
-Your branch is up to date with 'origin/master'.
-
-Untracked files:
-	[31m.Rhistory[m
-	[31m.Rproj.user/[m
-	[31mAWIPEV-CO2-git.Rproj[m
-	[31mawipev-CO2.html[m
-
-nothing added to commit but untracked files present
-]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git origin[K[K[K[K[K[Kpush origin master
-Everything up-to-date
-]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git push origin master
-Username for 'https://github.com': samirLOV1
-Password for 'https://samirLOV1@github.com': 
-Everything up-to-date
-]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git push origin mastercommit -m "maintenance updated"[13Padd AWIPEV-CO2.Rmd[6Pfetch Awipevadd AWIPEV-CO2.Rmd
-]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git add AWIPEV-CO2.Rmdpush origin mastercommit -m "maintenance updated"
-On branch master
-Your branch is up to date with 'origin/master'.
-
-Changes not staged for commit:
-	[31mmodified:   awipev-CO2.Rmd[m
-
-Untracked files:
-	[31m.Rhistory[m
-	[31m.Rproj.user/[m
-	[31mAWIPEV-CO2-git.Rproj[m
-	[31mawipev-CO2.html[m
-
-no changes added to commit
-]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git commit -m "maintenance updated"[13Padd AWIPEV-CO2.Rmdpush origin mastercommit -m "maintenance updated"[13Padd AWIPEV-CO2.Rmd[6Pfetch Awipevadd AWIPEV-CO2.Rmd
-]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git add AWIPEV-CO2.Rmdcommit -m "maintenance updated"
-On branch master
-Your branch is up to date with 'origin/master'.
-
-Changes not staged for commit:
-	[31mmodified:   awipev-CO2.Rmd[m
-
-Untracked files:
-	[31m.Rhistory[m
-	[31m.Rproj.user/[m
-	[31mAWIPEV-CO2-git.Rproj[m
-	[31mawipev-CO2.html[m
-
-no changes added to commit
-]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git add AWIPEV-CO2-git.Rproj 
-.Rhistory             .git/                 Images/               awipev-CO2.Rmd        
-.Rproj.user/          AWIPEV-CO2-git.Rproj  README.md             awipev-CO2.html       
-MacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git add AWIPEV-CO2-git.Rproj 
-.Rhistory             .git/                 Images/               awipev-CO2.Rmd        
-.Rproj.user/          AWIPEV-CO2-git.Rproj  README.md             awipev-CO2.html       
-MacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git add AWIPEV-CO2-git.Rproj 
-.Rhistory             .git/                 Images/               awipev-CO2.Rmd        
-.Rproj.user/          AWIPEV-CO2-git.Rproj  README.md             awipev-CO2.html       
-MacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git add AWIPEV-CO2-git.Rproj 
-AWIPEV-CO2-git.Rproj
-MacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git add AWIPEV-CO2-git.Rproj [1P [1P [1P [1P [1P [1P [1P [1P [1P [1P -git.Rproj [1P [1P [1P [1P [1P [1P [1P [1P [1P [1P . R M D [1P [1P m d [1P [1P [1P [1P [1P [1P [1P [1P [1P [1P [1P [1P [1P [1P a wipev-CO2. r [1P [1P . R md 
-]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git add awipev-CO2.Rmd commit -m "maintenance updated"
-[master a64f457] maintenance updated
- 1 file changed, 2 insertions(+)
-]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git commit -m "maintenance updated"[12Padd awipev-CO2.Rmd commit -m "maintenance updated"[13Padd AWIPEV-CO2.Rmdcommit -m "maintenance updated"[13Padd AWIPEV-CO2.Rmdpush origin mastercommit -m "maintenance updated"[13Ppush origin master
-Username for 'https://github.com': samirLOV1
-Password for 'https://samirLOV1@github.com': 
-Enumerating objects: 5, done.
-Counting objects:  20% (1/5)   Counting objects:  40% (2/5)   Counting objects:  60% (3/5)   Counting objects:  80% (4/5)   Counting objects: 100% (5/5)   Counting objects: 100% (5/5), done.
-Delta compression using up to 4 threads
-Compressing objects:  33% (1/3)   Compressing objects:  66% (2/3)   Compressing objects: 100% (3/3)   Compressing objects: 100% (3/3), done.
-Writing objects:  33% (1/3)   Writing objects:  66% (2/3)   Writing objects: 100% (3/3)   Writing objects: 100% (3/3), 457 bytes | 457.00 KiB/s, done.
-Total 3 (delta 2), reused 0 (delta 0)
-remote: Resolving deltas:   0% (0/2)   [Kremote: Resolving deltas:  50% (1/2)   [Kremote: Resolving deltas: 100% (2/2)   [Kremote: Resolving deltas: 100% (2/2), completed with 2 local objects.[K
-To https://github.com/samirLOV1/AWIPEV-CO2-git.git
-   a147404..a64f457  master -> master
-]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git pull Awipev master
-From https://github.com/jpgattuso/AWIPEV-CO2-git
- * branch            master     -> FETCH_HEAD
-error: The following untracked working tree files would be overwritten by merge:
-	AWIPEV-CO2-git.Rproj
-Please move or remove them before you merge.
-Aborting
-]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git z[Kadd -A
-]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git add -A
-]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git add -Apull Awipev mastersh origin[C[C[C[C[C[C[Ccommit -m "maintenance updated"[12Padd awipev-CO2.Rmd commit -m "maintenance updated"
-[master 1f4e904] maintenance updated
- 91 files changed, 25879 insertions(+)
- create mode 100644 .Rhistory
- create mode 100644 .Rproj.user/8CD7EAF3/console06/D159EF1D
- create mode 100644 .Rproj.user/8CD7EAF3/console06/D159EF1D.env
- create mode 100644 .Rproj.user/8CD7EAF3/console06/INDEX001
- create mode 100644 .Rproj.user/8CD7EAF3/pcs/files-pane.pper
- create mode 100644 .Rproj.user/8CD7EAF3/pcs/source-pane.pper
- create mode 100644 .Rproj.user/8CD7EAF3/pcs/windowlayoutstate.pper
- create mode 100644 .Rproj.user/8CD7EAF3/pcs/workbench-pane.pper
- create mode 100644 .Rproj.user/8CD7EAF3/rmd-outputs
- create mode 100644 .Rproj.user/8CD7EAF3/saved_source_markers
- create mode 100644 .Rproj.user/8CD7EAF3/sources/prop/4F48A00B
- create mode 100644 .Rproj.user/8CD7EAF3/sources/prop/INDEX
- create mode 100644 .Rproj.user/8CD7EAF3/sources/s-28B25282/5207EE9D
- create mode 100644 .Rproj.user/8CD7EAF3/sources/s-28B25282/5207EE9D-contents
- create mode 100644 .Rproj.user/8CD7EAF3/sources/s-28B25282/lock_file
- create mode 100644 .Rproj.user/shared/notebooks/EA182F0D-awipev-CO2/1/8CD7EAF328B25282/chunks.json
- create mode 100644 .Rproj.user/shared/notebooks/EA182F0D-awipev-CO2/1/8CD7EAF332AAF2D8/chunks.json
- create mode 100644 .Rproj.user/shared/notebooks/EA182F0D-awipev-CO2/1/8CD7EAF365C717EA/chunks.json
- create mode 100644 .Rproj.user/shared/notebooks/EA182F0D-awipev-CO2/1/8CD7EAF37140CB37/chunks.json
- create mode 100644 .Rproj.user/shared/notebooks/EA182F0D-awipev-CO2/1/s/c232d1cynz2ue/000005.csv
- create mode 100644 .Rproj.user/shared/notebooks/EA182F0D-awipev-CO2/1/s/c232d1cynz2ue/000006.html
- create mode 100644 .Rproj.user/shared/notebooks/EA182F0D-awipev-CO2/1/s/c232d1cynz2ue/000006.json
- create mode 100644 .Rproj.user/shared/notebooks/EA182F0D-awipev-CO2/1/s/c232d1cynz2ue/000006.metadata
- create mode 100644 .Rproj.user/shared/notebooks/EA182F0D-awipev-CO2/1/s/c232d1cynz2ue/000007.csv
- create mode 100644 .Rproj.user/shared/notebooks/EA182F0D-awipev-CO2/1/s/c232d1cynz2ue/000008.html
- create mode 100644 .Rproj.user/shared/notebooks/EA182F0D-awipev-CO2/1/s/c232d1cynz2ue/000008.json
- create mode 100644 .Rproj.user/shared/notebooks/EA182F0D-awipev-CO2/1/s/c232d1cynz2ue/000008.metadata
- create mode 100644 .Rproj.user/shared/notebooks/EA182F0D-awipev-CO2/1/s/c232d1cynz2ue/000009.csv
- create mode 100644 .Rproj.user/shared/notebooks/EA182F0D-awipev-CO2/1/s/c232d1cynz2ue/00000a.html
- create mode 100644 .Rproj.user/shared/notebooks/EA182F0D-awipev-CO2/1/s/c232d1cynz2ue/00000a.json
- create mode 100644 .Rproj.user/shared/notebooks/EA182F0D-awipev-CO2/1/s/c232d1cynz2ue/00000a.metadata
- create mode 100644 .Rproj.user/shared/notebooks/EA182F0D-awipev-CO2/1/s/c232d1cynz2ue/00000b.csv
- create mode 100644 .Rproj.user/shared/notebooks/EA182F0D-awipev-CO2/1/s/c232d1cynz2ue/00000c.html
- create mode 100644 .Rproj.user/shared/notebooks/EA182F0D-awipev-CO2/1/s/c232d1cynz2ue/00000c.json
- create mode 100644 .Rproj.user/shared/notebooks/EA182F0D-awipev-CO2/1/s/c232d1cynz2ue/00000c.metadata
- create mode 100644 .Rproj.user/shared/notebooks/EA182F0D-awipev-CO2/1/s/c232d1cynz2ue/00000d.csv
- create mode 100644 .Rproj.user/shared/notebooks/EA182F0D-awipev-CO2/1/s/c232d1cynz2ue/00000e.html
- create mode 100644 .Rproj.user/shared/notebooks/EA182F0D-awipev-CO2/1/s/c232d1cynz2ue/00000e.json
- create mode 100644 .Rproj.user/shared/notebooks/EA182F0D-awipev-CO2/1/s/c232d1cynz2ue/00000e.metadata
- create mode 100644 .Rproj.user/shared/notebooks/EA182F0D-awipev-CO2/1/s/c232d1cynz2ue/00000f.csv
- create mode 100644 .Rproj.user/shared/notebooks/EA182F0D-awipev-CO2/1/s/c232d1cynz2ue/000010.html
- create mode 100644 .Rproj.user/shared/notebooks/EA182F0D-awipev-CO2/1/s/c232d1cynz2ue/000010.json
- create mode 100644 .Rproj.user/shared/notebooks/EA182F0D-awipev-CO2/1/s/c232d1cynz2ue/000010.metadata
- create mode 100644 .Rproj.user/shared/notebooks/EA182F0D-awipev-CO2/1/s/c232d1cynz2ue/000011.csv
- create mode 100644 .Rproj.user/shared/notebooks/EA182F0D-awipev-CO2/1/s/c232d1cynz2ue/000012.html
- create mode 100644 .Rproj.user/shared/notebooks/EA182F0D-awipev-CO2/1/s/c232d1cynz2ue/000012.json
- create mode 100644 .Rproj.user/shared/notebooks/EA182F0D-awipev-CO2/1/s/c232d1cynz2ue/000012.metadata
- create mode 100644 .Rproj.user/shared/notebooks/EA182F0D-awipev-CO2/1/s/c232d1cynz2ue/000013.csv
- create mode 100644 .Rproj.user/shared/notebooks/EA182F0D-awipev-CO2/1/s/c378jv0mpoty8/000002.csv
- create mode 100644 .Rproj.user/shared/notebooks/EA182F0D-awipev-CO2/1/s/c378jv0mpoty8/000003.metadata
- create mode 100644 .Rproj.user/shared/notebooks/EA182F0D-awipev-CO2/1/s/c378jv0mpoty8/000003.png
- create mode 100644 .Rproj.user/shared/notebooks/EA182F0D-awipev-CO2/1/s/c378jv0mpoty8/000003.snapshot
- create mode 100644 .Rproj.user/shared/notebooks/EA182F0D-awipev-CO2/1/s/cb1fo212gfe5p/000008.csv
- create mode 100644 .Rproj.user/shared/notebooks/EA182F0D-awipev-CO2/1/s/cdjg8unlgqfxx/000002.csv
- create mode 100644 .Rproj.user/shared/notebooks/EA182F0D-awipev-CO2/1/s/cem49td2yeo22/000002.csv
- create mode 100644 .Rproj.user/shared/notebooks/EA182F0D-awipev-CO2/1/s/cf173a7nacalb/000002.csv
- create mode 100644 .Rproj.user/shared/notebooks/EA182F0D-awipev-CO2/1/s/cf173a7nacalb/000004.csv
- create mode 100644 .Rproj.user/shared/notebooks/EA182F0D-awipev-CO2/1/s/cf173a7nacalb/000005.metadata
- create mode 100644 .Rproj.user/shared/notebooks/EA182F0D-awipev-CO2/1/s/cf173a7nacalb/000005.png
- create mode 100644 .Rproj.user/shared/notebooks/EA182F0D-awipev-CO2/1/s/cf173a7nacalb/000005.snapshot
- create mode 100644 .Rproj.user/shared/notebooks/EA182F0D-awipev-CO2/1/s/chunks.json
- create mode 100644 .Rproj.user/shared/notebooks/EA182F0D-awipev-CO2/1/s/ciu5p5gbixshr/000002.csv
- create mode 100644 .Rproj.user/shared/notebooks/EA182F0D-awipev-CO2/1/s/cqvnxbtg1tilf/000004.html
- create mode 100644 .Rproj.user/shared/notebooks/EA182F0D-awipev-CO2/1/s/cqvnxbtg1tilf/000004.json
- create mode 100644 .Rproj.user/shared/notebooks/EA182F0D-awipev-CO2/1/s/cqvnxbtg1tilf/000004.metadata
- create mode 100644 .Rproj.user/shared/notebooks/EA182F0D-awipev-CO2/1/s/ct7uh4ll81p8u/000002.csv
- create mode 100644 .Rproj.user/shared/notebooks/EA182F0D-awipev-CO2/1/s/ctgbodye344zj/000002.csv
- create mode 100644 .Rproj.user/shared/notebooks/EA182F0D-awipev-CO2/1/s/cup1fyy4w2rau/000002.csv
- create mode 100644 .Rproj.user/shared/notebooks/EA182F0D-awipev-CO2/1/s/cup1fyy4w2rau/000004.csv
- create mode 100644 .Rproj.user/shared/notebooks/EA182F0D-awipev-CO2/1/s/cup1fyy4w2rau/000005.metadata
- create mode 100644 .Rproj.user/shared/notebooks/EA182F0D-awipev-CO2/1/s/cup1fyy4w2rau/000005.png
- create mode 100644 .Rproj.user/shared/notebooks/EA182F0D-awipev-CO2/1/s/cup1fyy4w2rau/000005.snapshot
- create mode 100644 .Rproj.user/shared/notebooks/EA182F0D-awipev-CO2/1/s/cz0hke3bnpyt1/000002.csv
- create mode 100644 .Rproj.user/shared/notebooks/EA182F0D-awipev-CO2/1/s/lib/dygraphs-1.1.1/dygraph-combined-dev.js
- create mode 100644 .Rproj.user/shared/notebooks/EA182F0D-awipev-CO2/1/s/lib/dygraphs-1.1.1/dygraph-combined.js
- create mode 100644 .Rproj.user/shared/notebooks/EA182F0D-awipev-CO2/1/s/lib/dygraphs-1.1.1/dygraph.css
- create mode 100644 .Rproj.user/shared/notebooks/EA182F0D-awipev-CO2/1/s/lib/dygraphs-1.1.1/shapes.js
- create mode 100644 .Rproj.user/shared/notebooks/EA182F0D-awipev-CO2/1/s/lib/dygraphs-binding-1.1.1.6/dygraphs.js
- create mode 100644 .Rproj.user/shared/notebooks/EA182F0D-awipev-CO2/1/s/lib/htmlwidgets-1.3/htmlwidgets.js
- create mode 100644 .Rproj.user/shared/notebooks/EA182F0D-awipev-CO2/1/s/lib/jquery-1.11.1/AUTHORS.txt
- create mode 100644 .Rproj.user/shared/notebooks/EA182F0D-awipev-CO2/1/s/lib/jquery-1.11.1/jquery.min.js
- create mode 100644 .Rproj.user/shared/notebooks/EA182F0D-awipev-CO2/1/s/lib/moment-2.8.4/moment-timezone-with-data.js
- create mode 100644 .Rproj.user/shared/notebooks/EA182F0D-awipev-CO2/1/s/lib/moment-2.8.4/moment.js
- create mode 100644 .Rproj.user/shared/notebooks/EA182F0D-awipev-CO2/1/s/lib/moment-fquarter-1.0.0/moment-fquarter.min.js
- create mode 100644 .Rproj.user/shared/notebooks/EA182F0D-awipev-CO2/1/s/lib/moment-timezone-0.2.5/moment-timezone-with-data.js
- create mode 100644 .Rproj.user/shared/notebooks/EA182F0D-awipev-CO2/1/s/lib/moment-timezone-0.2.5/moment.js
- create mode 100644 .Rproj.user/shared/notebooks/patch-chunk-names
- create mode 100644 .Rproj.user/shared/notebooks/paths
- create mode 100644 AWIPEV-CO2-git.Rproj
- create mode 100644 awipev-CO2.html
-]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git push origin master
-Username for 'https://github.com': samirLOV1
-Password for 'https://samirLOV1@github.com': 
-Enumerating objects: 108, done.
-Counting objects:   0% (1/108)   Counting objects:   1% (2/108)   Counting objects:   2% (3/108)   Counting objects:   3% (4/108)   Counting objects:   4% (5/108)   Counting objects:   5% (6/108)   Counting objects:   6% (7/108)   Counting objects:   7% (8/108)   Counting objects:   8% (9/108)   Counting objects:   9% (10/108)   Counting objects:  10% (11/108)   Counting objects:  11% (12/108)   Counting objects:  12% (13/108)   Counting objects:  13% (15/108)   Counting objects:  14% (16/108)   Counting objects:  15% (17/108)   Counting objects:  16% (18/108)   Counting objects:  17% (19/108)   Counting objects:  18% (20/108)   Counting objects:  19% (21/108)   Counting objects:  20% (22/108)   Counting objects:  21% (23/108)   Counting objects:  22% (24/108)   Counting objects:  23% (25/108)   Counting objects:  24% (26/108)   Counting objects:  25% (27/108)   Counting objects:  26% (29/108)   Counting objects:  27% (30/108)   Counting objects:  28% (31/108)   Counting objects:  29% (32/108)   Counting objects:  30% (33/108)   Counting objects:  31% (34/108)   Counting objects:  32% (35/108)   Counting objects:  33% (36/108)   Counting objects:  34% (37/108)   Counting objects:  35% (38/108)   Counting objects:  36% (39/108)   Counting objects:  37% (40/108)   Counting objects:  38% (42/108)   Counting objects:  39% (43/108)   Counting objects:  40% (44/108)   Counting objects:  41% (45/108)   Counting objects:  42% (46/108)   Counting objects:  43% (47/108)   Counting objects:  44% (48/108)   Counting objects:  45% (49/108)   Counting objects:  46% (50/108)   Counting objects:  47% (51/108)   Counting objects:  48% (52/108)   Counting objects:  49% (53/108)   Counting objects:  50% (54/108)   Counting objects:  51% (56/108)   Counting objects:  52% (57/108)   Counting objects:  53% (58/108)   Counting objects:  54% (59/108)   Counting objects:  55% (60/108)   Counting objects:  56% (61/108)   Counting objects:  57% (62/108)   Counting objects:  58% (63/108)   Counting objects:  59% (64/108)   Counting objects:  60% (65/108)   Counting objects:  61% (66/108)   Counting objects:  62% (67/108)   Counting objects:  63% (69/108)   Counting objects:  64% (70/108)   Counting objects:  65% (71/108)   Counting objects:  66% (72/108)   Counting objects:  67% (73/108)   Counting objects:  68% (74/108)   Counting objects:  69% (75/108)   Counting objects:  70% (76/108)   Counting objects:  71% (77/108)   Counting objects:  72% (78/108)   Counting objects:  73% (79/108)   Counting objects:  74% (80/108)   Counting objects:  75% (81/108)   Counting objects:  76% (83/108)   Counting objects:  77% (84/108)   Counting objects:  78% (85/108)   Counting objects:  79% (86/108)   Counting objects:  80% (87/108)   Counting objects:  81% (88/108)   Counting objects:  82% (89/108)   Counting objects:  83% (90/108)   Counting objects:  84% (91/108)   Counting objects:  85% (92/108)   Counting objects:  86% (93/108)   Counting objects:  87% (94/108)   Counting objects:  88% (96/108)   Counting objects:  89% (97/108)   Counting objects:  90% (98/108)   Counting objects:  91% (99/108)   Counting objects:  92% (100/108)   Counting objects:  93% (101/108)   Counting objects:  94% (102/108)   Counting objects:  95% (103/108)   Counting objects:  96% (104/108)   Counting objects:  97% (105/108)   Counting objects:  98% (106/108)   Counting objects:  99% (107/108)   Counting objects: 100% (108/108)   Counting objects: 100% (108/108), done.
-Delta compression using up to 4 threads
-Compressing objects:   1% (1/89)   Compressing objects:   2% (2/89)   Compressing objects:   3% (3/89)   Compressing objects:   4% (4/89)   Compressing objects:   5% (5/89)   Compressing objects:   6% (6/89)   Compressing objects:   7% (7/89)   Compressing objects:   8% (8/89)   Compressing objects:  10% (9/89)   Compressing objects:  11% (10/89)   Compressing objects:  12% (11/89)   Compressing objects:  13% (12/89)   Compressing objects:  14% (13/89)   Compressing objects:  15% (14/89)   Compressing objects:  16% (15/89)   Compressing objects:  17% (16/89)   Compressing objects:  19% (17/89)   Compressing objects:  20% (18/89)   Compressing objects:  21% (19/89)   Compressing objects:  22% (20/89)   Compressing objects:  23% (21/89)   Compressing objects:  24% (22/89)   Compressing objects:  25% (23/89)   Compressing objects:  26% (24/89)   Compressing objects:  28% (25/89)   Compressing objects:  29% (26/89)   Compressing objects:  30% (27/89)   Compressing objects:  31% (28/89)   Compressing objects:  32% (29/89)   Compressing objects:  33% (30/89)   Compressing objects:  34% (31/89)   Compressing objects:  35% (32/89)   Compressing objects:  37% (33/89)   Compressing objects:  38% (34/89)   Compressing objects:  39% (35/89)   Compressing objects:  40% (36/89)   Compressing objects:  41% (37/89)   Compressing objects:  42% (38/89)   Compressing objects:  43% (39/89)   Compressing objects:  44% (40/89)   Compressing objects:  46% (41/89)   Compressing objects:  47% (42/89)   Compressing objects:  48% (43/89)   Compressing objects:  49% (44/89)   Compressing objects:  50% (45/89)   Compressing objects:  51% (46/89)   Compressing objects:  52% (47/89)   Compressing objects:  53% (48/89)   Compressing objects:  55% (49/89)   Compressing objects:  56% (50/89)   Compressing objects:  57% (51/89)   Compressing objects:  58% (52/89)   Compressing objects:  59% (53/89)   Compressing objects:  60% (54/89)   Compressing objects:  61% (55/89)   Compressing objects:  62% (56/89)   Compressing objects:  64% (57/89)   Compressing objects:  65% (58/89)   Compressing objects:  66% (59/89)   Compressing objects:  67% (60/89)   Compressing objects:  68% (61/89)   Compressing objects:  69% (62/89)   Compressing objects:  70% (63/89)   Compressing objects:  71% (64/89)   Compressing objects:  73% (65/89)   Compressing objects:  74% (66/89)   Compressing objects:  75% (67/89)   Compressing objects:  76% (68/89)   Compressing objects:  77% (69/89)   Compressing objects:  78% (70/89)   Compressing objects:  79% (71/89)   Compressing objects:  80% (72/89)   Compressing objects:  82% (73/89)   Compressing objects:  83% (74/89)   Compressing objects:  84% (75/89)   Compressing objects:  85% (76/89)   Compressing objects:  86% (77/89)   Compressing objects:  87% (78/89)   Compressing objects:  88% (79/89)   Compressing objects:  89% (80/89)   Compressing objects:  91% (81/89)   Compressing objects:  92% (82/89)   Compressing objects:  93% (83/89)   Compressing objects:  94% (84/89)   Compressing objects:  95% (85/89)   Compressing objects:  96% (86/89)   Compressing objects:  97% (87/89)   Compressing objects:  98% (88/89)   Compressing objects: 100% (89/89)   Compressing objects: 100% (89/89), done.
-Writing objects:   0% (1/107)   Writing objects:   1% (2/107)   Writing objects:   2% (3/107)   Writing objects:   3% (4/107)   Writing objects:   4% (5/107)   Writing objects:   5% (6/107)   Writing objects:   6% (7/107)   Writing objects:   7% (8/107)   Writing objects:   8% (9/107)   Writing objects:   9% (10/107)   Writing objects:  10% (11/107)   Writing objects:  11% (12/107)   Writing objects:  12% (13/107)   Writing objects:  13% (14/107)   Writing objects:  14% (15/107)   Writing objects:  15% (17/107)   Writing objects:  16% (18/107)   Writing objects:  17% (19/107)   Writing objects:  18% (20/107)   Writing objects:  19% (21/107)   Writing objects:  20% (22/107)   Writing objects:  21% (23/107)   Writing objects:  22% (24/107)   Writing objects:  23% (25/107)   Writing objects:  24% (26/107)   Writing objects:  25% (27/107)   Writing objects:  26% (28/107)   Writing objects:  27% (29/107)   Writing objects:  29% (32/107)   Writing objects:  30% (33/107)   Writing objects:  31% (34/107)   Writing objects:  32% (35/107)   Writing objects:  33% (36/107)   Writing objects:  34% (37/107)   Writing objects:  35% (38/107)   Writing objects:  38% (41/107)   Writing objects:  38% (41/107), 48.00 KiB | 33.00 KiB/s   Writing objects:  38% (41/107), 1.07 MiB | 414.00 KiB/s   Writing objects:  38% (41/107), 1.63 MiB | 523.00 KiB/s   Writing objects:  38% (41/107), 4.19 MiB | 1023.00 KiB/s   Writing objects:  38% (41/107), 5.44 MiB | 1.09 MiB/s   Writing objects:  38% (41/107), 8.06 MiB | 1.34 MiB/s   Writing objects:  38% (41/107), 10.94 MiB | 1.86 MiB/s   Writing objects:  40% (43/107), 10.94 MiB | 1.86 MiB/s   Writing objects:  41% (44/107), 10.94 MiB | 1.86 MiB/s   Writing objects:  42% (45/107), 10.94 MiB | 1.86 MiB/s   Writing objects:  44% (48/107), 10.94 MiB | 1.86 MiB/s   Writing objects:  47% (51/107), 10.94 MiB | 1.86 MiB/s   Writing objects:  48% (52/107), 12.13 MiB | 2.24 MiB/s   Writing objects:  49% (53/107), 12.13 MiB | 2.24 MiB/s   Writing objects:  50% (54/107), 12.13 MiB | 2.24 MiB/s   Writing objects:  52% (56/107), 12.13 MiB | 2.24 MiB/s   Writing objects:  53% (57/107), 12.13 MiB | 2.24 MiB/s   Writing objects:  54% (58/107), 12.13 MiB | 2.24 MiB/s   Writing objects:  55% (59/107), 12.13 MiB | 2.24 MiB/s   Writing objects:  56% (60/107), 12.13 MiB | 2.24 MiB/s   Writing objects:  57% (61/107), 12.13 MiB | 2.24 MiB/s   Writing objects:  58% (63/107), 12.13 MiB | 2.24 MiB/s   Writing objects:  59% (64/107), 12.13 MiB | 2.24 MiB/s   Writing objects:  60% (65/107), 12.13 MiB | 2.24 MiB/s   Writing objects:  61% (66/107), 12.13 MiB | 2.24 MiB/s   Writing objects:  62% (67/107), 12.13 MiB | 2.24 MiB/s   Writing objects:  64% (69/107), 12.13 MiB | 2.24 MiB/s   Writing objects:  65% (70/107), 12.13 MiB | 2.24 MiB/s   Writing objects:  67% (72/107), 12.13 MiB | 2.24 MiB/s   Writing objects:  69% (74/107), 12.13 MiB | 2.24 MiB/s   Writing objects:  70% (75/107), 12.13 MiB | 2.24 MiB/s   Writing objects:  71% (76/107), 12.13 MiB | 2.24 MiB/s   Writing objects:  72% (78/107), 12.13 MiB | 2.24 MiB/s   Writing objects:  73% (79/107), 12.13 MiB | 2.24 MiB/s   Writing objects:  74% (80/107), 12.13 MiB | 2.24 MiB/s   Writing objects:  75% (81/107), 12.13 MiB | 2.24 MiB/s   Writing objects:  76% (82/107), 12.13 MiB | 2.24 MiB/s   Writing objects:  77% (83/107), 12.13 MiB | 2.24 MiB/s   Writing objects:  78% (84/107), 12.13 MiB | 2.24 MiB/s   Writing objects:  79% (85/107), 12.13 MiB | 2.24 MiB/s   Writing objects:  80% (86/107), 12.13 MiB | 2.24 MiB/s   Writing objects:  81% (87/107), 12.13 MiB | 2.24 MiB/s   Writing objects:  82% (88/107), 12.13 MiB | 2.24 MiB/s   Writing objects:  83% (89/107), 12.13 MiB | 2.24 MiB/s   Writing objects:  84% (90/107), 12.13 MiB | 2.24 MiB/s   Writing objects:  85% (91/107), 12.13 MiB | 2.24 MiB/s   Writing objects:  86% (93/107), 12.13 MiB | 2.24 MiB/s   Writing objects:  87% (94/107), 12.13 MiB | 2.24 MiB/s   Writing objects:  88% (95/107), 12.13 MiB | 2.24 MiB/s   Writing objects:  89% (96/107), 12.13 MiB | 2.24 MiB/s   Writing objects:  90% (97/107), 12.13 MiB | 2.24 MiB/s   Writing objects:  91% (98/107), 12.13 MiB | 2.24 MiB/s   Writing objects:  92% (99/107), 12.13 MiB | 2.24 MiB/s   Writing objects:  93% (100/107), 12.13 MiB | 2.24 MiB/s   Writing objects:  94% (101/107), 12.13 MiB | 2.24 MiB/s   Writing objects:  95% (102/107), 12.13 MiB | 2.24 MiB/s   Writing objects:  96% (103/107), 12.13 MiB | 2.24 MiB/s   Writing objects:  97% (104/107), 12.13 MiB | 2.24 MiB/s   Writing objects:  98% (105/107), 12.13 MiB | 2.24 MiB/s   Writing objects:  99% (106/107), 12.13 MiB | 2.24 MiB/s   Writing objects: 100% (107/107), 12.13 MiB | 2.24 MiB/s   Writing objects: 100% (107/107), 13.11 MiB | 1.68 MiB/s, done.
-Total 107 (delta 19), reused 18 (delta 0)
-remote: Resolving deltas:   0% (0/19)   [Kremote: Resolving deltas:  10% (2/19)   [Kremote: Resolving deltas:  21% (4/19)   [Kremote: Resolving deltas:  31% (6/19)   [Kremote: Resolving deltas:  57% (11/19)   [Kremote: Resolving deltas:  68% (13/19)   [Kremote: Resolving deltas:  78% (15/19)   [Kremote: Resolving deltas:  89% (17/19)   [Kremote: Resolving deltas:  94% (18/19)   [Kremote: Resolving deltas: 100% (19/19)   [Kremote: Resolving deltas: 100% (19/19), done.[K
-To https://github.com/samirLOV1/AWIPEV-CO2-git.git
-   a64f457..1f4e904  master -> master
-]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git fetch
-]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git remote -v
-Awipev	https://github.com/jpgattuso/AWIPEV-CO2-git.git (fetch)
-Awipev	https://github.com/jpgattuso/AWIPEV-CO2-git.git (push)
-origin	https://github.com/samirLOV1/AWIPEV-CO2-git.git (fetch)
-origin	https://github.com/samirLOV1/AWIPEV-CO2-git.git (push)
-]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ [KMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git pull [K[K[K[K[Kstatus
-On branch master
-Your branch is up to date with 'origin/master'.
-
-Changes not staged for commit:
-  (use "git add <file>..." to update what will be committed)
-  (use "git checkout -- <file>..." to discard changes in working directory)
-
-	[31mmodified:   .Rproj.user/8CD7EAF3/console06/D159EF1D[m
-	[31mmodified:   .Rproj.user/8CD7EAF3/console06/INDEX001[m
-	[31mmodified:   .Rproj.user/8CD7EAF3/sources/prop/4F48A00B[m
-	[31mmodified:   .Rproj.user/8CD7EAF3/sources/s-28B25282/5207EE9D[m
-	[31mmodified:   .Rproj.user/shared/notebooks/EA182F0D-awipev-CO2/1/8CD7EAF328B25282/chunks.json[m
-	[31mmodified:   .Rproj.user/shared/notebooks/EA182F0D-awipev-CO2/1/s/c378jv0mpoty8/000003.png[m
-	[31mmodified:   .Rproj.user/shared/notebooks/EA182F0D-awipev-CO2/1/s/cf173a7nacalb/000005.png[m
-	[31mmodified:   .Rproj.user/shared/notebooks/EA182F0D-awipev-CO2/1/s/cup1fyy4w2rau/000005.png[m
-
-no changes added to commit (use "git add" and/or "git commit -a")
-]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git pull Awipev master
-remote: Enumerating objects: 11, done.[K
-remote: Counting objects:   9% (1/11)   [Kremote: Counting objects:  18% (2/11)   [Kremote: Counting objects:  27% (3/11)   [Kremote: Counting objects:  36% (4/11)   [Kremote: Counting objects:  45% (5/11)   [Kremote: Counting objects:  54% (6/11)   [Kremote: Counting objects:  63% (7/11)   [Kremote: Counting objects:  72% (8/11)   [Kremote: Counting objects:  81% (9/11)   [Kremote: Counting objects:  90% (10/11)   [Kremote: Counting objects: 100% (11/11)   [Kremote: Counting objects: 100% (11/11), done.[K
-Unpacking objects:   3% (1/26)   Unpacking objects:   7% (2/26)   Unpacking objects:  11% (3/26)   Unpacking objects:  15% (4/26)   Unpacking objects:  19% (5/26)   Unpacking objects:  23% (6/26)   Unpacking objects:  26% (7/26)   Unpacking objects:  30% (8/26)   Unpacking objects:  34% (9/26)   Unpacking objects:  38% (10/26)   Unpacking objects:  42% (11/26)   Unpacking objects:  46% (12/26)   Unpacking objects:  50% (13/26)   Unpacking objects:  53% (14/26)   Unpacking objects:  57% (15/26)   Unpacking objects:  61% (16/26)   Unpacking objects:  65% (17/26)   Unpacking objects:  69% (18/26)   Unpacking objects:  73% (19/26)   Unpacking objects:  76% (20/26)   Unpacking objects:  80% (21/26)   Unpacking objects:  84% (22/26)   Unpacking objects:  88% (23/26)   Unpacking objects:  92% (24/26)   remote: Total 26 (delta 11), reused 11 (delta 11), pack-reused 15[K
-Unpacking objects:  96% (25/26)   Unpacking objects: 100% (26/26)   Unpacking objects: 100% (26/26), done.
-From https://github.com/jpgattuso/AWIPEV-CO2-git
- * branch            master     -> FETCH_HEAD
-   b366977..182ba24  master     -> Awipev/master
-Updating 1f4e904..182ba24
-Fast-forward
- .Rproj.user/shared/notebooks/paths                      |     9 [32m+[m[31m-[m
- .gitignore                                              |    40 [32m+[m
- awipev-CO2.Rmd                                          |    80 [32m+[m[31m-[m
- awipev-CO2.html                                         |   721 [31m--[m
- figures/Diff_ref_TA_first_period.png                    |   Bin [31m0[m -> [32m157665[m bytes
- figures/Diff_ref_TA_third_period.png                    |   Bin [31m0[m -> [32m175020[m bytes
- figures/Discrete_TA_salinity_AWIPEV.png                 |   Bin [31m0[m -> [32m219911[m bytes
- figures/TA_calibration_CRM.png                          |   Bin [31m0[m -> [32m230891[m bytes
- figures/delta_at_awipev_snapo.png                       |   Bin [31m0[m -> [32m144176[m bytes
- figures/delta_ct_awipev_snapo.png                       |   Bin [31m0[m -> [32m144360[m bytes
- figures/pco2calc_pCO2_contros.png                       |   Bin [31m0[m -> [32m245693[m bytes
- libs/remark-css-0.0.1/default-fonts.css                 |    10 [32m+[m
- libs/remark-css-0.0.1/default.css                       |    72 [32m+[m
- libs/remark-css/default-fonts.css                       |    10 [32m+[m
- libs/remark-css/default.css                             |    72 [32m+[m
- presentation/awipev-CO2_pres.Rmd                        |   401 [32m+[m
- presentation/awipev-CO2_pres.html                       |   226 [32m+[m
- presentation/awipev-CO2_pres_2019-02-19.Rmd             |   317 [32m+[m
- presentation/awipev-CO2_pres_2019-02-19.html            |   153 [32m+[m
- .../dygraphs-binding/dygraphs.js                        |   789 [32m++[m
- .../dygraphs/dygraph-combined-dev.js                    | 12172 [32m+++++++++++++++++++++[m
- .../dygraphs/dygraph-combined.js                        |     6 [32m+[m
- .../dygraphs/dygraph.css                                |     8 [32m+[m
- .../awipev-CO2_pres_2019-02-19_files/dygraphs/shapes.js |   123 [32m+[m
- .../dygraphs-1.1.1/dygraph-combined-dev.js              | 12172 [32m+++++++++++++++++++++[m
- .../dygraphs_libs/dygraphs-1.1.1/dygraph-combined.js    |     6 [32m+[m
- .../widgets/dygraphs_libs/dygraphs-1.1.1/dygraph.css    |     8 [32m+[m
- .../widgets/dygraphs_libs/dygraphs-1.1.1/shapes.js      |   123 [32m+[m
- .../dygraphs_libs/dygraphs-binding-1.1.1.6/dygraphs.js  |   789 [32m++[m
- .../widgets/dygraphs_libs/dygraphs-binding/dygraphs.js  |   789 [32m++[m
- .../dygraphs_libs/dygraphs/dygraph-combined-dev.js      | 12172 [32m+++++++++++++++++++++[m
- .../widgets/dygraphs_libs/dygraphs/dygraph-combined.js  |     6 [32m+[m
- .../widgets/dygraphs_libs/dygraphs/dygraph.css          |     8 [32m+[m
- .../widgets/dygraphs_libs/dygraphs/shapes.js            |   123 [32m+[m
- .../dygraphs_libs/htmlwidgets-1.3/htmlwidgets.js        |   839 [32m++[m
- .../widgets/dygraphs_libs/htmlwidgets/htmlwidgets.js    |   839 [32m++[m
- .../widgets/dygraphs_libs/jquery-1.11.1/AUTHORS.txt     |   217 [32m+[m
- .../widgets/dygraphs_libs/jquery-1.11.1/jquery.min.js   |     4 [32m+[m
- .../widgets/dygraphs_libs/jquery/AUTHORS.txt            |   217 [32m+[m
- .../widgets/dygraphs_libs/jquery/jquery.min.js          |     4 [32m+[m
- .../moment-2.8.4/moment-timezone-with-data.js           |   990 [32m++[m
- .../widgets/dygraphs_libs/moment-2.8.4/moment.js        |  2936 [32m+++++[m
- .../moment-fquarter-1.0.0/moment-fquarter.min.js        |     1 [32m+[m
- .../moment-fquarter/moment-fquarter.min.js              |     1 [32m+[m
- .../moment-timezone-0.2.5/moment-timezone-with-data.js  |   990 [32m++[m
- .../dygraphs_libs/moment-timezone-0.2.5/moment.js       |  2936 [32m+++++[m
- .../moment-timezone/moment-timezone-with-data.js        |   990 [32m++[m
- .../widgets/dygraphs_libs/moment-timezone/moment.js     |  2936 [32m+++++[m
- .../dygraphs_libs/moment/moment-timezone-with-data.js   |   990 [32m++[m
- .../figure-html/widgets/dygraphs_libs/moment/moment.js  |  2936 [32m+++++[m
- .../widgets/dygraphs_libs/pymjs-1.3.2/pym.v1.js         |  1116 [32m++[m
- .../widgets/dygraphs_libs/pymjs-1.3.2/pym.v1.min.js     |     3 [32m+[m
- .../figure-html/widgets/dygraphs_libs/pymjs/pym.v1.js   |  1116 [32m++[m
- .../widgets/dygraphs_libs/pymjs/pym.v1.min.js           |     3 [32m+[m
- .../figure-html/widgets/widget_at.html                  |    27 [32m+[m
- .../figure-html/widgets/widget_pCO2.html                |    27 [32m+[m
- .../figure-html/widgets/widget_seafet.html              |    27 [32m+[m
- .../figure-html/widgets/widget_whole time series.html   |    27 [32m+[m
- .../htmlwidgets/htmlwidgets.js                          |   839 [32m++[m
- .../awipev-CO2_pres_2019-02-19_files/jquery/AUTHORS.txt |   217 [32m+[m
- .../jquery/jquery.min.js                                |     4 [32m+[m
- .../moment-fquarter/moment-fquarter.min.js              |     1 [32m+[m
- .../moment-timezone/moment-timezone-with-data.js        |   990 [32m++[m
- .../moment-timezone/moment.js                           |  2936 [32m+++++[m
- .../moment/moment-timezone-with-data.js                 |   990 [32m++[m
- .../awipev-CO2_pres_2019-02-19_files/moment/moment.js   |  2936 [32m+++++[m
- .../remark-css/default-fonts.css                        |    10 [32m+[m
- .../remark-css/default.css                              |    72 [32m+[m
- .../dygraphs-1.1.1/dygraph-combined-dev.js              | 12172 [32m+++++++++++++++++++++[m
- .../dygraphs_libs/dygraphs-1.1.1/dygraph-combined.js    |     6 [32m+[m
- .../widgets/dygraphs_libs/dygraphs-1.1.1/dygraph.css    |     8 [32m+[m
- .../widgets/dygraphs_libs/dygraphs-1.1.1/shapes.js      |   123 [32m+[m
- .../dygraphs_libs/dygraphs-binding-1.1.1.6/dygraphs.js  |   789 [32m++[m
- .../dygraphs_libs/htmlwidgets-1.3/htmlwidgets.js        |   839 [32m++[m
- .../widgets/dygraphs_libs/jquery-1.11.1/AUTHORS.txt     |   217 [32m+[m
- .../widgets/dygraphs_libs/jquery-1.11.1/jquery.min.js   |     4 [32m+[m
- .../moment-2.8.4/moment-timezone-with-data.js           |   990 [32m++[m
- .../widgets/dygraphs_libs/moment-2.8.4/moment.js        |  2936 [32m+++++[m
- .../moment-fquarter-1.0.0/moment-fquarter.min.js        |     1 [32m+[m
- .../moment-timezone-0.2.5/moment-timezone-with-data.js  |   990 [32m++[m
- .../dygraphs_libs/moment-timezone-0.2.5/moment.js       |  2936 [32m+++++[m
- .../widgets/dygraphs_libs/pymjs-1.3.2/pym.v1.js         |  1116 [32m++[m
- .../widgets/dygraphs_libs/pymjs-1.3.2/pym.v1.min.js     |     3 [32m+[m
- .../widgets/widget_Plot TA calc TA meas.html            |    27 [32m+[m
- .../figure-html/widgets/widget_Plot seafet meas.html    |    27 [32m+[m
- .../figure-html/widgets/widget_at.html                  |    27 [32m+[m
- .../figure-html/widgets/widget_comparing pH.html        |    27 [32m+[m
- .../figure-html/widgets/widget_durafet.html             |    27 [32m+[m
- .../figure-html/widgets/widget_pCO2.html                |    27 [32m+[m
- .../figure-html/widgets/widget_seafet final.html        |    27 [32m+[m
- .../figure-html/widgets/widget_seafet.html              |    27 [32m+[m
- .../awipev_2019-02-19-figure/unnamed-chunk-2-1.png      |   Bin [31m0[m -> [32m22080[m bytes
- presentation/images/AWIPEV-Logo.jpg                     |   Bin [31m0[m -> [32m52299[m bytes
- presentation/images/container.png                       |   Bin [31m0[m -> [32m1556268[m bytes
- presentation/images/ferrybox.jpg                        |   Bin [31m0[m -> [32m356719[m bytes
- presentation/images/seafet.png                          |   Bin [31m0[m -> [32m542432[m bytes
- presentation/images/steinacher.png                      |   Bin [31m0[m -> [32m81740[m bytes
- presentation/images/web_page.png                        |   Bin [31m0[m -> [32m435625[m bytes
- presentation/images/web_page_cropped.png                |   Bin [31m0[m -> [32m228641[m bytes
- presentation/images/web_page_medium.png                 |   Bin [31m0[m -> [32m286015[m bytes
- presentation/images/web_page_small.png                  |   Bin [31m0[m -> [32m68108[m bytes
- .../libs/dygraphs-1.1.1/dygraph-combined-dev.js         | 12172 [32m+++++++++++++++++++++[m
- presentation/libs/dygraphs-1.1.1/dygraph-combined.js    |     6 [32m+[m
- presentation/libs/dygraphs-1.1.1/dygraph.css            |     8 [32m+[m
- presentation/libs/dygraphs-1.1.1/shapes.js              |   123 [32m+[m
- presentation/libs/dygraphs-binding-1.1.1.6/dygraphs.js  |   789 [32m++[m
- presentation/libs/dygraphs-binding/dygraphs.js          |   789 [32m++[m
- presentation/libs/dygraphs/dygraph-combined-dev.js      | 12172 [32m+++++++++++++++++++++[m
- presentation/libs/dygraphs/dygraph-combined.js          |     6 [32m+[m
- presentation/libs/dygraphs/dygraph.css                  |     8 [32m+[m
- presentation/libs/dygraphs/shapes.js                    |   123 [32m+[m
- presentation/libs/htmlwidgets-1.3/htmlwidgets.js        |   839 [32m++[m
- presentation/libs/htmlwidgets/htmlwidgets.js            |   839 [32m++[m
- presentation/libs/jquery-1.11.1/AUTHORS.txt             |   217 [32m+[m
- presentation/libs/jquery-1.11.1/jquery.min.js           |     4 [32m+[m
- presentation/libs/jquery/AUTHORS.txt                    |   217 [32m+[m
- presentation/libs/jquery/jquery.min.js                  |     4 [32m+[m
- .../libs/moment-2.8.4/moment-timezone-with-data.js      |   990 [32m++[m
- presentation/libs/moment-2.8.4/moment.js                |  2936 [32m+++++[m
- .../libs/moment-fquarter-1.0.0/moment-fquarter.min.js   |     1 [32m+[m
- .../libs/moment-fquarter/moment-fquarter.min.js         |     1 [32m+[m
- .../moment-timezone-0.2.5/moment-timezone-with-data.js  |   990 [32m++[m
- presentation/libs/moment-timezone-0.2.5/moment.js       |  2936 [32m+++++[m
- .../libs/moment-timezone/moment-timezone-with-data.js   |   990 [32m++[m
- presentation/libs/moment-timezone/moment.js             |  2936 [32m+++++[m
- presentation/libs/moment/moment-timezone-with-data.js   |   990 [32m++[m
- presentation/libs/moment/moment.js                      |  2936 [32m+++++[m
- presentation/libs/pymjs-1.3.2/pym.v1.js                 |  1116 [32m++[m
- presentation/libs/pymjs-1.3.2/pym.v1.min.js             |     3 [32m+[m
- presentation/libs/pymjs/pym.v1.js                       |  1116 [32m++[m
- presentation/libs/pymjs/pym.v1.min.js                   |     3 [32m+[m
- presentation/libs/remark-css-0.0.1/default-fonts.css    |    10 [32m+[m
- presentation/libs/remark-css-0.0.1/default.css          |    72 [32m+[m
- presentation/libs/remark-css/default-fonts.css          |    10 [32m+[m
- presentation/libs/remark-css/default.css                |    72 [32m+[m
- .../libs/widgetframe-binding-0.3.1/widgetframe.js       |    21 [32m+[m
- presentation/libs/widgetframe-binding/widgetframe.js    |    21 [32m+[m
- presentation/xaringan.Rmd                               |   620 [32m++[m
- presentation/xaringan.html                              |   777 [32m++[m
- wolf.csv                                                |  5006 [32m+++++++++[m
- 140 files changed, 146045 insertions(+), 742 deletions(-)
- create mode 100644 .gitignore
- delete mode 100644 awipev-CO2.html
- create mode 100644 figures/Diff_ref_TA_first_period.png
- create mode 100644 figures/Diff_ref_TA_third_period.png
- create mode 100644 figures/Discrete_TA_salinity_AWIPEV.png
- create mode 100644 figures/TA_calibration_CRM.png
- create mode 100644 figures/delta_at_awipev_snapo.png
- create mode 100644 figures/delta_ct_awipev_snapo.png
- create mode 100644 figures/pco2calc_pCO2_contros.png
- create mode 100644 libs/remark-css-0.0.1/default-fonts.css
- create mode 100644 libs/remark-css-0.0.1/default.css
- create mode 100644 libs/remark-css/default-fonts.css
- create mode 100644 libs/remark-css/default.css
- create mode 100644 presentation/awipev-CO2_pres.Rmd
- create mode 100644 presentation/awipev-CO2_pres.html
- create mode 100644 presentation/awipev-CO2_pres_2019-02-19.Rmd
- create mode 100644 presentation/awipev-CO2_pres_2019-02-19.html
- create mode 100644 presentation/awipev-CO2_pres_2019-02-19_files/dygraphs-binding/dygraphs.js
- create mode 100644 presentation/awipev-CO2_pres_2019-02-19_files/dygraphs/dygraph-combined-dev.js
- create mode 100644 presentation/awipev-CO2_pres_2019-02-19_files/dygraphs/dygraph-combined.js
- create mode 100644 presentation/awipev-CO2_pres_2019-02-19_files/dygraphs/dygraph.css
- create mode 100644 presentation/awipev-CO2_pres_2019-02-19_files/dygraphs/shapes.js
- create mode 100644 presentation/awipev-CO2_pres_2019-02-19_files/figure-html/widgets/dygraphs_libs/dygraphs-1.1.1/dygraph-combined-dev.js
- create mode 100644 presentation/awipev-CO2_pres_2019-02-19_files/figure-html/widgets/dygraphs_libs/dygraphs-1.1.1/dygraph-combined.js
- create mode 100644 presentation/awipev-CO2_pres_2019-02-19_files/figure-html/widgets/dygraphs_libs/dygraphs-1.1.1/dygraph.css
- create mode 100644 presentation/awipev-CO2_pres_2019-02-19_files/figure-html/widgets/dygraphs_libs/dygraphs-1.1.1/shapes.js
- create mode 100644 presentation/awipev-CO2_pres_2019-02-19_files/figure-html/widgets/dygraphs_libs/dygraphs-binding-1.1.1.6/dygraphs.js
- create mode 100644 presentation/awipev-CO2_pres_2019-02-19_files/figure-html/widgets/dygraphs_libs/dygraphs-binding/dygraphs.js
- create mode 100644 presentation/awipev-CO2_pres_2019-02-19_files/figure-html/widgets/dygraphs_libs/dygraphs/dygraph-combined-dev.js
- create mode 100644 presentation/awipev-CO2_pres_2019-02-19_files/figure-html/widgets/dygraphs_libs/dygraphs/dygraph-combined.js
- create mode 100644 presentation/awipev-CO2_pres_2019-02-19_files/figure-html/widgets/dygraphs_libs/dygraphs/dygraph.css
- create mode 100644 presentation/awipev-CO2_pres_2019-02-19_files/figure-html/widgets/dygraphs_libs/dygraphs/shapes.js
- create mode 100644 presentation/awipev-CO2_pres_2019-02-19_files/figure-html/widgets/dygraphs_libs/htmlwidgets-1.3/htmlwidgets.js
- create mode 100644 presentation/awipev-CO2_pres_2019-02-19_files/figure-html/widgets/dygraphs_libs/htmlwidgets/htmlwidgets.js
- create mode 100644 presentation/awipev-CO2_pres_2019-02-19_files/figure-html/widgets/dygraphs_libs/jquery-1.11.1/AUTHORS.txt
- create mode 100644 presentation/awipev-CO2_pres_2019-02-19_files/figure-html/widgets/dygraphs_libs/jquery-1.11.1/jquery.min.js
- create mode 100644 presentation/awipev-CO2_pres_2019-02-19_files/figure-html/widgets/dygraphs_libs/jquery/AUTHORS.txt
- create mode 100644 presentation/awipev-CO2_pres_2019-02-19_files/figure-html/widgets/dygraphs_libs/jquery/jquery.min.js
- create mode 100644 presentation/awipev-CO2_pres_2019-02-19_files/figure-html/widgets/dygraphs_libs/moment-2.8.4/moment-timezone-with-data.js
- create mode 100644 presentation/awipev-CO2_pres_2019-02-19_files/figure-html/widgets/dygraphs_libs/moment-2.8.4/moment.js
- create mode 100644 presentation/awipev-CO2_pres_2019-02-19_files/figure-html/widgets/dygraphs_libs/moment-fquarter-1.0.0/moment-fquarter.min.js
- create mode 100644 presentation/awipev-CO2_pres_2019-02-19_files/figure-html/widgets/dygraphs_libs/moment-fquarter/moment-fquarter.min.js
- create mode 100644 presentation/awipev-CO2_pres_2019-02-19_files/figure-html/widgets/dygraphs_libs/moment-timezone-0.2.5/moment-timezone-with-data.js
- create mode 100644 presentation/awipev-CO2_pres_2019-02-19_files/figure-html/widgets/dygraphs_libs/moment-timezone-0.2.5/moment.js
- create mode 100644 presentation/awipev-CO2_pres_2019-02-19_files/figure-html/widgets/dygraphs_libs/moment-timezone/moment-timezone-with-data.js
- create mode 100644 presentation/awipev-CO2_pres_2019-02-19_files/figure-html/widgets/dygraphs_libs/moment-timezone/moment.js
- create mode 100644 presentation/awipev-CO2_pres_2019-02-19_files/figure-html/widgets/dygraphs_libs/moment/moment-timezone-with-data.js
- create mode 100644 presentation/awipev-CO2_pres_2019-02-19_files/figure-html/widgets/dygraphs_libs/moment/moment.js
- create mode 100644 presentation/awipev-CO2_pres_2019-02-19_files/figure-html/widgets/dygraphs_libs/pymjs-1.3.2/pym.v1.js
- create mode 100644 presentation/awipev-CO2_pres_2019-02-19_files/figure-html/widgets/dygraphs_libs/pymjs-1.3.2/pym.v1.min.js
- create mode 100644 presentation/awipev-CO2_pres_2019-02-19_files/figure-html/widgets/dygraphs_libs/pymjs/pym.v1.js
- create mode 100644 presentation/awipev-CO2_pres_2019-02-19_files/figure-html/widgets/dygraphs_libs/pymjs/pym.v1.min.js
- create mode 100644 presentation/awipev-CO2_pres_2019-02-19_files/figure-html/widgets/widget_at.html
- create mode 100644 presentation/awipev-CO2_pres_2019-02-19_files/figure-html/widgets/widget_pCO2.html
- create mode 100644 presentation/awipev-CO2_pres_2019-02-19_files/figure-html/widgets/widget_seafet.html
- create mode 100644 presentation/awipev-CO2_pres_2019-02-19_files/figure-html/widgets/widget_whole time series.html
- create mode 100644 presentation/awipev-CO2_pres_2019-02-19_files/htmlwidgets/htmlwidgets.js
- create mode 100644 presentation/awipev-CO2_pres_2019-02-19_files/jquery/AUTHORS.txt
- create mode 100644 presentation/awipev-CO2_pres_2019-02-19_files/jquery/jquery.min.js
- create mode 100644 presentation/awipev-CO2_pres_2019-02-19_files/moment-fquarter/moment-fquarter.min.js
- create mode 100644 presentation/awipev-CO2_pres_2019-02-19_files/moment-timezone/moment-timezone-with-data.js
- create mode 100644 presentation/awipev-CO2_pres_2019-02-19_files/moment-timezone/moment.js
- create mode 100644 presentation/awipev-CO2_pres_2019-02-19_files/moment/moment-timezone-with-data.js
- create mode 100644 presentation/awipev-CO2_pres_2019-02-19_files/moment/moment.js
- create mode 100644 presentation/awipev-CO2_pres_2019-02-19_files/remark-css/default-fonts.css
- create mode 100644 presentation/awipev-CO2_pres_2019-02-19_files/remark-css/default.css
- create mode 100644 presentation/awipev-CO2_pres_files/figure-html/widgets/dygraphs_libs/dygraphs-1.1.1/dygraph-combined-dev.js
- create mode 100644 presentation/awipev-CO2_pres_files/figure-html/widgets/dygraphs_libs/dygraphs-1.1.1/dygraph-combined.js
- create mode 100644 presentation/awipev-CO2_pres_files/figure-html/widgets/dygraphs_libs/dygraphs-1.1.1/dygraph.css
- create mode 100644 presentation/awipev-CO2_pres_files/figure-html/widgets/dygraphs_libs/dygraphs-1.1.1/shapes.js
- create mode 100644 presentation/awipev-CO2_pres_files/figure-html/widgets/dygraphs_libs/dygraphs-binding-1.1.1.6/dygraphs.js
- create mode 100644 presentation/awipev-CO2_pres_files/figure-html/widgets/dygraphs_libs/htmlwidgets-1.3/htmlwidgets.js
- create mode 100644 presentation/awipev-CO2_pres_files/figure-html/widgets/dygraphs_libs/jquery-1.11.1/AUTHORS.txt
- create mode 100644 presentation/awipev-CO2_pres_files/figure-html/widgets/dygraphs_libs/jquery-1.11.1/jquery.min.js
- create mode 100644 presentation/awipev-CO2_pres_files/figure-html/widgets/dygraphs_libs/moment-2.8.4/moment-timezone-with-data.js
- create mode 100644 presentation/awipev-CO2_pres_files/figure-html/widgets/dygraphs_libs/moment-2.8.4/moment.js
- create mode 100644 presentation/awipev-CO2_pres_files/figure-html/widgets/dygraphs_libs/moment-fquarter-1.0.0/moment-fquarter.min.js
- create mode 100644 presentation/awipev-CO2_pres_files/figure-html/widgets/dygraphs_libs/moment-timezone-0.2.5/moment-timezone-with-data.js
- create mode 100644 presentation/awipev-CO2_pres_files/figure-html/widgets/dygraphs_libs/moment-timezone-0.2.5/moment.js
- create mode 100644 presentation/awipev-CO2_pres_files/figure-html/widgets/dygraphs_libs/pymjs-1.3.2/pym.v1.js
- create mode 100644 presentation/awipev-CO2_pres_files/figure-html/widgets/dygraphs_libs/pymjs-1.3.2/pym.v1.min.js
- create mode 100644 presentation/awipev-CO2_pres_files/figure-html/widgets/widget_Plot TA calc TA meas.html
- create mode 100644 presentation/awipev-CO2_pres_files/figure-html/widgets/widget_Plot seafet meas.html
- create mode 100644 presentation/awipev-CO2_pres_files/figure-html/widgets/widget_at.html
- create mode 100644 presentation/awipev-CO2_pres_files/figure-html/widgets/widget_comparing pH.html
- create mode 100644 presentation/awipev-CO2_pres_files/figure-html/widgets/widget_durafet.html
- create mode 100644 presentation/awipev-CO2_pres_files/figure-html/widgets/widget_pCO2.html
- create mode 100644 presentation/awipev-CO2_pres_files/figure-html/widgets/widget_seafet final.html
- create mode 100644 presentation/awipev-CO2_pres_files/figure-html/widgets/widget_seafet.html
- create mode 100644 presentation/awipev_2019-02-19-figure/unnamed-chunk-2-1.png
- create mode 100644 presentation/images/AWIPEV-Logo.jpg
- create mode 100644 presentation/images/container.png
- create mode 100644 presentation/images/ferrybox.jpg
- create mode 100644 presentation/images/seafet.png
- create mode 100644 presentation/images/steinacher.png
- create mode 100644 presentation/images/web_page.png
- create mode 100644 presentation/images/web_page_cropped.png
- create mode 100644 presentation/images/web_page_medium.png
- create mode 100644 presentation/images/web_page_small.png
- create mode 100644 presentation/libs/dygraphs-1.1.1/dygraph-combined-dev.js
- create mode 100644 presentation/libs/dygraphs-1.1.1/dygraph-combined.js
- create mode 100644 presentation/libs/dygraphs-1.1.1/dygraph.css
- create mode 100644 presentation/libs/dygraphs-1.1.1/shapes.js
- create mode 100644 presentation/libs/dygraphs-binding-1.1.1.6/dygraphs.js
- create mode 100644 presentation/libs/dygraphs-binding/dygraphs.js
- create mode 100644 presentation/libs/dygraphs/dygraph-combined-dev.js
- create mode 100644 presentation/libs/dygraphs/dygraph-combined.js
- create mode 100644 presentation/libs/dygraphs/dygraph.css
- create mode 100644 presentation/libs/dygraphs/shapes.js
- create mode 100644 presentation/libs/htmlwidgets-1.3/htmlwidgets.js
- create mode 100644 presentation/libs/htmlwidgets/htmlwidgets.js
- create mode 100644 presentation/libs/jquery-1.11.1/AUTHORS.txt
- create mode 100644 presentation/libs/jquery-1.11.1/jquery.min.js
- create mode 100644 presentation/libs/jquery/AUTHORS.txt
- create mode 100644 presentation/libs/jquery/jquery.min.js
- create mode 100644 presentation/libs/moment-2.8.4/moment-timezone-with-data.js
- create mode 100644 presentation/libs/moment-2.8.4/moment.js
- create mode 100644 presentation/libs/moment-fquarter-1.0.0/moment-fquarter.min.js
- create mode 100644 presentation/libs/moment-fquarter/moment-fquarter.min.js
- create mode 100644 presentation/libs/moment-timezone-0.2.5/moment-timezone-with-data.js
- create mode 100644 presentation/libs/moment-timezone-0.2.5/moment.js
- create mode 100644 presentation/libs/moment-timezone/moment-timezone-with-data.js
- create mode 100644 presentation/libs/moment-timezone/moment.js
- create mode 100644 presentation/libs/moment/moment-timezone-with-data.js
- create mode 100644 presentation/libs/moment/moment.js
- create mode 100644 presentation/libs/pymjs-1.3.2/pym.v1.js
- create mode 100644 presentation/libs/pymjs-1.3.2/pym.v1.min.js
- create mode 100644 presentation/libs/pymjs/pym.v1.js
- create mode 100644 presentation/libs/pymjs/pym.v1.min.js
- create mode 100644 presentation/libs/remark-css-0.0.1/default-fonts.css
- create mode 100644 presentation/libs/remark-css-0.0.1/default.css
- create mode 100644 presentation/libs/remark-css/default-fonts.css
- create mode 100644 presentation/libs/remark-css/default.css
- create mode 100644 presentation/libs/widgetframe-binding-0.3.1/widgetframe.js
- create mode 100644 presentation/libs/widgetframe-binding/widgetframe.js
- create mode 100644 presentation/xaringan.Rmd
- create mode 100644 presentation/xaringan.html
- create mode 100644 wolf.csv
-]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ [KMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git pull Awipev master
-From https://github.com/jpgattuso/AWIPEV-CO2-git
- * branch            master     -> FETCH_HEAD
-Already up to date.
-]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git add -A
-]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git commit -m "serv[K[K[K[KSERVER tab added"
-[master 08dd248] SERVER tab added
- 65 files changed, 561 insertions(+), 724 deletions(-)
- rewrite .Rproj.user/shared/notebooks/EA182F0D-awipev-CO2/1/8CD7EAF328B25282/chunks.json (100%)
- delete mode 100644 .Rproj.user/shared/notebooks/EA182F0D-awipev-CO2/1/s/c232d1cynz2ue/000005.csv
- delete mode 100644 .Rproj.user/shared/notebooks/EA182F0D-awipev-CO2/1/s/c232d1cynz2ue/000006.html
- delete mode 100644 .Rproj.user/shared/notebooks/EA182F0D-awipev-CO2/1/s/c232d1cynz2ue/000006.json
- delete mode 100644 .Rproj.user/shared/notebooks/EA182F0D-awipev-CO2/1/s/c232d1cynz2ue/000006.metadata
- delete mode 100644 .Rproj.user/shared/notebooks/EA182F0D-awipev-CO2/1/s/c232d1cynz2ue/000007.csv
- delete mode 100644 .Rproj.user/shared/notebooks/EA182F0D-awipev-CO2/1/s/c232d1cynz2ue/000008.html
- delete mode 100644 .Rproj.user/shared/notebooks/EA182F0D-awipev-CO2/1/s/c232d1cynz2ue/000008.json
- delete mode 100644 .Rproj.user/shared/notebooks/EA182F0D-awipev-CO2/1/s/c232d1cynz2ue/000008.metadata
- delete mode 100644 .Rproj.user/shared/notebooks/EA182F0D-awipev-CO2/1/s/c232d1cynz2ue/000009.csv
- delete mode 100644 .Rproj.user/shared/notebooks/EA182F0D-awipev-CO2/1/s/c232d1cynz2ue/00000a.html
- delete mode 100644 .Rproj.user/shared/notebooks/EA182F0D-awipev-CO2/1/s/c232d1cynz2ue/00000a.json
- delete mode 100644 .Rproj.user/shared/notebooks/EA182F0D-awipev-CO2/1/s/c232d1cynz2ue/00000a.metadata
- delete mode 100644 .Rproj.user/shared/notebooks/EA182F0D-awipev-CO2/1/s/c232d1cynz2ue/00000b.csv
- delete mode 100644 .Rproj.user/shared/notebooks/EA182F0D-awipev-CO2/1/s/c232d1cynz2ue/00000c.html
- delete mode 100644 .Rproj.user/shared/notebooks/EA182F0D-awipev-CO2/1/s/c232d1cynz2ue/00000c.json
- delete mode 100644 .Rproj.user/shared/notebooks/EA182F0D-awipev-CO2/1/s/c232d1cynz2ue/00000c.metadata
- delete mode 100644 .Rproj.user/shared/notebooks/EA182F0D-awipev-CO2/1/s/c232d1cynz2ue/00000d.csv
- delete mode 100644 .Rproj.user/shared/notebooks/EA182F0D-awipev-CO2/1/s/c232d1cynz2ue/00000e.html
- delete mode 100644 .Rproj.user/shared/notebooks/EA182F0D-awipev-CO2/1/s/c232d1cynz2ue/00000e.json
- delete mode 100644 .Rproj.user/shared/notebooks/EA182F0D-awipev-CO2/1/s/c232d1cynz2ue/00000e.metadata
- delete mode 100644 .Rproj.user/shared/notebooks/EA182F0D-awipev-CO2/1/s/c232d1cynz2ue/00000f.csv
- delete mode 100644 .Rproj.user/shared/notebooks/EA182F0D-awipev-CO2/1/s/c232d1cynz2ue/000010.html
- delete mode 100644 .Rproj.user/shared/notebooks/EA182F0D-awipev-CO2/1/s/c232d1cynz2ue/000010.json
- delete mode 100644 .Rproj.user/shared/notebooks/EA182F0D-awipev-CO2/1/s/c232d1cynz2ue/000010.metadata
- delete mode 100644 .Rproj.user/shared/notebooks/EA182F0D-awipev-CO2/1/s/c232d1cynz2ue/000011.csv
- delete mode 100644 .Rproj.user/shared/notebooks/EA182F0D-awipev-CO2/1/s/c232d1cynz2ue/000012.html
- delete mode 100644 .Rproj.user/shared/notebooks/EA182F0D-awipev-CO2/1/s/c232d1cynz2ue/000012.json
- delete mode 100644 .Rproj.user/shared/notebooks/EA182F0D-awipev-CO2/1/s/c232d1cynz2ue/000012.metadata
- delete mode 100644 .Rproj.user/shared/notebooks/EA182F0D-awipev-CO2/1/s/c232d1cynz2ue/000013.csv
- delete mode 100644 .Rproj.user/shared/notebooks/EA182F0D-awipev-CO2/1/s/c378jv0mpoty8/000002.csv
- delete mode 100644 .Rproj.user/shared/notebooks/EA182F0D-awipev-CO2/1/s/c378jv0mpoty8/000003.metadata
- delete mode 100644 .Rproj.user/shared/notebooks/EA182F0D-awipev-CO2/1/s/c378jv0mpoty8/000003.png
- delete mode 100644 .Rproj.user/shared/notebooks/EA182F0D-awipev-CO2/1/s/c378jv0mpoty8/000003.snapshot
- delete mode 100644 .Rproj.user/shared/notebooks/EA182F0D-awipev-CO2/1/s/cb1fo212gfe5p/000008.csv
- delete mode 100644 .Rproj.user/shared/notebooks/EA182F0D-awipev-CO2/1/s/cdjg8unlgqfxx/000002.csv
- delete mode 100644 .Rproj.user/shared/notebooks/EA182F0D-awipev-CO2/1/s/cem49td2yeo22/000002.csv
- delete mode 100644 .Rproj.user/shared/notebooks/EA182F0D-awipev-CO2/1/s/cf173a7nacalb/000002.csv
- delete mode 100644 .Rproj.user/shared/notebooks/EA182F0D-awipev-CO2/1/s/cf173a7nacalb/000004.csv
- delete mode 100644 .Rproj.user/shared/notebooks/EA182F0D-awipev-CO2/1/s/cf173a7nacalb/000005.metadata
- delete mode 100644 .Rproj.user/shared/notebooks/EA182F0D-awipev-CO2/1/s/cf173a7nacalb/000005.png
- delete mode 100644 .Rproj.user/shared/notebooks/EA182F0D-awipev-CO2/1/s/cf173a7nacalb/000005.snapshot
- rewrite .Rproj.user/shared/notebooks/EA182F0D-awipev-CO2/1/s/chunks.json (100%)
- delete mode 100644 .Rproj.user/shared/notebooks/EA182F0D-awipev-CO2/1/s/ciu5p5gbixshr/000002.csv
- delete mode 100644 .Rproj.user/shared/notebooks/EA182F0D-awipev-CO2/1/s/cqvnxbtg1tilf/000004.html
- delete mode 100644 .Rproj.user/shared/notebooks/EA182F0D-awipev-CO2/1/s/cqvnxbtg1tilf/000004.json
- delete mode 100644 .Rproj.user/shared/notebooks/EA182F0D-awipev-CO2/1/s/cqvnxbtg1tilf/000004.metadata
- delete mode 100644 .Rproj.user/shared/notebooks/EA182F0D-awipev-CO2/1/s/ct7uh4ll81p8u/000002.csv
- delete mode 100644 .Rproj.user/shared/notebooks/EA182F0D-awipev-CO2/1/s/ctgbodye344zj/000002.csv
- delete mode 100644 .Rproj.user/shared/notebooks/EA182F0D-awipev-CO2/1/s/cup1fyy4w2rau/000002.csv
- delete mode 100644 .Rproj.user/shared/notebooks/EA182F0D-awipev-CO2/1/s/cup1fyy4w2rau/000004.csv
- delete mode 100644 .Rproj.user/shared/notebooks/EA182F0D-awipev-CO2/1/s/cup1fyy4w2rau/000005.metadata
- delete mode 100644 .Rproj.user/shared/notebooks/EA182F0D-awipev-CO2/1/s/cup1fyy4w2rau/000005.png
- delete mode 100644 .Rproj.user/shared/notebooks/EA182F0D-awipev-CO2/1/s/cup1fyy4w2rau/000005.snapshot
- delete mode 100644 .Rproj.user/shared/notebooks/EA182F0D-awipev-CO2/1/s/cz0hke3bnpyt1/000002.csv
- rewrite .Rproj.user/shared/notebooks/paths (100%)
- rewrite figures/delta_at_awipev_snapo.png (97%)
- rewrite figures/delta_ct_awipev_snapo.png (96%)
-]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git push origin master
-Username for 'https://github.com': samirLOV1
-Password for 'https://samirLOV1@github.com': 
-Enumerating objects: 218, done.
-Counting objects:   0% (1/217)   Counting objects:   1% (3/217)   Counting objects:   2% (5/217)   Counting objects:   3% (7/217)   Counting objects:   4% (9/217)   Counting objects:   5% (11/217)   Counting objects:   6% (14/217)   Counting objects:   7% (16/217)   Counting objects:   8% (18/217)   Counting objects:   9% (20/217)   Counting objects:  10% (22/217)   Counting objects:  11% (24/217)   Counting objects:  12% (27/217)   Counting objects:  13% (29/217)   Counting objects:  14% (31/217)   Counting objects:  15% (33/217)   Counting objects:  16% (35/217)   Counting objects:  17% (37/217)   Counting objects:  18% (40/217)   Counting objects:  19% (42/217)   Counting objects:  20% (44/217)   Counting objects:  21% (46/217)   Counting objects:  22% (48/217)   Counting objects:  23% (50/217)   Counting objects:  24% (53/217)   Counting objects:  25% (55/217)   Counting objects:  26% (57/217)   Counting objects:  27% (59/217)   Counting objects:  28% (61/217)   Counting objects:  29% (63/217)   Counting objects:  30% (66/217)   Counting objects:  31% (68/217)   Counting objects:  32% (70/217)   Counting objects:  33% (72/217)   Counting objects:  34% (74/217)   Counting objects:  35% (76/217)   Counting objects:  36% (79/217)   Counting objects:  37% (81/217)   Counting objects:  38% (83/217)   Counting objects:  39% (85/217)   Counting objects:  40% (87/217)   Counting objects:  41% (89/217)   Counting objects:  42% (92/217)   Counting objects:  43% (94/217)   Counting objects:  44% (96/217)   Counting objects:  45% (98/217)   Counting objects:  46% (100/217)   Counting objects:  47% (102/217)   Counting objects:  48% (105/217)   Counting objects:  49% (107/217)   Counting objects:  50% (109/217)   Counting objects:  51% (111/217)   Counting objects:  52% (113/217)   Counting objects:  53% (116/217)   Counting objects:  54% (118/217)   Counting objects:  55% (120/217)   Counting objects:  56% (122/217)   Counting objects:  57% (124/217)   Counting objects:  58% (126/217)   Counting objects:  59% (129/217)   Counting objects:  60% (131/217)   Counting objects:  61% (133/217)   Counting objects:  62% (135/217)   Counting objects:  63% (137/217)   Counting objects:  64% (139/217)   Counting objects:  65% (142/217)   Counting objects:  66% (144/217)   Counting objects:  67% (146/217)   Counting objects:  68% (148/217)   Counting objects:  69% (150/217)   Counting objects:  70% (152/217)   Counting objects:  71% (155/217)   Counting objects:  72% (157/217)   Counting objects:  73% (159/217)   Counting objects:  74% (161/217)   Counting objects:  75% (163/217)   Counting objects:  76% (165/217)   Counting objects:  77% (168/217)   Counting objects:  78% (170/217)   Counting objects:  79% (172/217)   Counting objects:  80% (174/217)   Counting objects:  81% (176/217)   Counting objects:  82% (178/217)   Counting objects:  83% (181/217)   Counting objects:  84% (183/217)   Counting objects:  85% (185/217)   Counting objects:  86% (187/217)   Counting objects:  87% (189/217)   Counting objects:  88% (191/217)   Counting objects:  89% (194/217)   Counting objects:  90% (196/217)   Counting objects:  91% (198/217)   Counting objects:  92% (200/217)   Counting objects:  93% (202/217)   Counting objects:  94% (204/217)   Counting objects:  95% (207/217)   Counting objects:  96% (209/217)   Counting objects:  97% (211/217)   Counting objects:  98% (213/217)   Counting objects:  99% (215/217)   Counting objects: 100% (217/217)   Counting objects: 100% (217/217), done.
-Delta compression using up to 4 threads
-Compressing objects:   0% (1/112)   Compressing objects:   1% (2/112)   Compressing objects:   2% (3/112)   Compressing objects:   3% (4/112)   Compressing objects:   4% (5/112)   Compressing objects:   5% (6/112)   Compressing objects:   6% (7/112)   Compressing objects:   7% (8/112)   Compressing objects:   8% (9/112)   Compressing objects:   9% (11/112)   Compressing objects:  10% (12/112)   Compressing objects:  11% (13/112)   Compressing objects:  12% (14/112)   Compressing objects:  13% (15/112)   Compressing objects:  14% (16/112)   Compressing objects:  15% (17/112)   Compressing objects:  16% (18/112)   Compressing objects:  17% (20/112)   Compressing objects:  18% (21/112)   Compressing objects:  19% (22/112)   Compressing objects:  20% (23/112)   Compressing objects:  21% (24/112)   Compressing objects:  22% (25/112)   Compressing objects:  23% (26/112)   Compressing objects:  24% (27/112)   Compressing objects:  25% (28/112)   Compressing objects:  26% (30/112)   Compressing objects:  27% (31/112)   Compressing objects:  28% (32/112)   Compressing objects:  29% (33/112)   Compressing objects:  30% (34/112)   Compressing objects:  31% (35/112)   Compressing objects:  32% (36/112)   Compressing objects:  33% (37/112)   Compressing objects:  34% (39/112)   Compressing objects:  35% (40/112)   Compressing objects:  36% (41/112)   Compressing objects:  37% (42/112)   Compressing objects:  38% (43/112)   Compressing objects:  39% (44/112)   Compressing objects:  40% (45/112)   Compressing objects:  41% (46/112)   Compressing objects:  42% (48/112)   Compressing objects:  43% (49/112)   Compressing objects:  44% (50/112)   Compressing objects:  45% (51/112)   Compressing objects:  46% (52/112)   Compressing objects:  47% (53/112)   Compressing objects:  48% (54/112)   Compressing objects:  49% (55/112)   Compressing objects:  50% (56/112)   Compressing objects:  51% (58/112)   Compressing objects:  52% (59/112)   Compressing objects:  53% (60/112)   Compressing objects:  54% (61/112)   Compressing objects:  55% (62/112)   Compressing objects:  56% (63/112)   Compressing objects:  57% (64/112)   Compressing objects:  58% (65/112)   Compressing objects:  59% (67/112)   Compressing objects:  60% (68/112)   Compressing objects:  61% (69/112)   Compressing objects:  62% (70/112)   Compressing objects:  63% (71/112)   Compressing objects:  64% (72/112)   Compressing objects:  65% (73/112)   Compressing objects:  66% (74/112)   Compressing objects:  67% (76/112)   Compressing objects:  68% (77/112)   Compressing objects:  69% (78/112)   Compressing objects:  70% (79/112)   Compressing objects:  71% (80/112)   Compressing objects:  72% (81/112)   Compressing objects:  73% (82/112)   Compressing objects:  74% (83/112)   Compressing objects:  75% (84/112)   Compressing objects:  76% (86/112)   Compressing objects:  77% (87/112)   Compressing objects:  78% (88/112)   Compressing objects:  79% (89/112)   Compressing objects:  80% (90/112)   Compressing objects:  81% (91/112)   Compressing objects:  82% (92/112)   Compressing objects:  83% (93/112)   Compressing objects:  84% (95/112)   Compressing objects:  85% (96/112)   Compressing objects:  86% (97/112)   Compressing objects:  87% (98/112)   Compressing objects:  88% (99/112)   Compressing objects:  89% (100/112)   Compressing objects:  90% (101/112)   Compressing objects:  91% (102/112)   Compressing objects:  92% (104/112)   Compressing objects:  93% (105/112)   Compressing objects:  94% (106/112)   Compressing objects:  95% (107/112)   Compressing objects:  96% (108/112)   Compressing objects:  97% (109/112)   Compressing objects:  98% (110/112)   Compressing objects:  99% (111/112)   Compressing objects: 100% (112/112)   Compressing objects: 100% (112/112), done.
-Writing objects:   0% (1/191)   Writing objects:   1% (2/191)   Writing objects:   2% (4/191)   Writing objects:   3% (6/191)   Writing objects:   4% (8/191)   Writing objects:   5% (10/191)   Writing objects:   6% (12/191)   Writing objects:   7% (14/191)   Writing objects:   8% (16/191)   Writing objects:   9% (18/191)   Writing objects:  10% (21/191)   Writing objects:  11% (22/191)   Writing objects:  12% (23/191)   Writing objects:  13% (25/191)   Writing objects:  14% (27/191)   Writing objects:  15% (29/191)   Writing objects:  16% (31/191)   Writing objects:  17% (33/191)   Writing objects:  18% (35/191)   Writing objects:  19% (37/191)   Writing objects:  20% (39/191)   Writing objects:  21% (41/191)   Writing objects:  22% (43/191)   Writing objects:  23% (44/191)   Writing objects:  24% (46/191)   Writing objects:  25% (48/191)   Writing objects:  26% (50/191)   Writing objects:  27% (52/191)   Writing objects:  28% (55/191)   Writing objects:  29% (57/191)   Writing objects:  30% (59/191)   Writing objects:  31% (61/191)   Writing objects:  32% (63/191)   Writing objects:  33% (64/191)   Writing objects:  34% (65/191)   Writing objects:  35% (67/191)   Writing objects:  36% (69/191)   Writing objects:  36% (70/191), 1.07 MiB | 516.00 KiB/s   Writing objects:  38% (74/191), 1.07 MiB | 516.00 KiB/s   Writing objects:  39% (75/191), 1.07 MiB | 516.00 KiB/s   Writing objects:  40% (77/191), 1.07 MiB | 516.00 KiB/s   Writing objects:  41% (80/191), 1.07 MiB | 516.00 KiB/s   Writing objects:  42% (81/191), 1.07 MiB | 516.00 KiB/s   Writing objects:  44% (85/191), 1.07 MiB | 516.00 KiB/s   Writing objects:  45% (87/191), 1.07 MiB | 516.00 KiB/s   Writing objects:  46% (88/191), 1.07 MiB | 516.00 KiB/s   Writing objects:  47% (90/191), 1.07 MiB | 516.00 KiB/s   Writing objects:  48% (93/191), 1.07 MiB | 516.00 KiB/s   Writing objects:  49% (95/191), 1.07 MiB | 516.00 KiB/s   Writing objects:  50% (96/191), 1.07 MiB | 516.00 KiB/s   Writing objects:  51% (98/191), 1.07 MiB | 516.00 KiB/s   Writing objects:  52% (100/191), 1.07 MiB | 516.00 KiB/s   Writing objects:  53% (102/191), 1.07 MiB | 516.00 KiB/s   Writing objects:  54% (104/191), 1.07 MiB | 516.00 KiB/s   Writing objects:  55% (106/191), 3.77 MiB | 1.43 MiB/s   Writing objects:  56% (107/191), 3.77 MiB | 1.43 MiB/s   Writing objects:  57% (109/191), 3.77 MiB | 1.43 MiB/s   Writing objects:  58% (111/191), 3.77 MiB | 1.43 MiB/s   Writing objects:  59% (113/191), 3.77 MiB | 1.43 MiB/s   Writing objects:  60% (115/191), 3.77 MiB | 1.43 MiB/s   Writing objects:  61% (117/191), 3.77 MiB | 1.43 MiB/s   Writing objects:  62% (119/191), 3.77 MiB | 1.43 MiB/s   Writing objects:  63% (121/191), 3.77 MiB | 1.43 MiB/s   Writing objects:  64% (123/191), 3.77 MiB | 1.43 MiB/s   Writing objects:  64% (123/191), 4.17 MiB | 1.14 MiB/s   Writing objects:  65% (125/191), 4.17 MiB | 1.14 MiB/s   Writing objects:  66% (127/191), 4.17 MiB | 1.14 MiB/s   Writing objects:  67% (128/191), 4.17 MiB | 1.14 MiB/s   Writing objects:  68% (130/191), 4.17 MiB | 1.14 MiB/s   Writing objects:  69% (132/191), 4.17 MiB | 1.14 MiB/s   Writing objects:  70% (134/191), 4.17 MiB | 1.14 MiB/s   Writing objects:  71% (137/191), 4.17 MiB | 1.14 MiB/s   Writing objects:  73% (140/191), 4.17 MiB | 1.14 MiB/s   Writing objects:  73% (140/191), 5.89 MiB | 1.27 MiB/s   Writing objects:  74% (142/191), 5.89 MiB | 1.27 MiB/s   Writing objects:  75% (144/191), 5.89 MiB | 1.27 MiB/s   Writing objects:  76% (146/191), 5.89 MiB | 1.27 MiB/s   Writing objects:  77% (148/191), 5.89 MiB | 1.27 MiB/s   Writing objects:  77% (148/191), 7.11 MiB | 1.30 MiB/s   Writing objects:  78% (150/191), 7.11 MiB | 1.30 MiB/s   Writing objects:  79% (152/191), 7.11 MiB | 1.30 MiB/s   Writing objects:  80% (153/191), 7.11 MiB | 1.30 MiB/s   Writing objects:  81% (155/191), 7.11 MiB | 1.30 MiB/s   Writing objects:  82% (157/191), 7.11 MiB | 1.30 MiB/s   Writing objects:  83% (159/191), 7.11 MiB | 1.30 MiB/s   Writing objects:  84% (161/191), 7.11 MiB | 1.30 MiB/s   Writing objects:  85% (163/191), 7.11 MiB | 1.30 MiB/s   Writing objects:  86% (165/191), 7.11 MiB | 1.30 MiB/s   Writing objects:  88% (169/191), 7.11 MiB | 1.30 MiB/s   Writing objects:  89% (170/191), 7.11 MiB | 1.30 MiB/s   Writing objects:  91% (174/191), 7.11 MiB | 1.30 MiB/s   Writing objects:  92% (176/191), 7.11 MiB | 1.30 MiB/s   Writing objects:  93% (178/191), 7.11 MiB | 1.30 MiB/s   Writing objects:  94% (180/191), 7.11 MiB | 1.30 MiB/s   Writing objects:  95% (182/191), 7.11 MiB | 1.30 MiB/s   Writing objects:  96% (184/191), 7.11 MiB | 1.30 MiB/s   Writing objects:  97% (186/191), 7.11 MiB | 1.30 MiB/s   Writing objects:  98% (188/191), 7.11 MiB | 1.30 MiB/s   Writing objects:  99% (190/191), 7.11 MiB | 1.30 MiB/s   Writing objects: 100% (191/191), 7.11 MiB | 1.30 MiB/s   Writing objects: 100% (191/191), 9.36 MiB | 1.67 MiB/s, done.
-Total 191 (delta 88), reused 136 (delta 62)
-remote: Resolving deltas:   0% (0/88)   [Kremote: Resolving deltas:  19% (17/88)   [Kremote: Resolving deltas:  20% (18/88)   [Kremote: Resolving deltas:  26% (23/88)   [Kremote: Resolving deltas:  27% (24/88)   [Kremote: Resolving deltas:  28% (25/88)   [Kremote: Resolving deltas:  29% (26/88)   [Kremote: Resolving deltas:  32% (29/88)   [Kremote: Resolving deltas:  35% (31/88)   [Kremote: Resolving deltas:  38% (34/88)   [Kremote: Resolving deltas:  57% (51/88)   [Kremote: Resolving deltas:  59% (52/88)   [Kremote: Resolving deltas:  71% (63/88)   [Kremote: Resolving deltas:  72% (64/88)   [Kremote: Resolving deltas:  76% (67/88)   [Kremote: Resolving deltas:  77% (68/88)   [Kremote: Resolving deltas:  78% (69/88)   [Kremote: Resolving deltas:  79% (70/88)   [Kremote: Resolving deltas:  80% (71/88)   [Kremote: Resolving deltas:  81% (72/88)   [Kremote: Resolving deltas:  82% (73/88)   [Kremote: Resolving deltas:  92% (81/88)   [Kremote: Resolving deltas: 100% (88/88)   [Kremote: Resolving deltas: 100% (88/88), completed with 8 local objects.[K
-To https://github.com/samirLOV1/AWIPEV-CO2-git.git
-   1f4e904..08dd248  master -> master
-]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git remote -v
-Awipev	https://github.com/jpgattuso/AWIPEV-CO2-git.git (fetch)
-Awipev	https://github.com/jpgattuso/AWIPEV-CO2-git.git (push)
-origin	https://github.com/samirLOV1/AWIPEV-CO2-git.git (fetch)
-origin	https://github.com/samirLOV1/AWIPEV-CO2-git.git (push)
-git pull Awipev master
-remote: Enumerating objects: 1, done.[K
-remote: Counting objects: 100% (1/1)   [Kremote: Counting objects: 100% (1/1), done.[K
-remote: Total 1 (delta 0), reused 0 (delta 0), pack-reused 0[K
-Unpacking objects: 100% (1/1)   Unpacking objects: 100% (1/1), done.
-From https://github.com/jpgattuso/AWIPEV-CO2-git
- * branch            master     -> FETCH_HEAD
-   182ba24..e7328e2  master     -> Awipev/master
-Updating 08dd248..e7328e2
-Fast-forward
-]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git pull Awipev master
-From https://github.com/jpgattuso/AWIPEV-CO2-git
- * branch            master     -> FETCH_HEAD
-Already up to date.
-]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git add -A
-]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git commit -m "update in data + [K[K[K[K[K[K[Kscript + data" "t"a"b"
-[master 5d3ebd6] update in script + data tab
- 11 files changed, 138 insertions(+), 1681 deletions(-)
- rewrite .Rproj.user/8CD7EAF3/console06/INDEX001 (85%)
- delete mode 100644 .Rproj.user/8CD7EAF3/sources/s-28B25282/5207EE9D
- delete mode 100644 .Rproj.user/8CD7EAF3/sources/s-28B25282/5207EE9D-contents
- delete mode 100644 .Rproj.user/8CD7EAF3/sources/s-28B25282/lock_file
-]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git puc[Ksh origin master
-Username for 'https://github.com': samirLOV1
-Password for 'https://samirLOV1@github.com': 
-Enumerating objects: 62, done.
-Counting objects:   1% (1/58)   Counting objects:   3% (2/58)   Counting objects:   5% (3/58)   Counting objects:   6% (4/58)   Counting objects:   8% (5/58)   Counting objects:  10% (6/58)   Counting objects:  12% (7/58)   Counting objects:  13% (8/58)   Counting objects:  15% (9/58)   Counting objects:  17% (10/58)   Counting objects:  18% (11/58)   Counting objects:  20% (12/58)   Counting objects:  22% (13/58)   Counting objects:  24% (14/58)   Counting objects:  25% (15/58)   Counting objects:  27% (16/58)   Counting objects:  29% (17/58)   Counting objects:  31% (18/58)   Counting objects:  32% (19/58)   Counting objects:  34% (20/58)   Counting objects:  36% (21/58)   Counting objects:  37% (22/58)   Counting objects:  39% (23/58)   Counting objects:  41% (24/58)   Counting objects:  43% (25/58)   Counting objects:  44% (26/58)   Counting objects:  46% (27/58)   Counting objects:  48% (28/58)   Counting objects:  50% (29/58)   Counting objects:  51% (30/58)   Counting objects:  53% (31/58)   Counting objects:  55% (32/58)   Counting objects:  56% (33/58)   Counting objects:  58% (34/58)   Counting objects:  60% (35/58)   Counting objects:  62% (36/58)   Counting objects:  63% (37/58)   Counting objects:  65% (38/58)   Counting objects:  67% (39/58)   Counting objects:  68% (40/58)   Counting objects:  70% (41/58)   Counting objects:  72% (42/58)   Counting objects:  74% (43/58)   Counting objects:  75% (44/58)   Counting objects:  77% (45/58)   Counting objects:  79% (46/58)   Counting objects:  81% (47/58)   Counting objects:  82% (48/58)   Counting objects:  84% (49/58)   Counting objects:  86% (50/58)   Counting objects:  87% (51/58)   Counting objects:  89% (52/58)   Counting objects:  91% (53/58)   Counting objects:  93% (54/58)   Counting objects:  94% (55/58)   Counting objects:  96% (56/58)   Counting objects:  98% (57/58)   Counting objects: 100% (58/58)   Counting objects: 100% (58/58), done.
-Delta compression using up to 4 threads
-Compressing objects:   5% (1/19)   Compressing objects:  10% (2/19)   Compressing objects:  15% (3/19)   Compressing objects:  21% (4/19)   Compressing objects:  26% (5/19)   Compressing objects:  31% (6/19)   Compressing objects:  36% (7/19)   Compressing objects:  42% (8/19)   Compressing objects:  47% (9/19)   Compressing objects:  52% (10/19)   Compressing objects:  57% (11/19)   Compressing objects:  63% (12/19)   Compressing objects:  68% (13/19)   Compressing objects:  73% (14/19)   Compressing objects:  78% (15/19)   Compressing objects:  84% (16/19)   Compressing objects:  89% (17/19)   Compressing objects:  94% (18/19)   Compressing objects: 100% (19/19)   Compressing objects: 100% (19/19), done.
-Writing objects:   4% (1/22)   Writing objects:   9% (2/22)   Writing objects:  13% (3/22)   Writing objects:  18% (4/22)   Writing objects:  22% (5/22)   Writing objects:  27% (6/22)   Writing objects:  31% (7/22)   Writing objects:  36% (8/22)   Writing objects:  40% (9/22)   Writing objects:  45% (10/22)   Writing objects:  50% (11/22)   Writing objects:  54% (12/22)   Writing objects:  59% (13/22)   Writing objects:  63% (14/22)   Writing objects:  68% (15/22)   Writing objects:  72% (16/22)   Writing objects:  77% (17/22)   Writing objects:  81% (18/22)   Writing objects:  86% (19/22)   Writing objects:  90% (20/22)   Writing objects:  95% (21/22)   Writing objects: 100% (22/22)   Writing objects: 100% (22/22), 5.24 KiB | 130.00 KiB/s, done.
-Total 22 (delta 8), reused 0 (delta 0)
-remote: Resolving deltas:   0% (0/8)   [Kremote: Resolving deltas:  12% (1/8)   [Kremote: Resolving deltas:  25% (2/8)   [Kremote: Resolving deltas:  37% (3/8)   [Kremote: Resolving deltas:  50% (4/8)   [Kremote: Resolving deltas:  62% (5/8)   [Kremote: Resolving deltas:  75% (6/8)   [Kremote: Resolving deltas:  87% (7/8)   [Kremote: Resolving deltas: 100% (8/8)   [Kremote: Resolving deltas: 100% (8/8), completed with 8 local objects.[K
-To https://github.com/samirLOV1/AWIPEV-CO2-git.git
-   08dd248..5d3ebd6  master -> master
-[KMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git pull --[K[K[K[K[K[K[Kremote -v
-Awipev	https://github.com/jpgattuso/AWIPEV-CO2-git.git (fetch)
-Awipev	https://github.com/jpgattuso/AWIPEV-CO2-git.git (push)
-origin	https://github.com/samirLOV1/AWIPEV-CO2-git.git (fetch)
-origin	https://github.com/samirLOV1/AWIPEV-CO2-git.git (push)
-]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git remote -v[K[K[K[K[K[K[K[K[Kpull Awipev master
-remote: Enumerating objects: 1, done.[K
-remote: Counting objects: 100% (1/1)   [Kremote: Counting objects: 100% (1/1), done.[K
-remote: Total 1 (delta 0), reused 0 (delta 0), pack-reused 0[K
-Unpacking objects: 100% (1/1)   Unpacking objects: 100% (1/1), done.
-From https://github.com/jpgattuso/AWIPEV-CO2-git
- * branch            master     -> FETCH_HEAD
-   e7328e2..83c5d4a  master     -> Awipev/master
-Updating 5d3ebd6..83c5d4a
-Fast-forward
-]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git commit -m "text format updted in Villefranche server part"
-On branch master
-Your branch is ahead of 'origin/master' by 1 commit.
-  (use "git push" to publish your local commits)
-
-Changes not staged for commit:
-	[31mmodified:   .Rproj.user/8CD7EAF3/console06/D159EF1D[m
-	[31mmodified:   .Rproj.user/8CD7EAF3/console06/D159EF1D.env[m
-	[31mmodified:   .Rproj.user/8CD7EAF3/console06/INDEX001[m
-	[31mmodified:   .Rproj.user/8CD7EAF3/pcs/files-pane.pper[m
-	[31mmodified:   .Rproj.user/8CD7EAF3/pcs/windowlayoutstate.pper[m
-	[31mmodified:   .Rproj.user/8CD7EAF3/rmd-outputs[m
-	[31mmodified:   .Rproj.user/8CD7EAF3/sources/prop/4F48A00B[m
-	[31mmodified:   .Rproj.user/8CD7EAF3/sources/prop/INDEX[m
-	[31mmodified:   .Rproj.user/shared/notebooks/EA182F0D-awipev-CO2/1/s/chunks.json[m
-	[31mmodified:   .Rproj.user/shared/notebooks/paths[m
-	[31mmodified:   awipev-CO2.Rmd[m
-	[31mmodified:   figures/Diff_ref_TA_first_period.png[m
-	[31mmodified:   figures/Discrete_TA_salinity_AWIPEV.png[m
-	[31mmodified:   figures/pco2calc_pCO2_contros.png[m
-
-no changes added to commit
-]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git commit -m "text format updted in Villefranche server part"[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[Cpull Awipev master[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[Kadd -A
-Switched to branch 'master'
-Your branch is up to date with 'origin/master'.
-]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git branch -d work1
-error: The branch 'work1' is not fully merged.
-If you are sure you want to delete it, run 'git branch -D work1'.
-]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git merge work1
-Updating c144880..cddf461
-error: Your local changes to the following files would be overwritten by merge:
-	.Rproj.user/8CD7EAF3/console06/D159EF1D
-	.Rproj.user/8CD7EAF3/console06/D159EF1D.env
-	.Rproj.user/8CD7EAF3/sources/prop/4F48A00B
-	.Rproj.user/shared/notebooks/paths
-Please commit your changes or stash them before you merge.
-Aborting
-]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git add -A
-]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git add -Amerge work1
-Updating c144880..cddf461
-error: Your local changes to the following files would be overwritten by merge:
-	.Rproj.user/8CD7EAF3/console06/D159EF1D
-	.Rproj.user/8CD7EAF3/console06/D159EF1D.env
-	.Rproj.user/8CD7EAF3/sources/prop/4F48A00B
-Please commit your changes or stash them before you merge.
-Aborting
-]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git chou[K[Keckout work1
-error: Your local changes to the following files would be overwritten by checkout:
-	.Rproj.user/8CD7EAF3/console06/D159EF1D
-	.Rproj.user/8CD7EAF3/console06/D159EF1D.env
-	.Rproj.user/8CD7EAF3/sources/prop/4F48A00B
-Please commit your changes or stash them before you switch branches.
-error: Your local changes to the following files would be overwritten by checkout:
-	.Rproj.user/8CD7EAF3/console06/INDEX001
-	.Rproj.user/8CD7EAF3/pcs/files-pane.pper
-Please commit your changes or stash them before you switch branches.
-Aborting
-]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git commit -m "test"
-[master 3e5e875] test
- 4 files changed, 20 insertions(+), 4 deletions(-)
-]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git commit -m "test"[2Pheckout work1
-error: Your local changes to the following files would be overwritten by checkout:
-	.Rproj.user/8CD7EAF3/console06/D159EF1D
-	.Rproj.user/8CD7EAF3/console06/INDEX001
-	.Rproj.user/8CD7EAF3/pcs/files-pane.pper
-Please commit your changes or stash them before you switch branches.
-Aborting
-]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git push[K[K[K[K[K[K[K[Kgit status
-On branch master
-Your branch is ahead of 'origin/master' by 1 commit.
-  (use "git push" to publish your local commits)
-
-Changes not staged for commit:
-  (use "git add <file>..." to update what will be committed)
-  (use "git checkout -- <file>..." to discard changes in working directory)
-
-	[31mmodified:   .Rproj.user/8CD7EAF3/console06/D159EF1D[m
-	[31mmodified:   .Rproj.user/8CD7EAF3/console06/INDEX001[m
-	[31mmodified:   .Rproj.user/8CD7EAF3/pcs/files-pane.pper[m
-	[31mmodified:   .Rproj.user/8CD7EAF3/pcs/source-pane.pper[m
-	[31mmodified:   .Rproj.user/8CD7EAF3/pcs/windowlayoutstate.pper[m
-
-no changes added to commit (use "git add" and/or "git commit -a")
-]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git branch
-[?1h=* [32mmaster[m[m
-  work1[m[m
-[K[?1l>]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git branchstatuscheckout work1ommit -m "test"[2Pheckout work1ommit -m "test"
-On branch master
-Your branch is ahead of 'origin/master' by 1 commit.
-  (use "git push" to publish your local commits)
-
-Changes not staged for commit:
-	[31mmodified:   .Rproj.user/8CD7EAF3/console06/D159EF1D[m
-	[31mmodified:   .Rproj.user/8CD7EAF3/console06/INDEX001[m
-	[31mmodified:   .Rproj.user/8CD7EAF3/pcs/files-pane.pper[m
-	[31mmodified:   .Rproj.user/8CD7EAF3/pcs/source-pane.pper[m
-	[31mmodified:   .Rproj.user/8CD7EAF3/pcs/windowlayoutstate.pper[m
-
-no changes added to commit
-]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git add -AA[K
-]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git add -Acommit -m "test"
-[master 9db89a9] test
- 5 files changed, 72 insertions(+), 10 deletions(-)
- rewrite .Rproj.user/8CD7EAF3/console06/INDEX001 (86%)
-]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git merge work1
-error: Your local changes to the following files would be overwritten by merge:
-	.Rproj.user/8CD7EAF3/console06/D159EF1D
-Please commit your changes or stash them before you merge.
-Aborting
-]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git merge work1commit -m "test"
-On branch master
-Your branch is ahead of 'origin/master' by 2 commits.
-  (use "git push" to publish your local commits)
-
-Changes not staged for commit:
-	[31mmodified:   .Rproj.user/8CD7EAF3/console06/D159EF1D[m
-
-no changes added to commit
-]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git push origin master
-Enumerating objects: 41, done.
-Counting objects:   2% (1/41)   Counting objects:   4% (2/41)   Counting objects:   7% (3/41)   Counting objects:   9% (4/41)   Counting objects:  12% (5/41)   Counting objects:  14% (6/41)   Counting objects:  17% (7/41)   Counting objects:  19% (8/41)   Counting objects:  21% (9/41)   Counting objects:  24% (10/41)   Counting objects:  26% (11/41)   Counting objects:  29% (12/41)   Counting objects:  31% (13/41)   Counting objects:  34% (14/41)   Counting objects:  36% (15/41)   Counting objects:  39% (16/41)   Counting objects:  41% (17/41)   Counting objects:  43% (18/41)   Counting objects:  46% (19/41)   Counting objects:  48% (20/41)   Counting objects:  51% (21/41)   Counting objects:  53% (22/41)   Counting objects:  56% (23/41)   Counting objects:  58% (24/41)   Counting objects:  60% (25/41)   Counting objects:  63% (26/41)   Counting objects:  65% (27/41)   Counting objects:  68% (28/41)   Counting objects:  70% (29/41)   Counting objects:  73% (30/41)   Counting objects:  75% (31/41)   Counting objects:  78% (32/41)   Counting objects:  80% (33/41)   Counting objects:  82% (34/41)   Counting objects:  85% (35/41)   Counting objects:  87% (36/41)   Counting objects:  90% (37/41)   Counting objects:  92% (38/41)   Counting objects:  95% (39/41)   Counting objects:  97% (40/41)   Counting objects: 100% (41/41)   Counting objects: 100% (41/41), done.
-Delta compression using up to 4 threads
-Compressing objects:   4% (1/21)   Compressing objects:   9% (2/21)   Compressing objects:  14% (3/21)   Compressing objects:  19% (4/21)   Compressing objects:  23% (5/21)   Compressing objects:  28% (6/21)   Compressing objects:  33% (7/21)   Compressing objects:  38% (8/21)   Compressing objects:  42% (9/21)   Compressing objects:  47% (10/21)   Compressing objects:  52% (11/21)   Compressing objects:  57% (12/21)   Compressing objects:  61% (13/21)   Compressing objects:  66% (14/21)   Compressing objects:  71% (15/21)   Compressing objects:  76% (16/21)   Compressing objects:  80% (17/21)   Compressing objects:  85% (18/21)   Compressing objects:  90% (19/21)   Compressing objects:  95% (20/21)   Compressing objects: 100% (21/21)   Compressing objects: 100% (21/21), done.
-Writing objects:   4% (1/24)   Writing objects:   8% (2/24)   Writing objects:  12% (3/24)   Writing objects:  16% (4/24)   Writing objects:  20% (5/24)   Writing objects:  25% (6/24)   Writing objects:  29% (7/24)   Writing objects:  33% (8/24)   Writing objects:  37% (9/24)   Writing objects:  41% (10/24)   Writing objects:  45% (11/24)   Writing objects:  50% (12/24)   Writing objects:  54% (13/24)   Writing objects:  58% (14/24)   Writing objects:  62% (15/24)   Writing objects:  66% (16/24)   Writing objects:  70% (17/24)   Writing objects:  75% (18/24)   Writing objects:  79% (19/24)   Writing objects:  83% (20/24)   Writing objects:  87% (21/24)   Writing objects:  91% (22/24)   Writing objects:  95% (23/24)   Writing objects: 100% (24/24)   Writing objects: 100% (24/24), 2.68 KiB | 391.00 KiB/s, done.
-Total 24 (delta 9), reused 0 (delta 0)
-remote: Resolving deltas:   0% (0/9)   [Kremote: Resolving deltas:  22% (2/9)   [Kremote: Resolving deltas:  44% (4/9)   [Kremote: Resolving deltas:  55% (5/9)   [Kremote: Resolving deltas:  66% (6/9)   [Kremote: Resolving deltas:  77% (7/9)   [Kremote: Resolving deltas:  88% (8/9)   [Kremote: Resolving deltas: 100% (9/9)   [Kremote: Resolving deltas: 100% (9/9), completed with 7 local objects.[K
-To https://github.com/samirLOV1/AWIPEV-CO2-git.git
-   c144880..9db89a9  master -> master
-[KMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git pull [K[K[K[K[Kremote -v
-Awipev	https://github.com/jpgattuso/AWIPEV-CO2-git.git (fetch)
-Awipev	https://github.com/jpgattuso/AWIPEV-CO2-git.git (push)
-origin	https://github.com/samirLOV1/AWIPEV-CO2-git.git (fetch)
-origin	https://github.com/samirLOV1/AWIPEV-CO2-git.git (push)
-]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git pull Awipev master
-remote: Enumerating objects: 6, done.[K
-remote: Counting objects:  16% (1/6)   [Kremote: Counting objects:  33% (2/6)   [Kremote: Counting objects:  50% (3/6)   [Kremote: Counting objects:  66% (4/6)   [Kremote: Counting objects:  83% (5/6)   [Kremote: Counting objects: 100% (6/6)   [Kremote: Counting objects: 100% (6/6), done.[K
-remote: Compressing objects:  25% (1/4)   [Kremote: Compressing objects:  50% (2/4)   [Kremote: Compressing objects:  75% (3/4)   [Kremote: Compressing objects: 100% (4/4)   [Kremote: Compressing objects: 100% (4/4), done.[K
-remote: Total 4 (delta 2), reused 0 (delta 0), pack-reused 0[K
-Unpacking objects:  25% (1/4)   Unpacking objects:  50% (2/4)   Unpacking objects:  75% (3/4)   Unpacking objects: 100% (4/4)   Unpacking objects: 100% (4/4), done.
-From https://github.com/jpgattuso/AWIPEV-CO2-git
- * branch            master     -> FETCH_HEAD
-   c144880..238b50d  master     -> Awipev/master
-Updating 9db89a9..238b50d
-Fast-forward
- .gitignore | 40 [31m----------------------------------------[m
- 1 file changed, 40 deletions(-)
- delete mode 100644 .gitignore
-]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git feth[Kch Awipev
-]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git branch
-[?1h=* [32mmaster[m[m
-  work1[m[m
-[K[?1l>]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git branch -d work1
-error: The branch 'work1' is not fully merged.
-If you are sure you want to delete it, run 'git branch -D work1'.
-]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git merge work1
-error: Your local changes to the following files would be overwritten by merge:
-	.Rproj.user/8CD7EAF3/console06/D159EF1D
-	.Rproj.user/8CD7EAF3/console06/D159EF1D.env
-	.Rproj.user/8CD7EAF3/console06/INDEX001
-	.Rproj.user/8CD7EAF3/sources/prop/4F48A00B
-Please commit your changes or stash them before you merge.
-Aborting
-]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git checkout work1
-error: Your local changes to the following files would be overwritten by checkout:
-	.Rproj.user/8CD7EAF3/console06/D159EF1D
-	.Rproj.user/8CD7EAF3/console06/D159EF1D.env
-	.Rproj.user/8CD7EAF3/console06/INDEX001
-	.Rproj.user/8CD7EAF3/pcs/source-pane.pper
-	.Rproj.user/8CD7EAF3/pcs/windowlayoutstate.pper
-	.Rproj.user/8CD7EAF3/sources/prop/4F48A00B
-Please commit your changes or stash them before you switch branches.
-Aborting
-]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git co[K[Kadd -A
-]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git commit -m "test"
-[master 343eecc] test
- 28 files changed, 3135 insertions(+), 196 deletions(-)
- rewrite .Rproj.user/8CD7EAF3/console06/INDEX001 (86%)
- create mode 100644 .Rproj.user/8CD7EAF3/sources/prop/11E3F2A7
- create mode 100644 .Rproj.user/8CD7EAF3/sources/prop/78B1BAEA
- create mode 100644 .Rproj.user/8CD7EAF3/sources/prop/B8235C58
- create mode 100644 .Rproj.user/8CD7EAF3/sources/s-693E38AE/5207EE9D
- create mode 100644 .Rproj.user/8CD7EAF3/sources/s-693E38AE/5207EE9D-contents
- create mode 100644 .Rproj.user/8CD7EAF3/sources/s-693E38AE/55FA810D
- create mode 100644 .Rproj.user/8CD7EAF3/sources/s-693E38AE/55FA810D-contents
- create mode 100644 .Rproj.user/8CD7EAF3/sources/s-693E38AE/lock_file
- create mode 100644 .Rproj.user/shared/notebooks/EA182F0D-awipev-CO2/1/8CD7EAF31E2790E3/chunks.json
- create mode 100644 .Rproj.user/shared/notebooks/EA182F0D-awipev-CO2/1/8CD7EAF3770104E5/chunks.json
- create mode 100644 .Rproj.user/shared/notebooks/EA182F0D-awipev-CO2/1/8CD7EAF3995ECB2F/chunks.json
- create mode 100644 .Rproj.user/shared/notebooks/EA182F0D-awipev-CO2/1/8CD7EAF3B4744AA/chunks.json
- create mode 100644 .Rproj.user/shared/notebooks/EA182F0D-awipev-CO2/1/s/c27rqgluncc1g/000002.csv
- create mode 100644 .Rproj.user/shared/notebooks/EA182F0D-awipev-CO2/1/s/ca5k9gcl6wd1p/000002.csv
- create mode 100644 .Rproj.user/shared/notebooks/EA182F0D-awipev-CO2/1/s/chya51zci0oaq/000002.csv
- create mode 100644 .Rproj.user/shared/notebooks/EA182F0D-awipev-CO2/1/s/ciby4x6rpxqmc/000002.csv
- create mode 100644 .Rproj.user/shared/notebooks/EA182F0D-awipev-CO2/1/s/crbuqdopwgxl9/000002.csv
- create mode 100644 .Rproj.user/shared/notebooks/EA182F0D-awipev-CO2/1/s/cs5rudulygezn/00000d.csv
- create mode 100644 .Rproj.user/shared/notebooks/EA182F0D-awipev-CO2/1/s/cs5rudulygezn/00000e.error
- create mode 100644 awipev-CO2.html
-]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git branch
-[?1h=* [32mmaster[m[m
-  work1[m[m
-[K[?1l>]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git branc[K[K[K[K[Kcheckout work1
-error: Your local changes to the following files would be overwritten by checkout:
-	.Rproj.user/8CD7EAF3/console06/D159EF1D
-Please commit your changes or stash them before you switch branches.
-Aborting
-]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git add AWIPEV-CO2-git.Rproj [K
-]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git add AWIPEV-CO2-git.Rproj[10Pcheckout work1[8Pbranchcommit -m "test"
-On branch master
-Your branch is ahead of 'origin/master' by 3 commits.
-  (use "git push" to publish your local commits)
-
-Changes not staged for commit:
-	[31mmodified:   .Rproj.user/8CD7EAF3/console06/D159EF1D[m
-
-no changes added to commit
-]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git checkout work1
-error: Your local changes to the following files would be overwritten by checkout:
-	.Rproj.user/8CD7EAF3/console06/D159EF1D
-Please commit your changes or stash them before you switch branches.
-Aborting
-]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git fetch origin
-]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git checkout work1
-error: Your local changes to the following files would be overwritten by checkout:
-	.Rproj.user/8CD7EAF3/console06/D159EF1D
-Please commit your changes or stash them before you switch branches.
-Aborting
-]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git pull -s recursive -X theirs[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K remot[K[K[Kset --hard origin master
-fatal: Cannot do hard reset with paths.
-]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git reset --hard origin master[C[C[C[C[C[C[C[C[C[C[C[C[C[C[12Pcheckout work1reset --hard origin master[Kgit reset --hard origin master[C[C[C[C[1Pr[1Pr[1Pr[1Pr[1Pr[1Pr/rmrartrsrer[Cr[K
-fatal: ambiguous argument 'origin/matser': unknown revision or path not in the working tree.
-Use '--' to separate paths from revisions, like this:
-'git <command> [<revision>...] -- [<file>...]'
-]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git pull --rebase
-error: cannot pull with rebase: You have unstaged changes.
-error: please commit or stash them.
-]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git co[K[Kas[Kdd -A
-]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git commit -m[Kam "test1"
-[master b8b4ced] test1
- 1 file changed, 65 insertions(+), 1 deletion(-)
-]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git checkout work1
-error: Your local changes to the following files would be overwritten by checkout:
-	.Rproj.user/8CD7EAF3/console06/D159EF1D
-Please commit your changes or stash them before you switch branches.
-Aborting
-]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git checkout work1ommit -am "test1"
-[master 78a5d0d] test1
- 1 file changed, 9 insertions(+), 1 deletion(-)
-]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git branch
-[?1h=* [32mmaster[m[m
-  work1[m[m
-[K[?1l>]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git merge work1
-error: Your local changes to the following files would be overwritten by merge:
-	.Rproj.user/8CD7EAF3/console06/D159EF1D
-Please commit your changes or stash them before you merge.
-Aborting
-]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git merge work1[5Pbranchcommit -am "test1"[4Pheckout work1ommit -am "test1"[12Padd -Apull --rebasereset --hard origin/matser[K[K[K[K[K[Kwork1
-fatal: ambiguous argument 'origin/work1': unknown revision or path not in the working tree.
-Use '--' to separate paths from revisions, like this:
-'git <command> [<revision>...] -- [<file>...]'
-]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git fetch
-]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git fetchreset --hard origin/work1[14Pmerge work1
-error: Your local changes to the following files would be overwritten by merge:
-	.Rproj.user/8CD7EAF3/console06/D159EF1D
-Please commit your changes or stash them before you merge.
-Aborting
-]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git merge work1[6Pfetch
-^[[A]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git fetchmerge work1[6Pfetchreset --hard origin/work1[14Pmerge work1[5Pbranchcommit -am "test1"[4Pheckout work1
-error: Your local changes to the following files would be overwritten by checkout:
-	.Rproj.user/8CD7EAF3/console06/D159EF1D
-Please commit your changes or stash them before you switch branches.
-Aborting
-]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git checkout work1[9Pfetch
-]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git fetchcheckout work1[9Pfetchcheckout work1
-error: Your local changes to the following files would be overwritten by checkout:
-	.Rproj.user/8CD7EAF3/console06/D159EF1D
-Please commit your changes or stash them before you switch branches.
-Aborting
-]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git pull -s recursive -X theirs
-Already up to date.
-]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git pull -s recursive -X theirs[13Pcheckout work1[9Pfetchcheckout work1[9Pfetchmerge work1[6Pfetchreset --hard origin/work1[14Pmerge work1reset --hard origin/work1
-fatal: ambiguous argument 'origin/work1': unknown revision or path not in the working tree.
-Use '--' to separate paths from revisions, like this:
-'git <command> [<revision>...] -- [<file>...]'
-]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git pushreset --hard origin/work1pull -s recursive -X theirs[13Pcheckout work1[9Pfetchcheckout work1[9Pfetchmerge work1[6Pfetchreset --hard origin/work1[14Pmerge work1[5Pbranchcommit -am "test1"[4Pheckout work1ommit -am "test1"[12Padd -Apull --rebasereset --hard origin/matser master[12Pcheckout work1[2Pfetch origincheckout work1ommit -m "test"add AWIPEV-CO2-git.Rproj[10Pcheckout work1[8Pbranchcommit -m "test"[10Padd -Acheckout work1[3Pmerge[C[C[C[C[C[C[4@branch -d[C[C[C[C[C[C[Kfetch Awipevpull Awipev master[9Premote -vbranch -d work1[Kpull Awipev master[Kcheckout master[K[K[K[K[K[K[K[K[K[K[K[K[K[K[Kbransh
-git: 'bransh' is not a git command. See 'git --help'.
-
-The most similar command is
-	branch
-]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git branch
-[?1h=* [32mmaster[m[m
-  work1[m[m
-[K[?1l>]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git push [K[K[K[K[K[K[K[K[Kgit rebase -i origin/master
-Cannot rebase: You have unstaged changes.
-Please commit or stash them.
-]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ fi[K[Kgit push [K[K[K[K[Kdiff master work1
-[?1h=[1mdiff --git a/.Rhistory b/.Rhistory[m[m
-[1mindex 870c1eb..8b8ead5 100644[m[m
-[1m--- a/.Rhistory[m[m
-[1m+++ b/.Rhistory[m[m
-[36m@@ -1,44 +1,159 @@[m[m
-[31m-discrete$phcalc<- carb$pH[m[m
-[31m-discrete$pco2calc<- carb$pCO2[m[m
-[31m-# xx <- read_tsv("../fb_server/ny-alesund/data/old/All_sensors_731101_2016-08-20.txt", skip=16, col_names=TRUE)[m[m
-[31m-load(file = paste0(path, "fb_awipev-co2_server/ny-alesund/data/processed/nydata_hour.Rdata"))[m[m
-[31m-#load(file = paste0(path, "fb_server/shinyroot/AWIPEV-CO2/nydata_hour_shiny.Rdata"))[m[m
-[31m-#load(file = "../fb_server/shinyroot/AWIPEV-CO2/nydata_shiny.Rdata") #d[m[m
-[31m-# load = d_hour[m[m
-[31m-d_hour <- d_hour %>%[m[m
-[31m-dplyr::select(-date) %>%[m[m
-[31m-dplyr::mutate(AT = ifelse(datetime > "2016-02-26 12:00:00", AT, NA), # beginning of data series for AT[m[m
-[31m-AT = ifelse(AT == "NaN", NA, AT), #3 columns are character[m[m
-[31m-pH_AT = ifelse(pH_AT == "NaN", NA, pH_AT),[m[m
-[31m-PCO2_Corr_Zero2 = ifelse(PCO2_Corr_Zero2 %in% c("NaN", 66666), NA, PCO2_Corr_Zero2)[m[m
-[31m-) %>%[m[m
-:[K[K[31m-dplyr::rename(at_contros=AT, ph_at_contros=pH_AT, pco2_contros=PCO2_corr_contros_filtered, zero_contros=PCO2_Corr_Zero2,[m[m
-:[K[K[31m-sal_fb=Salinity_filtered, temp_fb=Temperature_filtered, pH_durafet=HW_pH1_filtered, temp_insitu=Temp_SBE38_filtered)[m[m
-:[K[K[31m-View(d_hour)[m[m
-:[K[K[31m-d_all <- d_hour #d_all will be the merger[m[m
-:[K[K[31m-d_all<- d_all%>%[m[m
-:[K[K[31m-dplyr::mutate(month = month(month(datetime)))[m[m
-:[K[K[31m-# at[m[m
-:[K[K[31m-closest <- which.closest(discrete$datetime, d_all$datetime) # closest date and time[m[m
-:[K[K[31m-discrete$closest_datetime <- d_all$datetime[closest][m[m
-:[K[K[31m-# if the closest value is more than 30 min away, then we do not take it[m[m
-:[K[K[31m-discrete$closest_datetime[abs(discrete$datetime - d_all$datetime[closest]) > 30*60] <- NA[m[m
-:[K[K[31m-# remove the drop_na() because of seafet/durafet line with na[m[m
-:[K[K[31m-discrete2merge <- discrete %>%[m[m
-:[K[K[31m-#drop_na() %>%[m[m
-:[K[K[31m-dplyr::select(closest_datetime, at, qflag_at) %>%[m[m
-:[K[K[31m-rename(datetime=closest_datetime)[m[m
-:[K[K[31m-d_all <- full_join(d_all, discrete2merge, by="datetime")[m[m
-:[K[K[31m-# ct[m[m
-:[K[K[31m-# closest <- which.closest(discrete$datetime, d$datetime) # closest date and time[m[m
-:[K[K[31m-# discrete$closest_datetime <- d$datetime[closest][m[m
-:[K[K[31m-# # if the closest value is more than 30 min away, then we do not take it[m[m
-:[K[K[31m-# discrete$closest_datetime[abs(discrete$datetime - d$datetime[closest]) > 30*60] <- NA[m[m
-:[K[K[31m-discrete2merge <- discrete %>%[m[m
-:[K[K[31m-#drop_na() %>%[m[m
-:[K[K[31m-dplyr::select(closest_datetime, ct, qflag_ct) %>%[m[m
-:[K[K[31m-rename(datetime=closest_datetime)[m[m
-:[K[K[31m-View(d_all)[m[m
-:[K[K[32m+[m[32mdyShading(from = TAevents[7], to = TAevents[8], color = "#C2C2C2") %>%[m[m
-:[K[K[32m+[m[32mdyShading(from = TAevents[9], to = TAevents[10], color = "#EDEDED") %>%[m[m
-:[K[K[32m+[m[32mdyShading(from = TAevents[11], to = TAevents[12], color = "#C2C2C2") %>%[m[m
-:[K[K[32m+[m[32mdyAxis("y",valueRange = c(2000, 2550)) %>%[m[m
-:[K[K[32m+[m[32mdyHighlight(highlightCircleSize = 8,highlightSeriesBackgroundAlpha = 0.5,hideOnMouseOut = TRUE) %>%[m[m
-:[K[K[32m+[m[32mdyOptions( strokeWidth= 0) %>%[m[m
-:[K[K[32m+[m[32mdyOptions(drawGrid = TRUE, drawPoints = TRUE,useDataTimezone = TRUE) %>%[m[m
-:[K[K[32m+[m[32mdyRangeSelector(height = 30, dateWindow= NULL)[m[m
-:[K[K[32m+[m[32mf <- as.data.frame(table(d_all$at))[m[m
-:[K[K[32m+[m[32msum(f$Freq)[m[m
-:[K[K[32m+[m[32m# Number of outliers removed in the dataset[m[m
-:[K[K[32m+[m[32m# numberOutliers <- length(which((dat_ATnoNA$outliers > 0)))[m[m
-:[K[K[32m+[m[32mcalib_analyser <-  read.table(paste0(path, "fb_data/Calibration/TA_#1215/measure_CRM_TA.txt"), header = T, dec = ".", as.is [m :[K[K[32m[m[32m= T, sep = ",", fill = TRUE)[m[m
-:[K[K[32m+[m[32m# To make the mean[m[m
-:[K[K[32m+[m[32m# Keep dates as Character to plot without date gaps.[m[m
-:[K[K[32m+[m[32mcalib_analyser3 <- calib_analyser %>%[m[m
-:[K[K[32m+[m[32mdplyr::filter(analyser == "TA3")[m[m
-:[K[K[32m+[m[32mmeanTA3 <- calib_analyser3 %>%[m[m
-:[K[K[32m+[m[32mgroup_by(day) %>%[m[m
-:[K[K[32m+[m[32msummarise (meanTA = mean(TA))[m[m
-:[K[K[32m+[m[32mmelt_calib <- melt(calib_analyser, id.vars=c("analyser", "TA_theo", "datetime", "CRM"), measure.vars=c("TA"))[m[m
-:[K[K[32m+[m[32mcalib_p <- ggplot()+[m[m
-:[K[K[32m+[m[32mgeom_point(data= melt_calib, aes(x=datetime, y=value, color=factor(CRM), shape= factor(analyser)) , size=3) +[m[m
-:[K[K[32m+[m[32mscale_color_manual(values=c("blue","red"))+[m[m
-:[K[K[32m+[m[32m# set dashed lines for theoritical CRM[m[m
-:[K[K[32m+[m[32mgeom_segment(aes(x=1,xend=20,y=2226.16,yend=2226.16), linetype="dashed", color="blue")+[m[m
-:[K[K[32m+[m[32mannotate("text", x = 11, y = 2228, label = "Batch #145 = 2226.16", color="blue")+[m[m
-:[K[K[32m+[m[32mgeom_segment(aes(x=20,xend=23,y=2213.59,yend=2213.59), linetype="dashed", color="red")+[m[m
-:[K[K[32m+[m[32mannotate("text", x = 15.5, y = 2213.59, label = "Batch #159 = 2213.59", color="red")+[m[m
-:[K[K[32m+[m[32m# set hard lines for measured CRM[m[m
-:[K[K[32m+[m[32mgeom_segment(aes(x=1,xend=5,y=2254,yend=2254), color="blue") +[m[m
-:[K[K[32m+[m[32mannotate("text", x = 3, y = 2249, label = "2254", color="blue")+[m[m
-:[K[K[32m+[m[32mgeom_segment(aes(x=6,xend=10,y=2251.6,yend=2251.6), color="blue") +[m[m
-:[K[K[32m+[m[32mannotate("text", x = 8, y = 2247, label = "2251.6", color="blue")+[m[m
-:[K[K[32m+[m[32mgeom_segment(aes(x=11,xend=15,y=2190.4,yend=2190.4), color="blue")+[m[m
-:[K[K[32m+[m[32mannotate("text", x = 14, y = 2195, label = "2190.4", color="blue")+[m[m
-:[K[K[32m+[m[32mgeom_segment(aes(x=16,xend=20,y=2203.5,yend=2203.5), color="blue")+[m[m
-:[K[K[32m+[m[32mannotate("text", x = 18, y = 2200, label = "2203.5", color="blue")+[m[m
-:[K[K[32m+[m[32mgeom_segment(aes(x=21,xend=23,y=2224.20,yend=2224.20), color="red")+[m[m
-:[K[K[32m+[m[32mannotate("text", x = 22, y = 2230, label = "2224.2", color="red") +[m[m
-:[K[K[32m+[m[32mtheme_bw() + theme(axis.text.x = element_text(angle = 45, hjust = 1))+[m[m
-:[K[K[32m+[m[32mlabs(title= "",y=expression(paste("Total alkalinity (µmoles.",kg^-1,")")), x="Date", color= "CRM",shape= "Deployed instrumen[m :[K[K[32m[m[32mt")[m[m
-:[K[K[32m+[m[32mggsave(paste0(path, "fb_figures/TA_Analyser/Calibration/TA_calibration_CRM.png"), calib_p, units="cm")[m[m
-:[K[K[32m+[m[32mprint(calib_p)[m[m
-:[K[K[32m+[m[32m#Interpolation of continuous sensor data to match a maximum of reference data.[m[m
-:[K[K[32m+[m[32mTAinterp_all <-approx(d_all$datetime, d_all$AT_filtered, xout=d_all$datetime, method="linear", rule=2)[m[m
-:[K[K[32m+[m[32mnames(TAinterp_all) <- c("datetime", "AT_filtered_interp")[m[m
-:[K[K[32m+[m[32mTAinterp_all <- as.data.frame(TAinterp_all)[m[m
-:[K[K[32m+[m[32md_all$AT_filtered_interp <- TAinterp_all$AT_filtered_interp[m[m
-:[K[K[32m+[m[32m# create a column with difference between sensor and ref[m[m
-:[K[K[32m+[m[32md_all <- d_all%>%[m[m
-:[K[K[32m+[m[32mdplyr::mutate(diff_ta =  at-AT_filtered_interp )[m[m
-:[K[K[32m+[m[32m# create colum with instrument number[m[m
-:[K[K[32m+[m[32md_all <- d_all %>%[m[m
-:[K[K[32m+[m[32mdplyr::mutate(TA_period= ifelse(datetime >= "2016-02-26 00:00:00" & datetime < "2017-02-09 12:00:00", "TA1",[m[m
-:[K[K[32m+[m[32mifelse(datetime >= "2017-02-09 12:00:00" & datetime < "2017-03-10 12:00:00", "TA2",[m[m
-:[K[K[32m+[m[32mifelse(datetime >= "2018-01-07 00:00:00" & datetime < "2018-06-20 00:00:00", "TA3",[m[m
-:[K[K[32m+[m[32mifelse(datetime >= "2018-07-31 00:00:00" & datetime < "2018-10-31 00:00:00", "TA4",[m[m
-:[K[K[32m+[m[32mifelse(datetime >= "2019-01-26 00:00:00" , "TA5", "TA0"))))))[m[m
-:[K[K[32m+[m[32m#remove outliers[m[m
-:[K[K[32m+[m[32mcalib_ta_first <- d_all%>%[m[m
-:[K[K[32m+[m[32mdplyr::select(datetime, closest_datetime,AT_filtered, AT_filtered_interp, at,diff_ta,TA_period)%>%[m[m
-:[K[K[32m+[m[32mdplyr::filter(TA_period =="TA1" & !is.na(at))[m[m
-:[K[K[32m+[m[32m#dplyr::filter( !is.na(at))#, diff_ta > -40 & diff_ta < 20 )[m[m
-:[K[K[32m+[m[32m# & datetime != "2016-08-18 08:00:00" & datetime != "2016-12-29 12:00:00 ",!is.na(at))[m[m
-:[K[K[32m+[m[32m# Parameters of regression[m[m
-:[K[K[32m+[m[32mfit <- lm( data=calib_ta_first%>%filter(diff_ta <= 50), diff_ta ~ datetime)[m[m
-:[K[K[32m+[m[32mat_slope_TA1 <- round(fit$coefficients[[2]] , digits=6)[m[m
-:[K[K[32m+[m[32mat_slope1 <- round(at_slope_TA1 * 3600 *24 * 365.24, digits=2)[m[m
-:[K[K[32m+[m[32mat_intercept1 <- round(fit$coefficients[[1]], digits= 2)[m[m
-:[K[K[32m+[m[32m# Plot of regression[m[m
-:[K[K[32m+[m[32mp <- ggplot(calib_ta_first%>%filter(diff_ta <= 50),aes(datetime,diff_ta)) +[m[m
-:[K[K[32m+[m[32mgeom_point() + geom_smooth(method='lm', se=FALSE)+[m[m
-:[K[K[32m+[m[32mgeom_point(data= calib_ta_first%>%filter(diff_ta >= 50), aes(x=datetime, y=diff_ta), color="red")  +[m[m
-:[K[K[32m+[m[32mgeom_hline(yintercept = 0, linetype="dashed" )+[m[m
-:[K[K[32m+[m[32mlabs(title = paste("Adj R2 = ",signif(summary(fit)$adj.r.squared, 5),[m[m
-:[K[K[32m+[m[32m"Intercept =",signif(fit$coef[[1]],5 ),[m[m
-:[K[K[32m+[m[32m"Slope =",signif(fit$coef[[2]], 5),[m[m
-:[K[K[32m+[m[32m"P =",signif(summary(fit)$coef[2,4], 5))) +[m[m
-:[K[K[32m+[m[32mylab("Difference: Reference - Analyser") + xlab("Time") + scale_x_datetime(date_labels = "%b %Y", date_minor_breaks = "month[m :[K[K[32m[m[32m", timezone="UTC")[m[m
-:[K[K[32m+[m[32mprint(p)[m[m
-:[K[K[32m+[m[32mggsave(paste0(path, "fb_figures/TA_Analyser/Calibration/Diff_ref_TA_first_period.png"), p, units="cm")[m[m
-:[K[K[32m+[m[32m#remove outliers and remove period without TA measurements[m[m
-:[K[K[32m+[m[32mcalib_ta_third <- d_all%>%[m[m
-:[K[K[32m+[m[32mdplyr::select(datetime, closest_datetime,AT_filtered, AT_filtered_interp, at,diff_ta, TA_period)%>%[m[m
-:[K[K[32m+[m[32mdplyr::filter(TA_period == "TA3" & !is.na(at))[m[m
-:[K[K[32m+[m[32m# Parameters of regression[m[m
-:[K[K[32m+[m[32mfit <- lm( data=calib_ta_third, diff_ta ~ datetime)[m[m
-:[K[K[32m+[m[32mat_slope_TA3 <- round(fit$coefficients[[2]] , digits=8)[m[m
-:[K[K[32m+[m[32mat_slope3 <- round(at_slope_TA3 * 3600 *24 * 365.24, digits=2)[m[m
-:[K[K[32m+[m[32mat_intercept3 <- round(fit$coefficients[[1]], digits= 2) # pas besoin ici.[m[m
-:[K[K[32m+[m[32m# Plot of regression[m[m
-:[K[K[32m+[m[32mp <- ggplot(calib_ta_third,aes(x=datetime, y=diff_ta) )+[m[m
-:[K[K[32m+[m[32mgeom_point() + geom_smooth(method='lm', se=FALSE)+[m[m
-:[K[K[32m+[m[32m#geom_point(data= calib_ta_third%>%filter(diff_ta < -40 & diff_ta<20), aes(x=datetime, y=diff_ta), color="red")  +[m[m
-:[K[K[32m+[m[32mgeom_hline(yintercept = 0, linetype="dashed" )+[m[m
-:[K[K[32m+[m[32mgeom_vline(xintercept = as.POSIXct("2018-01-08 12:55:00", tz="UTC"), colour="red", linetype = "longdash") +[m[m
-:[K[K[32m+[m[32m#geom_text(aes(xintercept=as.POSIXct("2018-01-01 12:55:00"),label="TA "), colour="red", vjust=1.2)+[m[m
-:[K[K[32m+[m[32mlabs(title = paste("Adj R2 = ",signif(summary(fit)$adj.r.squared, 5),[m[m
-:[K[K[32m+[m[32m"Intercept =",signif(fit$coef[[1]],5 ),[m[m
-:[K[K[32m+[m[32m" Slope =",signif(fit$coef[[2]], 5),[m[m
-:[K[K[32m+[m[32m" P =",signif(summary(fit)$coef[2,4], 5))) + ylab("Difference: Reference - Analyser") + xlab("Time") +[m[m
-:[K[K[32m+[m[32mscale_x_datetime( date_labels = "%b %Y", date_minor_breaks = "month", timezone="UTC")[m[m
-:[K[K[32m+[m[32mprint(p)[m[m
-:[K[K[32m+[m[32mggsave(paste0(path, "fb_figures/TA_Analyser/Calibration/Diff_ref_TA_third_period.png"), p, units="cm")[m[m
-:[K[K[32m+[m[32m#remove outliers and remove period without TA measurements[m[m
-:[K[K[32m+[m[32mcalib_ta_second <- d_all%>%[m[m
-:[K[K[32m+[m[32mdplyr::select(datetime, closest_datetime,AT_filtered, AT_filtered_interp, at,diff_ta, TA_period)%>%[m[m
-:[K[K[32m+[m[32mdplyr::filter(TA_period == "TA2" & !is.na(at))[m[m
-:[K[K[32m+[m[32mmean_offset <- mean(calib_ta_second$diff_ta)[m[m
-:[K[K[32m+[m[32m# Correction for the 3 periods is apply[m[m
-:[K[K[32m+[m[32md_all <- d_all%>%[m[m
-:[K[K[32m+[m[32mdplyr::mutate(datetime_reg = as.numeric(datetime),[m[m
-:[K[K[32m+[m[32mat_intercept = ifelse(TA_period == "TA1", at_intercept1,[m[m
-:[K[K[32m+[m[32mifelse(TA_period == "TA3", at_intercept3, NA)),[m[m
-:[K[K[32m+[m[32mat_slope = ifelse(TA_period == "TA1", at_slope_TA1,[m[m
-:[K[K[32m+[m[32mifelse(TA_period == "TA3", at_slope_TA3, NA))[m[m
-:[K[K[32m+[m[32m)[m[m
-:[K[K[32m+[m[32md_all <- d_all%>%[m[m
-:[K[K[32m+[m[32mdplyr::mutate(TA_reg_corrected = ifelse(TA_period == "TA1", (AT_filtered + (d_all$datetime_reg * d_all$at_slope + at_interce[m :[K[K[32m[m[32mpt)),[m[m
-:[K[K[32m+[m[32mifelse(TA_period == "TA2", (AT_filtered + mean_offset),[m[m
-:[K[K[32m+[m[32mifelse(TA_period == "TA3", (AT_filtered + (datetime_reg * at_slope)+ at_intercept), NA))))[m[m
-:[K[K[32m+[m[32mat_contros_cleaned_xts <- dplyr::select(d_all, datetime,AT_filtered,at,TA_reg_corrected)[m[m
-:[K[K[32m+[m[32mat_contros_cleaned_xts <-  as.xts(at_contros_cleaned_xts, order.by = d_all$datetime)[m[m
-:[K[K[32m+[m[32mdygraph(at_contros_cleaned_xts, group = "awipev", main=" Total Alkalinity (in Ferrybox)", ylab="Total alkalinity") %>%[m[m
-:[K[K[32m+[m[32m#dySeries("at_contros", color = RColorBrewer::brewer.pal(3, "Set2"), strokeWidth = 0, pointSize=2) %>%[m[m
-:[K[K[32m+[m[32mdySeries("AT_filtered", label= "Raw TA", color = "blue", strokeWidth = 0, pointSize=2) %>%[m[m
-:[K[K[32m+[m[32mdySeries("TA_reg_corrected", label= "Corrected TA", color = RColorBrewer::brewer.pal(3, "Dark2")[1], strokeWidth = 0, pointS[m :[K[K[32m[m[32mize=2) %>%[m[m
-:[K[K[32m+[m[32mdySeries("at", label="TA reference",color = "red", strokeWidth = 0, pointSize=4) %>%[m[m
-:[K[K[32m+[m[32mdyEvent(as.POSIXct("2016-05-31 10:00:00", tz="GMT"), "HCl Changed", labelLoc = "bottom") %>%[m[m
-:[K[K[32m+[m[32mdyEvent(as.POSIXct("2016-06-24 10:00:00", tz="GMT"), "BCG Changed", labelLoc = "bottom") %>%[m[m
-:[K[K[32m+[m[32mdyEvent(as.POSIXct("2016-02-24 14:00:00", tz="GMT"), "Calibration 1", labelLoc = "bottom") %>%[m[m
-:[K[K[32m+[m[32mdyEvent(as.POSIXct("2016-09-16 10:00:00", tz="GMT"), "Calibration 2", labelLoc = "bottom") %>%[m[m
-:[K[K[32m+[m[32mdyEvent(as.POSIXct("2017-03-21 12:00:00", tz="GMT"), "TA analyser changed", labelLoc = "top", color="red") %>%[m[m
-:[K[K[32m+[m[32mdyEvent(as.POSIXct("2018-01-08 12:55:00", tz="GMT"), "TA analyser changed #TA-0317-001", labelLoc = "top", color="red") %>%[m[m
-:[K[K[32m+[m[32mdyEvent(as.POSIXct("2018-07-31 00:00:00", tz="GMT"), "TA analyser changed #TA-1215-001", labelLoc = "top", color="red") %>%[m[m
-:[K[K[32m+[m[32mdyEvent(as.POSIXct("2018-10-30 18:00:00", tz="GMT"), "TA analyser changed #TA-0317-001", labelLoc = "top", color="red") %>%[m[m
-:[K[K[32m+[m[32mdyEvent(as.POSIXct("2016-11-15 09:00:00", tz="GMT"), "CRM measurement", labelLoc = "bottom") %>%[m[m
-:[K[K[32m+[m[32mdyEvent(as.POSIXct("2017-02-09 12:20:00", tz="GMT"), "CRM measurement", labelLoc = "bottom") %>%[m[m
-:[K[K[32m+[m[32mdyEvent(as.POSIXct("2017-04-11 06:20:00", tz="GMT"), "CRM measurement", labelLoc = "bottom") %>%[m[m
-:[K[K[32m+[m[32mdyEvent(as.POSIXct("2018-01-22 13:00:12", tz="GMT"), "CRM measurement", labelLoc = "bottom") %>%[m[m
-:[K[K[32m+[m[32mdyEvent(as.POSIXct("2018-05-16 12:39:39", tz="GMT"), "CRM measurement", labelLoc = "bottom") %>%[m[m
-:[K[K[32m+[m[32mdyEvent(as.POSIXct("2018-10-31 10:29:27", tz="GMT"), "CRM measurement", labelLoc = "bottom") %>%[m[m
-:[K[K[32m+[m[32mdyEvent(as.POSIXct("2019-01-26 13:25:20", tz="GMT"), "Calibration mode - CRM", labelLoc = "bottom") %>%[m[m
-:[K[K[32m+[m[32m#dyOptions(colors = RColorBrewer::brewer.pal(3, "Dark2"), pointSize = 4) %>%[m[m
-:[K[K[32m+[m[32mdyShading(from = TAevents[1], to = TAevents[2], color = "#EDEDED") %>%[m[m
-:[K[K[32m+[m[32mdyShading(from = TAevents[3], to = TAevents[4], color = "#C2C2C2") %>%[m[m
-:[K[K[32m+[m[32mdyShading(from = TAevents[5], to = TAevents[6], color = "#EDEDED") %>%[m[m
-:[K[K[32m+[m[32mdyShading(from = TAevents[7], to = TAevents[8], color = "#C2C2C2") %>%[m[m
-:[K[K[32m+[m[32mdyShading(from = TAevents[9], to = TAevents[10], color = "#EDEDED") %>%[m[m
-:[K[K[32m+[m[32mdyShading(from = TAevents[11], to = TAevents[12], color = "#C2C2C2") %>%[m[m
-:[K[K[32m+[m[32mdyAxis("y",valueRange = c(1600, 2450)) %>%[m[m
-:[K[K[32m+[m[32mdyHighlight(highlightCircleSize = 8,highlightSeriesBackgroundAlpha = 0.5,hideOnMouseOut = TRUE) %>%[m[m
-:[K[K[32m+[m[32mdyOptions( strokeWidth= 0) %>%[m[m
-:[K[K[32m+[m[32mdyOptions(drawGrid = TRUE, drawPoints = TRUE,useDataTimezone = TRUE) %>%[m[m
-:[K[K[32m+[m[32mdyRangeSelector(height = 30, dateWindow= NULL)[m[m
-:[K[K #[m[m
-:[K[K Sys.setlocale("LC_ALL", "en_US.UTF-8")[m[m
-:[K[K Sys.setenv(TZ='UTC') # on utilise UTC[m[m
-:[K[K[36m@@ -83,29 +198,23 @@[m [mround(approx(x=table, y=1:length(table), xout=x, ...)$y)[m[m
-:[K[K }[m[m
-:[K[K #################### Regression function[m[m
-:[K[K # function regression plot with model II equation (MA) in title[m[m
-:[K[K[31m-## Dans labs ajout de la variable TITRE pour mettre titre avant chaque graphe[m[m
-:[K[K[31m-ggreg2 <- function (fit, xdata, ydata) { # x and y are the names of the variables[m[m
-:[K[K[32m+[m[32m## Dans labs ajout de la variable title pour mettre title avant chaque graphe[m[m
-:[K[K[32m+[m[32mggreg2 <- function (fit, x, y, point.size=5) { # x and y are the names of the variables[m[m
-:[K[K fit_data <- data.frame(fit$x, fit$y)[m[m
-:[K[K[31m-colnames(fit_data) = c(xdata, ydata)[m[m
-:[K[K[32m+[m[32mcolnames(fit_data) = c(x, y)[m[m
-:[K[K reg <- fit$regression.results[2,] #one selects MA only[m[m
-:[K[K intercept <- reg$Intercept[m[m
-:[K[K slope <- reg$Slope[m[m
-:[K[K[31m-ggplot(data = fit_data, aes_string(x = xdata, y = ydata)) +[m[m
-:[K[K[31m-geom_point(size = 3, col = "blue") +[m[m
-:[K[K[32m+[m[32mggplot(data = fit_data, aes_string(x = x, y = y)) +[m[m
-:[K[K[?1l>]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git status
-On branch master
-Your branch is ahead of 'origin/master' by 5 commits.
-  (use "git push" to publish your local commits)
-
-Changes not staged for commit:
-  (use "git add <file>..." to update what will be committed)
-  (use "git checkout -- <file>..." to discard changes in working directory)
-
-	[31mmodified:   .Rproj.user/8CD7EAF3/console06/D159EF1D[m
-
-no changes added to commit (use "git add" and/or "git commit -a")
-]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git -a
-unknown option: -a
-usage: git [--version] [--help] [-C <path>] [-c <name>=<value>]
-           [--exec-path[=<path>]] [--html-path] [--man-path] [--info-path]
-           [-p | --paginate | -P | --no-pager] [--no-replace-objects] [--bare]
-           [--git-dir=<path>] [--work-tree=<path>] [--namespace=<name>]
-           <command> [<args>]
-]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git branch -a
-[?1h=* [32mmaster[m[m
-  work1[m[m
-  [31mremotes/Awipev/master[m[m
-  [31mremotes/origin/HEAD[m -> origin/master[m
-  [31mremotes/origin/master[m[m
-[K[?1l>]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git status
-On branch master
-Your branch is ahead of 'origin/master' by 5 commits.
-  (use "git push" to publish your local commits)
-
-Changes not staged for commit:
-  (use "git add <file>..." to update what will be committed)
-  (use "git checkout -- <file>..." to discard changes in working directory)
-
-	[31mmodified:   .Rproj.user/8CD7EAF3/console06/D159EF1D[m
-
-no changes added to commit (use "git add" and/or "git commit -a")
-]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git fetch origin
-]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git remote -v
-Awipev	https://github.com/jpgattuso/AWIPEV-CO2-git.git (fetch)
-Awipev	https://github.com/jpgattuso/AWIPEV-CO2-git.git (push)
-origin	https://github.com/samirLOV1/AWIPEV-CO2-git.git (fetch)
-origin	https://github.com/samirLOV1/AWIPEV-CO2-git.git (push)
-]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ [KMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git add -A 
-]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git -m [K[K[Kcommit -m"[K "test-2019-04'[K"
-[master 0b444bf] test-2019-04
- 2 files changed, 318 insertions(+), 2 deletions(-)
-]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git push origin master
-Enumerating objects: 108, done.
-Counting objects:   0% (1/103)   Counting objects:   1% (2/103)   Counting objects:   2% (3/103)   Counting objects:   3% (4/103)   Counting objects:   4% (5/103)   Counting objects:   5% (6/103)   Counting objects:   6% (7/103)   Counting objects:   7% (8/103)   Counting objects:   8% (9/103)   Counting objects:   9% (10/103)   Counting objects:  10% (11/103)   Counting objects:  11% (12/103)   Counting objects:  12% (13/103)   Counting objects:  13% (14/103)   Counting objects:  14% (15/103)   Counting objects:  15% (16/103)   Counting objects:  16% (17/103)   Counting objects:  17% (18/103)   Counting objects:  18% (19/103)   Counting objects:  19% (20/103)   Counting objects:  20% (21/103)   Counting objects:  21% (22/103)   Counting objects:  22% (23/103)   Counting objects:  23% (24/103)   Counting objects:  24% (25/103)   Counting objects:  25% (26/103)   Counting objects:  26% (27/103)   Counting objects:  27% (28/103)   Counting objects:  28% (29/103)   Counting objects:  29% (30/103)   Counting objects:  30% (31/103)   Counting objects:  31% (32/103)   Counting objects:  32% (33/103)   Counting objects:  33% (34/103)   Counting objects:  34% (36/103)   Counting objects:  35% (37/103)   Counting objects:  36% (38/103)   Counting objects:  37% (39/103)   Counting objects:  38% (40/103)   Counting objects:  39% (41/103)   Counting objects:  40% (42/103)   Counting objects:  41% (43/103)   Counting objects:  42% (44/103)   Counting objects:  43% (45/103)   Counting objects:  44% (46/103)   Counting objects:  45% (47/103)   Counting objects:  46% (48/103)   Counting objects:  47% (49/103)   Counting objects:  48% (50/103)   Counting objects:  49% (51/103)   Counting objects:  50% (52/103)   Counting objects:  51% (53/103)   Counting objects:  52% (54/103)   Counting objects:  53% (55/103)   Counting objects:  54% (56/103)   Counting objects:  55% (57/103)   Counting objects:  56% (58/103)   Counting objects:  57% (59/103)   Counting objects:  58% (60/103)   Counting objects:  59% (61/103)   Counting objects:  60% (62/103)   Counting objects:  61% (63/103)   Counting objects:  62% (64/103)   Counting objects:  63% (65/103)   Counting objects:  64% (66/103)   Counting objects:  65% (67/103)   Counting objects:  66% (68/103)   Counting objects:  67% (70/103)   Counting objects:  68% (71/103)   Counting objects:  69% (72/103)   Counting objects:  70% (73/103)   Counting objects:  71% (74/103)   Counting objects:  72% (75/103)   Counting objects:  73% (76/103)   Counting objects:  74% (77/103)   Counting objects:  75% (78/103)   Counting objects:  76% (79/103)   Counting objects:  77% (80/103)   Counting objects:  78% (81/103)   Counting objects:  79% (82/103)   Counting objects:  80% (83/103)   Counting objects:  81% (84/103)   Counting objects:  82% (85/103)   Counting objects:  83% (86/103)   Counting objects:  84% (87/103)   Counting objects:  85% (88/103)   Counting objects:  86% (89/103)   Counting objects:  87% (90/103)   Counting objects:  88% (91/103)   Counting objects:  89% (92/103)   Counting objects:  90% (93/103)   Counting objects:  91% (94/103)   Counting objects:  92% (95/103)   Counting objects:  93% (96/103)   Counting objects:  94% (97/103)   Counting objects:  95% (98/103)   Counting objects:  96% (99/103)   Counting objects:  97% (100/103)   Counting objects:  98% (101/103)   Counting objects:  99% (102/103)   Counting objects: 100% (103/103)   Counting objects: 100% (103/103), done.
-Delta compression using up to 4 threads
-Compressing objects:   1% (1/58)   Compressing objects:   3% (2/58)   Compressing objects:   5% (3/58)   Compressing objects:   6% (4/58)   Compressing objects:   8% (5/58)   Compressing objects:  10% (6/58)   Compressing objects:  12% (7/58)   Compressing objects:  13% (8/58)   Compressing objects:  15% (9/58)   Compressing objects:  17% (10/58)   Compressing objects:  18% (11/58)   Compressing objects:  20% (12/58)   Compressing objects:  22% (13/58)   Compressing objects:  24% (14/58)   Compressing objects:  25% (15/58)   Compressing objects:  27% (16/58)   Compressing objects:  29% (17/58)   Compressing objects:  31% (18/58)   Compressing objects:  32% (19/58)   Compressing objects:  34% (20/58)   Compressing objects:  36% (21/58)   Compressing objects:  37% (22/58)   Compressing objects:  39% (23/58)   Compressing objects:  41% (24/58)   Compressing objects:  43% (25/58)   Compressing objects:  44% (26/58)   Compressing objects:  46% (27/58)   Compressing objects:  48% (28/58)   Compressing objects:  50% (29/58)   Compressing objects:  51% (30/58)   Compressing objects:  53% (31/58)   Compressing objects:  55% (32/58)   Compressing objects:  56% (33/58)   Compressing objects:  58% (34/58)   Compressing objects:  60% (35/58)   Compressing objects:  62% (36/58)   Compressing objects:  63% (37/58)   Compressing objects:  65% (38/58)   Compressing objects:  67% (39/58)   Compressing objects:  68% (40/58)   Compressing objects:  70% (41/58)   Compressing objects:  72% (42/58)   Compressing objects:  74% (43/58)   Compressing objects:  75% (44/58)   Compressing objects:  77% (45/58)   Compressing objects:  79% (46/58)   Compressing objects:  81% (47/58)   Compressing objects:  82% (48/58)   Compressing objects:  84% (49/58)   Compressing objects:  86% (50/58)   Compressing objects:  87% (51/58)   Compressing objects:  89% (52/58)   Compressing objects:  91% (53/58)   Compressing objects:  93% (54/58)   Compressing objects:  94% (55/58)   Compressing objects:  96% (56/58)   Compressing objects:  98% (57/58)   Compressing objects: 100% (58/58)   Compressing objects: 100% (58/58), done.
-Writing objects:   1% (1/70)   Writing objects:   2% (2/70)   Writing objects:   4% (3/70)   Writing objects:   5% (4/70)   Writing objects:   7% (5/70)   Writing objects:   8% (6/70)   Writing objects:  10% (7/70)   Writing objects:  11% (8/70)   Writing objects:  12% (9/70)   Writing objects:  14% (10/70)   Writing objects:  15% (11/70)   Writing objects:  17% (12/70)   Writing objects:  18% (13/70)   Writing objects:  20% (14/70)   Writing objects:  21% (15/70)   Writing objects:  22% (16/70)   Writing objects:  24% (17/70)   Writing objects:  25% (18/70)   Writing objects:  27% (19/70)   Writing objects:  28% (20/70)   Writing objects:  30% (21/70)   Writing objects:  31% (22/70)   Writing objects:  32% (23/70)   Writing objects:  34% (24/70)   Writing objects:  35% (25/70)   Writing objects:  37% (26/70)   Writing objects:  38% (27/70)   Writing objects:  40% (28/70)   Writing objects:  41% (29/70)   Writing objects:  42% (30/70)   Writing objects:  44% (31/70)   Writing objects:  45% (32/70)   Writing objects:  47% (33/70)   Writing objects:  48% (34/70)   Writing objects:  50% (35/70)   Writing objects:  51% (36/70)   Writing objects:  52% (37/70)   Writing objects:  54% (38/70)   Writing objects:  55% (39/70)   Writing objects:  57% (40/70)   Writing objects:  58% (41/70)   Writing objects:  60% (42/70)   Writing objects:  61% (43/70)   Writing objects:  62% (44/70)   Writing objects:  64% (45/70)   Writing objects:  65% (46/70)   Writing objects:  67% (47/70)   Writing objects:  68% (48/70)   Writing objects:  70% (49/70)   Writing objects:  71% (50/70)   Writing objects:  72% (51/70)   Writing objects:  72% (51/70), 24.00 KiB | 11.00 KiB/s   Writing objects:  72% (51/70), 1.07 MiB | 412.00 KiB/s   Writing objects:  72% (51/70), 2.00 MiB | 639.00 KiB/s   Writing objects:  72% (51/70), 5.06 MiB | 1.20 MiB/s   Writing objects:  72% (51/70), 8.13 MiB | 1.55 MiB/s   Writing objects:  72% (51/70), 11.31 MiB | 1.81 MiB/s   Writing objects:  74% (52/70), 11.31 MiB | 1.81 MiB/s   Writing objects:  75% (53/70), 11.31 MiB | 1.81 MiB/s   Writing objects:  77% (54/70), 11.31 MiB | 1.81 MiB/s   Writing objects:  78% (55/70), 11.31 MiB | 1.81 MiB/s   Writing objects:  80% (56/70), 11.31 MiB | 1.81 MiB/s   Writing objects:  81% (57/70), 11.31 MiB | 1.81 MiB/s   Writing objects:  82% (58/70), 11.31 MiB | 1.81 MiB/s   Writing objects:  84% (59/70), 11.31 MiB | 1.81 MiB/s   Writing objects:  85% (60/70), 11.31 MiB | 1.81 MiB/s   Writing objects:  87% (61/70), 11.31 MiB | 1.81 MiB/s   Writing objects:  88% (62/70), 11.31 MiB | 1.81 MiB/s   Writing objects:  90% (63/70), 11.31 MiB | 1.81 MiB/s   Writing objects:  91% (64/70), 11.31 MiB | 1.81 MiB/s   Writing objects:  92% (65/70), 11.31 MiB | 1.81 MiB/s   Writing objects:  94% (66/70), 11.31 MiB | 1.81 MiB/s   Writing objects:  95% (67/70), 11.31 MiB | 1.81 MiB/s   Writing objects:  97% (68/70), 11.31 MiB | 1.81 MiB/s   Writing objects:  98% (69/70), 11.31 MiB | 1.81 MiB/s   Writing objects: 100% (70/70), 11.31 MiB | 1.81 MiB/s   Writing objects: 100% (70/70), 12.32 MiB | 1.87 MiB/s, done.
-Total 70 (delta 23), reused 0 (delta 0)
-remote: Resolving deltas:   0% (0/23)   [Kremote: Resolving deltas:  13% (3/23)   [Kremote: Resolving deltas:  34% (8/23)   [Kremote: Resolving deltas:  52% (12/23)   [Kremote: Resolving deltas:  69% (16/23)   [Kremote: Resolving deltas:  73% (17/23)   [Kremote: Resolving deltas:  82% (19/23)   [Kremote: Resolving deltas:  86% (20/23)   [Kremote: Resolving deltas:  91% (21/23)   [Kremote: Resolving deltas:  95% (22/23)   [Kremote: Resolving deltas: 100% (23/23)   [Kremote: Resolving deltas: 100% (23/23), completed with 9 local objects.[K
-To https://github.com/samirLOV1/AWIPEV-CO2-git.git
-   9db89a9..0b444bf  master -> master
-]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git pull Awipev master
-remote: Enumerating objects: 1, done.[K
-remote: Counting objects: 100% (1/1)   [Kremote: Counting objects: 100% (1/1), done.[K
-remote: Total 1 (delta 0), reused 0 (delta 0), pack-reused 0[K
-Unpacking objects: 100% (1/1)   Unpacking objects: 100% (1/1), done.
-From https://github.com/jpgattuso/AWIPEV-CO2-git
- * branch            master     -> FETCH_HEAD
-   238b50d..0ba7ae0  master     -> Awipev/master
-Updating 0b444bf..0ba7ae0
-Fast-forward
-]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git status
-On branch master
-Your branch is ahead of 'origin/master' by 1 commit.
-  (use "git push" to publish your local commits)
-
-Changes not staged for commit:
-  (use "git add <file>..." to update what will be committed)
-  (use "git checkout -- <file>..." to discard changes in working directory)
-
-	[31mmodified:   .Rproj.user/8CD7EAF3/console06/D159EF1D[m
-
-no changes added to commit (use "git add" and/or "git commit -a")
-]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git c[Kbranch
-[?1h=* [32mmaster[m[m
-  work1[m[m
-[K[?1l>]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git bra[K[K[K[K checkout work1
-error: Your local changes to the following files would be overwritten by checkout:
-	.Rproj.user/8CD7EAF3/console06/D159EF1D
-Please commit your changes or stash them before you switch branches.
-Aborting
-]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git add -A
-]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git commit -m "new commit"
-[master 86b578d] new commit
- 1 file changed, 44 insertions(+)
-]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git merge work [K1
-error: Your local changes to the following files would be overwritten by merge:
-	.Rproj.user/8CD7EAF3/console06/D159EF1D
-Please commit your changes or stash them before you merge.
-Aborting
-]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git merge work1commit -m "new commit"add -A[Kcheckout work1[8Pbranchstatuspull Awipev mastersh origin[C[C[C[C[C[C[C
-Enumerating objects: 17, done.
-Counting objects:   5% (1/17)   Counting objects:  11% (2/17)   Counting objects:  17% (3/17)   Counting objects:  23% (4/17)   Counting objects:  29% (5/17)   Counting objects:  35% (6/17)   Counting objects:  41% (7/17)   Counting objects:  47% (8/17)   Counting objects:  52% (9/17)   Counting objects:  58% (10/17)   Counting objects:  64% (11/17)   Counting objects:  70% (12/17)   Counting objects:  76% (13/17)   Counting objects:  82% (14/17)   Counting objects:  88% (15/17)   Counting objects:  94% (16/17)   Counting objects: 100% (17/17)   Counting objects: 100% (17/17), done.
-Delta compression using up to 4 threads
-Compressing objects:  14% (1/7)   Compressing objects:  28% (2/7)   Compressing objects:  42% (3/7)   Compressing objects:  57% (4/7)   Compressing objects:  71% (5/7)   Compressing objects:  85% (6/7)   Compressing objects: 100% (7/7)   Compressing objects: 100% (7/7), done.
-Writing objects:  14% (1/7)   Writing objects:  28% (2/7)   Writing objects:  42% (3/7)   Writing objects:  57% (4/7)   Writing objects:  71% (5/7)   Writing objects:  85% (6/7)   Writing objects: 100% (7/7)   Writing objects: 100% (7/7), 3.04 KiB | 135.00 KiB/s, done.
-Total 7 (delta 3), reused 0 (delta 0)
-remote: Resolving deltas:   0% (0/3)   [Kremote: Resolving deltas:  33% (1/3)   [Kremote: Resolving deltas:  66% (2/3)   [Kremote: Resolving deltas: 100% (3/3)   [Kremote: Resolving deltas: 100% (3/3), completed with 3 local objects.[K
-To https://github.com/samirLOV1/AWIPEV-CO2-git.git
-   0b444bf..86b578d  master -> master
-]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git pull Awipev master
-remote: Enumerating objects: 1, done.[K
-remote: Counting objects: 100% (1/1)   [Kremote: Counting objects: 100% (1/1), done.[K
-remote: Total 1 (delta 0), reused 0 (delta 0), pack-reused 0[K
-Unpacking objects: 100% (1/1)   Unpacking objects: 100% (1/1), done.
-From https://github.com/jpgattuso/AWIPEV-CO2-git
- * branch            master     -> FETCH_HEAD
-   0ba7ae0..c13e4c0  master     -> Awipev/master
-Updating 86b578d..c13e4c0
-Fast-forward
-]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git branch
-[?1h=* [32mmaster[m[m
-  work1[m[m
-[K[?1l>]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git branchpull Awipev mastersh origin[C[C[C[C[C[C[C[7Pmerge work1commit -m "new commit"add -A[Kcheckout work1[8Pbranchcheckout work1
-error: Your local changes to the following files would be overwritten by checkout:
-	.Rproj.user/8CD7EAF3/console06/D159EF1D
-Please commit your changes or stash them before you switch branches.
-Aborting
-]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git status
-On branch master
-Your branch is ahead of 'origin/master' by 1 commit.
-  (use "git push" to publish your local commits)
-
-Changes not staged for commit:
-  (use "git add <file>..." to update what will be committed)
-  (use "git checkout -- <file>..." to discard changes in working directory)
-
-	[31mmodified:   .Rproj.user/8CD7EAF3/console06/D159EF1D[m
-
-no changes added to commit (use "git add" and/or "git commit -a")
-]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git statuscheckout work1[K[K[K[K[K[K[K[K[K[K[K[K[K[Kadd[K[K[Kbranchpull Awipev master
-remote: Enumerating objects: 4, done.[K
-remote: Counting objects:  25% (1/4)   [Kremote: Counting objects:  50% (2/4)   [Kremote: Counting objects:  75% (3/4)   [Kremote: Counting objects: 100% (4/4)   [Kremote: Counting objects: 100% (4/4), done.[K
-remote: Compressing objects:  50% (1/2)   [Kremote: Compressing objects: 100% (2/2)   [Kremote: Compressing objects: 100% (2/2), done.[K
-remote: Total 3 (delta 1), reused 3 (delta 1), pack-reused 0[K
-Unpacking objects:  33% (1/3)   Unpacking objects:  66% (2/3)   Unpacking objects: 100% (3/3)   Unpacking objects: 100% (3/3), done.
-From https://github.com/jpgattuso/AWIPEV-CO2-git
- * branch            master     -> FETCH_HEAD
-   c13e4c0..896ed99  master     -> Awipev/master
-Updating c13e4c0..896ed99
-Fast-forward
- .gitignore | 40 [32m++++++++++++++++++++++++++++++++++++++++[m
- 1 file changed, 40 insertions(+)
- create mode 100644 .gitignore
-]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git branch
-[?1h=* [32mmaster[m[m
-  work1[m[m
-[K[?1l>]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git checkout work1
-error: Your local changes to the following files would be overwritten by checkout:
-	.Rproj.user/8CD7EAF3/console06/D159EF1D
-Please commit your changes or stash them before you switch branches.
-Aborting
-]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git status
-On branch master
-Your branch is ahead of 'origin/master' by 2 commits.
-  (use "git push" to publish your local commits)
-
-Changes not staged for commit:
-  (use "git add <file>..." to update what will be committed)
-  (use "git checkout -- <file>..." to discard changes in working directory)
-
-	[31mmodified:   .Rproj.user/8CD7EAF3/console06/D159EF1D[m
-
-no changes added to commit (use "git add" and/or "git commit -a")
-]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git push origin master$[K
-Enumerating objects: 6, done.
-Counting objects:  16% (1/6)   Counting objects:  33% (2/6)   Counting objects:  50% (3/6)   Counting objects:  66% (4/6)   Counting objects:  83% (5/6)   Counting objects: 100% (6/6)   Counting objects: 100% (6/6), done.
-Delta compression using up to 4 threads
-Compressing objects:  25% (1/4)   Compressing objects:  50% (2/4)   Compressing objects:  75% (3/4)   Compressing objects: 100% (4/4)   Compressing objects: 100% (4/4), done.
-Writing objects:  25% (1/4)   Writing objects:  50% (2/4)   Writing objects:  75% (3/4)   Writing objects: 100% (4/4)   Writing objects: 100% (4/4), 1.20 KiB | 1.20 MiB/s, done.
-Total 4 (delta 1), reused 0 (delta 0)
-remote: Resolving deltas:   0% (0/1)   [Kremote: Resolving deltas: 100% (1/1)   [Kremote: Resolving deltas: 100% (1/1), completed with 1 local object.[K
-To https://github.com/samirLOV1/AWIPEV-CO2-git.git
-   86b578d..896ed99  master -> master
-]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git co[Kommit -m " [Ktrying solvint[Kg problem"
-On branch master
-Your branch is up to date with 'origin/master'.
-
-Changes not staged for commit:
-	[31mmodified:   .Rproj.user/8CD7EAF3/console06/D159EF1D[m
-
-no changes added to commit
-]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git add -A
-]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git add -Acommit -m "trying solving problem"
-[master 7cc2fa8] trying solving problem
- 1 file changed, 101 insertions(+)
-]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git commit -m "trying solving problem"add -A[Kcommit -m "trying solving problem"[16Ppush origin master[12Pstatuspush origin master
-Enumerating objects: 11, done.
-Counting objects:   9% (1/11)   Counting objects:  18% (2/11)   Counting objects:  27% (3/11)   Counting objects:  36% (4/11)   Counting objects:  45% (5/11)   Counting objects:  54% (6/11)   Counting objects:  63% (7/11)   Counting objects:  72% (8/11)   Counting objects:  81% (9/11)   Counting objects:  90% (10/11)   Counting objects: 100% (11/11)   Counting objects: 100% (11/11), done.
-Delta compression using up to 4 threads
-Compressing objects:  16% (1/6)   Compressing objects:  33% (2/6)   Compressing objects:  50% (3/6)   Compressing objects:  66% (4/6)   Compressing objects:  83% (5/6)   Compressing objects: 100% (6/6)   Compressing objects: 100% (6/6), done.
-Writing objects:  16% (1/6)   Writing objects:  33% (2/6)   Writing objects:  50% (3/6)   Writing objects:  66% (4/6)   Writing objects:  83% (5/6)   Writing objects: 100% (6/6)   Writing objects: 100% (6/6), 1.57 KiB | 802.00 KiB/s, done.
-Total 6 (delta 3), reused 0 (delta 0)
-remote: Resolving deltas:   0% (0/3)   [Kremote: Resolving deltas:  33% (1/3)   [Kremote: Resolving deltas:  66% (2/3)   [Kremote: Resolving deltas: 100% (3/3)   [Kremote: Resolving deltas: 100% (3/3), completed with 3 local objects.[K
-To https://github.com/samirLOV1/AWIPEV-CO2-git.git
-   896ed99..7cc2fa8  master -> master
-]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git pull [KA[K Awipev origin[K[K[K[K[K[Kmaster
-remote: Enumerating objects: 1, done.[K
-remote: Counting objects: 100% (1/1)   [Kremote: Counting objects: 100% (1/1), done.[K
-remote: Total 1 (delta 0), reused 0 (delta 0), pack-reused 0[K
-Unpacking objects: 100% (1/1)   Unpacking objects: 100% (1/1), done.
-From https://github.com/jpgattuso/AWIPEV-CO2-git
- * branch            master     -> FETCH_HEAD
-   896ed99..8d579cc  master     -> Awipev/master
-Updating 7cc2fa8..8d579cc
-Fast-forward
-]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git status
-On branch master
-Your branch is ahead of 'origin/master' by 1 commit.
-  (use "git push" to publish your local commits)
-
-Changes not staged for commit:
-  (use "git add <file>..." to update what will be committed)
-  (use "git checkout -- <file>..." to discard changes in working directory)
-
-	[31mmodified:   .Rproj.user/8CD7EAF3/console06/D159EF1D[m
-
-no changes added to commit (use "git add" and/or "git commit -a")
-]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$  git[K[K[K[Kgit statuspull Awipev master
-From https://github.com/jpgattuso/AWIPEV-CO2-git
- * branch            master     -> FETCH_HEAD
-Already up to date.
-]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git statrus[K[K[K[Ktus
-On branch master
-Your branch is ahead of 'origin/master' by 1 commit.
-  (use "git push" to publish your local commits)
-
-Changes not staged for commit:
-  (use "git add <file>..." to update what will be committed)
-  (use "git checkout -- <file>..." to discard changes in working directory)
-
-	[31mmodified:   .Rproj.user/8CD7EAF3/console06/D159EF1D[m
-
-no changes added to commit (use "git add" and/or "git commit -a")
-]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git statuspull Awipev master
-From https://github.com/jpgattuso/AWIPEV-CO2-git
- * branch            master     -> FETCH_HEAD
-Already up to date.
-]0;~/not_synced_git/AWIPEV-CO2-gitMacBook-Pro-de-Samir-2:AWIPEV-CO2-git samir$ git add -A
