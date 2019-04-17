@@ -1333,6 +1333,7 @@ For TA, dulpicates's flags that have been changed to 1 are:
 - 2018-07-20
 - 2018-08-03
 - 2018-08-10
+- 2018-08-24
 - 2018-08-31
 - 2018-09-07
 - 2018-09-14
@@ -1381,6 +1382,8 @@ For CT, duplicates's flags that have been changed to 1 are:
 - 2018-11-09
 - 2018-11-16
 - 2018-11-23
+
+
 ```{r SNAPO, echo=FALSE, message= FALSE, warning=FALSE}
 # use the df at_ct for mean and sd
 # creat a new df to calculate the diff between replicate
