@@ -1138,8 +1138,9 @@ d_all <- d_all %>%
                                 ifelse(datetime >= durinterv[8] & datetime <= durinterv[9], 08,
                                 ifelse(datetime >= durinterv[9] & datetime <= durinterv[10], 09,
                                 ifelse(datetime >= durinterv[10] & datetime <= durinterv[11], 10, 
-                                ifelse(datetime >= durinterv[11] & datetime <= durinterv[12], 10,
-                                ifelse(datetime >= durinterv[12] & datetime <= durinterv[13], 10,NA )))))))))))))
+                                ifelse(datetime >= durinterv[11] & datetime <= durinterv[12], 11,
+                                ifelse(datetime >= durinterv[12] & datetime <= durinterv[13], 12,
+                                        ifelse(datetime >= durinterv[13] & datetime <= durinterv[14], 13,NA ))))))))))))))
 
 # Offset between durafet pH and spec pH 
 duroffset <- left_join(durPeriod[,c(1,2)], d_all[,c(1,18)], by="datetime")
@@ -1172,7 +1173,8 @@ d_all <- d_all%>%
                                 ifelse(deployment_dur == 9, dat_dur$diff_pH_dur[9],
                                 ifelse(deployment_dur == 10, dat_dur$diff_pH_dur[10], 
                                ifelse(deployment_dur == 11, dat_dur$diff_pH_dur[11],
-                                ifelse(deployment_dur == 12, dat_dur$diff_pH_dur[12],0)))))))))))),
+                                ifelse(deployment_dur == 12, dat_dur$diff_pH_dur[12],
+                                       ifelse(deployment_dur == 13, dat_dur$diff_pH_dur[13],0))))))))))))),
               pH_durafet_corrected = pH_durafet + offset_durafet
               )
 # DURAFET 
