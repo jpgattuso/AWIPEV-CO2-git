@@ -351,7 +351,7 @@ h5{ /* Header 5 */
 
 ###**Introduction**
 <div style="text-align: justify">  
-The AWIPEV-CO2 project aims at starting the first time series for the carbonate chemistry in the Arctic Ocean as part of the AWIPEV Underwater Observatory. It comprises two components: (1) continuous real-time measurements and (2) discrete measurements. The rationale is that discrete measurements are absolutely needed to calibrate and validate the sensors.
+The AWIPEV-CO2 project aims at starting the first time series for the carbonate chemistry in the Arctic Ocean as part of the AWIPEV Underwater Observatory. It comprises two components: (1) continuous real-time measurements and (2) discrete measurements. The rationale is that discrete measurements are absolutely needed to calibrate and validate the sensors. Blabla
 
 ###**AWIPEV Underwater Observatory**
 <div style="text-align: justify">  
