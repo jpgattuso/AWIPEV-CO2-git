@@ -935,6 +935,8 @@ sfPeriod <-  sfPeriod %>%
 sfinterv <- c( as_datetime("2017-08-24 13:00:00"), sfPeriod[,4])
  #Change period sfinterv[6]. Because seafet was off and on on the 2018-04-24 19:00:00
 sfinterv[6] <- ymd_hms("2018-04-24 18:00:00")
+ #Change period sfinterv[6]. Because seafet was off and on on the 2018-04-24 19:00:00
+sfinterv[14] <- ymd_hms("2019-01-29 16:00:00")
 
 #sfinterv <-sort(unlist(sfinterv, use.names=FALSE))
 # set deployment period between 2 spectro measurements.
