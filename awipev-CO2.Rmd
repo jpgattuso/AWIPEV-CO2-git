@@ -351,7 +351,7 @@ h5{ /* Header 5 */
 
 ###**Introduction**
 <div style="text-align: justify">  
-The AWIPEV-CO2 project aims at starting the first time series for the carbonate chemistry in the Arctic Ocean as part of the AWIPEV Underwater Observatory. It comprises two components: (1) continuous real-time measurements and (2) discrete measurements. The rationale is that discrete measurements are absolutely needed to calibrate and validate the sensors. Blabla
+The AWIPEV-CO2 project aims at starting the first time series for the carbonate chemistry in the Arctic Ocean as part of the AWIPEV Underwater Observatory. It comprises two components: (1) continuous real-time measurements and (2) discrete measurements. The rationale is that discrete measurements are absolutely needed to calibrate and validate the sensors. 
 
 ###**AWIPEV Underwater Observatory**
 <div style="text-align: justify">  
@@ -949,7 +949,10 @@ d_all <- d_all %>%
                                 ifelse(datetime >= sfinterv[7] & datetime <= sfinterv[8], 07,
                                 ifelse(datetime >= sfinterv[8] & datetime <= sfinterv[9], 08,
                                 ifelse(datetime >= sfinterv[9] & datetime <= sfinterv[10], 09,
-                                ifelse(datetime >= sfinterv[10] & datetime <= sfinterv[11], 09, NA )))))))))))
+                                ifelse(datetime >= sfinterv[10] & datetime <= sfinterv[11], 10,
+                                       ifelse(datetime >= sfinterv[11] & datetime <= sfinterv[12], 11,
+                                              ifelse(datetime >= sfinterv[12] & datetime <= sfinterv[13], 12,
+                                                     ifelse(datetime >= sfinterv[13] & datetime <= sfinterv[14], 13,NA ))))))))))))))
   
 # Raw voltage INT + pHINT must be filtered from 2017-12-14 to 2018-01-08 < 8.04 (1) and removed from 2018-01-08 to 2018-02-02 (2)
 # 1
@@ -1075,7 +1078,12 @@ dygraph(seafet_contros_xts, group = "awipev", main="pH seaFET (in situ)", ylab="
   dyShading(from = sfinterv[7], to= sfinterv[8], color = "#CCCCCC") %>%
   dyShading(from = sfinterv[8], to= sfinterv[9], color = "#E0E0E0") %>%
   dyShading(from = sfinterv[9], to= sfinterv[10], color = "#CCCCCC") %>%
-   dyShading(from = sfinterv[10], to= sfinterv[11], color = "#E0E0E0") %>%
+  dyShading(from = sfinterv[10], to= sfinterv[11], color = "#E0E0E0") %>%
+  dyShading(from = sfinterv[11], to= sfinterv[12], color = "#CCCCCC") %>%
+  dyShading(from = sfinterv[12], to= sfinterv[13], color = "#E0E0E0") %>%
+  dyShading(from = sfinterv[13], to= sfinterv[14], color = "#CCCCCC") %>%
+  dyShading(from = sfinterv[14], to= sfinterv[15], color = "#E0E0E0") %>%
+
   dyHighlight(highlightCircleSize = 8,highlightSeriesBackgroundAlpha = 0.5,hideOnMouseOut = TRUE) %>%
   dyOptions(drawGrid = TRUE, drawPoints = TRUE, pointSize = c(1,8,1),useDataTimezone = TRUE, digitsAfterDecimal=4) %>%
   dyRangeSelector(height = 30, dateWindow= NULL) 
@@ -1129,7 +1137,9 @@ d_all <- d_all %>%
                                 ifelse(datetime >= durinterv[7] & datetime <= durinterv[8], 07,
                                 ifelse(datetime >= durinterv[8] & datetime <= durinterv[9], 08,
                                 ifelse(datetime >= durinterv[9] & datetime <= durinterv[10], 09,
-                                ifelse(datetime >= durinterv[10] & datetime <= durinterv[11], 10, NA )))))))))))
+                                ifelse(datetime >= durinterv[10] & datetime <= durinterv[11], 10, 
+                                ifelse(datetime >= durinterv[11] & datetime <= durinterv[12], 10,
+                                ifelse(datetime >= durinterv[12] & datetime <= durinterv[13], 10,NA )))))))))))))
 
 # Offset between durafet pH and spec pH 
 duroffset <- left_join(durPeriod[,c(1,2)], d_all[,c(1,18)], by="datetime")
@@ -1160,7 +1170,9 @@ d_all <- d_all%>%
                                 ifelse(deployment_dur == 7, dat_dur$diff_pH_dur[7],
                                 ifelse(deployment_dur == 8, dat_dur$diff_pH_dur[8],
                                 ifelse(deployment_dur == 9, dat_dur$diff_pH_dur[9],
-                                ifelse(deployment_dur == 10, dat_dur$diff_pH_dur[10], 0)))))))))),
+                                ifelse(deployment_dur == 10, dat_dur$diff_pH_dur[10], 
+                               ifelse(deployment_dur == 11, dat_dur$diff_pH_dur[11],
+                                ifelse(deployment_dur == 12, dat_dur$diff_pH_dur[12],0)))))))))))),
               pH_durafet_corrected = pH_durafet + offset_durafet
               )
 # DURAFET 
@@ -1183,6 +1195,9 @@ durafet_contros_xts <- as.xts(durafet_contros_xts, order.by = d_all$datetime)
    dyShading(from = durinterv[8], to= durinterv[9], color = "#E0E0E0") %>%
    dyShading(from = durinterv[9], to= durinterv[10], color = "#CCCCCC") %>%
    dyShading(from = durinterv[10], to= durinterv[11], color = "#E0E0E0") %>%
+    dyShading(from = durinterv[11], to= durinterv[12], color = "#CCCCCC") %>%
+    dyShading(from = durinterv[12], to= durinterv[13], color = "#E0E0E0") %>%
+   dyShading(from = durinterv[13], to= durinterv[14], color = "#CCCCCC") %>%
     dyHighlight(highlightCircleSize = 8,highlightSeriesBackgroundAlpha = 0.5,hideOnMouseOut = TRUE) %>%
     dyOptions(drawGrid = TRUE, drawPoints = TRUE, pointSize = c(1,8,1),useDataTimezone = TRUE, digitsAfterDecimal=4) %>%
     dyRangeSelector(height = 30, dateWindow= NULL) 
