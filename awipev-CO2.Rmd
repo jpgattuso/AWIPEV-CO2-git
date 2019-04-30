@@ -386,6 +386,7 @@ dygraph(sal_fb_xts, group = "awipev", main="Salinity", ylab="Salinity") %>%
       dySeries("sal_fb", color = "blue", strokeWidth = 0, label = "S") %>%
       dyHighlight(highlightCircleSize = 8,highlightSeriesBackgroundAlpha =0.2,hideOnMouseOut =TRUE) %>%
       dyOptions(drawGrid = TRUE, drawPoints = TRUE, pointSize = 2,useDataTimezone = TRUE) %>%
+    dyAxis("y",valueRange = c(30, 36)) %>%
       dyRangeSelector(height = 30, dateWindow= NULL)
 # TEMP Ferrybox SBE45
 temp_fb_xts <- dplyr::select(d_all, datetime, temp_fb)
@@ -432,6 +433,8 @@ dygraph(durafet_contros_xts, group = "awipev", main="pH durafet (in Ferrybox)", 
     # dyOptions(colors = RColorBrewer::brewer.pal(3, "Dark2"), pointSize = 4) %>%
     dyHighlight(highlightCircleSize = 8,highlightSeriesBackgroundAlpha = 0.5,hideOnMouseOut = TRUE) %>%
     dyOptions(drawGrid = TRUE, drawPoints = TRUE, pointSize = c(1,8,1),useDataTimezone = TRUE, digitsAfterDecimal=4) %>%
+    dyAxis("y",valueRange = c(8, 8.6)) %>%
+
     dyRangeSelector(height = 30, dateWindow= NULL) 
 # SEAFET 
 seafet_contros_xts <- dplyr::select(d_all, datetime, phINT_filtered,pH_s_seafet_temp_field)
@@ -444,6 +447,7 @@ dygraph(seafet_contros_xts, group = "awipev", main="pH seaFET (in situ)", ylab="
   dyEvent(as.POSIXct("2018-04-17 12:00:00", tz="GMT"), "seaFET #0007 installed + continuous mode set", labelLoc = "bottom", color="red") %>%
     dyHighlight(highlightCircleSize = 8,highlightSeriesBackgroundAlpha = 0.5,hideOnMouseOut = TRUE) %>%
     dyOptions(drawGrid = TRUE, drawPoints = TRUE, pointSize = c(1,8,1),useDataTimezone = TRUE, digitsAfterDecimal=4) %>%
+    dyAxis("y",valueRange = c(7.45, 8.6)) %>%
     dyRangeSelector(height = 30, dateWindow= NULL) 
 # TA
 # to create periods according to TA deployments
@@ -952,9 +956,10 @@ d_all <- d_all %>%
                                 ifelse(datetime >= sfinterv[8] & datetime <= sfinterv[9], 08,
                                 ifelse(datetime >= sfinterv[9] & datetime <= sfinterv[10], 09,
                                 ifelse(datetime >= sfinterv[10] & datetime <= sfinterv[11], 10,
-                                       ifelse(datetime >= sfinterv[11] & datetime <= sfinterv[12], 11,
-                                              ifelse(datetime >= sfinterv[12] & datetime <= sfinterv[13], 12,
-                                                     ifelse(datetime >= sfinterv[13] & datetime <= sfinterv[14], 13,NA ))))))))))))))
+                                ifelse(datetime >= sfinterv[11] & datetime <= sfinterv[12], 11,
+                                 ifelse(datetime >= sfinterv[12] & datetime <= sfinterv[13], 12,
+                                 ifelse(datetime >= sfinterv[13] & datetime <= sfinterv[14], 13,
+                                ifelse(datetime >= sfinterv[14] , 14,NA )))))))))))))))
   
 # Raw voltage INT + pHINT must be filtered from 2017-12-14 to 2018-01-08 < 8.04 (1) and removed from 2018-01-08 to 2018-02-02 (2)
 # 1
@@ -1084,7 +1089,7 @@ dygraph(seafet_contros_xts, group = "awipev", main="pH seaFET (in situ)", ylab="
   dyShading(from = sfinterv[11], to= sfinterv[12], color = "#CCCCCC") %>%
   dyShading(from = sfinterv[12], to= sfinterv[13], color = "#E0E0E0") %>%
   dyShading(from = sfinterv[13], to= sfinterv[14], color = "#CCCCCC") %>%
-  dyShading(from = sfinterv[14], to= sfinterv[15], color = "#E0E0E0") %>%
+  dyShading(from = sfinterv[14], to= Sys.Date(), color = "#E0E0E0") %>%
 
   dyHighlight(highlightCircleSize = 8,highlightSeriesBackgroundAlpha = 0.5,hideOnMouseOut = TRUE) %>%
   dyOptions(drawGrid = TRUE, drawPoints = TRUE, pointSize = c(1,8,1),useDataTimezone = TRUE, digitsAfterDecimal=4) %>%
@@ -1126,7 +1131,12 @@ durPeriod <-  durPeriod %>%
 
 #put interval in a list with the start date of durafet measurements
 durinterv <- c( as_datetime("2017-08-24 13:00:00"), durPeriod[,4])
- 
+ #Change period sfinterv[6]. Because seafet was off and on on the 2018-04-24 19:00:00
+durinterv[13] <- ymd_hms("2019-01-17 23:00:00")
+ #Change period sfinterv[6]. Because seafet was off and on on the 2018-04-24 19:00:00
+durinterv[14] <- ymd_hms("2019-01-19 00:00:00")
+
+
 # set deployment period between 2 spectro measurements.
 # add here the new periods durinterv[..]
 d_all <- d_all %>%
@@ -1142,7 +1152,9 @@ d_all <- d_all %>%
                                 ifelse(datetime >= durinterv[10] & datetime <= durinterv[11], 10, 
                                 ifelse(datetime >= durinterv[11] & datetime <= durinterv[12], 11,
                                 ifelse(datetime >= durinterv[12] & datetime <= durinterv[13], 12,
-                                        ifelse(datetime >= durinterv[13] & datetime <= durinterv[14], 13,NA ))))))))))))))
+                                ifelse(datetime >= durinterv[13] & datetime <= durinterv[14], 13,
+                                ifelse(datetime >= durinterv[14] & datetime <= durinterv[15], 14,
+                                ifelse(datetime >= durinterv[15], 14,NA ))))))))))))))))
 
 # Offset between durafet pH and spec pH 
 duroffset <- left_join(durPeriod[,c(1,2)], d_all[,c(1,18)], by="datetime")
@@ -1174,9 +1186,10 @@ d_all <- d_all%>%
                                 ifelse(deployment_dur == 8, dat_dur$diff_pH_dur[8],
                                 ifelse(deployment_dur == 9, dat_dur$diff_pH_dur[9],
                                 ifelse(deployment_dur == 10, dat_dur$diff_pH_dur[10], 
-                               ifelse(deployment_dur == 11, dat_dur$diff_pH_dur[11],
+                                ifelse(deployment_dur == 11, dat_dur$diff_pH_dur[11],
                                 ifelse(deployment_dur == 12, dat_dur$diff_pH_dur[12],
-                                       ifelse(deployment_dur == 13, dat_dur$diff_pH_dur[13],0))))))))))))),
+                                ifelse(deployment_dur == 13, dat_dur$diff_pH_dur[13],
+                                ifelse(deployment_dur == 14, dat_dur$diff_pH_dur[14],0)))))))))))))),
               pH_durafet_corrected = pH_durafet + offset_durafet
               )
 # DURAFET 
@@ -1201,7 +1214,7 @@ durafet_contros_xts <- as.xts(durafet_contros_xts, order.by = d_all$datetime)
    dyShading(from = durinterv[10], to= durinterv[11], color = "#E0E0E0") %>%
     dyShading(from = durinterv[11], to= durinterv[12], color = "#CCCCCC") %>%
     dyShading(from = durinterv[12], to= durinterv[13], color = "#E0E0E0") %>%
-   dyShading(from = durinterv[13], to= durinterv[14], color = "#CCCCCC") %>%
+   dyShading(from = durinterv[14], to= Sys.Date(), color = "#CCCCCC") %>%
     dyHighlight(highlightCircleSize = 8,highlightSeriesBackgroundAlpha = 0.5,hideOnMouseOut = TRUE) %>%
     dyOptions(drawGrid = TRUE, drawPoints = TRUE, pointSize = c(1,8,1),useDataTimezone = TRUE, digitsAfterDecimal=4) %>%
     dyRangeSelector(height = 30, dateWindow= NULL) 
@@ -1333,74 +1346,12 @@ We found that some analysed discrete seawater replicates for AT/CT, performed by
 
 For TA, dulpicates's flags that have been changed to 1 are:
 
-- 2015-11-18
-- 2016-07-28
-- 2016-09-29
-- 2016-11-17
-- 2016-11-23
-- 2016-12-29
-- 2017-01-19
-- 2017-05-04
-- 2017-08-31
-- 2018-04-26
-- 2018-05-04
-- 2018-05-16
-- 2018-05-25
-- 2018-06-22
-- 2018-06-30
-- 2018-07-27
-- 2018-07-20
-- 2018-08-03
-- 2018-08-10
-- 2018-08-24
-- 2018-08-31
-- 2018-09-07
-- 2018-09-14
-- 2018-09-21
-- 2018-09-28
-- 2018-10-05
-- 2018-10-12
-- 2018-10-19
-- 2018-10-26
-- 2018-11-02
-- 2018-11-09
-- 2018-11-16
-- 2018-11-23
+2015-11-18
+, 2016-07-28, 2016-09-29, 2016-11-17, 2016-11-23, 2016-12-29, 2017-01-19, 2017-05-04, 2017-08-31, 2018-04-26, 2018-05-04, 2018-05-16, 2018-05-25, 2018-06-22, 2018-06-30, 2018-07-27, 2018-07-20, 2018-08-03, 2018-08-10, 2018-08-24, 2018-08-31, 2018-09-07, 2018-09-14, 2018-09-21, 2018-09-28, 2018-10-05, 2018-10-12, 2018-10-19, 2018-10-26, 2018-11-02, 2018-11-09, 2018-11-16, 2018-11-23.
 
 For CT, duplicates's flags that have been changed to 1 are:
 
-- 2015-08-06
-- 2015-08-13
-- 2016-05-12
-- 2016-05-19
-- 2016-06-16
-- 2016-07-28
-- 2016-09-08
-- 2016-10-27
-- 2016-11-17
-- 2017-01-19
-- 2017-03-02
-- 2017-04-27
-- 2017-09-14
-- 2018-04-26
-- 2018-05-04
-- 2018-05-12
-- 2018-05-25
-- 2018-06-30
-- 2018-07-20
-- 2018-08-03
-- 2018-08-31
-- 2018-09-07
-- 2018-09-14
-- 2018-09-28
-- 2018-10-05
-- 2018-10-12
-- 2018-10-19
-- 2018-10-26
-- 2018-11-02
-- 2018-11-09
-- 2018-11-16
-- 2018-11-23
+2015-08-06, 2015-08-13, 2016-05-12, 2016-05-19, 2016-06-16, 2016-07-28, 2016-09-08, 2016-10-27, 2016-11-17, 2017-01-19, 2017-03-02, 2017-04-27, 2017-09-14, 2018-04-26, 2018-05-04, 2018-05-12, 2018-05-25, 2018-06-30, 2018-07-20, 2018-08-03, 2018-08-31, 2018-09-07, 2018-09-14, 2018-09-28, 2018-10-05, 2018-10-12, 2018-10-19, 2018-10-26, 2018-11-02, 2018-11-09, 2018-11-16, 2018-11-23.
 
 
 ```{r SNAPO, echo=FALSE, message= FALSE, warning=FALSE}
