@@ -496,38 +496,35 @@ sum(f$Freq)
 
 # #plot for POSTER june 2019
 # #plot of S/T
-# poster_temp <- ggplot(data = d_all%>%dplyr::filter(temp_fb<10 &sal_fb>30 )) + geom_point(aes(x=datetime,y=temp_fb),col="blue", size=0.5) +
-#   geom_point(aes(x=datetime,y=sal_fb/5),col="red", size=0.5 )+
-#   labs(x = "Time", y="Temperature (°C)") +
-#   scale_x_datetime(date_minor_breaks ="1 month")+
-#   theme_bw() + theme(legend.position="bottom",legend.title = element_blank())+
-#   scale_y_continuous(sec.axis = sec_axis(~.*5, name = "Salinity (PSU)"))
-# print(poster_temp)
-# par(mar=c(5, 4, 4, 6) + 0.1)
-# 
-# png("poster_sal_temp.png", width= 900, height=600)
-# 
-# plot(sal_fb ~ datetime,d_all,pch=16, axes=T, ylim=c(30.5,36), cex=0.5, col="red", ylab="", xlab="", yaxt ="n", lty=1, cex.lab = 3) +
-# axis(2, ylim=c(0,1),col="red",col.axis="red", las = 1,lty=1, cex.axis =1.8)  
-# 
-#     grid(lty=1)
-#   
-#    par(new = T)
-#  
-# plot(as.Date(d_all$datetime,"%Y-%m-d %H:%M:%S", tz= "UTC"), d_all$temp_fb, col="blue", pch=16, cex=0.5, xlab="", ylab="", axes=FALSE,ylim=c(-2,9))+
-# axis(side = 4, col="blue",col.axis="blue",las=1, cex.axis =1.8) +
-#    # axis.POSIXct(1, at=seq(as.Date("2015-09-01"), max =as.Date("2019-09-01"), by="year"), format="%Y") +
-# axis.POSIXct(1,d_all$datetime,format(d_all$datetime,"%Y-%m-%d %H:%M:%S",tz="UTC"), major.format = "%Y-%m",labels = format(d_all$datetime, "%Y-%m-d %H:%M:%S"), cex =3)
-# 
-# mtext("Time",side=1,col="black",line=0.5)  
-# legend("topleft", legend=c("Temperature (°C)", "Salinity (PSU)"),
-#        col = c("blue", "red"), pch  = c(16, 16),  box.lty=0 , cex = 2)
-#   #grid(nx = 1, ny = NULL, col = "lightgray", lty = 1,
-#    #  lwd = "months")
-#      box()
-#      dev.off()
-#      
-#      
+poster_temp <- ggplot(data = d_all%>%dplyr::filter(temp_fb<10 &sal_fb>30 )) + geom_point(aes(x=datetime,y=temp_fb),col="blue", size=0.5) +
+  geom_point(aes(x=datetime,y=sal_fb/5),col="red", size=0.5 )+
+  labs(x = "Time", y="Temperature (°C)") +
+  scale_x_datetime(date_minor_breaks ="1 month")+
+  theme_bw() + theme(legend.position="bottom",legend.title = element_blank())+
+  scale_y_continuous(sec.axis = sec_axis(~.*5, name = "Salinity (PSU)"))
+print(poster_temp)
+
+png("poster_sal_temp.png", width= 1100, height=600)
+par(mar=c(5, 4, 4, 6) + 0.1)
+
+plot(sal_fb ~ datetime,d_all,pch=16, axes=T, ylim=c(30.5,36), cex=0.5, col="red", ylab="", xlab="", yaxt ="n", lty=1, cex.axis=1.8) +
+axis(2, ylim=c(0,1),col="red",col.axis="red", las = 1,lty=1, cex.axis =1.8)
+
+    grid(lty=1)
+
+   par(new = T)
+
+plot(as.Date(d_all$datetime,"%Y-%m-d %H:%M:%S", tz= "UTC"), d_all$temp_fb, col="blue", pch=16, cex=0.5, xlab="", ylab="",xaxt="n", axes=FALSE,ylim=c(-2,9))+
+axis(side = 4, col="blue",col.axis="blue",las=1, cex.axis =1.8) +
+mtext("Time",side=1,col="black",line=1.5, cex=1.8)
+legend("topleft", legend=c("Temperature (°C)", "Salinity (PSU)"),
+       col = c("blue", "red"), pch  = c(16, 16),  box.lty=0 , cex = 2)
+  #grid(nx = 1, ny = NULL, col = "lightgray", lty = 1,
+   #  lwd = "months")
+     box()
+     dev.off()
+
+
 # ggsave(paste0("figures/poster_temp.png"), width= 30, height=10, poster_temp, units="cm")
 # 
 # poster_sal <- ggplot(data = d_all%>%dplyr::filter(sal_fb>30 ), aes(x=datetime,y=sal_fb), colour="sal_fb") +
@@ -824,16 +821,22 @@ intercept_s_at <- fit$coefficients[[1]]
 at_s <- ggplot(d_all_at_discrete,aes(x=sal_fb, y= at, label = month))+
   geom_text( aes(color=factor(month))) +
   scale_color_discrete(guide="none")+
-    labs(x="Salinity", y="Discrete TA", color = "Months") +  
-    theme(plot.title = element_text(size=7))  +
+    labs(x="Salinity", y="Discrete TA", color = "Months")  +
     stat_smooth(method = "lm", col = "black") +
-    labs(title = paste("Discrete TA vs Salinity", "\nAdj R2 = ",signif(summary(fit)$adj.r.squared, 5),
-                       "; Intercept =",signif(fit$coef[[1]],5 ),
-                       "; Slope =",signif(fit$coef[[2]], 5),
-                       "; P =",signif(summary(fit)$coef[2,4], 5))) +
-  theme(aspect.ratio=1,plot.title = element_text(size=7)) + theme_bw() 
+    labs(title = paste("", "\nAdj R2 = ",signif(summary(fit)$adj.r.squared, 5),
+                       ";\nIntercept =",signif(fit$coef[[1]],5 ),
+                       ";\nSlope =",signif(fit$coef[[2]], 5),
+                       ";\nP =",signif(summary(fit)$coef[2,4], 5))) +
+  theme_bw() + 
+  theme(aspect.ratio=1,
+        axis.text=element_text(size=15),
+        axis.title.y= element_text(size =15),
+        axis.title.x= element_text(size =15),
+        plot.margin = unit(c(0.5,1,1,1), "cm"),
+        plot.title = element_text(size=15, hjust=0.05,margin = margin(l = 10, b = -70))) 
+  print(at_s)
 
-ggsave(paste0("figures/Discrete_TA_salinity_AWIPEV.png"), at_s, width=15, height =10, units="cm")
+ggsave(paste0("figures/Discrete_TA_salinity_AWIPEV.png"), at_s, width=15, height =11, units="cm")
 
 # Salinity is a predictor of AT -> using the regression defined above
 d_all$at_calc <- slope_s_at * d_all$sal_fb + intercept_s_at
@@ -881,22 +884,23 @@ dygraph(at_contros_calc_xts, group = "awipev", main="", ylab="Total alkalinity")
   dyOptions(drawGrid = TRUE, drawPoints = TRUE,useDataTimezone = TRUE) %>%
     dyRangeSelector(height = 30, dateWindow= NULL)
 
-#plot for POSTER june 2019
-#plot of TA calculated from S + discrete
-p_at_sal <- ggplot(data = d_all%>%dplyr::filter(at_calc > 2000), aes(x=datetime,y=at_calc,col="TA calculated from salinity") ) +
-  geom_point(col="blue", size=0.5 )+
-  geom_point(aes(y=at, fill= "Discrete measurements"), col="red") +
-  labs(title=  "Calculated TA from salinity (µmoles/kg)", x = "Time", y= "") +
-  scale_x_datetime(date_minor_breaks ="1 month")+
-  theme_bw() + theme(legend.position= c(0.7, 0.15), 
-                     legend.text=element_text(size=15),
-                     plot.title = element_text(vjust = 0.5,size = rel(1.5),margin = margin(t = 10, b = -20)),
-                     axis.text=element_text(size=15),
-                     legend.title=element_blank())
-
-  
-print(p_at_sal)
-ggsave(paste0("figures/poster_at_sal.png"), width= 30, height=10, p_at_sal, units="cm")
+# #plot for POSTER june 2019
+# #plot of TA calculated from S + discrete
+# p_at_sal <- ggplot(data = d_all%>%dplyr::filter(at_calc > 2000), aes(x=datetime,y=at_calc,col="TA calculated from salinity") ) +
+#   geom_point(col="blue", size=0.5 )+
+#   geom_point(aes(y=at, fill= "Discrete measurements"), col="red") +
+#   labs(title=  "Calculated TA from salinity (µmoles/kg)", x = "Time", y= "") +
+#   scale_x_datetime(date_minor_breaks ="1 month")+
+#   theme_bw() + theme(legend.position= c(0.7, 0.15), 
+#                      legend.text=element_text(size=15),
+#                      plot.title = element_text(hjust =0.1, vjust = 1,size = rel(1.5),margin = margin(t = 10, b = -20)),
+#                      axis.text=element_text(size=15),
+#                      axis.title.x= element_text(size =15),
+#                      legend.title=element_blank())
+# 
+#   
+# print(p_at_sal)
+# ggsave(paste0("figures/poster_at_sal.png"), width= 30, height=10, p_at_sal, units="cm")
 
 ```
 
@@ -922,14 +926,6 @@ titre <- "Contros AT vs Calculated AT"
 fit <- lmodel2(data = at_nov_2018_no_NA, AT_filtered_despike ~ at_calc, nperm = 99)
 ggreg2(fit, x = "at_calc", y = "AT_filtered_despike")
 
-#plot for POSTER june 2019
-#plot of TA VS calculated
-poster_at_atcal <- ggplot(data = at_nov_2018%>%dplyr::filter(at_calc > 2000), aes(x=at_calc,y=AT_filtered_despike,col="TA calculated from salinity") ) +
-  geom_point(col="blue", size=0.5 )+
-  labs(x = "Calculated TA", y = "Calculated TA from salinity (µmoles/kg)") +
-  theme_bw() + theme(legend.position="bottom",legend.title = element_blank())
-print(poster_at_atcal)
-ggsave(paste0("figures/poster_at_atcal.png"), width= 30, height=10, poster_at_atcal, units="cm")
 ```
 
 ## *p*CO~2~
@@ -991,10 +987,17 @@ dygraph(pco2_contros_xts, group = "awipev", main="pCO2", ylab="pCO2") %>%
 poster_pco2 <- ggplot( ) +
   geom_point(data=d_all%>%dplyr::filter(pco2_contros > 150 & pco2_contros < 410), aes(x=datetime, y= pco2_contros,col="blue"), col="blue",size=0.5 ) +
   geom_point(data=d_all, aes(x=datetime, y=pco2calc, fill="Calculated from AT/CT"), col="red" )+
-  labs(x = "Time", y = expression(~italic(p)~CO[2]~"(µatm)")) +
-  theme_bw() + theme(legend.position="bottom",legend.title = element_blank())
+  labs(x = "Time", y ="", title = expression(~italic(p)~CO[2]~"(µatm)")) +
+  theme_bw() + theme(legend.position= c(0.59, 0.1),
+                     legend.text=element_text(size=14),
+                     plot.title = element_text(hjust =0.1, vjust = 1,size = rel(1.5),margin = margin( b = -30)),
+                     axis.text=element_text(size=15),
+                     plot.margin = unit(c(0.5,1,1,1), "cm"),
+                     axis.title.x= element_text(size =15),
+                     legend.title=element_blank())
 print(poster_pco2)
 ggsave(paste0("figures/poster_pco2.png"), width= 30, height=10, poster_pco2, units="cm")
+
     ```
 
 ## pH seaFET
@@ -1192,43 +1195,49 @@ plot_offset <- ggplot(data = filter(dat, !is.na(diff_pH_sf))) +
 
 print(plot_offset)
 
-#plot for POSTER june 2019
-#plot of pH seafet
-poster_ph <- ggplot( ) +
-  geom_point(data=d_all%>%dplyr::filter(datetime > "2017-07-30"  ), aes(x=datetime, y= pHint_tot_sf,col="blue"), col="blue",size=0.5 , rm.na=TRUE) +
-  geom_point(data=d_all%>%dplyr::filter(datetime > "2017-07-30"  ), aes(x=datetime, y=pH_s_seafet_temp_field, fill="Reference measured samples"), col="red" )+
-  labs(x = "Time", y = expression(pH[T]~seaFET)) +
-  theme_bw() + theme(legend.position="bottom",legend.title = element_blank()) 
-
-print(poster_ph)
-ggsave(paste0("figures/poster_ph.png"), width= 30, height=10, poster_ph, units="cm")
-
-# RANGE of pH
-d_all<- d_all%>%
-  dplyr::mutate(year = year(datetime))
-range <- tbl_df(
-  d_all %>%
-  group_by(date=as.Date(datetime), month=month(datetime, label=TRUE), year=year(datetime)) %>%
-  summarize(pH_range = max(pHint_tot_sf) - min(pHint_tot_sf))
-)
-quant <- quantile(range$pH_range, probs =c(2.5/100, 97.5/100), na.rm =TRUE)
-
-# Per month
-range_month <-
-  range %>%
-  group_by(Month = month(date, label=TRUE, abbr=FALSE)) %>%
-  summarize(pH_range_month = mean(pH_range, na.rm=TRUE))
-
-size_point <- 0.4 # size of data points
-plot_range_sf <-  
-  ggplot(data=range, aes(x = as.factor(month), y = pH_range)) +
-  geom_violin(fill='lightblue', alpha=0.5, size=0.2, trim = TRUE) +
-  geom_boxplot(notch=TRUE, size=0.2, fill="grey50", outlier.color = "blue", outlier.size = 0.3) +
-  labs(y =expression(paste(pH[T], " range seaFET")), x=NULL, title=NULL) +
-  Mytheme() +
-  theme(panel.grid.major.x = element_blank())
-print(plot_range_sf)
-ggsave(paste0("figures/plot_range_sf.png"), width= 30, height=10, plot_range_sf, units="cm")
+# #plot for POSTER june 2019
+# #plot of pH seafet
+# poster_ph <- ggplot( ) +
+#   geom_point(data=d_all%>%dplyr::filter(datetime > "2017-07-30"  ), aes(x=datetime, y= pHint_tot_sf,col="blue"), col="blue",size=0.5 , rm.na=TRUE) +
+#   geom_point(data=d_all%>%dplyr::filter(datetime > "2017-07-30"  ), aes(x=datetime, y=pH_s_seafet_temp_field, fill="Discrete measurements"), col="red" )+
+#   labs(x = "Time", y ="", title = expression(pH[T]~seaFET)) +
+#   theme_bw() + theme(legend.position= c(0.8, 0.1), 
+#                      legend.text=element_text(size=14),
+#                       plot.title = element_text(hjust =0.1, vjust = 1,size = rel(1.5),margin = margin( b = -35)),
+#                       axis.text=element_text(size=15),
+#                       plot.margin = unit(c(1,1,1,1), "cm"),
+#                       axis.title.x= element_text(size =15),
+#                       legend.title=element_blank())
+# 
+# print(poster_ph)
+# ggsave(paste0("figures/poster_ph.png"), width= 30, height=10, poster_ph, units="cm")
+# 
+# # RANGE of pH
+# d_all<- d_all%>%
+#   dplyr::mutate(year = year(datetime))
+# range <- tbl_df(
+#   d_all %>%
+#   group_by(date=as.Date(datetime), month=month(datetime, label=TRUE), year=year(datetime)) %>%
+#   summarize(pH_range = max(pHint_tot_sf) - min(pHint_tot_sf))
+# )
+# quant <- quantile(range$pH_range, probs =c(2.5/100, 97.5/100), na.rm =TRUE)
+# 
+# # Per month
+# range_month <-
+#   range %>%
+#   group_by(Month = month(date, label=TRUE, abbr=FALSE)) %>%
+#   summarize(pH_range_month = mean(pH_range, na.rm=TRUE))
+# 
+# size_point <- 0.4 # size of data points
+# plot_range_sf <-  
+#   ggplot(data=range, aes(x = as.factor(month), y = pH_range)) +
+#   geom_violin(fill='lightblue', alpha=0.5, size=0.2, trim = TRUE) +
+#   geom_boxplot(notch=TRUE, size=0.2, fill="grey50", outlier.color = "blue", outlier.size = 0.3) +
+#   labs(y =expression(paste(pH[T], " range seaFET")), x=NULL, title=NULL) +
+#   Mytheme() +
+#   theme(panel.grid.major.x = element_blank())
+# print(plot_range_sf)
+# ggsave(paste0("figures/plot_range_sf.png"), width= 30, height=10, plot_range_sf, units="cm")
 
 ```
 
@@ -1341,41 +1350,47 @@ durafet_contros_xts <- as.xts(durafet_contros_xts, order.by = d_all$datetime)
 
 print(plot_offset_dur)
 
-#plot for POSTER june 2019
-#plot of pH durafet
-poster_dur <- ggplot( ) +
-  geom_point(data=d_all%>%dplyr::filter(datetime > "2017-07-30"  ), aes(x=datetime, y= pH_durafet_corrected,col="blue"), col="blue",size=0.5 , rm.na=TRUE) +
-  geom_point(data=d_all%>%dplyr::filter(datetime > "2017-07-30"  ), aes(x=datetime, y=pH_s_durafet_temp_field, fill="Reference measured samples"), col="red" )+
-  labs(x = "Time", y = expression(pH[T]~durafet)) +
-  theme_bw() + theme(legend.position="bottom",legend.title = element_blank()) 
-
-print(poster_dur)
-ggsave(paste0("figures/poster_dur.png"), width= 30, height=10, poster_dur, units="cm")
-
-# RANGE of pH
-range_dur <- tbl_df(
-  d_all %>%
-  group_by(date=as.Date(datetime), month=month(datetime, label=TRUE), year=year(datetime)) %>%
-  summarize(pH_range = max(pH_durafet_corrected) - min(pH_durafet_corrected))
-)
-quant <- quantile(range_dur$pH_range, probs =c(2.5/100, 97.5/100), na.rm =TRUE)
-
-# Per month
-range_month <-
-  range_dur %>%
-  group_by(Month = month(date, label=TRUE, abbr=FALSE)) %>%
-  summarize(pH_range_month = mean(pH_range, na.rm=TRUE))
-
-size_point <- 0.4 # size of data points
-plot_range_dur <-  
-  ggplot(data=range_dur, aes(x = as.factor(month), y = pH_range)) +
-  geom_violin(fill='lightblue', alpha=0.5, size=0.2, trim = TRUE) +
-  geom_boxplot(notch=TRUE, size=0.2, fill="grey50", outlier.color = "blue", outlier.size = 0.3) +
-  labs(y =expression(paste(pH[T], " range durafet")), x=NULL, title=NULL) +
-  Mytheme() +
-  theme(panel.grid.major.x = element_blank())
-print(plot_range_dur)
-ggsave(paste0("figures/plot_range_dur.png"), width= 30, height=10, plot_range_dur, units="cm")
+# #plot for POSTER june 2019
+# #plot of pH durafet
+# poster_dur <- ggplot( ) +
+#   geom_point(data=d_all%>%dplyr::filter(datetime > "2017-07-30"  ), aes(x=datetime, y= pH_durafet_corrected,col="blue"), col="blue",size=0.5 , rm.na=TRUE) +
+#   geom_point(data=d_all%>%dplyr::filter(datetime > "2017-07-30"  ), aes(x=datetime, y=pH_s_durafet_temp_field, fill="Discrete measurements"), col="red" )+
+#   labs(x = "Time", y= "", title = expression(pH[T]~durafet)) +
+#   theme_bw() + theme(legend.position= c(0.7, 0.8), 
+#                      legend.text=element_text(size=14),
+#                       plot.title = element_text(hjust =0.1, vjust = 1,size = rel(1.5),margin = margin( b = -35)),
+#                       axis.text=element_text(size=15),
+#                       plot.margin = unit(c(1,1,1,1), "cm"),
+#                       axis.title.x= element_text(size =15),
+#                       legend.title=element_blank())
+# 
+# print(poster_dur)
+# ggsave(paste0("figures/poster_dur.png"), width= 30, height=10, poster_dur, units="cm")
+# 
+# # RANGE of pH
+# range_dur <- tbl_df(
+#   d_all %>%
+#   group_by(date=as.Date(datetime), month=month(datetime, label=TRUE), year=year(datetime)) %>%
+#   summarize(pH_range = max(pH_durafet_corrected) - min(pH_durafet_corrected))
+# )
+# quant <- quantile(range_dur$pH_range, probs =c(2.5/100, 97.5/100), na.rm =TRUE)
+# 
+# # Per month
+# range_month <-
+#   range_dur %>%
+#   group_by(Month = month(date, label=TRUE, abbr=FALSE)) %>%
+#   summarize(pH_range_month = mean(pH_range, na.rm=TRUE))
+# 
+# size_point <- 0.4 # size of data points
+# plot_range_dur <-  
+#   ggplot(data=range_dur, aes(x = as.factor(month), y = pH_range)) +
+#   geom_violin(fill='lightblue', alpha=0.5, size=0.2, trim = TRUE) +
+#   geom_boxplot(notch=TRUE, size=0.2, fill="grey50", outlier.color = "blue", outlier.size = 0.3) +
+#   labs(y =expression(paste(pH[T], " range durafet")), x=NULL, title=NULL) +
+#   Mytheme() +
+#   theme(panel.grid.major.x = element_blank())
+# print(plot_range_dur)
+# ggsave(paste0("figures/plot_range_dur.png"), width= 30, height=10, plot_range_dur, units="cm")
 ```
 The average offset between durafet and references (spectro) data is `r average_offset_dur` pH unit (sd = `r sd_offset_dur`, n = `r n_offset_dur`).
 
