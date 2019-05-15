@@ -69,7 +69,7 @@ reg <- fit$regression.results[2,] #one selects MA only
 intercept <- reg$Intercept
 slope <- reg$Slope
   ggplot(data = fit_data, aes_string(x = xdata, y = ydata)) + 
-  geom_point(size = 3, col = "blue") +
+  geom_point(size = 2, col = "blue") +
   geom_abline(aes(intercept = fit$regression.results[2,2], slope = fit$regression.results[2,3]),
               colour = "blue")  + 
   labs(title = paste(titre,"\n Adj R2 = ", signif(fit$rsquare, 3),
@@ -496,33 +496,33 @@ sum(f$Freq)
 
 # #plot for POSTER june 2019
 # #plot of S/T
-poster_temp <- ggplot(data = d_all%>%dplyr::filter(temp_fb<10 &sal_fb>30 )) + geom_point(aes(x=datetime,y=temp_fb),col="blue", size=0.5) +
-  geom_point(aes(x=datetime,y=sal_fb/5),col="red", size=0.5 )+
-  labs(x = "Time", y="Temperature (°C)") +
-  scale_x_datetime(date_minor_breaks ="1 month")+
-  theme_bw() + theme(legend.position="bottom",legend.title = element_blank())+
-  scale_y_continuous(sec.axis = sec_axis(~.*5, name = "Salinity (PSU)"))
-print(poster_temp)
-
-png("poster_sal_temp.png", width= 1100, height=600)
-par(mar=c(5, 4, 4, 6) + 0.1)
-
-plot(sal_fb ~ datetime,d_all,pch=16, axes=T, ylim=c(30.5,36), cex=0.5, col="red", ylab="", xlab="", yaxt ="n", lty=1, cex.axis=1.8) +
-axis(2, ylim=c(0,1),col="red",col.axis="red", las = 1,lty=1, cex.axis =1.8)
-
-    grid(lty=1)
-
-   par(new = T)
-
-plot(as.Date(d_all$datetime,"%Y-%m-d %H:%M:%S", tz= "UTC"), d_all$temp_fb, col="blue", pch=16, cex=0.5, xlab="", ylab="",xaxt="n", axes=FALSE,ylim=c(-2,9))+
-axis(side = 4, col="blue",col.axis="blue",las=1, cex.axis =1.8) +
-mtext("Time",side=1,col="black",line=1.5, cex=1.8)
-legend("topleft", legend=c("Temperature (°C)", "Salinity (PSU)"),
-       col = c("blue", "red"), pch  = c(16, 16),  box.lty=0 , cex = 2)
-  #grid(nx = 1, ny = NULL, col = "lightgray", lty = 1,
-   #  lwd = "months")
-     box()
-     dev.off()
+# poster_temp <- ggplot(data = d_all%>%dplyr::filter(temp_fb<10 &sal_fb>30 )) + geom_point(aes(x=datetime,y=temp_fb),col="blue", size=0.5) +
+#   geom_point(aes(x=datetime,y=sal_fb/5),col="red", size=0.5 )+
+#   labs(x = "Time", y="Temperature (°C)") +
+#   scale_x_datetime(date_minor_breaks ="1 month")+
+#   theme_bw() + theme(legend.position="bottom",legend.title = element_blank())+
+#   scale_y_continuous(sec.axis = sec_axis(~.*5, name = "Salinity (PSU)"))
+# print(poster_temp)
+# 
+# png("poster_sal_temp.png", width= 1100, height=600)
+# par(mar=c(5, 4, 4, 6) + 0.1)
+# 
+# plot(sal_fb ~ datetime,d_all,pch=16, axes=T, ylim=c(30.5,36), cex=0.5, col="red", ylab="", xlab="", yaxt ="n", lty=1, cex.axis=1.8) +
+# axis(2, ylim=c(0,1),col="red",col.axis="red", las = 1,lty=1, cex.axis =1.8)
+# 
+#     grid(lty=1)
+# 
+#    par(new = T)
+# 
+# plot(as.Date(d_all$datetime,"%Y-%m-d %H:%M:%S", tz= "UTC"), d_all$temp_fb, col="blue", pch=16, cex=0.5, xlab="", ylab="",xaxt="n", axes=FALSE,ylim=c(-2,9))+
+# axis(side = 4, col="blue",col.axis="blue",las=1, cex.axis =1.8) +
+# mtext("Time",side=1,col="black",line=1.5, cex=1.8)
+# legend("topleft", legend=c("Temperature (°C)", "Salinity (PSU)"),
+#        col = c("blue", "red"), pch  = c(16, 16),  box.lty=0 , cex = 2)
+#   #grid(nx = 1, ny = NULL, col = "lightgray", lty = 1,
+#    #  lwd = "months")
+#      box()
+#      dev.off()
 
 
 # ggsave(paste0("figures/poster_temp.png"), width= 30, height=10, poster_temp, units="cm")
@@ -834,7 +834,7 @@ at_s <- ggplot(d_all_at_discrete,aes(x=sal_fb, y= at, label = month))+
         axis.title.x= element_text(size =15),
         plot.margin = unit(c(0.5,1,1,1), "cm"),
         plot.title = element_text(size=15, hjust=0.05,margin = margin(l = 10, b = -70))) 
-  print(at_s)
+  #print(at_s)
 
 ggsave(paste0("figures/Discrete_TA_salinity_AWIPEV.png"), at_s, width=15, height =11, units="cm")
 
