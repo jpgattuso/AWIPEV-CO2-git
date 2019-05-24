@@ -501,10 +501,10 @@ sum(f$Freq)
 #   labs(x = "Time", y="Temperature (°C)") +
 #   scale_x_datetime(date_minor_breaks ="1 month")+
 #   theme_bw() + theme(legend.position="bottom",legend.title = element_blank())+
-#   scale_y_continuous(sec.axis = sec_axis(~.*5, name = "Salinity (PSU)"))
+#   scale_y_continuous(sec.axis = sec_axis(~.*5, name = "Salinity"))
 # print(poster_temp)
 # 
-# png("poster_sal_temp.png", width= 1100, height=600)
+# png("figures/poster_sal_temp.png", width= 1100, height=600)
 # par(mar=c(5, 4, 4, 6) + 0.1)
 # 
 # plot(sal_fb ~ datetime,d_all,pch=16, axes=T, ylim=c(30.5,36), cex=0.5, col="red", ylab="", xlab="", yaxt ="n", lty=1, cex.axis=1.8) +
@@ -516,8 +516,8 @@ sum(f$Freq)
 # 
 # plot(as.Date(d_all$datetime,"%Y-%m-d %H:%M:%S", tz= "UTC"), d_all$temp_fb, col="blue", pch=16, cex=0.5, xlab="", ylab="",xaxt="n", axes=FALSE,ylim=c(-2,9))+
 # axis(side = 4, col="blue",col.axis="blue",las=1, cex.axis =1.8) +
-# mtext("Time",side=1,col="black",line=1.5, cex=1.8)
-# legend("topleft", legend=c("Temperature (°C)", "Salinity (PSU)"),
+# mtext("",side=1,col="black",line=1.5, cex=1.8)
+# legend("topleft", legend=c("Temperature (°C)", "Salinity"),
 #        col = c("blue", "red"), pch  = c(16, 16),  box.lty=0 , cex = 2)
 #   #grid(nx = 1, ny = NULL, col = "lightgray", lty = 1,
 #    #  lwd = "months")
@@ -821,7 +821,7 @@ intercept_s_at <- fit$coefficients[[1]]
 at_s <- ggplot(d_all_at_discrete,aes(x=sal_fb, y= at, label = month))+
   geom_text( aes(color=factor(month))) +
   scale_color_discrete(guide="none")+
-    labs(x="Salinity", y="Discrete TA", color = "Months")  +
+    labs(x="Salinity", y="Discrete AT", color = "Months")  +
     stat_smooth(method = "lm", col = "black") +
     labs(title = paste("", "\nAdj R2 = ",signif(summary(fit)$adj.r.squared, 5),
                        ";\nIntercept =",signif(fit$coef[[1]],5 ),
@@ -889,16 +889,16 @@ dygraph(at_contros_calc_xts, group = "awipev", main="", ylab="Total alkalinity")
 # p_at_sal <- ggplot(data = d_all%>%dplyr::filter(at_calc > 2000), aes(x=datetime,y=at_calc,col="TA calculated from salinity") ) +
 #   geom_point(col="blue", size=0.5 )+
 #   geom_point(aes(y=at, fill= "Discrete measurements"), col="red") +
-#   labs(title=  "Calculated TA from salinity (µmoles/kg)", x = "Time", y= "") +
-#   scale_x_datetime(date_minor_breaks ="1 month")+
-#   theme_bw() + theme(legend.position= c(0.7, 0.15), 
+#   labs(title=  "Calculated from salinity (µmol/kg)", x = "", y= "") + ylim(2100,2350)+
+#   theme_bw() + scale_x_datetime(minor_breaks  = "1 month ")+
+#   theme(legend.position= c(0.5, 0.93),
 #                      legend.text=element_text(size=15),
-#                      plot.title = element_text(hjust =0.1, vjust = 1,size = rel(1.5),margin = margin(t = 10, b = -20)),
+#                      plot.title = element_text(hjust =0.1, vjust = 1,size = rel(1.5),margin = margin(t = 9, b = -25)),
 #                      axis.text=element_text(size=15),
 #                      axis.title.x= element_text(size =15),
 #                      legend.title=element_blank())
 # 
-#   
+# 
 # print(p_at_sal)
 # ggsave(paste0("figures/poster_at_sal.png"), width= 30, height=10, p_at_sal, units="cm")
 
@@ -984,19 +984,36 @@ dygraph(pco2_contros_xts, group = "awipev", main="pCO2", ylab="pCO2") %>%
 
 #plot for POSTER june 2019
 #plot of pCO2
-poster_pco2 <- ggplot( ) +
-  geom_point(data=d_all%>%dplyr::filter(pco2_contros > 150 & pco2_contros < 410), aes(x=datetime, y= pco2_contros,col="blue"), col="blue",size=0.5 ) +
-  geom_point(data=d_all, aes(x=datetime, y=pco2calc, fill="Calculated from AT/CT"), col="red" )+
-  labs(x = "Time", y ="", title = expression(~italic(p)~CO[2]~"(µatm)")) +
-  theme_bw() + theme(legend.position= c(0.59, 0.1),
-                     legend.text=element_text(size=14),
-                     plot.title = element_text(hjust =0.1, vjust = 1,size = rel(1.5),margin = margin( b = -30)),
-                     axis.text=element_text(size=15),
-                     plot.margin = unit(c(0.5,1,1,1), "cm"),
-                     axis.title.x= element_text(size =15),
-                     legend.title=element_blank())
-print(poster_pco2)
-ggsave(paste0("figures/poster_pco2.png"), width= 30, height=10, poster_pco2, units="cm")
+
+#  add pCO2 atmospheric data from URL
+
+# noaa <- read.csv("pco2_noaa.txt", header=T, sep ="", dec=".", stringsAsFactors = FALSE)
+# noaa <- noaa %>%
+#   dplyr::select(sample_year, sample_month, sample_day, sample_hour, sample_minute, sample_seconds, analysis_value, analysis_uncertainty) %>%
+#   unite("date", c("sample_year", "sample_month", "sample_day"), sep="-")%>%
+#   unite("time", c("sample_hour", "sample_minute", "sample_seconds"), sep=":") %>%
+#   unite("datetime", c("date", "time"), sep=" ")
+#  
+# noaa$datetime <- ymd_hms(noaa$datetime, tz="UTC")
+# noaa <- noaa %>%
+#  dplyr::filter(datetime > "2015-07-01 00:00:00")
+# 
+# 
+# poster_pco2 <- ggplot( ) +
+#   geom_point(data=d_all%>%dplyr::filter(pco2_contros > 150 & pco2_contros < 410), aes(x=datetime, y= pco2_contros,col="blue"), col="blue",size=0.5 ) +
+#   geom_point(data=d_all, aes(x=datetime, y=pco2calc), col="red" )+
+#   geom_point() +geom_point(data=noaa%>%dplyr::filter(analysis_value > 150), aes(x=datetime, y= analysis_value),size=0.5 ) +
+#   scale_color_manual("",values=c("red", "blue", "black"), labels=c("pH spectro", "seaFET EXT ", "seaFET EXT corrected"))+
+#   labs(x = "", y ="", title = expression(paste(italic(p),CO[2]," (µatm)"))) +
+#   theme_bw() + theme(legend.position= c(0.59, 0.1),
+#                      legend.text=element_text(size=14),
+#                      plot.title = element_text(hjust =0.1, vjust = 1,size = rel(1.5),margin = margin( b = -30)),
+#                      axis.text=element_text(size=15),
+#                      plot.margin = unit(c(0.5,1,1,1), "cm"),
+#                      axis.title.x= element_text(size =15),
+#                      legend.title=element_blank())
+# print(poster_pco2)
+# ggsave(paste0("figures/poster_pco2.png"), width= 30, height=10, poster_pco2, units="cm")
 
     ```
 
@@ -1200,8 +1217,9 @@ print(plot_offset)
 # poster_ph <- ggplot( ) +
 #   geom_point(data=d_all%>%dplyr::filter(datetime > "2017-07-30"  ), aes(x=datetime, y= pHint_tot_sf,col="blue"), col="blue",size=0.5 , rm.na=TRUE) +
 #   geom_point(data=d_all%>%dplyr::filter(datetime > "2017-07-30"  ), aes(x=datetime, y=pH_s_seafet_temp_field, fill="Discrete measurements"), col="red" )+
-#   labs(x = "Time", y ="", title = expression(pH[T]~seaFET)) +
-#   theme_bw() + theme(legend.position= c(0.8, 0.1), 
+#   labs(x = "", y ="", title = expression(pH[T]~seaFET)) +
+#   theme_bw() + scale_x_datetime(minor_breaks  = "1 month ")+
+#   theme(legend.position= c(0.17, 0.8),
 #                      legend.text=element_text(size=14),
 #                       plot.title = element_text(hjust =0.1, vjust = 1,size = rel(1.5),margin = margin( b = -35)),
 #                       axis.text=element_text(size=15),
@@ -1211,7 +1229,7 @@ print(plot_offset)
 # 
 # print(poster_ph)
 # ggsave(paste0("figures/poster_ph.png"), width= 30, height=10, poster_ph, units="cm")
-# 
+
 # # RANGE of pH
 # d_all<- d_all%>%
 #   dplyr::mutate(year = year(datetime))
@@ -1352,11 +1370,12 @@ print(plot_offset_dur)
 
 # #plot for POSTER june 2019
 # #plot of pH durafet
-# poster_dur <- ggplot( ) +
+#  poster_dur <- ggplot( ) +
 #   geom_point(data=d_all%>%dplyr::filter(datetime > "2017-07-30"  ), aes(x=datetime, y= pH_durafet_corrected,col="blue"), col="blue",size=0.5 , rm.na=TRUE) +
 #   geom_point(data=d_all%>%dplyr::filter(datetime > "2017-07-30"  ), aes(x=datetime, y=pH_s_durafet_temp_field, fill="Discrete measurements"), col="red" )+
-#   labs(x = "Time", y= "", title = expression(pH[T]~durafet)) +
-#   theme_bw() + theme(legend.position= c(0.7, 0.8), 
+#   labs(x = "", y= "", title = expression(pH[T]~durafet)) +
+#   theme_bw() + scale_x_datetime(minor_breaks  = "1 month ")+
+#    theme(legend.position= c(0.17, 0.8),
 #                      legend.text=element_text(size=14),
 #                       plot.title = element_text(hjust =0.1, vjust = 1,size = rel(1.5),margin = margin( b = -35)),
 #                       axis.text=element_text(size=15),
@@ -1605,6 +1624,8 @@ save(file= paste0(path, "fb_data/d_all.Rdata"), d_all)
 - **2018-11-24**: REMOS stopped because of an iceberg. At the moment we dont know if instruments are still there/broken.
 
 ###**FerryBox**
+- **2019-05-22**: FB is stopped because of several problems. Philipp and Marine are working on it.
+- **2019-05-21**: FB is unstable. 
 - **2019-04-14**: FB is working again. 
 - **2019-04-13**: FB is stopped since 05:00am (the level switch stuck in the full position in the waste tank). 
 - **2019-02-27**: FB is working again. 
