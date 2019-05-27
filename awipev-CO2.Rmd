@@ -987,33 +987,44 @@ dygraph(pco2_contros_xts, group = "awipev", main="pCO2", ylab="pCO2") %>%
 
 #  add pCO2 atmospheric data from URL
 
-# noaa <- read.csv("pco2_noaa.txt", header=T, sep ="", dec=".", stringsAsFactors = FALSE)
-# noaa <- noaa %>%
-#   dplyr::select(sample_year, sample_month, sample_day, sample_hour, sample_minute, sample_seconds, analysis_value, analysis_uncertainty) %>%
-#   unite("date", c("sample_year", "sample_month", "sample_day"), sep="-")%>%
-#   unite("time", c("sample_hour", "sample_minute", "sample_seconds"), sep=":") %>%
-#   unite("datetime", c("date", "time"), sep=" ")
-#  
-# noaa$datetime <- ymd_hms(noaa$datetime, tz="UTC")
-# noaa <- noaa %>%
-#  dplyr::filter(datetime > "2015-07-01 00:00:00")
-# 
-# 
-# poster_pco2 <- ggplot( ) +
-#   geom_point(data=d_all%>%dplyr::filter(pco2_contros > 150 & pco2_contros < 410), aes(x=datetime, y= pco2_contros,col="blue"), col="blue",size=0.5 ) +
-#   geom_point(data=d_all, aes(x=datetime, y=pco2calc), col="red" )+
-#   geom_point() +geom_point(data=noaa%>%dplyr::filter(analysis_value > 150), aes(x=datetime, y= analysis_value),size=0.5 ) +
-#   scale_color_manual("",values=c("red", "blue", "black"), labels=c("pH spectro", "seaFET EXT ", "seaFET EXT corrected"))+
-#   labs(x = "", y ="", title = expression(paste(italic(p),CO[2]," (µatm)"))) +
-#   theme_bw() + theme(legend.position= c(0.59, 0.1),
-#                      legend.text=element_text(size=14),
-#                      plot.title = element_text(hjust =0.1, vjust = 1,size = rel(1.5),margin = margin( b = -30)),
-#                      axis.text=element_text(size=15),
-#                      plot.margin = unit(c(0.5,1,1,1), "cm"),
-#                      axis.title.x= element_text(size =15),
-#                      legend.title=element_blank())
-# print(poster_pco2)
-# ggsave(paste0("figures/poster_pco2.png"), width= 30, height=10, poster_pco2, units="cm")
+noaa <- read.csv("pco2_noaa.txt", header=T, sep ="", dec=".", stringsAsFactors = FALSE)
+noaa <- noaa %>%
+  dplyr::select(sample_year, sample_month, sample_day, sample_hour, sample_minute, sample_seconds, analysis_value, analysis_uncertainty) %>%
+  unite("date", c("sample_year", "sample_month", "sample_day"), sep="-")%>%
+  unite("time", c("sample_hour", "sample_minute", "sample_seconds"), sep=":") %>%
+  unite("datetime", c("date", "time"), sep=" ")
+
+noaa$datetime <- ymd_hms(noaa$datetime, tz="UTC")
+noaa <- noaa %>%
+ dplyr::filter(datetime > "2015-07-01 00:00:00")
+
+#create a lab expression for pCO2 NOAA data lebel. Include it with scale_shape_discrete(labels=lab)
+lab <- c( expression(paste(italic(p),CO[2]," (µatm)")),
+           "Calculated from AT/CT",
+          expression(paste(italic(p),CO[2]," (ppm; NOAA)"))
+          )
+
+col <- c("blue","red","green")
+
+poster_pco2 <- ggplot( ) +
+  geom_point(data=d_all%>%dplyr::filter(pco2_contros > 150 & pco2_contros < 410), aes(x=datetime, y= pco2_contros, shape ="lab", colour="blue"),size=0.5 ) +
+  geom_point(data=d_all, aes(x=datetime, y=pco2calc, shape="lab" , color= "red"))+
+  geom_point() + geom_point(data=noaa%>%dplyr::filter(analysis_value > 150), aes(x=datetime, y= analysis_value, shape="lab", color ="green" ),size=0.5)+
+  scale_shape_discrete(labels=lab, guide="none")+
+  scale_colour_manual(labels=lab, values=col)+
+  labs(x = "", y ="", title = "") +
+  theme_bw() +
+  scale_x_datetime(minor_breaks  = "1 month ")+
+  theme(legend.position= c(0.18, 0.85),
+                     legend.text=element_text(size=14, colour="black"),
+                     #plot.title = element_text(hjust =0.1, vjust = 1,size = rel(1.5),margin = margin( b = -30)),
+                     axis.text=element_text(size=15),
+                     plot.margin = unit(c(0.5,1,1,1), "cm"),
+                     axis.title.x= element_text(size =15),
+                     legend.title=element_blank()
+                     ) 
+print(poster_pco2)
+ # ggsave(paste0("figures/poster_pco2.png"), width= 30, height=10, poster_pco2, units="cm")
 
     ```
 
