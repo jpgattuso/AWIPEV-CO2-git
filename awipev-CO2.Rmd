@@ -11,7 +11,6 @@ output:
 ![ ](Images/AWIPEV-Logo.jpg){width=250px}
 
 ```{r set-up, echo=FALSE, warning=FALSE, message=FALSE, include=FALSE}
-# test
 Sys.setlocale("LC_ALL", "en_US.UTF-8")
 Sys.setenv(TZ='UTC') # on utilise UTC
 rm(list = ls())
