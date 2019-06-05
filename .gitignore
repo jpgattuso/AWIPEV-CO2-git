@@ -43,5 +43,3 @@ awipev-CO2.html
 # Ignore png and figures
 figures/*.png
 
-# Ignore png and figures
-figures/*.png
