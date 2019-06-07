@@ -11,7 +11,6 @@ output:
 ![ ](Images/AWIPEV-Logo.jpg){width=250px}
 
 ```{r set-up, echo=FALSE, warning=FALSE, message=FALSE, include=FALSE}
-# test
 Sys.setlocale("LC_ALL", "en_US.UTF-8")
 Sys.setenv(TZ='UTC') # on utilise UTC
 rm(list = ls())
@@ -345,15 +344,15 @@ h5{ /* Header 5 */
 }
 </style>
 
-#{.tabset .tabset-fade .tabset-pills}
+# {.tabset .tabset-fade .tabset-pills}
 
-##Infos 
+## Infos 
 
-###**Introduction**
+### **Introduction**
 <div style="text-align: justify">  
 The AWIPEV-CO2 project aims at starting the first time series for the carbonate chemistry in the Arctic Ocean as part of the AWIPEV Underwater Observatory. It comprises two components: (1) continuous real-time measurements and (2) discrete measurements. The rationale is that discrete measurements are absolutely needed to calibrate and validate the sensors. 
 
-###**AWIPEV Underwater Observatory**
+### **AWIPEV Underwater Observatory**
 <div style="text-align: justify">  
 The AWIPEV Underwater Observatory has been deployed at Ny-Alesund (Spitsbergen, 78°55'18N, 11°56'31E) in June 2012. It is part of the German Project COSYNA (Coastal Observation Systems of the Northern- and Arctic Seas), which aims at increasing the availability of continuous real-time data from remote but climatically-sensitive ecosystems. The AWIPEV underwater observatory comprises a fully remote controlled FerryBox system fed with seawater pumped in front of the old peer at 12 m depth. Temperature, salinity, pressure, turbidity, oxygen, chl-*a* fluorescence are measured. Furthermore, an additional remote controlled underwater sensor unit able to profile from 12 m to the surface at any frequency carries additional sensors for salinity, pressure, turbidity, oxygen chl-*a* fluorescence and PAR. The system also comprises an ADCP for continuous measurements of currents and waves. Besides these standard sensors, the underwater unit is equipped with a webcam and stereo-optical device to remotely assess fish and jellyfish populations. The AWIPEV observatory is specifically designed for polar experimental work under extreme conditions including ice coverage and the inaccessibility for about 7 months during polar winter. During this time, the system is remotely controlled and maintained from Germany. All data sampled by the sensors are continuously sent to a central server system at Helgoland Island where the data are stored and processed. The processed data are open access and available at http://codm.hzg.de/codm.
 
@@ -363,7 +362,7 @@ The AWIPEV Underwater Observatory has been deployed at Ny-Alesund (Spitsbergen, 
   <img  src="./Images/2018-04-17_Ferrybox2.jpg" width="200" height="200">
 </div>
 
-###**Continuous and semi-continuous measurements**
+### **Continuous and semi-continuous measurements**
 <div style="text-align: justify">  
 The Arctic version of the Contros-Kongsberg HydroC CO~2~ FT (Carbon Dioxyde partial pressure Flow Through surface water sensor) has been installed in July 2015. Molecules of dissolved CO~2~ diffuse through a thin composite membrane into the internal gas circuit leading to a detector chamber, where the partial pressure of CO~2~ is determined by means of infra-red absorption spectrometry. Concentration-dependent IR light is converted into the output signal from calibration coefficients stored in firmware and data from additional sensors within the gas circuit. The measuring range is 200-1000 uatm, resolution is < 1 uatm and accuracy is +- 1% reading. The sensor is the first instrument in the measuring loop; data are logged every minute. This instrument requires yearly factory calibration; two sensors ara available to allow a continuous time series.
 
@@ -537,7 +536,7 @@ sum(f$Freq)
 
 ```
 
-##Total alkalinity
+## Total alkalinity
 
 Since we bought the AT analyser (February 2016), numerous problems happened due to a leak of the degassing unit in each analyser and sudden step changes. Last analyser repaired by Contros was installed back in the FB on 2018-07-31. This was the 3rd analyser on site.
 
@@ -552,7 +551,7 @@ A new instrument was installed with Steffen on **2018-10-31**. This new instrume
 
 The instrument is usually calibrated against CRM standards after deployment, CRMs are run after 3 months as samples (measurement mode, not calibration mode), an then immediately calibrated again. This procedure is repeated every 3 months.
 
-###**Filtration of AT data: outliers removing**
+### **Filtration of AT data: outliers removing**
 
 Outliers are present because of the cleaning operations made on the FerryBox everydays at 12:00am and 12:00pm. We first removed the outliers using a filter and decided, after a Skype conference with Steffen on September 2016, to:
 
@@ -564,7 +563,7 @@ Outliers are present because of the cleaning operations made on the FerryBox eve
 
 We decided to use "despike" function as data filter. This filter is done in "ny-alesund_cc.R". Length of runing median is: k = 121 days and the indicator (n times the sd between x and the reference) to consider a data from an outlier is: n = 0.5.
 
-###**Correction of AT data**
+### **Correction of AT data**
 
 Calibration was initially performed twice a year since the analyser was supposed to be stable. Calibration was performed using the internal "calibration mode" against a CRM from A.Dickson (Batch #145, 2016-02-24) right after the instrument was installed and a second time on 2016-09-16. This approch is not longer used since September 2016 (Skype with Contros).
 
@@ -574,14 +573,14 @@ Since this date, the analyser is calibrated by measuring a CRM with the "measure
     - based on CRMs 
     - based on AT measurement of discrete samples ("references").
 
-####**Calibration**
+#### **Calibration**
 
 - **2019-01-29 14:10**: Calibration started by Philipp Fisher using CRM 145 (2226.16 umol/kg, 33.572). The three previous measurements were 2314.5, 233.8, 2313.7 (analyser stable) and the six subsequent measurements were 2211.8, 2277.5, 2305.4, 2316.6, 2317.9. Error was done with CRM salinity (Analyser was not unplugged from the FB). 
 Steffen's response:
 > Hence, the serial connection should be cut off or the FB module feeding the analyzer with salinity data should be stopped during calibration. The calibration can be recalculated afterwards in the data post-processing. However, I see that the calibration resulted in very similar pH values 3.540 (September calibration) and 3.543 (January calibration) with very similar correction factors 1.2371 and 1.2365. Also the TA values are very similar to the baseline measurements from before at approx. 2316 µM. So for now, it should be fine.  
 
 
-####**CRM measurements**
+#### **CRM measurements**
 
 The calibration of the sensor is made against a CRM standard from A. Dickson. We run a standard on the analyser as a regular measurement (measurement mode). Result sof calibrations are shown on the following plot.Dashed lines represent the theoritical value of AT (CRM) and hard lines represent CRM measured AT by the instrument.
 
@@ -624,7 +623,7 @@ print(calib_p)
 ```
 
 
-####**Discrete samples ("references")** 
+#### **Discrete samples ("references")** 
 
 On 2018-04-19, Steffen sent his answer concerning the drift correction during the period February 2016 to March 2017. Within this one year period, the analyser was running, except the first week of May 2016. Discrete samples were collected and 3 CRMs were measured which was deemed not enough (see below). He suggested to base the correction on the AT of discrete ("reference") samples.
 
@@ -689,7 +688,7 @@ print(p)
 ggsave(paste0("figures/Diff_ref_TA_first_period.png"), p, units="cm")
 ```
 
-#####**Third period**
+##### **Third period**
 
 ```{r Third period, echo=FALSE, warning=FALSE, message=FALSE, out.width="50%",fig.show='hold',fig.align="center"}
 
@@ -724,7 +723,7 @@ print(p)
 ggsave(paste0("figures/Diff_ref_TA_third_period.png"), p, units="cm")
 ```
 
-#####**Second period**
+##### **Second period**
 
 ```{r Second period, echo=FALSE, warning=FALSE, message=FALSE, out.width="100%",fig.show='hold'}
 
@@ -798,7 +797,7 @@ dygraph(at_contros_cleaned_xts, group = "awipev", main=" Total Alkalinity (in Fe
 ```
 
 
-###**Discrete total alkalinity (reference) vs salinity relationship**
+### **Discrete total alkalinity (reference) vs salinity relationship**
 
 In the previous part, missing TA were interpolated with a linear model. This does not reflect the natural variability of TA. For this reason, missing TA is now calculated from salinity data by making a relationship between the same reference TA samples as in the previous part and salinity data.
 
@@ -1033,7 +1032,7 @@ dygraph(pco2_contros_xts, group = "awipev", main="pCO2", ylab="pCO2") %>%
 
 pH is measured continuously by an autonomous seaFET pH sensor. Because of issue, measurement periodicity was set to 1 hour from 2018-02-02 to 2018-04-17. pH calibration is based on monthly discrete samples that are analysed with spectrophotometric method in Villefranche by Samir Alliouane. When it is not possible to sample at the vicinity of the sensor for practice reasons (in winter), sampling is done in the harbour and is not taken in consideration for calibration for spatial reasons. Calibration was done following the methods and code described in Bresnahan et al. (2014) and adapted to use in R (seacarb package). Deployment periods are difined 15 days before and after the pH spectro sample and are in shading colors on the plot. Within this deployment period, calibration is made with E0 calculation (first plot) and final corrected pH is calculated (second plot).
 
-###**seaFET calibration constante E0**
+### **seaFET calibration constante E0**
 
 Plots of E0int25 and E0ext25 returned by the function "pHCalib" for each period of deployement are shown below. 
 
@@ -1158,7 +1157,7 @@ print(p_calib)
 ```
 
 
-###**seaFET pHT calibrated**
+### **seaFET pHT calibrated**
 pH is measured continuously by an autonomous seaFET pH sensor. Final calibrated seaFET pHT data (green dots) are shown here after calibration with spectro measurements (red dots) according to each period of deployement, defined between 2 spectro measurements (shading grey).
 Calibration was done following the methods and code described in Bresnahan *et al.* (2014) using seaFET voltage and spectro measurements.
 During the fifth period, seaFET cannot be calibrated because seaFET was not working during the time of reference (pH spectro) sampling (2018-04-16). To solve this calibration, we decided to fit the spectro measurement with a pH mean of 4 previous days.
@@ -1275,7 +1274,7 @@ print(plot_offset)
 
 pH is measured continuously by an autonomous durafet pH sensor. Final calibrated durafet pHT data (green dots) are shown here after calibration with spectro measurements (red dots) according to each period of deployement, defined between 2 spectro measurements (shading grey). Calibration was done appliying an offset of pH between measured and spectro data per periods.
 
-###**durafet calibration**
+### **Durafet calibration**
 
 ```{r durafet calibration, echo=FALSE, message= FALSE, warning=FALSE}
 # deployment period between 2 spectro measurements.
@@ -1428,7 +1427,7 @@ The average offset between durafet and references (spectro) data is `r average_o
 ## pHs 
 Comparaison is done here with **corrected pHs** (**seaFET**, **durafet** and **calculated** (from AT/CT)) and normalized at 4°C with a total alkalinity of 2273 µmoles kg-1 (mean data). For information, mean temperatures in Ferrybox and *in situ* are repectively 3.5°C and 2.5°C.
 
-###**seaFET / durafet pHs**
+### **seaFET / durafet pHs**
 
 ```{r pHs comparaison, echo=FALSE, message= FALSE, warning=FALSE}
 # remove sf biofouling period
@@ -1475,7 +1474,7 @@ dygraph(durafet_sf_contros_xts, group = "awipev", main="pH durafet vs pH seaFET 
     dyRangeSelector(height = 30, dateWindow= NULL) 
 ```
 
-###**calculated / durafet pHs**
+### **Calculated vs Durafet pHs**
 ```{r pHs comparaison dur calc, echo=FALSE, message= FALSE, warning=FALSE}
 # Normalize phcalc from AT/CT to 4°c
 pH_calc <- discrete %>%
@@ -1511,7 +1510,7 @@ dygraph(durafet_calc_contros_xts, group = "awipev", main="pH calculated vs pH du
     dyRangeSelector(height = 30, dateWindow= NULL)
 ```
 
-###**calculated / seaFET pHs**
+### **Calculated / seaFET pHs**
 ```{r pHs comparaison sf calc, echo=FALSE, message= FALSE, warning=FALSE}
 # SEAFET vs CALC
 psf_calc_norm_text <-  ggplot(d_all,aes(x=pHint_tot_sf_norm4, y= pH_calc_norm4, label = month))+
@@ -1562,31 +1561,45 @@ For CT, duplicates's flags that have been changed to 1 are:
  diff <- d %>%
     group_by(datetime) %>%
    dplyr::select(datetime, at, ct)%>%   
-   dplyr::mutate(at_diff = abs(at - lag(at)),
-                 ct_diff = abs(ct - lag(ct)))
+   dplyr::mutate(at_diff = at - lag(at),
+                 ct_diff = ct - lag(ct))
 
 pdelta_at_snapo <-ggplot() +
     geom_point(data=diff, aes(x= datetime, y= at_diff)) +
-    geom_hline(yintercept= 3, size= 0.6, col="red", linetype="dashed") +
-    geom_hline(yintercept= -3, size= 0.6, col="red", linetype="dashed") +
-    #annotate("text", x = dat_dur$datetime[3], y = -0.16, label = "offset mean", color="red")+
-    labs(title= "AT", x="Time", y="Delta between TA replicates")+
+    geom_hline(yintercept= 4, size= 0.6, col="red", linetype="dashed") +
+    geom_hline(yintercept= -4, size= 0.6, col="red", linetype="dashed") +
+    annotate("text", x = diff$datetime[17], y = 6, label = "4 µmoles/kg", color="red")+
+    annotate("text", x = diff$datetime[17], y = -6, label = "-4 µmoles/kg", color="red")+
+labs(title= "AT", x="Time", y="Delta between TA replicates")+
     Mytheme()
 pdelta_ct_snapo <-ggplot() +
     geom_point(data=diff, aes(x= datetime, y= ct_diff)) +
-    geom_hline(yintercept= 3, size= 0.6, col="red", linetype="dashed") +
-    geom_hline(yintercept= -3, size= 0.6, col="red", linetype="dashed") +
-    #annotate("text", x = dat_dur$datetime[3], y = -0.16, label = "offset mean", color="red")+
-    labs(title= "CT",x="Time", y="Delta between CT replicates")+
+    geom_hline(yintercept= 4, size= 0.6, col="red", linetype="dashed") +
+    geom_hline(yintercept= -4, size= 0.6, col="red", linetype="dashed") +
+annotate("text", x = diff$datetime[17], y = 6, label = "4 µmoles/kg", color="red")+
+    annotate("text", x = diff$datetime[17], y = -6, label = "-4 µmoles/kg", color="red")+
+  labs(title= "CT",x="Time", y="Delta between CT replicates")+
     Mytheme()
 
 # DYGRAPH
+
+# to create periods according to SNAPCO analysis 
+snapcoevents <- c("2015-07-23 00:00:00", "2015-11-18 00:00:00", "2015-11-27 00:00:00", "2016-10-13 00:00:00", 
+              "2017-05-11 00:00:00", "2018-02-09 00:00:00", "2018-02-16 00:00:00", "2018-07-27 00:00:00", "2018-08-03 00:00:00", "2018-11-23 00:00:00", "2018-11-03 00:00:00", "2019-04-12 00:00:00", format(Sys.Date(), "%Y-%m-%d %H:%M:%S"))
+
 at_diff_xts <- dplyr::select(diff, datetime, at_diff, at)
 at_diff_xts <- as.xts(at_diff_xts, order.by = diff$datetime)
 pdelta_at_snapo_dygraph <- dygraph(at_diff_xts, group = "awipev", main="Discrete AT (SNAPO) measurements", ylab="AT") %>%
     dySeries("at_diff", label = "AT delta", color ="red", strokeWidth=0, pointSize=4) %>%
     dySeries("at", label = "AT duplicates", color =  "blue", strokeWidth = 0, pointSize = 2, axis = "y2" ) %>%
+  dyEvent(as.POSIXct("2017-08-24 12:00:00", tz="GMT"), "durafet installed", labelLoc = "bottom", color="red") %>%
     # dyOptions(colors = RColorBrewer::brewer.pal(3, "Dark2"), pointSize = 4) %>%
+  dyShading(from = snapcoevents[1], to = snapcoevents[2], color = "#EDEDED") %>%
+  dyShading(from = snapcoevents[3], to = snapcoevents[4], color = "#C2C2C2") %>%
+  dyShading(from = snapcoevents[5], to = snapcoevents[6], color = "#EDEDED") %>%
+  dyShading(from = snapcoevents[7], to = snapcoevents[8], color = "#C2C2C2") %>%
+  dyShading(from = snapcoevents[9], to = snapcoevents[10], color = "#EDEDED") %>%
+  dyShading(from = snapcoevents[11], to = snapcoevents[12], color = "#C2C2C2") %>%
   dyAxis("y", axisLineColor="red",label = "", axisLabelColor ="red", axisLineWidth=5) %>%
     dyAxis("y2", axisLineColor="blue", axisLabelColor = "blue", axisLineWidth=5) %>%
     dyHighlight(highlightCircleSize = 8,highlightSeriesBackgroundAlpha = 0.5,hideOnMouseOut = TRUE) %>%
@@ -1599,6 +1612,12 @@ pdelta_ct_snapo_dygraph <- dygraph(ct_diff_xts, group = "awipev", main="Discrete
     dySeries("ct_diff", label = "CT delta", color ="red", strokeWidth=0, pointSize=4) %>%
     dySeries("ct", label = "CT duplicates", color =  "blue", strokeWidth = 0, pointSize = 2, axis = "y2" ) %>%
     # dyOptions(colors = RColorBrewer::brewer.pal(3, "Dark2"), pointSize = 4) %>%
+   dyShading(from = snapcoevents[1], to = snapcoevents[2], color = "#EDEDED") %>%
+  dyShading(from = snapcoevents[3], to = snapcoevents[4], color = "#C2C2C2") %>%
+  dyShading(from = snapcoevents[5], to = snapcoevents[6], color = "#EDEDED") %>%
+  dyShading(from = snapcoevents[7], to = snapcoevents[8], color = "#C2C2C2") %>%
+  dyShading(from = snapcoevents[9], to = snapcoevents[10], color = "#EDEDED") %>%
+  dyShading(from = snapcoevents[11], to = snapcoevents[12], color = "#C2C2C2") %>%
   dyAxis("y", axisLineColor="red",label = "", axisLabelColor ="red", axisLineWidth=5) %>%
     dyAxis("y2", axisLineColor="blue", axisLabelColor = "blue", axisLineWidth=5) %>%
     dyHighlight(highlightCircleSize = 8,highlightSeriesBackgroundAlpha = 0.5,hideOnMouseOut = TRUE) %>%
@@ -1629,13 +1648,14 @@ save(file= paste0(path, "fb_data/d_all.Rdata"), d_all)
 <!-- write_csv(path = "wolf.csv", wolf, col_names = TRUE) -->
 <!-- ``` -->
 
-##Maintenance
+## Maintenance
 <div style="text-align: justify"> 
 
-###**REMOS**
+### **REMOS**
 - **2018-11-24**: REMOS stopped because of an iceberg. At the moment we dont know if instruments are still there/broken.
 
-###**FerryBox**
+### **FerryBox**
+- **2019-06-05**: PRoblem in the relay 15 that controls the waste water pump was found. The spare part will be brought here next week (when Samir will leave...).
 - **2019-06-03**: Samir is on site alone. Different tests were made. Maybe the 2 tapes that feed TA and pCO2 are responsible of the problem (low flow).
 - **2019-05-22**: FB is stopped because of several problems. Philipp and Marine are working on it.
 - **2019-05-21**: FB is unstable. 
@@ -1669,7 +1689,7 @@ save(file= paste0(path, "fb_data/d_all.Rdata"), d_all)
 - **2015-12-20**: FerryBox was shut down because of pump issues. Waiting for the maintenance in February.
 - **2015-11-27**: The ferrybox was down from Nov. 18th until today Nov. 27th. (emails from P.Fischer 2015-11-24 23:09 and Station Leader AWIPEV 2015-11-27 12:57). Tubes frozen.
  
-###**TA analyser**
+### **TA analyser**
 - **2019-02-15**: No data from 15th (14:08:21 UTC) to 19th February (14:58:46 UTC). files transfered but no data. No explanation.
 - **2019-01-26**: Philipp did the TA calibration: T0 with CRM 145. Beginning of a 3-months period. Flow filter was also lifted up and the seawater flow has therefore increased.
 - **2019-01-16**: Bad data since this date. 
@@ -1696,7 +1716,7 @@ save(file= paste0(path, "fb_data/d_all.Rdata"), d_all)
 - **2016-05-01**: No data for TA.
 - **2016-04-26**: Salt crusts inside the TA analyser appeared during deployment (see pictures) were removed by René Burgi (Observatory engineer) according to Contros advices (email from Steffen Assmann 13/04/2016 10:30).
  
-###**pH seaFET**
+### **pH seaFET**
 - **2018-04-17**: seaFET #1005 was changed on the REMOS and seaFET #007 (from Villefranche) was installed. Continuous mode with external power supply was set and internal pack of baterries was removed. Old seaFET will be brought back to France with Samir.
 - **2018-03-09**: #007 seaFET currently in USA will be sent by seabird to NYA. #1005 seaFET currently in NYA will be sent to USA for update, following all external issues, for free.
 - **2017-08-24**: seaFET #1005 was installed on the REMOS into the field.
@@ -1710,7 +1730,7 @@ save(file= paste0(path, "fb_data/d_all.Rdata"), d_all)
 - **2017-10-30**: (13:00 UTC) Durafet holder was changed by Benoit and the new one (made by Uwe) more larger (all the durafet's body is plunge in the seawater) was installed.
 - **2017-08-24**: durafet was installed.
 
-###***p*CO~2~**
+### ***p*CO~2~**
 - **2018-10-31**: *p*CO~2~ analyser (S/N: CO2FT-0215-001) have been installed and *p*CO~2~ analyser (S/N: CO2FT-0515-001) was brought back to France and waiting 2019 fundings to bring it for calibration.
 - **2018-04-16**: *p*CO~2~ analyser switching by Uwe and Samir. S/N CO2FT-0515-001 is now installed. Old *p*CO~2~ sensor will be brought back to France with Samir.
 - **2017-02-07**: pCO2 analyser switching by Uwe. S/N CO2FT-0215-001 is now installed.
@@ -1722,7 +1742,7 @@ save(file= paste0(path, "fb_data/d_all.Rdata"), d_all)
 <img  src="./Images/2016-04-04_leakage_AT_analyser3.jpg" width="200" height="200">
 </div>
 
-##Script + data
+## Script + data
 <div style="text-align: justify">  
 Here is reported all important modifications made on *ny-alesund_cc.*.
 All documents concerning maintenance, tasks to do, calibration... are accessible by the AWIPEV staff on this link with special access:
@@ -1739,26 +1759,26 @@ All documents concerning maintenance, tasks to do, calibration... are accessible
 ###**FerryBox**
 - **2018-11-14**: One instrument was removed by Uwe (Chlorophyl-a), that means that one column (CHl_A_Cyclops) was also removed from the Ferrybox data file. Script was modified in consequence.
 
-###**pH seaFET**
+### **pH seaFET**
 - **2018-08-30**: voltINT + phINT were filtered from 2017-12-14 to 2018-01-08 and bad data were removed from 2018-01-08 to 2018-02-02. pH spectro from 2018-04-16 07:00:00 was fitted with a mean of 4 days of voltINT in order to make the calibration for this 5th period.
 - **2018-07-30**: Flag location (location_flag) is added in the script to localize seaFET/durafet discrete samples: flag 1 = at the harbor (not taken in consideration) and flag 0 = in the FB for durafet or on site for seaFET (takken in consideration as "normal" sampling"). See seaFET part.
 - **2018-02-02**: Based on Darrell's advices (SeaBird), Philipp implemented the seaFET as: 1h periodic sampling with the following commands: perdival 1h, navg 5, brstsize 1, opermode periodic. 
 - **2017-12-29**: "SVL_20171218_010426.dat" from seaFet data was deleted because of bug with its size (0 octect). pH filter was added to "ny_alesund_cc" file for seaFet data (<7.5 and <8.5).
 
-###**durafet**
+### **Durafet**
 Reference spectro measurement from the 2019-01-18 11:00 do not match with a durafet raw data because Ferrybox was off. This reference point was not takken in consideration for calibration. The window of the previous and next calibration periods was extended.
 
-###***p*CO~2~**
+### ***p*CO~2~**
 - **2018-08-29**: Calibration parameters from #0215-001 were added to "./data/Calibration_pCO2/Data_Processing_sheet_pCO2.csv".
 - **2018-04-20**: For *p*CO~2~ Calibration the previous period (N° 4) was added to the script "ny-alesund_cc" line 466.
 - **2015-10-13**: we put back the spike.pCO2 to 600 because data in October reached more than 350 µAtm. We let this like that and we are going to deal with it manually later if needed.
 - **2015-09-28**: we put the spike.pCO2 (detection of peaks: threshold) at 350 to remove anomalies on the 12 and 15 September. We have to monitor data. If data reach this value, then problem.
  
-###**SNAPO**
+### **SNAPO**
 - **2019-04-30**: Duplicate "Ferrybox" samples (SN0316 and SN264, 2019-02-22 14:05) were sent by mistake in Villefranche for pH measurements. Those results were put in the datafile as "durafet" samples as soon as they are comming from the Ferrybox tape seawater. We will ad a lack of DIC for this week. TA will be measured in Villefranche.
 - **2018-08-30**: flag of 1 AT duplicate (2205) from 2017-08-31 was put to 3 (dosage douteux).
 
-###**Files - server**
+### **Files - server**
 - **2018-04-19**: Since "Ferrybox" is on again, the adding to solve the files issues are making not data into d_hour for this period (2018-09-03 to 2018-14-04). This adding was put in comments now. In seaFET data reading, S/N have been changed from 1005 to 0007.
 - **2018-03-21**: Files issues. FerryBox instruments are down because of freezing but UWO instrument as seaFET and SBE38 are OK. Removing of one 0 octet file from seaFET20180317_1404 and put back seaFET files from 20180309 to 20180312 in seaFET folder. They were in SBE38 folder...Weird. Additionnal script lines were added in order to deal with the issue of "in situ" created date whereas "Ferrybox" created data ware not. Since "in situ" parameters are running (d df) and not "in ferrybox" parameters (z df), the new datetime lines are not taking in consideration with the left_join function we have to add them during Ferrybox shutdown.
 - **2018-03-09**: Script issue solved with first negative values encountred in SBE38 files. We find a regex solution to take "space + space or negative value" in consideration.
@@ -1782,7 +1802,7 @@ Reference spectro measurement from the 2019-01-18 11:00 do not match with a dura
     - To restart shiny server: sudo systemctl restart shiny-server
     - update shiny server: follow procedure detailed on the shiny web page 
 
-**Data processing**
+** Data processing**
 
 - Every night at 01:00 (?) two data files ("all sensors" and AT) are sent by ftp to:
     - awipev-co2.obs-vlfr.fr

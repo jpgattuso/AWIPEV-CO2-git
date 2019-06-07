@@ -41,5 +41,10 @@ rsconnect/
 awipev-CO2.html
 
 # Ignore png and figures
+<<<<<<< HEAD
 figures/
 *.png
+=======
+figures/*.png
+
+>>>>>>> 669fc65ecbd0b972768b7c8164d7d52ae2777f19
