@@ -41,4 +41,5 @@ rsconnect/
 awipev-CO2.html
 
 # Ignore png and figures
-figures/*.png
+figures/
+*.png
