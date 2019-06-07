@@ -1561,31 +1561,45 @@ For CT, duplicates's flags that have been changed to 1 are:
  diff <- d %>%
     group_by(datetime) %>%
    dplyr::select(datetime, at, ct)%>%   
-   dplyr::mutate(at_diff = abs(at - lag(at)),
-                 ct_diff = abs(ct - lag(ct)))
+   dplyr::mutate(at_diff = at - lag(at),
+                 ct_diff = ct - lag(ct))
 
 pdelta_at_snapo <-ggplot() +
     geom_point(data=diff, aes(x= datetime, y= at_diff)) +
-    geom_hline(yintercept= 3, size= 0.6, col="red", linetype="dashed") +
-    geom_hline(yintercept= -3, size= 0.6, col="red", linetype="dashed") +
-    #annotate("text", x = dat_dur$datetime[3], y = -0.16, label = "offset mean", color="red")+
-    labs(title= "AT", x="Time", y="Delta between TA replicates")+
+    geom_hline(yintercept= 4, size= 0.6, col="red", linetype="dashed") +
+    geom_hline(yintercept= -4, size= 0.6, col="red", linetype="dashed") +
+    annotate("text", x = diff$datetime[17], y = 6, label = "4 µmoles/kg", color="red")+
+    annotate("text", x = diff$datetime[17], y = -6, label = "-4 µmoles/kg", color="red")+
+labs(title= "AT", x="Time", y="Delta between TA replicates")+
     Mytheme()
 pdelta_ct_snapo <-ggplot() +
     geom_point(data=diff, aes(x= datetime, y= ct_diff)) +
-    geom_hline(yintercept= 3, size= 0.6, col="red", linetype="dashed") +
-    geom_hline(yintercept= -3, size= 0.6, col="red", linetype="dashed") +
-    #annotate("text", x = dat_dur$datetime[3], y = -0.16, label = "offset mean", color="red")+
-    labs(title= "CT",x="Time", y="Delta between CT replicates")+
+    geom_hline(yintercept= 4, size= 0.6, col="red", linetype="dashed") +
+    geom_hline(yintercept= -4, size= 0.6, col="red", linetype="dashed") +
+annotate("text", x = diff$datetime[17], y = 6, label = "4 µmoles/kg", color="red")+
+    annotate("text", x = diff$datetime[17], y = -6, label = "-4 µmoles/kg", color="red")+
+  labs(title= "CT",x="Time", y="Delta between CT replicates")+
     Mytheme()
 
 # DYGRAPH
+
+# to create periods according to SNAPCO analysis 
+snapcoevents <- c("2015-07-23 00:00:00", "2015-11-18 00:00:00", "2015-11-27 00:00:00", "2016-10-13 00:00:00", 
+              "2017-05-11 00:00:00", "2018-02-09 00:00:00", "2018-02-16 00:00:00", "2018-07-27 00:00:00", "2018-08-03 00:00:00", "2018-11-23 00:00:00", "2018-11-03 00:00:00", "2019-04-12 00:00:00", format(Sys.Date(), "%Y-%m-%d %H:%M:%S"))
+
 at_diff_xts <- dplyr::select(diff, datetime, at_diff, at)
 at_diff_xts <- as.xts(at_diff_xts, order.by = diff$datetime)
 pdelta_at_snapo_dygraph <- dygraph(at_diff_xts, group = "awipev", main="Discrete AT (SNAPO) measurements", ylab="AT") %>%
     dySeries("at_diff", label = "AT delta", color ="red", strokeWidth=0, pointSize=4) %>%
     dySeries("at", label = "AT duplicates", color =  "blue", strokeWidth = 0, pointSize = 2, axis = "y2" ) %>%
+  dyEvent(as.POSIXct("2017-08-24 12:00:00", tz="GMT"), "durafet installed", labelLoc = "bottom", color="red") %>%
     # dyOptions(colors = RColorBrewer::brewer.pal(3, "Dark2"), pointSize = 4) %>%
+  dyShading(from = snapcoevents[1], to = snapcoevents[2], color = "#EDEDED") %>%
+  dyShading(from = snapcoevents[3], to = snapcoevents[4], color = "#C2C2C2") %>%
+  dyShading(from = snapcoevents[5], to = snapcoevents[6], color = "#EDEDED") %>%
+  dyShading(from = snapcoevents[7], to = snapcoevents[8], color = "#C2C2C2") %>%
+  dyShading(from = snapcoevents[9], to = snapcoevents[10], color = "#EDEDED") %>%
+  dyShading(from = snapcoevents[11], to = snapcoevents[12], color = "#C2C2C2") %>%
   dyAxis("y", axisLineColor="red",label = "", axisLabelColor ="red", axisLineWidth=5) %>%
     dyAxis("y2", axisLineColor="blue", axisLabelColor = "blue", axisLineWidth=5) %>%
     dyHighlight(highlightCircleSize = 8,highlightSeriesBackgroundAlpha = 0.5,hideOnMouseOut = TRUE) %>%
@@ -1598,6 +1612,12 @@ pdelta_ct_snapo_dygraph <- dygraph(ct_diff_xts, group = "awipev", main="Discrete
     dySeries("ct_diff", label = "CT delta", color ="red", strokeWidth=0, pointSize=4) %>%
     dySeries("ct", label = "CT duplicates", color =  "blue", strokeWidth = 0, pointSize = 2, axis = "y2" ) %>%
     # dyOptions(colors = RColorBrewer::brewer.pal(3, "Dark2"), pointSize = 4) %>%
+   dyShading(from = snapcoevents[1], to = snapcoevents[2], color = "#EDEDED") %>%
+  dyShading(from = snapcoevents[3], to = snapcoevents[4], color = "#C2C2C2") %>%
+  dyShading(from = snapcoevents[5], to = snapcoevents[6], color = "#EDEDED") %>%
+  dyShading(from = snapcoevents[7], to = snapcoevents[8], color = "#C2C2C2") %>%
+  dyShading(from = snapcoevents[9], to = snapcoevents[10], color = "#EDEDED") %>%
+  dyShading(from = snapcoevents[11], to = snapcoevents[12], color = "#C2C2C2") %>%
   dyAxis("y", axisLineColor="red",label = "", axisLabelColor ="red", axisLineWidth=5) %>%
     dyAxis("y2", axisLineColor="blue", axisLabelColor = "blue", axisLineWidth=5) %>%
     dyHighlight(highlightCircleSize = 8,highlightSeriesBackgroundAlpha = 0.5,hideOnMouseOut = TRUE) %>%
@@ -1635,6 +1655,7 @@ save(file= paste0(path, "fb_data/d_all.Rdata"), d_all)
 - **2018-11-24**: REMOS stopped because of an iceberg. At the moment we dont know if instruments are still there/broken.
 
 ### **FerryBox**
+- **2019-06-05**: PRoblem in the relay 15 that controls the waste water pump was found. The spare part will be brought here next week (when Samir will leave...).
 - **2019-06-03**: Samir is on site alone. Different tests were made. Maybe the 2 tapes that feed TA and pCO2 are responsible of the problem (low flow).
 - **2019-05-22**: FB is stopped because of several problems. Philipp and Marine are working on it.
 - **2019-05-21**: FB is unstable. 
