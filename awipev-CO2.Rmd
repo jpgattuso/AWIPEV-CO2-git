@@ -1585,14 +1585,13 @@ annotate("text", x = diff$datetime[17], y = 6, label = "4 µmoles/kg", color="re
 
 # to create periods according to SNAPCO analysis 
 snapcoevents <- c("2015-07-23 00:00:00", "2015-11-18 00:00:00", "2015-11-27 00:00:00", "2016-10-13 00:00:00", 
-              "2017-05-11 00:00:00", "2018-02-09 00:00:00", "2018-02-16 00:00:00", "2018-07-27 00:00:00", "2018-08-03 00:00:00", "2018-11-23 00:00:00", "2018-11-03 00:00:00", "2019-04-12 00:00:00", format(Sys.Date(), "%Y-%m-%d %H:%M:%S"))
+              "2017-05-11 00:00:00", "2018-02-09 00:00:00", "2018-02-16 00:00:00", "2018-07-27 00:00:00", "2018-08-03 00:00:00", "2018-11-23 00:00:00", "2018-11-30 00:00:00", "2019-04-12 00:00:00", format(Sys.Date(), "%Y-%m-%d %H:%M:%S"))
 
 at_diff_xts <- dplyr::select(diff, datetime, at_diff, at)
 at_diff_xts <- as.xts(at_diff_xts, order.by = diff$datetime)
 pdelta_at_snapo_dygraph <- dygraph(at_diff_xts, group = "awipev", main="Discrete AT (SNAPO) measurements", ylab="AT") %>%
     dySeries("at_diff", label = "AT delta", color ="red", strokeWidth=0, pointSize=4) %>%
     dySeries("at", label = "AT duplicates", color =  "blue", strokeWidth = 0, pointSize = 2, axis = "y2" ) %>%
-  dyEvent(as.POSIXct("2017-08-24 12:00:00", tz="GMT"), "durafet installed", labelLoc = "bottom", color="red") %>%
     # dyOptions(colors = RColorBrewer::brewer.pal(3, "Dark2"), pointSize = 4) %>%
   dyShading(from = snapcoevents[1], to = snapcoevents[2], color = "#EDEDED") %>%
   dyShading(from = snapcoevents[3], to = snapcoevents[4], color = "#C2C2C2") %>%
@@ -1600,7 +1599,7 @@ pdelta_at_snapo_dygraph <- dygraph(at_diff_xts, group = "awipev", main="Discrete
   dyShading(from = snapcoevents[7], to = snapcoevents[8], color = "#C2C2C2") %>%
   dyShading(from = snapcoevents[9], to = snapcoevents[10], color = "#EDEDED") %>%
   dyShading(from = snapcoevents[11], to = snapcoevents[12], color = "#C2C2C2") %>%
-  dyAxis("y", axisLineColor="red",label = "", axisLabelColor ="red", axisLineWidth=5) %>%
+  dyAxis("y", axisLineColor="red",label = "", axisLabelColor ="red", axisLineWidth=5,valueRange = c(-25, 30)) %>%
     dyAxis("y2", axisLineColor="blue", axisLabelColor = "blue", axisLineWidth=5) %>%
     dyHighlight(highlightCircleSize = 8,highlightSeriesBackgroundAlpha = 0.5,hideOnMouseOut = TRUE) %>%
     dyOptions(drawGrid = TRUE, drawPoints = TRUE, pointSize = c(1,8,1),useDataTimezone = TRUE, digitsAfterDecimal=2) %>%
