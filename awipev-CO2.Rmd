@@ -203,6 +203,7 @@ discrete <- left_join(discrete, pH_seafet_mean, by='datetime')
 discrete <- left_join(discrete, pH_durafet_mean, by='datetime')
 
 ##   *****Attention, temp noted by logisticians in d is FB temp with SBE45 ******
+##   *****Attention, I asked to the logisticians to log outside temp from 9 june 2019
 
 
 # discrete_steffen <- discrete[c(21:72),1:4]
