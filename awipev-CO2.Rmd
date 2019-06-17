@@ -1582,6 +1582,15 @@ annotate("text", x = diff$datetime[17], y = 6, label = "4 µmoles/kg", color="re
   labs(title= "CT",x="Time", y="Delta between CT replicates")+
     Mytheme()
 
+p_ct_ts <- ggplot() +
+    geom_point(data=discrete, aes(x= datetime, y= ct)) +
+  labs(title= "",x="Time", y="CT (µmoles/kg)")+
+    Mytheme()
+p_at_ts <- ggplot() +
+    geom_point(data=discrete, aes(x= datetime, y= at)) +
+  labs(title= "",x="Time", y="AT (µmoles/kg)")+
+    Mytheme()
+
 # DYGRAPH
 
 # to create periods according to SNAPCO analysis 
@@ -1626,8 +1635,10 @@ pdelta_ct_snapo_dygraph <- dygraph(ct_diff_xts, group = "awipev", main="Discrete
 
 pdelta_at_snapo
 pdelta_at_snapo_dygraph
+p_at_ts
 pdelta_ct_snapo
 pdelta_ct_snapo_dygraph
+p_ct_ts
 ggsave(paste0("figures/delta_at_awipev_snapo.png"), pdelta_at_snapo, units="cm")
 ggsave(paste0("figures/delta_ct_awipev_snapo.png"), pdelta_ct_snapo, units="cm")
 ```
