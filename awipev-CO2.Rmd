@@ -1224,23 +1224,23 @@ plot_offset <- ggplot(data = filter(dat, !is.na(diff_pH_sf))) +
 
 print(plot_offset)
 
-#plot for POSTER june 2019
-#plot of pH seafet
-poster_ph <- ggplot() +
-  geom_point(data=d_all%>%dplyr::filter(datetime > "2017-07-30"  ), aes(x=datetime, y= pHint_tot_sf,col="blue"), col="blue",size=0.5 , rm.na=TRUE) +
-  geom_point(data=d_all%>%dplyr::filter(datetime > "2017-07-30"  ), aes(x=datetime, y=pH_s_seafet_temp_field, fill="Discrete measurements"), col="red" )+
-  labs(x = "", y ="", title = expression(pH[T]~seaFET)) +
-  theme_bw() + scale_x_datetime(minor_breaks  = "1 month ")+
-  theme(legend.position= c(0.17, 0.8),
-                     legend.text=element_text(size=14),
-                      plot.title = element_text(hjust =0.1, vjust = 1,size = rel(1.5),margin = margin( b = -35)),
-                      axis.text=element_text(size=15),
-                      plot.margin = unit(c(1,1,1,1), "cm"),
-                      axis.title.x= element_text(size =15),
-                      legend.title=element_blank())
-
-print(poster_ph)
-ggsave(paste0("figures/poster_ph.png"), width= 30, height=10, poster_ph, units="cm")
+# #plot for POSTER june 2019
+# #plot of pH seafet
+# poster_ph <- ggplot() +
+#   geom_point(data=d_all%>%dplyr::filter(datetime > "2017-07-30"  ), aes(x=datetime, y= pHint_tot_sf,col="blue"), col="blue",size=0.5 , rm.na=TRUE) +
+#   geom_point(data=d_all%>%dplyr::filter(datetime > "2017-07-30"  ), aes(x=datetime, y=pH_s_seafet_temp_field, fill="Discrete measurements"), col="red" )+
+#   labs(x = "", y ="", title = expression(pH[T]~seaFET)) +
+#   theme_bw() + scale_x_datetime(minor_breaks  = "1 month ")+
+#   theme(legend.position= c(0.17, 0.8),
+#                      legend.text=element_text(size=14),
+#                       plot.title = element_text(hjust =0.1, vjust = 1,size = rel(1.5),margin = margin( b = -35)),
+#                       axis.text=element_text(size=15),
+#                       plot.margin = unit(c(1,1,1,1), "cm"),
+#                       axis.title.x= element_text(size =15),
+#                       legend.title=element_blank())
+# 
+# print(poster_ph)
+# ggsave(paste0("figures/poster_ph.png"), width= 30, height=10, poster_ph, units="cm")
 
 #RANGE of pH
 d_all<- d_all%>%
@@ -1423,6 +1423,7 @@ plot_range_dur <-
 print(plot_range_dur)
 ggsave(paste0("figures/plot_range_dur.png"), width= 30, height=10, plot_range_dur, units="cm")
 ```
+
 The average offset between durafet and references (spectro) data is `r average_offset_dur` pH unit (sd = `r sd_offset_dur`, n = `r n_offset_dur`).
 
 ## pHs 
@@ -1475,7 +1476,7 @@ dygraph(durafet_sf_contros_xts, group = "awipev", main="pH durafet vs pH seaFET 
     dyRangeSelector(height = 30, dateWindow= NULL) 
 ```
 
-### **Calculated vs Durafet pHs**
+### **Calculated / Durafet pHs**
 ```{r pHs comparaison dur calc, echo=FALSE, message= FALSE, warning=FALSE}
 # Normalize phcalc from AT/CT to 4°c
 pH_calc <- discrete %>%
@@ -1487,6 +1488,8 @@ pH_calc$pH_calc_norm4 <- pHinsi(pH=pH_calc$phcalc, ALK=pH_calc$at*1e-6, Tinsi=4,
 d_all <- left_join(d_all, pH_calc[, c(1,6)], by="datetime")
 
 # DURAFET vs CALC
+fit <- lmodel2(data = d_all,  pH_calc_norm4 ~ pH_durafet_norm4 , nperm = 99)
+
 pdur_calc_norm_text <-  ggplot(d_all,aes(x=pH_durafet_norm4, y= pH_calc_norm4, label = month))+
   geom_text( aes(color=factor(month))) + 
   geom_line(aes(x = pH_calc_norm4, y = pH_calc_norm4), linetype = "dashed") +
@@ -1496,7 +1499,8 @@ pdur_calc_norm_text <-  ggplot(d_all,aes(x=pH_durafet_norm4, y= pH_calc_norm4, l
                      "; Slope =", signif( fit$regression.results[2,3], 3),
                      "; P =", signif(fit$P.param, 3))) +
   theme(aspect.ratio=1,plot.title = element_text(size=7)) + 
-   coord_fixed(ratio = 1 , xlim=c(8,8.2), ylim=c(8,8.2)) + scale_color_discrete(guide="none")+
+   coord_fixed(ratio = 1 , xlim=c(8,8.22), ylim=c(8,8.22)) + 
+  scale_color_discrete(guide="none")+
   labs(x="pH durafet, 4°C", y="pH calculated, 4°C ", color = "Months") + theme_bw() 
 pdur_calc_norm_text
 
@@ -1514,6 +1518,8 @@ dygraph(durafet_calc_contros_xts, group = "awipev", main="pH calculated vs pH du
 ### **Calculated / seaFET pHs**
 ```{r pHs comparaison sf calc, echo=FALSE, message= FALSE, warning=FALSE}
 # SEAFET vs CALC
+fit <- lmodel2(data = d_all,  pH_calc_norm4 ~ pHint_tot_sf_norm4 , nperm = 99)
+
 psf_calc_norm_text <-  ggplot(d_all,aes(x=pHint_tot_sf_norm4, y= pH_calc_norm4, label = month))+
   geom_text( aes(color=factor(month))) + 
   scale_color_discrete(guide = "none")+
@@ -1537,6 +1543,48 @@ dygraph(seafet_calc_contros_xts, group = "awipev", main="pH calculated vs pH sea
     dyHighlight(highlightCircleSize = 8,highlightSeriesBackgroundAlpha = 0.5,hideOnMouseOut = TRUE) %>%
     dyOptions(drawGrid = TRUE, drawPoints = TRUE, pointSize = c(1,8,1),useDataTimezone = TRUE, digitsAfterDecimal=4) %>%
     dyRangeSelector(height = 30, dateWindow= NULL)
+```
+
+### **Spectro / durafet**
+
+```{r pHs comparaison durafet spectro, echo=FALSE, message= FALSE, warning=FALSE}
+# Spectro / durafet
+fit <- lmodel2(data = d_all,  pH_s_durafet_temp_field ~ pH_durafet_corrected , nperm = 99)
+
+p_dura_spectro <-  ggplot(d_all,aes(x=pH_durafet_corrected, y= pH_s_durafet_temp_field, label = month))+
+  geom_text( aes(color=factor(month))) + 
+  scale_color_discrete(guide = "none")+
+  geom_line(aes(x = pH_calc_norm4, y = pH_calc_norm4), linetype = "dashed") +
+  geom_abline(aes(intercept = fit$regression.results[2,2], slope = fit$regression.results[2,3]),colour = "blue") +
+  labs(title = paste("pH spectro vs pH durafet","\n Adj R2 = ", signif(fit$rsquare, 3),
+                     "; Intercept =", signif(fit$regression.results[2,2], 3),
+                     "; Slope =", signif( fit$regression.results[2,3], 3),
+                     "; P =", signif(fit$P.param, 3))) +
+  theme(aspect.ratio=1,plot.title = element_text(size=7)) + 
+    coord_fixed(ratio = 1 , xlim=c(8,8.2), ylim=c(8,8.2))+
+  labs(x="pH durafet", y="pH spectro, 4°C ", color = "Months") + theme_bw() 
+p_dura_spectro
+```
+
+### **Spectro / seaFET**
+
+```{r pHs comparaison sf spectro, echo=FALSE, message= FALSE, warning=FALSE}
+# Spectro / seafet
+fit <- lmodel2(data = d_all,  pH_s_seafet_temp_field ~ pHint_tot_sf , nperm = 99)
+
+p_sf_spectro <-  ggplot(d_all,aes(x=pHint_tot_sf, y= pH_s_seafet_temp_field, label = month))+
+  geom_text( aes(color=factor(month))) + 
+  scale_color_discrete(guide = "none")+
+  geom_line(aes(x = pH_calc_norm4, y = pH_calc_norm4), linetype = "dashed") +
+  geom_abline(aes(intercept = fit$regression.results[2,2], slope = fit$regression.results[2,3]),colour = "blue") +
+  labs(title = paste("pH spectro vs pH seaFET","\n Adj R2 = ", signif(fit$rsquare, 3),
+                     "; Intercept =", signif(fit$regression.results[2,2], 3),
+                     "; Slope =", signif( fit$regression.results[2,3], 3),
+                     "; P =", signif(fit$P.param, 3))) +
+  theme(aspect.ratio=1,plot.title = element_text(size=7)) + 
+    coord_fixed(ratio = 1 , xlim=c(8,8.2), ylim=c(8,8.2))+
+  labs(x="pH seaFET", y="pH spectro, 4°C ", color = "Months") + theme_bw() 
+p_sf_spectro
 ```
 
 ## SNAPO-CO2
