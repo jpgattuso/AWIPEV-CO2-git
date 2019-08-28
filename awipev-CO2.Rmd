@@ -789,7 +789,7 @@ dygraph(at_contros_cleaned_xts, group = "awipev", main=" Total Alkalinity (in Fe
   dyShading(from = TAevents[7], to = TAevents[8], color = "#C2C2C2") %>%
   dyShading(from = TAevents[9], to = TAevents[10], color = "#EDEDED") %>%
   dyShading(from = TAevents[11], to = TAevents[12], color = "#C2C2C2") %>%
-  dyAxis("y",valueRange = c(1600, 2450)) %>%
+  dyAxis("y",valueRange = c(1600, 2550)) %>%
   dyHighlight(highlightCircleSize = 8,highlightSeriesBackgroundAlpha = 0.5,hideOnMouseOut = TRUE) %>%
   dyOptions( strokeWidth= 0) %>%
   dyOptions(drawGrid = TRUE, drawPoints = TRUE,useDataTimezone = TRUE) %>%
