@@ -1087,8 +1087,11 @@ d_all <- d_all %>%
                                  ifelse(datetime >= sfinterv[14] & datetime <= sfinterv[15], 14,
                                  ifelse(datetime >= sfinterv[15] & datetime <= sfinterv[16], 15,
                                  ifelse(datetime >= sfinterv[16] & datetime <= sfinterv[17], 16,
-                                        ifelse(datetime >= sfinterv[17] & datetime <= sfinterv[18], 17,
-                                ifelse(datetime >= sfinterv[18] , 18,NA )))))))))))))))))))
+                                 ifelse(datetime >= sfinterv[17] & datetime <= sfinterv[18], 17,
+                                ifelse(datetime >= sfinterv[18] & datetime <= sfinterv[19], 18,
+                                ifelse(datetime >= sfinterv[19] & datetime <= sfinterv[20], 19,
+                                ifelse(datetime >= sfinterv[20] & datetime <= sfinterv[21], 20,
+                                ifelse(datetime >= sfinterv[21] , 21,NA ))))))))))))))))))))))
   
 # Raw voltage INT + pHINT must be filtered from 2017-12-14 to 2018-01-08 < 8.04 (1) and removed from 2018-01-08 to 2018-02-02 (2)
 # 1
@@ -1221,8 +1224,10 @@ dygraph(seafet_contros_xts, group = "awipev", main="pH seaFET (in situ)", ylab="
    dyShading(from = sfinterv[14], to= sfinterv[15], color = "#E0E0E0") %>%
    dyShading(from = sfinterv[15], to= sfinterv[16], color = "#CCCCCC") %>%
    dyShading(from = sfinterv[16], to= sfinterv[17], color = "#E0E0E0") %>%
-     dyShading(from = sfinterv[17], to= sfinterv[18], color = "#E0E0E0") %>%
-  dyShading(from = sfinterv[18], to= Sys.Date(), color = "#CCCCCC") %>%
+  dyShading(from = sfinterv[17], to= sfinterv[18], color = "#CCCCCC") %>%
+  dyShading(from = sfinterv[18], to= sfinterv[19], color = "#E0E0E0") %>%
+  dyShading(from = sfinterv[19], to= sfinterv[20], color = "#CCCCCC") %>%
+  dyShading(from = sfinterv[20], to= Sys.Date(), color = "#E0E0E0") %>%
   dyLegend(show = "follow")   %>%
   dyHighlight(highlightCircleSize = 8,highlightSeriesBackgroundAlpha = 0.5,hideOnMouseOut = TRUE) %>%
   dyOptions(drawGrid = TRUE, drawPoints = TRUE, pointSize = c(1,8,1),useDataTimezone = TRUE, digitsAfterDecimal=4) %>%
