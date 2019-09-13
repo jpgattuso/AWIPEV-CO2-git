@@ -985,6 +985,8 @@ dygraph(pco2_contros_xts, group = "awipev", main="pCO2", ylab="pCO2") %>%
     dyEvent(as.POSIXct("2017-02-07 12:00:00", tz="GMT"), "CO2FT-0215-001 installed", labelLoc = "bottom", color="red") %>%
     dyEvent(as.POSIXct("2018-04-16 12:00:00", tz="GMT"), "CO2FT-0515-001 installed", labelLoc = "bottom", color="red") %>% 
     dyEvent(as.POSIXct("2018-10-31 15:00:00", tz="GMT"), "CO2FT-0215-001 installed", labelLoc = "bottom", color="red") %>% 
+      dyEvent(as.POSIXct("2019-09-03 15:00:00", tz="GMT"), "CO2FT-0515-001 installed", labelLoc = "bottom", color="red") %>% 
+
     #dyOptions(colors = RColorBrewer::brewer.pal(3, "Dark2"), pointSize = 4) %>%
     dyHighlight(highlightCircleSize = 8,highlightSeriesBackgroundAlpha = 0.5,hideOnMouseOut = TRUE) %>%
     dyLegend(show = "follow")   %>%
@@ -1085,8 +1087,11 @@ d_all <- d_all %>%
                                  ifelse(datetime >= sfinterv[14] & datetime <= sfinterv[15], 14,
                                  ifelse(datetime >= sfinterv[15] & datetime <= sfinterv[16], 15,
                                  ifelse(datetime >= sfinterv[16] & datetime <= sfinterv[17], 16,
-                                        ifelse(datetime >= sfinterv[17] & datetime <= sfinterv[18], 17,
-                                ifelse(datetime >= sfinterv[18] , 18,NA )))))))))))))))))))
+                                 ifelse(datetime >= sfinterv[17] & datetime <= sfinterv[18], 17,
+                                ifelse(datetime >= sfinterv[18] & datetime <= sfinterv[19], 18,
+                                ifelse(datetime >= sfinterv[19] & datetime <= sfinterv[20], 19,
+                                ifelse(datetime >= sfinterv[20] & datetime <= sfinterv[21], 20,
+                                ifelse(datetime >= sfinterv[21] , 21,NA ))))))))))))))))))))))
   
 # Raw voltage INT + pHINT must be filtered from 2017-12-14 to 2018-01-08 < 8.04 (1) and removed from 2018-01-08 to 2018-02-02 (2)
 # 1
@@ -1219,8 +1224,10 @@ dygraph(seafet_contros_xts, group = "awipev", main="pH seaFET (in situ)", ylab="
    dyShading(from = sfinterv[14], to= sfinterv[15], color = "#E0E0E0") %>%
    dyShading(from = sfinterv[15], to= sfinterv[16], color = "#CCCCCC") %>%
    dyShading(from = sfinterv[16], to= sfinterv[17], color = "#E0E0E0") %>%
-     dyShading(from = sfinterv[17], to= sfinterv[18], color = "#E0E0E0") %>%
-  dyShading(from = sfinterv[18], to= Sys.Date(), color = "#CCCCCC") %>%
+  dyShading(from = sfinterv[17], to= sfinterv[18], color = "#CCCCCC") %>%
+  dyShading(from = sfinterv[18], to= sfinterv[19], color = "#E0E0E0") %>%
+  dyShading(from = sfinterv[19], to= sfinterv[20], color = "#CCCCCC") %>%
+  dyShading(from = sfinterv[20], to= Sys.Date(), color = "#E0E0E0") %>%
   dyLegend(show = "follow")   %>%
   dyHighlight(highlightCircleSize = 8,highlightSeriesBackgroundAlpha = 0.5,hideOnMouseOut = TRUE) %>%
   dyOptions(drawGrid = TRUE, drawPoints = TRUE, pointSize = c(1,8,1),useDataTimezone = TRUE, digitsAfterDecimal=4) %>%
@@ -1387,6 +1394,8 @@ durafet_contros_xts <- as.xts(durafet_contros_xts, order.by = d_all$datetime)
     dySeries("pH_s_durafet_temp_field", label = "pH spectro", color =  "red", strokeWidth = 0, pointSize = 4 ) %>%
     dyEvent(as.POSIXct("2017-10-30 13:00:00", tz="GMT"), "New holder installed", labelLoc = "bottom", color="red") %>% 
     dyEvent(as.POSIXct("2017-08-24 12:00:00", tz="GMT"), "durafet installed", labelLoc = "bottom", color="red") %>%
+       dyEvent(as.POSIXct("2019-09-02 20:00:00", tz="GMT"), "cleaning same probe ", labelLoc = "bottom", color="red") %>%
+
     # dyOptions(colors = RColorBrewer::brewer.pal(3, "Dark2"), pointSize = 4) %>%
     dyShading(from =  durinterv[1], to= durinterv[2], color = "#CCCCCC") %>%
     dyShading(from = durinterv[2], to= durinterv[3], color = "#E0E0E0") %>%
@@ -1748,9 +1757,12 @@ save(file= paste0(path, "fb_data/d_all.Rdata"), d_all)
 <div style="text-align: justify"> 
 
 ### **REMOS**
+- **2019-09-07**: REMOS back in the water.
+- **2019-09-02**: REMOS removed from the water for maintenance with Philipp and Samir.
 - **2018-11-24**: REMOS stopped because of an iceberg. At the moment we dont know if instruments are still there/broken.
 
 ### **FerryBox**
+- **2019-09-01**: Some interruptions for the FB during 2 weeks of maintenance.
 - **2019-06-12**: Markus came to do maintenace. 
 - **2019-06-05**: Problem in the relay 15 that controls the waste water pump was found. The spare part will be brought here next week (when Samir will leave...).
 - **2019-06-03**: Samir is on site alone. Different tests were made. Maybe the 2 tapes that feed TA and pCO2 are responsible of the problem (low flow).
@@ -1794,7 +1806,7 @@ save(file= paste0(path, "fb_data/d_all.Rdata"), d_all)
 - **2019-01-16**: Bad data since this date. 
 - **2018-12-28**: HCL and BCG cartridges were changed by Marine.
 - **2018-11-26**: TA analyser was stopped in order to save reagents because of filter issues.
-- **2018-11-20**: A web interface was created by KM Contros to access the TA via VPN and Virtual Machine (VNC viewer). Samir received password and access from the AWI in order to communicate from France with the TA.                  
+- **2018-11-20**: A web interface was created by KM Contros to access the TA via VPN and Virtual Machine (VNC viewer). Samir received password and access from the AWI in order to communicate from France with the TA.
 - **2018-10-31**: New TA analyser (SN 0317-001) was installed with a new membrane inside (completely new technology). Tests were made with Steffen from KM Contros.
 - **2018-07-31**: TA analyser was received (SN TA-1215-001) and pluged again. First data were received (high: 2450 and low: 2150) but salinity issue since this time. Uwe/Philipp try to find if this comes from comunication issue with the FB.
 - **2018-06-20**: TA analyser was stopped in order to save reagents because leakage in degasing unit is not solved. Email was sent to Steffen. 
@@ -1816,6 +1828,7 @@ save(file= paste0(path, "fb_data/d_all.Rdata"), d_all)
 - **2016-04-26**: Salt crusts inside the TA analyser appeared during deployment (see pictures) were removed by René Burgi (Observatory engineer) according to Contros advices (email from Steffen Assmann 13/04/2016 10:30).
  
 ### **pH seaFET**
+- **2019-09-02**: Out from the water for maintenance and cleaning only.
 - **2018-04-17**: seaFET #1005 was changed on the REMOS and seaFET #007 (from Villefranche) was installed. Continuous mode with external power supply was set and internal pack of baterries was removed. Old seaFET will be brought back to France with Samir.
 - **2018-03-09**: #007 seaFET currently in USA will be sent by seabird to NYA. #1005 seaFET currently in NYA will be sent to USA for update, following all external issues, for free.
 - **2017-08-24**: seaFET #1005 was installed on the REMOS into the field.
@@ -1826,10 +1839,12 @@ save(file= paste0(path, "fb_data/d_all.Rdata"), d_all)
 - **2016-07-20**: Cross filter was cleanned by Obs. eng. with 10-15 min tape water flush.
 
 ### **durafet**
+- **2019-09-05**: same durafet 
 - **2017-10-30**: (13:00 UTC) Durafet holder was changed by Benoit and the new one (made by Uwe) more larger (all the durafet's body is plunge in the seawater) was installed.
 - **2017-08-24**: durafet was installed.
 
 ### ***p*CO~2~**
+- **2019-09-03**: *p*CO~2~ analyser (S/N: CO2FT-0515-001) have been installed and *p*CO~2~ analyser (S/N: CO2FT-0215-001) was sent to Kiel for calibration.
 - **2018-10-31**: *p*CO~2~ analyser (S/N: CO2FT-0215-001) have been installed and *p*CO~2~ analyser (S/N: CO2FT-0515-001) was brought back to France and waiting 2019 fundings to bring it for calibration.
 - **2018-04-16**: *p*CO~2~ analyser switching by Uwe and Samir. S/N CO2FT-0515-001 is now installed. Old *p*CO~2~ sensor will be brought back to France with Samir.
 - **2017-02-07**: pCO2 analyser switching by Uwe. S/N CO2FT-0215-001 is now installed.
