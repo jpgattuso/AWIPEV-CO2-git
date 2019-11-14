@@ -1967,6 +1967,10 @@ si on veut remplacer intégralement les fichiers de pCloud par ceux de awipev-co
 echo '---------fin awipev-co2.sh -----------'
 
 
+![ ](Images/awipev_server_arborescence.jpg){width=65%}
+
+
+
 <!-- ```{r Graph pour proposal, echo=FALSE, message= FALSE, warning=FALSE} -->
 
 <!-- p_sal <- ggplot() + -->
