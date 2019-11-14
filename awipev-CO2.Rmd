@@ -1930,15 +1930,19 @@ Reference spectro measurement from the 2019-01-18 11:00 do not match with a dura
 si on veut remplacer intégralement les fichiers de pCloud par ceux de awipev-co2 : ajouter “--delete” à la commande rsync # m h dom mon dow command 
 
 - (At 01:00, a crontab action runs automatically the script ny-alesund/R/ny-alesund_cc.R. This script essentially appends the daily files from AWI-NRT database and cleans the data)
+
 00 01 * * * cd ; R --vanilla < ny-alesund/R/ny-alesund_cc.R 
 
 - (At 03:00, web page is generated)
+
 00 03 * * * bash web/awipev-co2.sh > web/awipev-co2.log 2>&1  
 
 - (At 05:00 the files from server/web are copied to gattuso’s iMac in pCloud/Exp168)
+
 00 05 * * * /usr/bin/rsync -e "ssh -o StrictHostKeyChecking=no" -avh /home/awipev/web 'gattuso@gattuso.obs-vlfr.fr:/Users/gattuso/pCloud\ Sync/Documents/experiments/exp168_awipev-CO2/fb_awipev-co2_server/'
 
 - (At 05:00 the files from server/ny-alesund are copied to gattuso’s iMac in pCloud/Exp168)
+
 00 05 * * * /usr/bin/rsync -e "ssh -o StrictHostKeyChecking=no" -avh /home/awipev/ny-alesund 'gattuso@gattuso.obs-vlfr.fr:/Users/gattuso/pCloud\ Sync/Documents/experiments/exp168_awipev-CO2/fb_awipev-co2_server/' 
 
 **Web page**
