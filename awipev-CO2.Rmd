@@ -1903,40 +1903,45 @@ Reference spectro measurement from the 2019-01-18 11:00 do not match with a dura
 - Serveur : awipev-co2 (193.50.85.104)
 - 3 comptes: awipev (partagé avec Samir), gattuso, nydata (pour l’envoi des données par P. Fischer).
 - Pour se connecter à awipev-co2.obs-vlfr.fr
-    - ssh awipev@awipev-co2.obs-vlfr.fr
+        - ssh awipev@awipev-co2.obs-vlfr.fr
 - Intervention sur le serveur :
-    - ssh awipev@awipev-co2.obs-vlfr.fr
-    - rebooting Ubuntu server: sudo shutdown -r now
-    - to check versions:
-        - dpkg -l | grep shiny
-        - dpkg -l | grep r-base
-    - To update Ubuntu, R and its packages:
-        - sudo su
-        - apt-get upgrade
-    - To restart shiny server: sudo systemctl restart shiny-server
-    - update shiny server: follow procedure detailed on the shiny web page 
+        - ssh awipev@awipev-co2.obs-vlfr.fr
+        - rebooting Ubuntu server: sudo shutdown -r now
+        - to check versions:
+            - dpkg -l | grep shiny
+            - dpkg -l | grep r-base
+        - To update Ubuntu, R and its packages:
+            - sudo su
+            - apt-get upgrade
+        - To restart shiny server: sudo systemctl restart shiny-server
+        - update shiny server: follow procedure detailed on the shiny web page Data processing
 
 ** Data processing**
 
 - Every night at 01:00 (?) two data files ("all sensors" and AT) are sent by ftp to:
-    - awipev-co2.obs-vlfr.fr
-    - User name: nydata
-    - password:
-- Every hour a crontab action runs the script ny-alesund/R/ny-alesund_cc.R. This script essentially appends the daily files added each day around 01:00 and cleans the data
-- Every night at 03:00 the web page is generated
-- Every night at 05:00 the files are copied to gattuso’s iMac 
+      - awipev-co2.obs-vlfr.fr
+      - User name: nydata
+      - password:
 
 **crontab awipev@awipev-co2.obs-vlfr.fr**
 
-
 <span style="color:red">**Warning:**</span> In the present HTML document double "-" appear with an espace between them (for display reasons). **Do not put the space when typing the code on a terminal wondow.** 
 
-si on veut remplacer intégralement les fichiers de pCloud par ceux de awipev-co2 : ajouter “- -delete” à la commande rsync # m h dom mon dow command 
-00 */1 * * * cd ; R - -vanilla < ny-alesund/R/ny-alesund_cc.R
+si on veut remplacer intégralement les fichiers de pCloud par ceux de awipev-co2 : ajouter “--delete” à la commande rsync # m h dom mon dow command 
 
-00 03 * * * bash web/awipev-co2.sh > web/awipev-co2.log 2>&1 00 05 * * * /usr/bin/rsync -e "ssh -o StrictHostKeyChecking=no" -avh /home/awipev/awipev-co2_web 'gattuso@gattuso.obs-vlfr.fr:/Users/gattuso/pCloud\ Sync/Documents/experiments/exp168_awipev-CO2/fb_awipev-co2_server/' 
+- (At 01:00, a crontab action runs automatically the script ny-alesund/R/ny-alesund_cc.R. This script essentially appends the daily files from AWI-NRT database and cleans the data)
 
-00 05 * * * /usr/bin/rsync -e "ssh -o StrictHostKeyChecking=no" -avh /home/awipev/web 'gattuso@gattuso.obs-vlfr.fr:/Users/gattuso/pCloud\ Sync/Documents/experiments/exp168_awipev-CO2/fb_awipev-co2_server/' 
+00 01 * * * cd ; R --vanilla < ny-alesund/R/ny-alesund_cc.R 
+
+- (At 03:00, web page is generated)
+
+00 03 * * * bash web/awipev-co2.sh > web/awipev-co2.log 2>&1  
+
+- (At 05:00 the files from server/web are copied to gattuso’s iMac in pCloud/Exp168)
+
+00 05 * * * /usr/bin/rsync -e "ssh -o StrictHostKeyChecking=no" -avh /home/awipev/web 'gattuso@gattuso.obs-vlfr.fr:/Users/gattuso/pCloud\ Sync/Documents/experiments/exp168_awipev-CO2/fb_awipev-co2_server/'
+
+- (At 05:00 the files from server/ny-alesund are copied to gattuso’s iMac in pCloud/Exp168)
 
 00 05 * * * /usr/bin/rsync -e "ssh -o StrictHostKeyChecking=no" -avh /home/awipev/ny-alesund 'gattuso@gattuso.obs-vlfr.fr:/Users/gattuso/pCloud\ Sync/Documents/experiments/exp168_awipev-CO2/fb_awipev-co2_server/' 
 
@@ -1955,10 +1960,15 @@ si on veut remplacer intégralement les fichiers de pCloud par ceux de awipev-co
  #!/bin/bash 
  
  # script de lancement via crontab echo '---------deb awipev-co2.sh -----------' 
- 
- # On lance la fabrication du html cd web; R -e 'library("rmarkdown");library("knitr");rmarkdown::render("awipev-CO2_web.Rmd")'; cp awipev-CO2_web.html ../awipev-CO2_web/index.html 
+
+ # On lance la fabrication du html cd web; R -e 
+    'library("rmarkdown");library("knitr");rmarkdown::render("awipev-CO2_web.Rmd")'; cp awipev-CO2_web.html ../awipev-CO2_web/index.html 
  
 echo '---------fin awipev-co2.sh -----------'
+
+
+![ ](Images/awipev_server_arborescence.jpg){width=65%}
+
 
 
 <!-- ```{r Graph pour proposal, echo=FALSE, message= FALSE, warning=FALSE} -->
