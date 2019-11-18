@@ -418,13 +418,14 @@ dygraph(temp_insitu_xts, group = "awipev", main="Temperature (in situ)", ylab="T
 pco2_contros_xts <- dplyr::select(d_all, datetime, pco2calc, pco2_contros, PCO2_Corr_filtered)
 pco2_contros_xts <- as.xts(pco2_contros_xts, order.by = d_all$datetime)
 dygraph(pco2_contros_xts, group = "awipev", main="pCO2", ylab="pCO2") %>%
-    dySeries("PCO2_Corr_filtered", label="Raw pCO2",color ="blue", strokeWidth = 0, pointSize = 2) %>%
     dySeries("pco2_contros", label="Corrected pCO2", color=  RColorBrewer::brewer.pal(3, "Dark2")[1],strokeWidth=0, pointSize=2) %>%
+      dySeries("PCO2_Corr_filtered", label="Raw pCO2",color ="blue", strokeWidth = 0, pointSize = 1) %>%
     dySeries("pco2calc", label="calculated pCO2",color = "red", strokeWidth = 0, pointSize = 4 ) %>%
     dyEvent(as.POSIXct("2016-02-28 12:00:00", tz="GMT"), "CO2FT-0515-001 installed", labelLoc = "bottom", color="red") %>% 
     dyEvent(as.POSIXct("2017-02-07 12:00:00", tz="GMT"), "CO2FT-0215-001 installed", labelLoc = "bottom", color="red") %>%
     dyEvent(as.POSIXct("2018-04-16 12:00:00", tz="GMT"), "CO2FT-0515-001 installed", labelLoc = "bottom", color="red") %>% 
     dyEvent(as.POSIXct("2018-10-31 15:00:00", tz="GMT"), "CO2FT-0215-001 installed", labelLoc = "bottom", color="red") %>% 
+    dyEvent(as.POSIXct("2019-09-03 15:00:00", tz="GMT"), "CO2FT-0515-001 installed", labelLoc = "bottom", color="red") %>% 
     #dyOptions(colors = RColorBrewer::brewer.pal(3, "Dark2"), pointSize = 4) %>%
     dyHighlight(highlightCircleSize = 8,highlightSeriesBackgroundAlpha = 0.5,hideOnMouseOut = TRUE) %>%
     dyOptions(drawGrid = TRUE, drawPoints = TRUE, pointSize = c(1,8,1),useDataTimezone = TRUE) %>%
@@ -717,24 +718,23 @@ This approach was performed:
 ```
 
 <!--The slope is in days: `r at_slope_TA3` x 3600 x 24 x 365.24 = `r at_slope3` µmoles.kg-1.an-1. Regression is: R2 = `r round(signif(summary(fit)$adj.r.squared, 5), digits =4)`. No outliers.
--->
 
 ```{r Third period plot, echo=FALSE, warning=FALSE, message=FALSE, out.width="50%",fig.show='hold', fig.align="center"}
 # # Plot of regression
-# p <- ggplot(calib_ta_third,aes(x=datetime, y=diff_ta) )+ 
-#     geom_point() + geom_smooth(method='lm', se=FALSE)+ 
-#     #geom_point(data= calib_ta_third%>%filter(diff_ta < -40 & diff_ta<20), aes(x=datetime, y=diff_ta), color="red")  +
-#    geom_hline(yintercept = 0, linetype="dashed" )+
-#   geom_vline(xintercept = as.POSIXct("2018-01-08 12:55:00", tz="UTC"), colour="red", linetype = "longdash") +
-#   #geom_text(aes(xintercept=as.POSIXct("2018-01-01 12:55:00"),label="TA "), colour="red", vjust=1.2)+
-#   labs(title = paste("Adj R2 = ",signif(summary(fit)$adj.r.squared, 5),
-#                      "Intercept =",signif(fit$coef[[1]],5 ),
-#                      " Slope =",signif(fit$coef[[2]], 5),
-#                      " P =",signif(summary(fit)$coef[2,4], 5))) + ylab("Difference: Reference - Analyser") + xlab("Time") + 
-#   scale_x_datetime( date_labels = "%b %Y", date_minor_breaks = "month", timezone="UTC")
-# print(p)
-# ggsave(paste0("figures/Diff_ref_TA_third_period.png"), p, units="cm")
-# ```
+ p <- ggplot(calib_ta_third,aes(x=datetime, y=diff_ta) )+ 
+     geom_point() + geom_smooth(method='lm', se=FALSE)+ 
+     #geom_point(data= calib_ta_third%>%filter(diff_ta < -40 & diff_ta<20), aes(x=datetime, y=diff_ta), color="red")  +
+    geom_hline(yintercept = 0, linetype="dashed" )+
+   geom_vline(xintercept = as.POSIXct("2018-01-08 12:55:00", tz="UTC"), colour="red", linetype = "longdash") +
+   #geom_text(aes(xintercept=as.POSIXct("2018-01-01 12:55:00"),label="TA "), colour="red", vjust=1.2)+
+   labs(title = paste("Adj R2 = ",signif(summary(fit)$adj.r.squared, 5),
+                      "Intercept =",signif(fit$coef[[1]],5 ),
+                      " Slope =",signif(fit$coef[[2]], 5),
+                      " P =",signif(summary(fit)$coef[2,4], 5))) + ylab("Difference: Reference - Analyser") + xlab("Time") + 
+   scale_x_datetime( date_labels = "%b %Y", date_minor_breaks = "month", timezone="UTC")
+ print(p)
+ ggsave(paste0("figures/Diff_ref_TA_third_period.png"), p, units="cm")
+```
 
 ##### **Second period**
 
@@ -748,9 +748,9 @@ This approach was performed:
 # mean_offset <- mean(calib_ta_second$diff_ta)
 
 ```
-<!--For the second period, the average difference between 5 discrete samples "references" and TA analyser measurements (`r mean_offset` µmoles.kg~-1~) was added to TA value as an offset.
+For the second period, the average difference between 5 discrete samples "references" and TA analyser measurements (`r mean_offset` µmoles.kg~-1~) was added to TA value as an offset.
 -->
-
+<!--
 #### **Final TA corrected data (Regression)**
 
 
@@ -854,7 +854,7 @@ In the previous part, missing TA were interpolated with a linear model. This doe
 # # Salinity is a predictor of AT -> using the regression defined above
 # d_all$at_calc <- slope_s_at * d_all$sal_fb + intercept_s_at
 ```
-<!--The relationship between titrated total alkalinity (references) and salinity is very good with an r2 of `r round(summary(fit)$r.squared, digits=2)`. Need to compare with other relationships from the literature.
+The relationship between titrated total alkalinity (references) and salinity is very good with an r2 of `r round(summary(fit)$r.squared, digits=2)`. Need to compare with other relationships from the literature.
 -->
 ```{r plot Discrete salinity vs TA, echo=FALSE, warning=FALSE, message=FALSE, out.width="60%", fig.align="center"}
 # # PLOT
@@ -956,12 +956,12 @@ During those steps (except zeroing) the sensor runs normally. Equilibration betw
 ### **Corrected Contros vs calculated *p*CO~2~ data**
 ```{r measured vs calculated pCO2, echo=FALSE, warning=FALSE, message=FALSE}
 title <- "Contros vs calculated pCO2"
-fit <- lmodel2(data = d_all,  PCO2_corr_contros ~ pco2calc , nperm = 99)
+fit <- lmodel2(data = d_all,  pco2_contros ~ pco2calc , nperm = 99)
 
-pco2calc_pCO2_contros_text <-  ggplot(d_all,aes(x=pco2calc, y= PCO2_corr_contros, label = month))+
+pco2calc_pCO2_contros_text <-  ggplot(d_all,aes(x=pco2calc, y= pco2_contros, label = month))+
    geom_text(aes(color = factor(month)))+
   scale_color_discrete(guide="none")+
-  geom_line(aes(x = PCO2_corr_contros, y = PCO2_corr_contros), linetype = "dashed") +
+  geom_line(aes(x = pco2_contros, y = pco2_contros), linetype = "dashed") +
   geom_abline(aes(intercept = fit$regression.results[2,2], slope = fit$regression.results[2,3]),colour = "blue") +
   labs(title = paste(title,"\n Adj R2 = ", signif(fit$rsquare, 3),
                      "; Intercept =", signif(fit$regression.results[2,2], 3),
@@ -984,14 +984,14 @@ ggsave(paste0("figures/pco2calc_pCO2_contros.png"), pco2calc_pCO2_contros_text, 
 pco2_contros_xts <- dplyr::select(d_all, datetime, pco2calc, pco2_contros, PCO2_Corr_filtered)
 pco2_contros_xts <- as.xts(pco2_contros_xts, order.by = d_all$datetime)
 dygraph(pco2_contros_xts, group = "awipev", main="pCO2", ylab="pCO2") %>%
-    dySeries("PCO2_Corr_filtered", label="Raw pCO2",color ="blue", strokeWidth = 0, pointSize = 2) %>%
-    dySeries("pco2_contros", label="Corrected pCO2", color=  RColorBrewer::brewer.pal(3, "Dark2")[1],strokeWidth=0, pointSize=2) %>%
+  dySeries("pco2_contros", label="Corrected pCO2", color=  RColorBrewer::brewer.pal(3, "Dark2")[1],strokeWidth=0, pointSize=2) %>%
+    dySeries("PCO2_Corr_filtered", label="Raw pCO2",color ="blue", strokeWidth = 0, pointSize = 1) %>%
     dySeries("pco2calc", label="calculated pCO2",color = "red", strokeWidth = 0, pointSize = 4 ) %>%
     dyEvent(as.POSIXct("2016-02-28 12:00:00", tz="GMT"), "CO2FT-0515-001 installed", labelLoc = "bottom", color="red") %>% 
     dyEvent(as.POSIXct("2017-02-07 12:00:00", tz="GMT"), "CO2FT-0215-001 installed", labelLoc = "bottom", color="red") %>%
     dyEvent(as.POSIXct("2018-04-16 12:00:00", tz="GMT"), "CO2FT-0515-001 installed", labelLoc = "bottom", color="red") %>% 
     dyEvent(as.POSIXct("2018-10-31 15:00:00", tz="GMT"), "CO2FT-0215-001 installed", labelLoc = "bottom", color="red") %>% 
-      dyEvent(as.POSIXct("2019-09-03 15:00:00", tz="GMT"), "CO2FT-0515-001 installed", labelLoc = "bottom", color="red") %>% 
+    dyEvent(as.POSIXct("2019-09-03 15:00:00", tz="GMT"), "CO2FT-0515-001 installed", labelLoc = "bottom", color="red") %>% 
 
     #dyOptions(colors = RColorBrewer::brewer.pal(3, "Dark2"), pointSize = 4) %>%
     dyHighlight(highlightCircleSize = 8,highlightSeriesBackgroundAlpha = 0.5,hideOnMouseOut = TRUE) %>%
@@ -1195,8 +1195,7 @@ We also defined a period of malfunction from **2017-12-14** to **2018-02-02**. i
 ## calculation of the calibrated pH ##
 ##       new sf_calc function       ##
 ####
-seafet_calib <- sf_calc(calEint = d_all$voltINT, calEext = d_all$voltEXT, E0int25 = d_all$E0int25_sf, 
-                        E0ext25 = d_all$E0ext25_sf, calT = d_all$temp_insitu, calSal = d_all$sal_fb_interp)
+seafet_calib <- sf_calc(calEint = d_all$voltINT, calEext = d_all$voltEXT, E0int25 = d_all$E0int25_sf,  E0ext25 = d_all$E0ext25_sf, calT = d_all$temp_insitu, calSal = d_all$sal_fb_interp)
 
 # bind new calibrated pH data to the seafet data set.
 names(seafet_calib) <- c("pHint_tot_sf", "pHext_tot_sf")
@@ -1351,7 +1350,7 @@ d_all <- d_all %>%
                                 ifelse(datetime >= durinterv[19], 18,NA ))))))))))))))))))))
 
 # Offset between durafet pH and spec pH 
-duroffset <- left_join(durPeriod[,c(1,2)], d_all[,c(1,18)], by="datetime")
+duroffset <- left_join(durPeriod%>%dplyr::select(datetime,pH_s_durafet_temp_field), d_all%>%dplyr::select(datetime,pH_durafet ), by="datetime")
 dat_dur <- mutate(duroffset, diff_pH_dur = pH_s_durafet_temp_field - pH_durafet)
 average_offset_dur <- round(mean(dat_dur$diff_pH_dur, na.rm=TRUE), digits = 2)
 sd_offset_dur <- round(sd(abs(dat_dur$diff_pH_dur), na.rm=TRUE), digits = 2)
@@ -1482,13 +1481,13 @@ Comparaison is done here with **corrected pHs** (**seaFET**, **durafet** and **c
 # remove sf biofouling period
 pH_sf <- d_all %>%
   dplyr::select(datetime, sal_fb,temp_fb,temp_insitu, pHint_tot_sf)%>%
-  dplyr::filter(!is.na(pHint_tot_sf), !is.na(temp_insitu), !is.na(temp_fb)) %>%
+  dplyr::filter(!is.na(pHint_tot_sf), !is.na(temp_insitu), !is.na(temp_fb), !is.na(sal_fb)) %>%
   dplyr::filter(datetime< "2018-01-01" | datetime> "2018-02-03")
 pH_sf$pHint_tot_sf_norm4 <- pHinsi(pH=pH_sf$pHint_tot_sf, ALK=2.273e-3, Tinsi=4, Tlab=pH_sf$temp_insitu, Pinsi=11, S=pH_sf$sal_fb, Pt=0, Sit=0, k1k2 = "x", kf = "x", ks="d", pHscale = "T", b="u74")
 
 pH_dur <- d_all %>%
   dplyr::select(datetime, sal_fb,temp_fb,temp_insitu, pH_durafet_corrected)%>%
-  dplyr::filter(!is.na(pH_durafet_corrected), !is.na(temp_insitu))
+  dplyr::filter(!is.na(pH_durafet_corrected), !is.na(temp_insitu), !is.na(temp_fb), !is.na(sal_fb))
 pH_dur$pH_durafet_norm4 <- pHinsi(pH=pH_dur$pH_durafet_corrected, ALK=2.273e-3, Tinsi=4, Tlab=pH_dur$temp_insitu, Pinsi=11, S=pH_dur$sal_fb, Pt=0, Sit=0, k1k2 = "x", kf = "x", ks="d", pHscale = "T", b="u74")
 
 # join pH sf norm + pH dur norm
@@ -1533,7 +1532,7 @@ pH_calc <- discrete %>%
 pH_calc$pH_calc_norm4 <- pHinsi(pH=pH_calc$phcalc, ALK=pH_calc$at*1e-6, Tinsi=4, Tlab=pH_calc$temp, Pinsi=11, S=pH_calc$sal, Pt=0, Sit=0, k1k2 = "x", kf = "x", ks="d", pHscale = "T", b="u74")
 
 # join pH calc norm + pH dur/sf norm in d_all
-d_all <- left_join(d_all, pH_calc[, c(1,6)], by="datetime")
+d_all <- left_join(d_all, pH_calc%>%dplyr::select(datetime,pH_calc_norm4), by="datetime")
 
 # DURAFET vs CALC
 fit <- lmodel2(data = d_all,  pH_calc_norm4 ~ pH_durafet_norm4 , nperm = 99)
@@ -1805,6 +1804,7 @@ save(file= paste0(path, "fb_data/d_all.Rdata"), d_all)
 - **2015-11-27**: The ferrybox was down from Nov. 18th until today Nov. 27th. (emails from P.Fischer 2015-11-24 23:09 and Station Leader AWIPEV 2015-11-27 12:57). Tubes frozen.
  
 ### **TA analyser**
+- **2019-11-15**: TA calibration done by Gwendall is OK but the sensore seems to have problem since 2019-10-16. Video conference is scheduled with Steffen on 2019-11-19. Maybe sample supply is defective.
 - **2019-07-12**: Steffen told us that calibration was not OK. To check it, he calculated the mediane of the pH/volume sample / volumeIndicatorfactor and compared them to January/October calibration. We wait for Steffen recommandations before to make another calibration.
 - **2019-06-07**: Samir did the TA calibration: T0 with CRM 145. Beginning of a 3-months period. TA was stable before the calibration and calibration was OK.
 - **2019-02-15**: No data from 15th (14:08:21 UTC) to 19th February (14:58:46 UTC). files transfered but no data. No explanation.
@@ -1875,6 +1875,7 @@ All documents concerning maintenance, tasks to do, calibration... are accessible
 
 [Procedure to download NRT data](https://spaces.awi.de/confluence/display/MOS/NRT+data+download+procedures)
 
+[AWI NRT database](https://dashboard.awi.de/data-xxl/overview.jsp)
 
 ###**FerryBox**
 - **2018-11-14**: One instrument was removed by Uwe (Chlorophyl-a), that means that one column (CHl_A_Cyclops) was also removed from the Ferrybox data file. Script was modified in consequence.
@@ -1889,6 +1890,7 @@ All documents concerning maintenance, tasks to do, calibration... are accessible
 Reference spectro measurement from the 2019-01-18 11:00 do not match with a durafet raw data because Ferrybox was off. This reference point was not takken in consideration for calibration. The window of the previous and next calibration periods was extended.
 
 ### ***p*CO~2~**
+- **2019-11-18**: Calibration parameters from #0215-001 were added to "server.../data/NRT_data/Data_Processing_sheet_pCO2.csv" (new path).
 - **2018-08-29**: Calibration parameters from #0215-001 were added to "./data/Calibration_pCO2/Data_Processing_sheet_pCO2.csv".
 - **2018-04-20**: For *p*CO~2~ Calibration the previous period (N° 4) was added to the script "ny-alesund_cc" line 466.
 - **2015-10-13**: we put back the spike.pCO2 to 600 because data in October reached more than 350 µAtm. We let this like that and we are going to deal with it manually later if needed.
@@ -1899,6 +1901,7 @@ Reference spectro measurement from the 2019-01-18 11:00 do not match with a dura
 - **2018-08-30**: flag of 1 AT duplicate (2205) from 2017-08-31 was put to 3 (dosage douteux).
 
 ### **Files - server**
+- **2019-11-15**: Script including the new data downloading from the NRT AWI database is running (ny-alesund_cc.R). From this date, data are donwloaded from AWI NRT dtabase. We are waiting some setting from Philipp to have the entire dataset. Only 2018-2019 are available for the moment. New path was created in the server and pCloud/exp168 with "NRT_data" file. Please see the picture bellow.
 - **2018-04-19**: Since "Ferrybox" is on again, the adding to solve the files issues are making not data into d_hour for this period (2018-09-03 to 2018-14-04). This adding was put in comments now. In seaFET data reading, S/N have been changed from 1005 to 0007.
 - **2018-03-21**: Files issues. FerryBox instruments are down because of freezing but UWO instrument as seaFET and SBE38 are OK. Removing of one 0 octet file from seaFET20180317_1404 and put back seaFET files from 20180309 to 20180312 in seaFET folder. They were in SBE38 folder...Weird. Additionnal script lines were added in order to deal with the issue of "in situ" created date whereas "Ferrybox" created data ware not. Since "in situ" parameters are running (d df) and not "in ferrybox" parameters (z df), the new datetime lines are not taking in consideration with the left_join function we have to add them during Ferrybox shutdown.
 - **2018-03-09**: Script issue solved with first negative values encountred in SBE38 files. We find a regex solution to take "space + space or negative value" in consideration.
