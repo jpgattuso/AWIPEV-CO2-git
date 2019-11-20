@@ -1,0 +1,99 @@
+---
+title: "TA_filter_despike"
+author: "samir"
+date: '`r format(Sys.Date(), "%d %B %Y")`'
+output:
+  rmarkdown::html_document:
+    theme: paper
+    number_sections: false
+    
+---
+
+```{r set-up, echo=FALSE, warning=FALSE, message=FALSE, include=FALSE}
+Sys.setlocale("LC_ALL", "en_US.UTF-8")
+Sys.setenv(TZ='UTC') # on utilise UTC
+rm(list = ls())
+library(tidyverse)
+library(robfilter)
+library(seacarb)
+library(gridExtra)
+library(reshape2)
+library(lubridate)
+library(lmtest)
+library(grid)
+library(viridis)
+library(dygraphs)
+require("knitr")
+library("lmodel2")
+library(captioner)
+library(xts)
+library(seismicRoll)
+library(scales)
+
+if (Sys.getenv("LOGNAME") == "gattuso") path = "../../pCloud\ Sync/Documents/experiments/exp168_awipev-CO2/"
+if (Sys.getenv("LOGNAME") == "samir") path = "../../pCloud\ Sync/exp168_awipev-CO2/"
+```
+
+## Introduction
+
+In this document, we try to deal with "cleaning TA dataset" because of high variability.
+Variability of the dataset is partly due to the measurement of the seawater + acid during washing periode (noon and midnight).
+We only deal with 2018-2019 TA data.
+
+
+```{r prepare data, echo=FALSE, warning=FALSE, message=FALSE, include=FALSE}
+load(file = paste0(path,"ny-alesund/data/NRT_data/all_nydata_hour.Rdata"))
+d_hour <- d_hour %>%
+  dplyr::select(datetime, AT_filtered)
+
+```
+
+## Dataset
+
+Here the TA dataset already cleaned by despike() at the end of the ny-alesund_cc.R script. If we zoom in November 2019 we can see the drop in data around midnight each day, due to acid washing cycle.
+
+```{r plot data, echo=FALSE, warning=FALSE, message=FALSE, include=FALSE}
+
+# plot
+at_fb_xts <- dplyr::select(d_hour, datetime,AT_filtered)
+at_fb_xts <- as.xts(at_fb_xts, order.by = at_fb_xts$datetime)
+dygraph(at_fb_xts, ylab="at") %>%
+  dySeries("AT_filtered", color = "blue", strokeWidth = 0, label = "raw") %>%
+  #dySeries("AT_filtered2", color = "red", strokeWidth = 0, label = "filt") %>%
+  #dySeries("AT_filtered3", color = "green", strokeWidth = 0, label = "filt3") %>%
+  dyHighlight(highlightCircleSize = 8,highlightSeriesBackgroundAlpha = 0.2,hideOnMouseOut = TRUE) %>%
+  dyOptions(drawGrid = TRUE, drawPoints = TRUE, pointSize = 2,useDataTimezone = TRUE) %>%
+  dyRangeSelector(height = 30)
+
+```
+
+## Despike() parameters setting
+The idea was to find best parameters (n and k) in despike() in order to keep largest data (N = number of points) with a smallest standard deviation (V).
+
+  - Create a dataframe with all posibilities for parameters n and k comprised between 0.1 - 1 for n and 25 - 221 for k.
+```{r despike parameters, echo=FALSE, warning=FALSE, message=FALSE, include=FALSE}
+
+tmp <- NULL
+#create a dataframe with all posibilities for parameters n and k comprised between 0.1 - 1 for n and 25 - 221 for k.
+df <- expand.grid(n = seq(0.1, 1, length.out =0.1 ), k =as.integer(seq(25, 221, by = 4)))
+df$N <- NULL
+for (i in 1:
+     nrow(df)) {
+  tmp <- despike(d_hour$AT_filtered, reference= "median", n=df$n[i], k=df$k[i], replace="NA")
+  df$N[i] <- length(tmp[!is.na(tmp)])
+  df$V[i] <- sd(tmp, na.rm = TRUE)
+  }
+summary(df)
+#We want to keep data with highest N AND smallest Variance
+df$percentN <- (df$N/max(df$N))*100
+acceptable <- df%>%
+  mutate(N = ifelse(percentN > 70 & V <80, N, NA),
+         k = ifelse(percentN > 70 & V <80, k, NA))%>%
+  filter(!is.na(k))
+
+ggplot(data=df, aes(x = k, y = n)) +
+  geom_point(aes(colour = N))
+  
+ggplot(data=df, aes(x = k, y = n)) +
+  geom_point(aes(colour = V)) 
+  ```
