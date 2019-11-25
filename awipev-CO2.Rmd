@@ -152,7 +152,8 @@ at_ct_mean <- d %>%
                    at_sd = sd(at, na.rm = T), 
                    ct_sd = sd(ct, na.rm = T)
                    )
-
+#at_ct_mean <- at_ct_mean%>%filter(!is.na(at_mean))
+#write.table(file= paste0(path, "fb_data/at_ct_mean.txt"), at_ct_mean)
 d <- left_join(d, at_ct_mean, by='datetime')
 # Fill the gaps in at_mean with interpolation
 TAinterp <-approx(d$datetime, d$at_mean, xout=d$datetime, method="linear", rule=2)
