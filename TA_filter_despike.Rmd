@@ -57,7 +57,8 @@ d_hour <- d_hour %>%
 
 ## Dataset
 
-Here the TA dataset already cleaned by despike() at the end of the ny-alesund_cc.R script. If we zoom in November 2019 we can see the drop in data around midnight each day, due to acid washing cycle.
+TA dataset (blue) already cleaned by despike() with n = 0.5 and k = 121, at the end of the ny-alesund_cc.R script. If we zoom in November 2019 we can see lot of drops in data around midnight each day, due to acid washing cycle.
+
 
 ```{r plot data, echo=FALSE, warning=FALSE, message=FALSE}
 
@@ -74,21 +75,20 @@ dygraph(at_fb_xts, ylab="at") %>%
 ```
 
 ## Despike() parameters settings
-The idea was to find best parameters (n and k) in despike() in order to keep largest data (N = number of points) with a smallest standard deviation (V).
+The idea was to find better parameters (n and k) in despike() in order to keep largest data (N = number of points) with a smallest standard deviation (V).
 
-  - Create a dataframe with all posibilities for parameters n and k comprised between 0.1 - 1 for n and 25 - 221 for k.
+  - Create a dataframe with all posibilities for parameters n and k comprised between 0.1 - 1 for n and between 25 - 221 for k.
   
   Final dataframe is created, compiling best n and K parameters: lowest standard deviation (V) and highest number of point (N).
-  
-Number of point > 80% and sd < 80 were choosen here.
 
 ## Despike() parameters results
 
-```{r despike parameters, echo=FALSE, warning=FALSE, message=FALSE}
+Summary of dataframe with all posibilities + N and V plots:
 
+```{r despike parameters, echo=FALSE, warning=FALSE, message=FALSE}
 tmp <- NULL
 #create a dataframe with all posibilities for parameters n and k comprised between 0.1 - 1 for n and 25 - 221 for k.
-df <- expand.grid(n = seq(0.1, 1, length.out =0.1 ), k =as.integer(seq(25, 221, by = 4)))
+df <- expand.grid(n = seq(0.1, 1, by =0.1 ), k =as.integer(seq(25, 221, by = 4)))
 df$N <- NULL
 # create a tmp vector with different n, k parameters when i is different. i corresponds to the different lines of df and thus has different combinaisons of n,k.
 for (i in 1:
@@ -101,6 +101,18 @@ for (i in 1:
   }
 summary(df)
 
+ggplot(data=df, aes(x = k, y = n)) +
+  geom_point(aes(colour = N))
+  
+ggplot(data=df, aes(x = k, y = n)) +
+  geom_point(aes(colour = V)) 
+```
+
+Here, best dataframe compiling best n and k resulting of Number of point (N) > 80% and sd (V) < 80:
+- 0.2 > n < 0.3 
+- 109 > k < 221
+
+```{r best despike parameters, echo=FALSE, warning=FALSE, message=FALSE}
 #We want to keep data with highest N and smallest V
 # We transform N in percentage for easy understanding.
 df$percentN <- (df$N/max(df$N))*100
@@ -112,22 +124,24 @@ acceptable <- df%>%
   filter(!is.na(k))
 kable(acceptable)
 
-ggplot(data=df, aes(x = k, y = n)) +
-  geom_point(aes(colour = N))
-  
-ggplot(data=df, aes(x = k, y = n)) +
-  geom_point(aes(colour = V)) 
+# despike
+d_hour <- d_hour %>%
+  dplyr::mutate(AT_filtered2= despike(d_hour$AT_filtered, reference= "median", n=0.3, k=217, replace="NA"))
+d_hour <- d_hour %>%
+  dplyr::mutate(AT_filtered3= despike(d_hour$AT_filtered2, reference= "median", n=0.3, k=217, replace="NA"))
+#dplyr::mutate(AT_filtered2= despike(d_hour$AT_filtered, reference= "median", n=0.3, k=217, replace="NA"))
 ```
 
-Best n and k were found for 0.2 > n < 0.3 and 109 >= K <= 221
+In the following plot, n = 0.3 and k = 217 were kept as 2nd time despike() parameters (red dots). A third despike() run (green dots) was discarded because of the large lack of data.
+
 ```{r final plot, echo=FALSE, warning=FALSE, message=FALSE}
 # final plot
-at_fb_xts <- dplyr::select(d_hour, datetime,AT_filtered)
+at_fb_xts <- dplyr::select(d_hour, datetime,AT_filtered,AT_filtered2, AT_filtered3)
 at_fb_xts <- as.xts(at_fb_xts, order.by = at_fb_xts$datetime)
 dygraph(at_fb_xts, ylab="at") %>%
   dySeries("AT_filtered", color = "blue", strokeWidth = 0, label = "raw") %>%
-  #dySeries("AT_filtered2", color = "red", strokeWidth = 0, label = "filt") %>%
-  #dySeries("AT_filtered3", color = "green", strokeWidth = 0, label = "filt3") %>%
+  dySeries("AT_filtered2", color = "red", strokeWidth = 0, label = "filt") %>%
+  dySeries("AT_filtered3", color = "green", strokeWidth = 0, label = "filt3") %>%
   dyHighlight(highlightCircleSize = 8,highlightSeriesBackgroundAlpha = 0.2,hideOnMouseOut = TRUE) %>%
   dyOptions(drawGrid = TRUE, drawPoints = TRUE, pointSize = 2,useDataTimezone = TRUE) %>%
   dyRangeSelector(height = 30)
