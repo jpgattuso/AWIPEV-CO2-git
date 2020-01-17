@@ -117,14 +117,15 @@ ggplot(fit$model, aes_string(x = names(fit$model)[2], y = names(fit$model)[1])) 
 
 ```{r read and prepare discrete data, echo=FALSE, warning=FALSE, message=FALSE}
 d <- read.table(paste0(path, "fb_data/Discrete_analyses_AT_CT/Discrete_sampling_AWIPEV.csv"), header = T, dec = ".", as.is = T, sep = ";", fill = TRUE)
-d$datetime <- as.POSIXct(d$sampling_date, format="%d/%m/%Y %H:%M", tz="UTC")
+#d$datetime <- as.POSIXct(d$sampling_date, format="%d/%m/%Y %H:%M", tz="UTC")
+d$datetime <- dmy_hm(d$sampling_date, tz="UTC")
 d$measure_date <- dmy(d$measure_date, tz="UTC")
 
 # Add the flag location: some samples have been collected at the peer. Notes them here.
 # Flag 1 = collected on the peer by Niskin and flag 0 = collected in the FB (normal collect)
  # And keep data with flag 0 for FB location
 d <- d%>%
-  dplyr::mutate(location_flag = ifelse(datetime == "2016-04-21 09:25:00" | datetime == "2016-02-10 14:00:00" | datetime == "2016-02-17 09:20:00" |datetime == "2016-02-24 14:20:00" | datetime == "2016-02-04 09:30:00" |datetime == "2016-01-27 15:00:00" |datetime == "2016-01-13 13:45:00" |datetime == "2016-01-06 14:10:00" |datetime == "2015-12-24 10:45:00" |datetime == "2015-12-30 13:30:00" |datetime == "2018-01-05 15:20:00" |datetime == "2018-02-02 14:35:00"|datetime == "2018-03-02 14:10:00", 1,0)
+  dplyr::mutate(location_flag = ifelse(datetime == "2016-04-21 09:25:00" | datetime == "2016-02-10 14:00:00" | datetime == "2016-02-17 09:20:00" |datetime == "2016-02-24 14:20:00" | datetime == "2016-02-04 09:30:00" |datetime == "2016-01-27 15:00:00" |datetime == "2016-01-13 13:45:00" |datetime == "2016-01-06 14:10:00" |datetime == "2015-12-24 10:45:00" |datetime == "2015-12-30 13:30:00" |datetime == "2018-01-05 15:20:00" |datetime == "2018-02-02 14:35:00"|datetime == "2018-03-02 14:10:00"|datetime == "2019-05-31 11:45:00", 1,0)
   )
 d <- d%>%
   dplyr::filter(location_flag== 0)
