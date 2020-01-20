@@ -1669,13 +1669,12 @@ For CT, duplicates's flags that have been changed to 1 are:
  diff <- d %>%
     group_by(datetime) %>%
    dplyr::select(datetime, at, ct)%>%   
-   dplyr::mutate(at_diff = at - lag(at),
-                 ct_diff = ct - lag(ct))
+   dplyr::mutate(at_diff = abs(at - lag(at)),
+                 ct_diff = abs(ct - lag(ct)))
 
 pdelta_at_snapo <-ggplot() +
     geom_point(data=diff, aes(x= datetime, y= at_diff)) +
     geom_hline(yintercept= 4, size= 0.6, col="red", linetype="dashed") +
-    geom_hline(yintercept= -4, size= 0.6, col="red", linetype="dashed") +
     annotate("text", x = diff$datetime[17], y = 6, label = "4 µmoles/kg", color="red")+
     annotate("text", x = diff$datetime[17], y = -6, label = "-4 µmoles/kg", color="red")+
 labs(title= "AT", x="Time", y="Delta between TA replicates")+
@@ -1683,7 +1682,6 @@ labs(title= "AT", x="Time", y="Delta between TA replicates")+
 pdelta_ct_snapo <-ggplot() +
     geom_point(data=diff, aes(x= datetime, y= ct_diff)) +
     geom_hline(yintercept= 4, size= 0.6, col="red", linetype="dashed") +
-    geom_hline(yintercept= -4, size= 0.6, col="red", linetype="dashed") +
 annotate("text", x = diff$datetime[17], y = 6, label = "4 µmoles/kg", color="red")+
     annotate("text", x = diff$datetime[17], y = -6, label = "-4 µmoles/kg", color="red")+
   labs(title= "CT",x="Time", y="Delta between CT replicates")+
@@ -1702,7 +1700,7 @@ p_at_ts <- ggplot() +
 
 # to create periods according to SNAPCO analysis 
 snapcoevents <- c("2015-07-23 00:00:00", "2015-11-18 00:00:00", "2015-11-27 00:00:00", "2016-10-13 00:00:00", 
-              "2017-05-11 00:00:00", "2018-02-09 00:00:00", "2018-02-16 00:00:00", "2018-07-27 00:00:00", "2018-08-03 00:00:00", "2018-11-23 00:00:00", "2018-11-30 00:00:00", "2019-04-12 00:00:00", format(Sys.Date(), "%Y-%m-%d %H:%M:%S"))
+              "2017-05-11 00:00:00", "2018-02-09 00:00:00", "2018-02-16 00:00:00", "2018-07-27 00:00:00", "2018-08-03 00:00:00", "2018-11-23 00:00:00", "2018-11-30 00:00:00", "2019-04-12 00:00:00","2019-08-31 23:59:00", format(Sys.Date(), "%Y-%m-%d %H:%M:%S"))
 
 at_diff_xts <- dplyr::select(diff, datetime, at_diff, at)
 at_diff_xts <- as.xts(at_diff_xts, order.by = diff$datetime)
