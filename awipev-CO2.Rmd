@@ -1714,7 +1714,7 @@ pdelta_at_snapo_dygraph <- dygraph(at_diff_xts, group = "awipev", main="Discrete
   dyShading(from = snapcoevents[7], to = snapcoevents[8], color = "#C2C2C2") %>%
   dyShading(from = snapcoevents[9], to = snapcoevents[10], color = "#EDEDED") %>%
   dyShading(from = snapcoevents[11], to = snapcoevents[12], color = "#C2C2C2") %>%
-  dyAxis("y", axisLineColor="red",label = "", axisLabelColor ="red", axisLineWidth=5,valueRange = c(-25, 30)) %>%
+  dyAxis("y", axisLineColor="red",label = "", axisLabelColor ="red", axisLineWidth=5) %>%
     dyAxis("y2", axisLineColor="blue", axisLabelColor = "blue", axisLineWidth=5) %>%
     dyHighlight(highlightCircleSize = 8,highlightSeriesBackgroundAlpha = 0.5,hideOnMouseOut = TRUE) %>%
        dyLegend(show = "follow")   %>%
