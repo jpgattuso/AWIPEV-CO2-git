@@ -1775,6 +1775,7 @@ save(file= paste0(path, "fb_data/d_all.Rdata"), d_all)
 - **2018-11-24**: REMOS stopped because of an iceberg. At the moment we dont know if instruments are still there/broken.
 
 ### **FerryBox**
+- **2020-01-24**: heater issues in the contenair (power shutdown maybe) caused some samples to freeze. See part "SNAPO" for details on samples.
 - **2019-09-01**: Some interruptions for the FB during 2 weeks of maintenance.
 - **2019-06-12**: Markus came to do maintenace. 
 - **2019-06-05**: Problem in the relay 15 that controls the waste water pump was found. The spare part will be brought here next week (when Samir will leave...).
@@ -1890,7 +1891,6 @@ All documents concerning maintenance, tasks to do, calibration... are accessible
 [Quick overview AWI NRT database](https://dashboard.awi.de/?dashboard=9736) 
 
 ### **FerryBox**
-- **2020-01-24**: heater issues in the contenair (power shutdown maybe) caused some samples to freeze. See part "SNAPO" for details on samples.
 - **2018-11-14**: One instrument was removed by Uwe (Chlorophyl-a), that means that one column (CHl_A_Cyclops) was also removed from the Ferrybox data file. Script was modified in consequence.
 
 ### **pH seaFET**
