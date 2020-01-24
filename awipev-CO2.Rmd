@@ -1775,6 +1775,7 @@ save(file= paste0(path, "fb_data/d_all.Rdata"), d_all)
 - **2018-11-24**: REMOS stopped because of an iceberg. At the moment we dont know if instruments are still there/broken.
 
 ### **FerryBox**
+- **2020-01-24**: heater issues in the contenair (power shutdown maybe) caused some samples to freeze. See part "SNAPO" for details on samples.
 - **2019-09-01**: Some interruptions for the FB during 2 weeks of maintenance.
 - **2019-06-12**: Markus came to do maintenace. 
 - **2019-06-05**: Problem in the relay 15 that controls the waste water pump was found. The spare part will be brought here next week (when Samir will leave...).
@@ -1899,7 +1900,7 @@ All documents concerning maintenance, tasks to do, calibration... are accessible
 - **2017-12-29**: "SVL_20171218_010426.dat" from seaFet data was deleted because of bug with its size (0 octect). pH filter was added to "ny_alesund_cc" file for seaFet data (<7.5 and <8.5).
 
 ### **Durafet**
-Reference spectro measurement from the 2019-01-18 11:00 do not match with a durafet raw data because Ferrybox was off. This reference point was not takken in consideration for calibration. The window of the previous and next calibration periods was extended.
+- Reference spectro measurement from the 2019-01-18 11:00 do not match with a durafet raw data because Ferrybox was off. This reference point was not takken in consideration for calibration. The window of the previous and next calibration periods was extended.
 
 ### ***p*CO~2~**
 - **2019-11-18**: Calibration parameters from #0215-001 were added to "server.../data/NRT_data/Data_Processing_sheet_pCO2.csv" (new path).
@@ -1909,7 +1910,10 @@ Reference spectro measurement from the 2019-01-18 11:00 do not match with a dura
 - **2015-09-28**: we put the spike.pCO2 (detection of peaks: threshold) at 350 to remove anomalies on the 12 and 15 September. We have to monitor data. If data reach this value, then problem.
  
 ### **SNAPO**
-- **2019-04-30**: Duplicate "Ferrybox" samples (SN0316 and SN264, 2019-02-22 14:05) were sent by mistake in Villefranche for pH measurements. Those results were put in the datafile as "durafet" samples as soon as they are comming from the Ferrybox tape seawater. We will ad a lack of DIC for this week. TA will be measured in Villefranche.
+- **2020-01-23**: Freezed and lost samples because of heater issue in the container: 15/11/2019 (durafet x1), 03/12/2019 (FB x2), 11/12/2019 (FB x2), 13/12/2019 (FB x2), 20/12/2019 (FB x2), 03/01/2020 (FB x2). Following samples could have been frozen, not sure: 06/09/2019 (FB x2), 13/09/2019 (seaFET x1), 13/09/2019 (FB x2), 20/09/2019 (FB x1), 27/09/2019(FB x2), 04/10/2019 (FB x2), 11/10/2019 (FB x1), 11/10/2019  (durafet x1), 25/10/2019 (FB x2), 01/11/2019 (FB x1), 15/11/2019 (FB x1).
+
+- **2020-01-15**: Results from 2019-04-19 to 2019-08-31 (sent in September 2019) were received. FB duplicates from 2019-08-09 were analysed as Durafet because of wrong box. One sample from 2019-06-07 (durafet) was analysed by Paris because of wrong box.
+- **2019-04-30**: Duplicate "Ferrybox" samples (SN0316 and SN264, 2019-02-22 14:05) were sent by mistake in Villefranche for pH measurements. Those results were put in the datafile as "durafet" samples as soon as they are comming from the Ferrybox tape seawater. We will add a lack of DIC for this week. TA will be measured in Villefranche.
 - **2018-08-30**: flag of 1 AT duplicate (2205) from 2017-08-31 was put to 3 (dosage douteux).
 
 ### **Files - server**
