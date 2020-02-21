@@ -1058,15 +1058,24 @@ dygraph(pco2_contros_xts, group = "awipev", main="pCO2", ylab="pCO2") %>%
 
 ## pH seaFET
 
-pH is measured continuously by an autonomous seaFET pH sensor. Because of issue, measurement periodicity was set to 1 hour from 2018-02-02 to 2018-04-17. pH calibration is based on monthly discrete samples that are analysed with spectrophotometric method in Villefranche by Samir Alliouane. When it is not possible to sample at the vicinity of the sensor for practice reasons (in winter), sampling is done in the harbour and is not taken in consideration for calibration for spatial reasons. Calibration was done following the methods and code described in Bresnahan et al. (2014) and adapted to use in R (seacarb package). Deployment periods are difined 15 days before and after the pH spectro sample and are in shading colors on the plot. Within this deployment period, calibration is made with E0 calculation (first plot) and final corrected pH is calculated (second plot).
+pH is measured continuously by an autonomous seaFET pH sensor. Because of issue, measurement periodicity was set to 1 hour from 2018-02-02 to 2018-04-17. pH calibration is based on monthly discrete samples that are analysed with spectrophotometric method in Villefranche by Samir Alliouane. When it is not possible to sample at the vicinity of the sensor for practice reasons (in winter), sampling is done in the harbour and is not taken in consideration for calibration for spatial reasons. 
+
+Calibration was done following the methods and code described in Bresnahan et al. (2014) and adapted to use in R (seacarb package). Deployment periods are difined so that one spectrophotometric measurement is in the middle of a defined period of calibration (shaded colors in the plot). 
+
+Within this deployment period, calibration is made with E0 calculation (first plot) and final corrected pH is calculated (second plot). To allow calibration, one spectrophotometric pH measurement must match: seaFET voltage, in situ temperature (SBE38) and salinity. When one of these parameters is missing for any reasons (Ferrybox maintenance, breakdown...), the gap is filled with a mean of the 4 previous or next hours when available. If the pH spectrophotometric measurement is too far from the available values, the calibration is not performed (environemental variability reasons). The SBE38 insitu temperature and seaFET temperature are very similar (slope = 0.997, r2 = 0.948). These two temperatures were used interchangeably if one is missing.
+
+Missing data which could be estimated on : 2017-08-24, 2017-09-28, 2019-09-13 x 2.
+Missing data which could not be estimated on : 2018-04-16 , 2018-12-14, 2019-01-18.
 
 ### **seaFET calibration constante E0**
 
-Plots of E0int25 and E0ext25 returned by the function "pHCalib" for each period of deployement are shown below. 
+Plots of E0int25 and E0ext25 returned by the function "pHCalib" for each period of deployement are shown below.
 
 ```{r seaFET calibration sf_calib, echo=FALSE, message= FALSE, warning=FALSE, out.width= "60%"}
 
-# deployment period between 2 spectro measurements
+# We decided to calibrate pH data within each pH spectro measurement.
+# Thus, each pH spectro is taken as one calibration periode. 
+# We calculate here the day between 2 pH spectro in order to have the start/end of one deployment period.
 sfPeriod <- d_all%>%
   dplyr::select(datetime, pH_s_seafet_temp_field)%>%
   dplyr::filter(!is.na(pH_s_seafet_temp_field))
@@ -1107,13 +1116,17 @@ d_all <- d_all %>%
                                 ifelse(datetime >= sfinterv[18] & datetime <= sfinterv[19], 18,
                                 ifelse(datetime >= sfinterv[19] & datetime <= sfinterv[20], 19,
                                 ifelse(datetime >= sfinterv[20] & datetime <= sfinterv[21], 20,
-                                ifelse(datetime >= sfinterv[20] & datetime <= sfinterv[22], 21,
-                                ifelse(datetime >= sfinterv[20] & datetime <= sfinterv[23], 22,
-                                ifelse(datetime >= sfinterv[20] & datetime <= sfinterv[24], 23,
-                                ifelse(datetime >= sfinterv[20] & datetime <= sfinterv[25], 24,
-                                ifelse(datetime >= sfinterv[20] & datetime <= sfinterv[26], 25,
+                                ifelse(datetime >= sfinterv[21] & datetime <= sfinterv[22], 21,
+                                ifelse(datetime >= sfinterv[22] & datetime <= sfinterv[23], 22,
+                                ifelse(datetime >= sfinterv[23] & datetime <= sfinterv[24], 23,
+                                ifelse(datetime >= sfinterv[24] & datetime <= sfinterv[25], 24,
+                                ifelse(datetime >= sfinterv[25] & datetime <= sfinterv[26], 25,
                                 ifelse(datetime >= sfinterv[26] , 26,NA )))))))))))))))))))))))))))
-  
+
+# To make sf calibration against pH spectro, we need: sal - T insi - voltINT/EXT . If we missed one of these parameters, calibration will not run
+# Here we try to fill the gap when it is possible: make a mean with 4 previous/next hours available in the time serie. 
+# If the pH spectro is too far from a needed value, we decided to skip it for the calibration.
+# we highlighted 7 pH spectro that dont match one of these parameters : 2017-08-24 14:00:00 - 2017-09-28 13:00:00 - 2018-04-16 07:00:00 - 2018-12-14 09:00:00 - 2019-01-18 09:00:00 - 2019-09-13 08:00:00 - 2019-09-13 13:00:00
 # Raw voltage INT + pHINT must be filtered from 2017-12-14 to 2018-01-08 < 8.04 (1) and removed from 2018-01-08 to 2018-02-02 (2)
 # 1
 d_all$phINT_filtered <-ifelse(d_all$datetime >= "2017-12-14" & d_all$datetime <= "2018-01-08" & d_all$phINT_filtered < 8.04, NA, d_all$phINT_filtered) 
@@ -1187,6 +1200,7 @@ calib_spectro <- group_by(calib_spectro, deployment_sf) %>%
             E0ext25 = mean(E0ext25, na.rm = T) 
             )
 names(calib_spectro) <- c("deployment_sf", "E0int25_sf", "E0ext25_sf")
+
 # add E0 mean to seaFET data per deployment
 d_all <-left_join(d_all, calib_spectro,by="deployment_sf" )
 
@@ -1262,22 +1276,23 @@ dygraph(seafet_contros_xts, group = "awipev", main="pH seaFET (in situ)", ylab="
   dyRangeSelector(height = 30, dateWindow= NULL) 
 
 #@@@@@ test plot #@@@@@ #@@@@@ #@@@@@ 
-# seafet_contros_xts <- dplyr::select(d_all, datetime, voltINT, phINT_filtered,pH_s_seafet_temp_field, T_seaF, temp_fb, temp_insitu)
-# #seafet_contros_xts <- dplyr::select(d_all, datetime,voltINT)
-# seafet_contros_xts <- as.xts(seafet_contros_xts, order.by = d_all$datetime)
-# dygraph(seafet_contros_xts, group = "awipev", main="pH seaFET (in situ)", ylab="pHT") %>%
-#   dySeries("voltINT", label = "voltINTINT", color ="blue", strokeWidth=0, pointSize=2) %>%
-#     dySeries("pH_s_seafet_temp_field", label = "pH spectro", axis= "y2", color =  "green", strokeWidth = 0, pointSize = 4 ) %>%
-#     dySeries("phINT_filtered", label = "Raw pH INT", color ="red",axis= "y2", strokeWidth=0, pointSize=2) %>%
-# 
-#   dySeries("temp_fb", label = "temp_fb", color ="orange",axis= "y2", strokeWidth=0, pointSize=2) %>%
-#   dySeries("temp_insitu", label = "temp_insitu", color ="black",axis= "y2", strokeWidth=0, pointSize=2) %>%
-#     dySeries("T_seaF", label = "T_seaF", color ="grey",axis= "y2", strokeWidth=0, pointSize=2) %>%
-#   dyLegend(show = "auto")   %>%
-#   dyAxis( "y",valueRange = c(-1, 2))%>%
-#   dyHighlight(highlightCircleSize = 8,highlightSeriesBackgroundAlpha = 0.5,hideOnMouseOut = TRUE) %>%
-#   dyOptions(drawGrid = TRUE, drawPoints = TRUE, pointSize = c(1,8,1),useDataTimezone = TRUE, digitsAfterDecimal=4) %>%
-#   dyRangeSelector(height = 30, dateWindow= NULL) 
+seafet_contros_xts <- dplyr::select(d_all, datetime, voltINT, phINT_filtered,pH_s_seafet_temp_field, T_seaF, temp_fb, temp_insitu, sal_fb)
+#seafet_contros_xts <- dplyr::select(d_all, datetime,voltINT)
+seafet_contros_xts <- as.xts(seafet_contros_xts, order.by = d_all$datetime)
+dygraph(seafet_contros_xts, group = "awipev", main="pH seaFET (in situ)", ylab="pHT") %>%
+  dySeries("voltINT", label = "voltINTINT", color ="blue", strokeWidth=0, pointSize=2) %>%
+    dySeries("pH_s_seafet_temp_field", label = "pH spectro", axis= "y2", color =  "green", strokeWidth = 0, pointSize = 4 ) %>%
+    dySeries("phINT_filtered", label = "Raw pH INT", color ="red",axis= "y2", strokeWidth=0, pointSize=2) %>%
+  dySeries("temp_fb", label = "temp_fb", color ="orange",axis= "y2", strokeWidth=0, pointSize=2) %>%
+
+  dySeries("sal_fb", label = "sal_fb", color ="pink",axis= "y2", strokeWidth=0, pointSize=2) %>%
+  dySeries("temp_insitu", label = "temp_insitu", color ="black",axis= "y2", strokeWidth=0, pointSize=2) %>%
+    dySeries("T_seaF", label = "T_seaF", color ="grey",axis= "y2", strokeWidth=0, pointSize=2) %>%
+  dyLegend(show = "auto")   %>%
+  dyAxis( "y",valueRange = c(-1, 2))%>%
+  dyHighlight(highlightCircleSize = 8,highlightSeriesBackgroundAlpha = 0.5,hideOnMouseOut = TRUE) %>%
+  dyOptions(drawGrid = TRUE, drawPoints = TRUE, pointSize = c(1,8,1),useDataTimezone = TRUE, digitsAfterDecimal=4) %>%
+  dyRangeSelector(height = 30, dateWindow= NULL)
 #@@@@@ #@@@@@ #@@@@@ #@@@@@ #@@@@@ 
 
 
@@ -1518,6 +1533,26 @@ The average offset between durafet and references (spectro) data is `r average_o
 ## pHs 
 Comparaison is done here with **corrected pHs** (**seaFET**, **durafet** and **calculated** (from AT/CT)) and normalized at 4°C with a total alkalinity of 2273 µmoles kg-1 (mean data). For information, mean temperatures in Ferrybox and *in situ* are repectively 3.5°C and 2.5°C.
 
+### **T in situ / T seaFET**
+```{r Temp comparaison, echo=FALSE, message= FALSE, warning=FALSE}
+fit <- lmodel2(data = d_all,  T_seaF ~ temp_insitu , nperm = 99)
+
+pTseaf_Tinsi<-  ggplot(d_all,aes(x=temp_insitu, y= T_seaF, label = month))+
+  geom_text( aes(color=factor(month))) + 
+ # scale_color_viridis_d(option = "C", guide="none")+
+  geom_line(aes(x = T_seaF, y = T_seaF), linetype = "dashed") +
+  geom_abline(aes(intercept = fit$regression.results[2,2], slope = fit$regression.results[2,3]),colour = "blue") +
+  labs(title = paste("T seaF vs T insi","\n Adj R2 = ", signif(fit$rsquare, 3),
+                     "; Intercept =", signif(fit$regression.results[2,2], 3),
+                     "; Slope =", signif( fit$regression.results[2,3], 3),
+                     "; P =", signif(fit$P.param, 3))) +
+  theme(aspect.ratio=1,plot.title = element_text(size=7)) + 
+  coord_fixed(ratio = 1 )+ scale_colour_discrete(guide="none") +
+  labs( x="T insi", y="T seaF ", color = "Months")  +theme_bw()
+
+print(pTseaf_Tinsi)
+```
+
 ### **seaFET / durafet pHs**
 
 ```{r pHs comparaison, echo=FALSE, message= FALSE, warning=FALSE}
@@ -1538,7 +1573,6 @@ d_all <- left_join(d_all, pH_sf%>%dplyr::select(datetime,pHint_tot_sf_norm4 ), b
 d_all <- left_join(d_all, pH_dur%>%dplyr::select(datetime,pH_durafet_norm4 ), by="datetime")
 
 fit <- lmodel2(data = d_all,  pHint_tot_sf_norm4 ~ pH_durafet_norm4 , nperm = 99)
-
 pdur_sf_norm_text <-  ggplot(d_all,aes(x=pH_durafet_norm4, y= pHint_tot_sf_norm4, label = month))+
   geom_text( aes(color=factor(month))) + 
  # scale_color_viridis_d(option = "C", guide="none")+
