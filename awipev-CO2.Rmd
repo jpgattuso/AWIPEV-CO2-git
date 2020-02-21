@@ -1380,10 +1380,7 @@ dygraph(seafet_contros_xts, group = "awipev", main="pH seaFET (in situ)", ylab="
   dyShading(from = sfinterv[19], to= sfinterv[20], color = "#CCCCCC") %>%
    dyShading(from = sfinterv[20], to= sfinterv[21], color = "#E0E0E0") %>%
    dyShading(from = sfinterv[21], to= sfinterv[22], color = "#CCCCCC") %>%
-  dyShading(from = sfinterv[22], to= sfinterv[23], color = "#E0E0E0") %>%
-  dyShading(from = sfinterv[23], to= sfinterv[24], color = "#CCCCCC") %>%
-  dyShading(from = sfinterv[24], to= sfinterv[25], color = "#E0E0E0") %>%
-  dyShading(from = sfinterv[25], to= Sys.Date(), color = "#CCCCCC") %>%
+  dyShading(from = sfinterv[22], to= Sys.Date(), color = "#CCCCCC") %>%
   dyLegend(show = "auto")   %>%
   dyHighlight(highlightCircleSize = 8,highlightSeriesBackgroundAlpha = 0.5,hideOnMouseOut = TRUE) %>%
   dyOptions(drawGrid = TRUE, drawPoints = TRUE, pointSize = c(1,8,1),useDataTimezone = TRUE, digitsAfterDecimal=4) %>%
