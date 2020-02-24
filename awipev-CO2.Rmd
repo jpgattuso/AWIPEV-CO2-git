@@ -1503,10 +1503,6 @@ durinterv[13] <- ymd_hms("2019-01-17 23:00:00")
  #Change period sfinterv[6]. Because seafet was off and on on the 2018-04-24 19:00:00
 durinterv[14] <- ymd_hms("2019-01-19 00:00:00")
 
-# Remove outliers from 2018-07-10 00:00 to 05:00
-d_all$pH_durafet_corrected <- ifelse(d_all$datetime >= "2018-07-10 00:00:00" & d_all$datetime <= "2018-07-10 05:00:00", NA, d_all$pH_durafet_corrected)
-d_all$pH_durafet <- ifelse(d_all$datetime >= "2018-07-10 00:00:00" & d_all$datetime <= "2018-07-10 05:00:00", NA, d_all$pH_durafet)
-
 # set deployment period between 2 spectro measurements.
 # add here the new periods durinterv[..]
 d_all <- d_all %>%
@@ -1584,6 +1580,11 @@ d_all <- d_all%>%
                                 ifelse(deployment_dur == 25, dat_dur$diff_pH_dur[25],0))))))))))))))))))))))))),
               pH_durafet_corrected = pH_durafet + offset_durafet
               )
+
+# Remove outliers from 2018-07-10 00:00 to 05:00
+d_all$pH_durafet_corrected <- ifelse(d_all$datetime >= "2018-07-10 00:00:00" & d_all$datetime <= "2018-07-10 05:00:00", NA, d_all$pH_durafet_corrected)
+d_all$pH_durafet <- ifelse(d_all$datetime >= "2018-07-10 00:00:00" & d_all$datetime <= "2018-07-10 05:00:00", NA, d_all$pH_durafet)
+
 # DURAFET 
 durafet_contros_xts <- dplyr::select(d_all, datetime, pH_durafet, pH_s_durafet_temp_field,pH_durafet_corrected)
 durafet_contros_xts <- as.xts(durafet_contros_xts, order.by = d_all$datetime)
