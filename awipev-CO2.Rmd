@@ -589,7 +589,7 @@ sd_diff_T_seaF_insitu <- round(sd(d_all$diff_T_seaF_insitu, na.rm = TRUE), digit
 
 ```
 
-The mean difference between T seaFET and in situ is: `r mean_diff_T_seaF_insitu` ± `r sd_diff_T_seaF_insitu°C`.
+The mean difference between T seaFET and in situ is: `r mean_diff_T_seaF_insitu` ± `r sd_diff_T_seaF_insitu`°C.
 
 ### **T Ferrybox / T in situ **
 ```{r Temp fb insi comparaison, echo=FALSE, message= FALSE, warning=FALSE}
@@ -1162,6 +1162,9 @@ sfPeriod <-  sfPeriod %>%
 
 #put interval in a list with the start date of seaFET measurements
 sfinterv <- c( as_datetime("2017-08-24 13:00:00"), sfPeriod[,4])
+#Change period sfinterv[5]. make the end of this period longer until 2018-03-21 23:59:00 
+# This is needed in order to take in consideration pH from March 2018 with a calibration E0 lower (-1.4) than the next period (-0.38).
+sfinterv[5] <- ymd_hms("2018-03-22 23:59:59")
 #  #Change period sfinterv[6]. Because seafet was off and on on the 2018-04-24 19:00:00
 # sfinterv[6] <- ymd_hms("2018-04-24 18:00:00")
 #  #Change period sfinterv[6]. Because seafet was off and on on the 2018-04-24 19:00:00
