@@ -589,7 +589,7 @@ sd_diff_T_seaF_insitu <- round(sd(d_all$diff_T_seaF_insitu, na.rm = TRUE), digit
 
 ```
 
-The mean difference between T seaFET and in situ is: `r mean_diff_T_seaF_insitu` ± `r sd_diff_T_seaF_insitu°C.
+The mean difference between T seaFET and in situ is: `r mean_diff_T_seaF_insitu` ± `r sd_diff_T_seaF_insitu`°C.
 
 ### **T Ferrybox / T in situ **
 ```{r Temp fb insi comparaison, echo=FALSE, message= FALSE, warning=FALSE}
@@ -1162,6 +1162,9 @@ sfPeriod <-  sfPeriod %>%
 
 #put interval in a list with the start date of seaFET measurements
 sfinterv <- c( as_datetime("2017-08-24 13:00:00"), sfPeriod[,4])
+#Change period sfinterv[5]. make the end of this period longer until 2018-03-21 23:59:00 
+# This is needed in order to take in consideration pH from March 2018 with a calibration E0 lower (-1.4) than the next period (-0.38).
+sfinterv[5] <- ymd_hms("2018-03-22 23:59:59")
 #  #Change period sfinterv[6]. Because seafet was off and on on the 2018-04-24 19:00:00
 # sfinterv[6] <- ymd_hms("2018-04-24 18:00:00")
 #  #Change period sfinterv[6]. Because seafet was off and on on the 2018-04-24 19:00:00
@@ -1192,27 +1195,32 @@ d_all <- d_all %>%
                                 ifelse(datetime >= sfinterv[19] & datetime <= sfinterv[20], 19,
                                 ifelse(datetime >= sfinterv[20] & datetime <= sfinterv[21], 20,
                                 ifelse(datetime >= sfinterv[21] & datetime <= sfinterv[22], 21,
-                                ifelse(datetime >= sfinterv[22] & datetime <= sfinterv[23], 22,
-                                ifelse(datetime >= sfinterv[23] & datetime <= sfinterv[24], 23,
-                                ifelse(datetime >= sfinterv[24] & datetime <= sfinterv[25], 24,
-                                ifelse(datetime >= sfinterv[25] & datetime <= sfinterv[26], 25,
-                                ifelse(datetime >= sfinterv[26] , 26,NA )))))))))))))))))))))))))))
+                                #ifelse(datetime >= sfinterv[22] & datetime <= sfinterv[23], 22,
+                                #ifelse(datetime >= sfinterv[23] & datetime <= sfinterv[24], 23,
+                                #ifelse(datetime >= sfinterv[24] & datetime <= sfinterv[25], 24,
+                                #ifelse(datetime >= sfinterv[25] & datetime <= sfinterv[26], 25,
+                                ifelse(datetime >= sfinterv[22] , 22,NA )))))))))))))))))))))))
 
 # To make sf calibration against pH spectro, we need: sal - T insi - voltINT/EXT . If we missed one of these parameters, calibration will not run
 # Here we try to fill the gap when it is possible: make a mean with 4 previous/next hours available in the time serie. 
 # If the pH spectro is too far from a needed value, we decided to skip it for the calibration.
 # we highlighted 7 pH spectro that dont match one of these parameters : 2017-08-24 14:00:00 - 2017-09-28 13:00:00 - 2018-04-16 07:00:00 - 2018-12-14 09:00:00 - 2019-01-18 09:00:00 - 2019-09-13 08:00:00 - 2019-09-13 13:00:00
-# Raw voltage INT + pHINT must be filtered from 2017-12-14 to 2018-01-08 < 8.04 (1) and removed from 2018-01-08 to 2018-02-02 (2)
-# 1
+# (1) Raw voltage INT + pHINT must be filtered from 2017-12-14 to 2018-01-08 < 8.04,
+# (2) removed from 2018-01-08 to 2018-02-02
+# (3) outliers removed
+# (1)
 d_all$phINT_filtered <-ifelse(d_all$datetime >= "2017-12-14" & d_all$datetime <= "2018-01-08" & d_all$phINT_filtered < 8.04, NA, d_all$phINT_filtered) 
 d_all$phEXT_filtered <-ifelse(d_all$datetime >= "2017-12-14" & d_all$datetime <= "2018-01-08" & d_all$phEXT_filtered < 8.04, NA, d_all$phEXT_filtered) 
 d_all$voltINT <-ifelse(d_all$datetime >= "2017-12-14" & d_all$datetime <= "2018-01-08" & d_all$voltINT < -0.9439, NA, d_all$voltINT) 
 d_all$voltEXT <-ifelse(d_all$datetime >= "2017-12-14" & d_all$datetime <= "2018-01-08" & d_all$voltEXT < -0.907, NA, d_all$voltEXT) 
-# 2
+# (2)
 d_all$voltINT <- ifelse(d_all$datetime >= "2018-01-08 17:00:00" & d_all$datetime <= "2018-02-02 09:00:00", NA, d_all$voltINT)
 d_all$voltEXT <- ifelse(d_all$datetime >= "2018-01-08 17:00:00" & d_all$datetime <= "2018-02-02 09:00:00", NA, d_all$voltEXT)
 d_all$phINT_filtered <- ifelse(d_all$datetime >= "2018-01-08 17:00:00" & d_all$datetime <= "2018-02-02 09:00:00", NA, d_all$phINT_filtered)
 d_all$phEXT_filtered <- ifelse(d_all$datetime >= "2018-01-08 17:00:00" & d_all$datetime <= "2018-02-02 09:00:00", NA, d_all$phEXT_filtered)
+# (3)
+d_all$voltINT <- ifelse(d_all$datetime == "2017-11-02 21:00:00" | d_all$datetime == "2018-04-18 14:00:00", NA, d_all$voltINT)
+
 
 # period 1, mean of 4 next hours for volt int + T seaF
 mean_voltINT_4h <- d_all%>%
@@ -1220,21 +1228,21 @@ mean_voltINT_4h <- d_all%>%
   dplyr::summarise( mean(voltINT, na.rm = TRUE))
 mean_voltINT_4h <- as.numeric(mean_voltINT_4h)
 d_all <- d_all%>%
-  dplyr::mutate(voltINT = ifelse(datetime == "2017-08-24 14:00:00" , mean_voltINT_4h, voltINT))
+  dplyr::mutate(voltINT = ifelse(datetime == "2017-08-24 13:00:00" , mean_voltINT_4h, voltINT))
 
 mean_voltEXT_4h <- d_all%>%
   dplyr::filter(datetime >= "2017-08-24 19:00:00" & datetime <= "2017-08-24 22:00:00")%>%
   dplyr::summarise( mean(voltEXT, na.rm = TRUE))
 mean_voltEXT_4h <- as.numeric(mean_voltEXT_4h)
 d_all <- d_all%>%
-  dplyr::mutate(voltEXT = ifelse(datetime == "2017-08-24 14:00:00" , mean_voltEXT_4h, voltEXT))
+  dplyr::mutate(voltEXT = ifelse(datetime == "2017-08-24 13:00:00" , mean_voltEXT_4h, voltEXT))
 
 mean_TseaF_4h <- d_all%>%
   dplyr::filter(datetime >= "2017-08-24 19:00:00" & datetime <= "2017-08-24 22:00:00")%>%
   dplyr::summarise( mean(T_seaF, na.rm = TRUE))
 mean_TseaF_4h <- as.numeric(mean_TseaF_4h)
 d_all <- d_all%>%
-  dplyr::mutate(temp_insitu = ifelse(datetime == "2017-08-24 14:00:00" , mean_TseaF_4h, temp_insitu))
+  dplyr::mutate(temp_insitu = ifelse(datetime == "2017-08-24 13:00:00" , mean_TseaF_4h, temp_insitu))
 
 # period 2, mean of 4 next hours for volt int + T seaF
 mean_voltINT_4h <- d_all%>%
@@ -1380,13 +1388,13 @@ dygraph(seafet_contros_xts, group = "awipev", main="pH seaFET (in situ)", ylab="
   dyShading(from = sfinterv[19], to= sfinterv[20], color = "#CCCCCC") %>%
    dyShading(from = sfinterv[20], to= sfinterv[21], color = "#E0E0E0") %>%
    dyShading(from = sfinterv[21], to= sfinterv[22], color = "#CCCCCC") %>%
-  dyShading(from = sfinterv[22], to= Sys.Date(), color = "#CCCCCC") %>%
+  dyShading(from = sfinterv[22], to= Sys.Date(), color = "#E0E0E0") %>%
   dyLegend(show = "auto")   %>%
   dyHighlight(highlightCircleSize = 8,highlightSeriesBackgroundAlpha = 0.5,hideOnMouseOut = TRUE) %>%
   dyOptions(drawGrid = TRUE, drawPoints = TRUE, pointSize = c(1,8,1),useDataTimezone = TRUE, digitsAfterDecimal=4) %>%
   dyRangeSelector(height = 30, dateWindow= NULL) 
 
-# #@@@@@ test plot #@@@@@ #@@@@@ #@@@@@ 
+# # #@@@@@ test plot #@@@@@ #@@@@@ #@@@@@ 
 # seafet_contros_xts <- dplyr::select(d_all, datetime, voltINT, phINT_filtered,pH_s_seafet_temp_field, T_seaF, temp_fb, temp_insitu, sal_fb,pHint_tot_sf)
 # #seafet_contros_xts <- dplyr::select(d_all, datetime,voltINT)
 # seafet_contros_xts <- as.xts(seafet_contros_xts, order.by = d_all$datetime)
@@ -1401,10 +1409,11 @@ dygraph(seafet_contros_xts, group = "awipev", main="pH seaFET (in situ)", ylab="
 #     dySeries("T_seaF", label = "T_seaF", color ="grey",axis= "y2", strokeWidth=0, pointSize=2) %>%
 #   dyLegend(show = "auto")   %>%
 #   dyAxis( "y2",valueRange = c(-3, 36))%>%
+#   dyAxis( "y",valueRange = c(-2, 2))%>%
 #   dyHighlight(highlightCircleSize = 8,highlightSeriesBackgroundAlpha = 0.5,hideOnMouseOut = TRUE) %>%
 #   dyOptions(drawGrid = TRUE, drawPoints = TRUE, pointSize = c(1,8,1),useDataTimezone = TRUE, digitsAfterDecimal=4) %>%
 #   dyRangeSelector(height = 30, dateWindow= NULL)
-# #@@@@@ #@@@@@ #@@@@@ #@@@@@ #@@@@@ 
+# # #@@@@@ #@@@@@ #@@@@@ #@@@@@ #@@@@@ 
 
 # Offset between seafet pH and spec pH 
 sfoffset <- left_join(sfPeriod[,c(1,2)], d_all%>%dplyr::select(datetime, pHint_tot_sf), by="datetime")
@@ -1444,7 +1453,9 @@ d_all<- d_all%>%
   dplyr::mutate(year = year(datetime))
 range <- tbl_df(
   d_all %>%
-  group_by(date=as.Date(datetime), month=month(datetime, label=TRUE), year=year(datetime)) %>%
+  group_by(date=as.Date(datetime), 
+           month=month(datetime, label=TRUE), 
+           year=year(datetime)) %>%
   summarize(pH_range = max(pHint_tot_sf) - min(pHint_tot_sf))
 )
 quant <- quantile(range$pH_range, probs =c(2.5/100, 97.5/100), na.rm =TRUE)
@@ -1492,7 +1503,6 @@ durinterv[13] <- ymd_hms("2019-01-17 23:00:00")
  #Change period sfinterv[6]. Because seafet was off and on on the 2018-04-24 19:00:00
 durinterv[14] <- ymd_hms("2019-01-19 00:00:00")
 
-
 # set deployment period between 2 spectro measurements.
 # add here the new periods durinterv[..]
 d_all <- d_all %>%
@@ -1514,8 +1524,14 @@ d_all <- d_all %>%
                                 ifelse(datetime >= durinterv[16] & datetime <= durinterv[17], 16,
                                  ifelse(datetime >= durinterv[17] & datetime <= durinterv[18], 17,
                                 ifelse(datetime >= durinterv[18] & datetime <= durinterv[19], 18,
-
-                                ifelse(datetime >= durinterv[19], 18,NA ))))))))))))))))))))
+                                ifelse(datetime >= durinterv[19] & datetime <= durinterv[20], 19,
+                                 ifelse(datetime >= durinterv[20] & datetime <= durinterv[21], 20,
+                                ifelse(datetime >= durinterv[21] & datetime <= durinterv[22], 21,
+                                 ifelse(datetime >= durinterv[22] & datetime <= durinterv[23], 22,
+                                ifelse(datetime >= durinterv[23] & datetime <= durinterv[24], 23,
+                                ifelse(datetime >= durinterv[24] & datetime <= durinterv[25], 24,
+                                 ifelse(datetime >= durinterv[25] & datetime <= durinterv[26], 25,
+                                ifelse(datetime >= durinterv[26], 26,NA )))))))))))))))))))))))))))
 
 # Offset between durafet pH and spec pH 
 duroffset <- left_join(durPeriod%>%dplyr::select(datetime,pH_s_durafet_temp_field), d_all%>%dplyr::select(datetime,pH_durafet ), by="datetime")
@@ -1555,9 +1571,20 @@ d_all <- d_all%>%
                                 ifelse(deployment_dur == 16, dat_dur$diff_pH_dur[16],
                                 ifelse(deployment_dur == 17, dat_dur$diff_pH_dur[17],
                                 ifelse(deployment_dur == 18, dat_dur$diff_pH_dur[18],
-                                ifelse(deployment_dur == 19, dat_dur$diff_pH_dur[19],0))))))))))))))))))),
+                                ifelse(deployment_dur == 19, dat_dur$diff_pH_dur[19],
+                                ifelse(deployment_dur == 20, dat_dur$diff_pH_dur[20],
+                                ifelse(deployment_dur == 21, dat_dur$diff_pH_dur[21],
+                                ifelse(deployment_dur == 22, dat_dur$diff_pH_dur[22],
+                                ifelse(deployment_dur == 23, dat_dur$diff_pH_dur[23],
+                                ifelse(deployment_dur == 24, dat_dur$diff_pH_dur[24],
+                                ifelse(deployment_dur == 25, dat_dur$diff_pH_dur[25],0))))))))))))))))))))))))),
               pH_durafet_corrected = pH_durafet + offset_durafet
               )
+
+# Remove outliers from 2018-07-10 00:00 to 05:00
+d_all$pH_durafet_corrected <- ifelse(d_all$datetime >= "2018-07-10 00:00:00" & d_all$datetime <= "2018-07-10 05:00:00", NA, d_all$pH_durafet_corrected)
+d_all$pH_durafet <- ifelse(d_all$datetime >= "2018-07-10 00:00:00" & d_all$datetime <= "2018-07-10 05:00:00", NA, d_all$pH_durafet)
+
 # DURAFET 
 durafet_contros_xts <- dplyr::select(d_all, datetime, pH_durafet, pH_s_durafet_temp_field,pH_durafet_corrected)
 durafet_contros_xts <- as.xts(durafet_contros_xts, order.by = d_all$datetime)
@@ -1567,8 +1594,7 @@ durafet_contros_xts <- as.xts(durafet_contros_xts, order.by = d_all$datetime)
     dySeries("pH_s_durafet_temp_field", label = "pH spectro", color =  "red", strokeWidth = 0, pointSize = 4 ) %>%
     dyEvent(as.POSIXct("2017-10-30 13:00:00", tz="GMT"), "New holder installed", labelLoc = "bottom", color="red") %>% 
     dyEvent(as.POSIXct("2017-08-24 12:00:00", tz="GMT"), "durafet installed", labelLoc = "bottom", color="red") %>%
-       dyEvent(as.POSIXct("2019-09-02 20:00:00", tz="GMT"), "cleaning same probe ", labelLoc = "bottom", color="red") %>%
-
+    dyEvent(as.POSIXct("2019-09-02 20:00:00", tz="GMT"), "cleaning same probe ", labelLoc = "bottom", color="red") %>%
     # dyOptions(colors = RColorBrewer::brewer.pal(3, "Dark2"), pointSize = 4) %>%
     dyShading(from =  durinterv[1], to= durinterv[2], color = "#CCCCCC") %>%
     dyShading(from = durinterv[2], to= durinterv[3], color = "#E0E0E0") %>%
@@ -1586,7 +1612,16 @@ durafet_contros_xts <- as.xts(durafet_contros_xts, order.by = d_all$datetime)
    dyShading(from = durinterv[14], to= durinterv[15], color = "#E0E0E0") %>%
    dyShading(from = durinterv[15], to= durinterv[16], color = "#CCCCCC") %>%
    dyShading(from = durinterv[16], to= durinterv[17], color = "#E0E0E0") %>%
-   dyShading(from = durinterv[17], to= Sys.Date(), color = "#CCCCCC") %>%
+   dyShading(from = durinterv[17], to= durinterv[18], color = "#CCCCCC") %>%
+   dyShading(from = durinterv[18], to= durinterv[19], color = "#E0E0E0") %>%
+    dyShading(from = durinterv[19], to= durinterv[20], color = "#CCCCCC") %>%
+    dyShading(from = durinterv[20], to= durinterv[21], color = "#E0E0E0") %>%
+   dyShading(from = durinterv[21], to= durinterv[22], color = "#CCCCCC") %>%
+   dyShading(from = durinterv[22], to= durinterv[23], color = "#E0E0E0") %>%
+   dyShading(from = durinterv[23], to= durinterv[24], color = "#CCCCCC") %>%
+   dyShading(from = durinterv[24], to= durinterv[25], color = "#E0E0E0") %>%
+  dyShading(from = durinterv[25], to= durinterv[26], color = "#CCCCCC") %>%
+  dyShading(from = durinterv[26], to= Sys.Date(), color = "#E0E0E0") %>%
      dyLegend(show = "follow")   %>%
     dyHighlight(highlightCircleSize = 8,highlightSeriesBackgroundAlpha = 0.5,hideOnMouseOut = TRUE) %>%
     dyOptions(drawGrid = TRUE, drawPoints = TRUE, pointSize = c(1,8,1),useDataTimezone = TRUE, digitsAfterDecimal=4) %>%
@@ -1639,6 +1674,24 @@ ggsave(paste0("figures/plot_range_dur.png"), width= 30, height=10, plot_range_du
 ```
 
 The average offset between durafet and references (spectro) data is `r average_offset_dur` pH unit (sd = `r sd_offset_dur`, n = `r n_offset_dur`).
+
+## Range per months
+
+```{r Range per month, echo=FALSE, message= FALSE, warning=FALSE}
+range_month <-
+  d_all %>%
+  group_by(Month = month(datetime, label=TRUE, abbr=FALSE)) %>%
+  #summarize(pH_range_month = mean(pH_range, na.rm=TRUE))%>%
+  summarize(Tinsi_max = max(temp_insitu, na.rm=TRUE),
+            Tinsi_min = min(temp_insitu, na.rm=TRUE),
+            Tfrbx_max = max(temp_fb, na.rm=TRUE),
+            Tfrbx_min = min(temp_fb, na.rm=TRUE),
+            pH_sf_max = max(pHint_tot_sf, na.rm=TRUE),
+            pH_sf_min = min(pHint_tot_sf, na.rm=TRUE),
+            pH_dur_max = max(pH_durafet_corrected, na.rm=TRUE),
+            pH_dur_min = min(pH_durafet_corrected, na.rm=TRUE))
+kable(range_month)
+```
 
 ## pHs 
 Comparaison is done here with **corrected pHs** (**seaFET**, **durafet** and **calculated** (from AT/CT)) and normalized at 4°C with a total alkalinity of 2273 µmoles kg-1 (mean data). For information, mean temperatures in Ferrybox and *in situ* are repectively 3.5°C and 2.5°C.
