@@ -589,7 +589,7 @@ sd_diff_T_seaF_insitu <- round(sd(d_all$diff_T_seaF_insitu, na.rm = TRUE), digit
 
 ```
 
-The mean difference between T seaFET and in situ is: `r mean_diff_T_seaF_insitu` ± `r sd_diff_T_seaF_insitu°C.
+The mean difference between T seaFET and in situ is: `r mean_diff_T_seaF_insitu` ± `r sd_diff_T_seaF_insitu°C`.
 
 ### **T Ferrybox / T in situ **
 ```{r Temp fb insi comparaison, echo=FALSE, message= FALSE, warning=FALSE}
@@ -1192,11 +1192,11 @@ d_all <- d_all %>%
                                 ifelse(datetime >= sfinterv[19] & datetime <= sfinterv[20], 19,
                                 ifelse(datetime >= sfinterv[20] & datetime <= sfinterv[21], 20,
                                 ifelse(datetime >= sfinterv[21] & datetime <= sfinterv[22], 21,
-                                ifelse(datetime >= sfinterv[22] & datetime <= sfinterv[23], 22,
-                                ifelse(datetime >= sfinterv[23] & datetime <= sfinterv[24], 23,
-                                ifelse(datetime >= sfinterv[24] & datetime <= sfinterv[25], 24,
-                                ifelse(datetime >= sfinterv[25] & datetime <= sfinterv[26], 25,
-                                ifelse(datetime >= sfinterv[26] , 26,NA )))))))))))))))))))))))))))
+                                #ifelse(datetime >= sfinterv[22] & datetime <= sfinterv[23], 22,
+                                #ifelse(datetime >= sfinterv[23] & datetime <= sfinterv[24], 23,
+                                #ifelse(datetime >= sfinterv[24] & datetime <= sfinterv[25], 24,
+                                #ifelse(datetime >= sfinterv[25] & datetime <= sfinterv[26], 25,
+                                ifelse(datetime >= sfinterv[22] , 22,NA )))))))))))))))))))))))
 
 # To make sf calibration against pH spectro, we need: sal - T insi - voltINT/EXT . If we missed one of these parameters, calibration will not run
 # Here we try to fill the gap when it is possible: make a mean with 4 previous/next hours available in the time serie. 
@@ -1220,21 +1220,21 @@ mean_voltINT_4h <- d_all%>%
   dplyr::summarise( mean(voltINT, na.rm = TRUE))
 mean_voltINT_4h <- as.numeric(mean_voltINT_4h)
 d_all <- d_all%>%
-  dplyr::mutate(voltINT = ifelse(datetime == "2017-08-24 14:00:00" , mean_voltINT_4h, voltINT))
+  dplyr::mutate(voltINT = ifelse(datetime == "2017-08-24 13:00:00" , mean_voltINT_4h, voltINT))
 
 mean_voltEXT_4h <- d_all%>%
   dplyr::filter(datetime >= "2017-08-24 19:00:00" & datetime <= "2017-08-24 22:00:00")%>%
   dplyr::summarise( mean(voltEXT, na.rm = TRUE))
 mean_voltEXT_4h <- as.numeric(mean_voltEXT_4h)
 d_all <- d_all%>%
-  dplyr::mutate(voltEXT = ifelse(datetime == "2017-08-24 14:00:00" , mean_voltEXT_4h, voltEXT))
+  dplyr::mutate(voltEXT = ifelse(datetime == "2017-08-24 13:00:00" , mean_voltEXT_4h, voltEXT))
 
 mean_TseaF_4h <- d_all%>%
   dplyr::filter(datetime >= "2017-08-24 19:00:00" & datetime <= "2017-08-24 22:00:00")%>%
   dplyr::summarise( mean(T_seaF, na.rm = TRUE))
 mean_TseaF_4h <- as.numeric(mean_TseaF_4h)
 d_all <- d_all%>%
-  dplyr::mutate(temp_insitu = ifelse(datetime == "2017-08-24 14:00:00" , mean_TseaF_4h, temp_insitu))
+  dplyr::mutate(temp_insitu = ifelse(datetime == "2017-08-24 13:00:00" , mean_TseaF_4h, temp_insitu))
 
 # period 2, mean of 4 next hours for volt int + T seaF
 mean_voltINT_4h <- d_all%>%
@@ -1380,30 +1380,31 @@ dygraph(seafet_contros_xts, group = "awipev", main="pH seaFET (in situ)", ylab="
   dyShading(from = sfinterv[19], to= sfinterv[20], color = "#CCCCCC") %>%
    dyShading(from = sfinterv[20], to= sfinterv[21], color = "#E0E0E0") %>%
    dyShading(from = sfinterv[21], to= sfinterv[22], color = "#CCCCCC") %>%
-  dyShading(from = sfinterv[22], to= Sys.Date(), color = "#CCCCCC") %>%
+  dyShading(from = sfinterv[22], to= Sys.Date(), color = "#E0E0E0") %>%
   dyLegend(show = "auto")   %>%
   dyHighlight(highlightCircleSize = 8,highlightSeriesBackgroundAlpha = 0.5,hideOnMouseOut = TRUE) %>%
   dyOptions(drawGrid = TRUE, drawPoints = TRUE, pointSize = c(1,8,1),useDataTimezone = TRUE, digitsAfterDecimal=4) %>%
   dyRangeSelector(height = 30, dateWindow= NULL) 
 
 # #@@@@@ test plot #@@@@@ #@@@@@ #@@@@@ 
-# seafet_contros_xts <- dplyr::select(d_all, datetime, voltINT, phINT_filtered,pH_s_seafet_temp_field, T_seaF, temp_fb, temp_insitu, sal_fb,pHint_tot_sf)
-# #seafet_contros_xts <- dplyr::select(d_all, datetime,voltINT)
-# seafet_contros_xts <- as.xts(seafet_contros_xts, order.by = d_all$datetime)
-# dygraph(seafet_contros_xts, group = "awipev", main="pH seaFET (in situ)", ylab="pHT") %>%
-#   dySeries("voltINT", label = "voltINTINT", color ="blue", strokeWidth=0, pointSize=2) %>%
-#     dySeries("pH_s_seafet_temp_field", label = "pH spectro", axis= "y2", color =  "green", strokeWidth = 0, pointSize = 4 ) %>%
-#     dySeries("pHint_tot_sf", label = "corr pH INT", color ="red",axis= "y2", strokeWidth=0, pointSize=2) %>%
-#   dySeries("temp_fb", label = "temp_fb", color ="orange",axis= "y2", strokeWidth=0, pointSize=2) %>%
-# 
-#   dySeries("sal_fb", label = "sal_fb", color ="pink",axis= "y2", strokeWidth=0, pointSize=2) %>%
-#   dySeries("temp_insitu", label = "temp_insitu", color ="black",axis= "y2", strokeWidth=0, pointSize=2) %>%
-#     dySeries("T_seaF", label = "T_seaF", color ="grey",axis= "y2", strokeWidth=0, pointSize=2) %>%
-#   dyLegend(show = "auto")   %>%
-#   dyAxis( "y2",valueRange = c(-3, 36))%>%
-#   dyHighlight(highlightCircleSize = 8,highlightSeriesBackgroundAlpha = 0.5,hideOnMouseOut = TRUE) %>%
-#   dyOptions(drawGrid = TRUE, drawPoints = TRUE, pointSize = c(1,8,1),useDataTimezone = TRUE, digitsAfterDecimal=4) %>%
-#   dyRangeSelector(height = 30, dateWindow= NULL)
+seafet_contros_xts <- dplyr::select(d_all, datetime, voltINT, phINT_filtered,pH_s_seafet_temp_field, T_seaF, temp_fb, temp_insitu, sal_fb,pHint_tot_sf)
+#seafet_contros_xts <- dplyr::select(d_all, datetime,voltINT)
+seafet_contros_xts <- as.xts(seafet_contros_xts, order.by = d_all$datetime)
+dygraph(seafet_contros_xts, group = "awipev", main="pH seaFET (in situ)", ylab="pHT") %>%
+  dySeries("voltINT", label = "voltINTINT", color ="blue", strokeWidth=0, pointSize=2) %>%
+    dySeries("pH_s_seafet_temp_field", label = "pH spectro", axis= "y2", color =  "green", strokeWidth = 0, pointSize = 4 ) %>%
+    dySeries("pHint_tot_sf", label = "corr pH INT", color ="red",axis= "y2", strokeWidth=0, pointSize=2) %>%
+  dySeries("temp_fb", label = "temp_fb", color ="orange",axis= "y2", strokeWidth=0, pointSize=2) %>%
+
+  dySeries("sal_fb", label = "sal_fb", color ="pink",axis= "y2", strokeWidth=0, pointSize=2) %>%
+  dySeries("temp_insitu", label = "temp_insitu", color ="black",axis= "y2", strokeWidth=0, pointSize=2) %>%
+    dySeries("T_seaF", label = "T_seaF", color ="grey",axis= "y2", strokeWidth=0, pointSize=2) %>%
+  dyLegend(show = "auto")   %>%
+  dyAxis( "y2",valueRange = c(-3, 36))%>%
+  dyAxis( "y",valueRange = c(-2, 2))%>%
+  dyHighlight(highlightCircleSize = 8,highlightSeriesBackgroundAlpha = 0.5,hideOnMouseOut = TRUE) %>%
+  dyOptions(drawGrid = TRUE, drawPoints = TRUE, pointSize = c(1,8,1),useDataTimezone = TRUE, digitsAfterDecimal=4) %>%
+  dyRangeSelector(height = 30, dateWindow= NULL)
 # #@@@@@ #@@@@@ #@@@@@ #@@@@@ #@@@@@ 
 
 # Offset between seafet pH and spec pH 
