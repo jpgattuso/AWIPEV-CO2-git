@@ -1355,14 +1355,19 @@ names(seafet_calib) <- c("pHint_tot_sf", "pHext_tot_sf")
 d_all <- cbind(d_all, seafet_calib )
 
 # pH seaFET Final
-seafet_contros_xts <- dplyr::select(d_all, datetime, phINT_filtered,pH_s_seafet_temp_field,pHint_tot_sf)
+# add spectro points that are not taking into consideration
+d_all <- d_all%>%
+  dplyr::mutate( pH_s_sf_no_calb = ifelse(datetime == "2018-04-16 07:00:00" | datetime == "2018-12-14 09:00:00" | datetime == "2019-01-18 09:00:00", pH_s_seafet_temp_field, NA ))
+
+seafet_contros_xts <- dplyr::select(d_all, datetime, phINT_filtered,pH_s_seafet_temp_field,pHint_tot_sf, pH_s_sf_no_calb)
 #seafet_contros_xts <- dplyr::select(d_all, datetime,voltINT)
 seafet_contros_xts <- as.xts(seafet_contros_xts, order.by = d_all$datetime)
 dygraph(seafet_contros_xts, group = "awipev", main="pH seaFET (in situ)", ylab="pHT") %>%
   #dySeries("voltINT", label = "Raw data INT", color ="blue", strokeWidth=0, pointSize=2) %>%
   dySeries("pHint_tot_sf", label = "pHT corrected", color =  RColorBrewer::brewer.pal(3, "Dark2")[1], strokeWidth = 0, pointSize = 2) %>%
     dySeries("phINT_filtered", label = "Raw data INT", color ="blue", strokeWidth=0, pointSize=2) %>%
-    dySeries("pH_s_seafet_temp_field", label = "pH spectro", color =  "red", strokeWidth = 0, pointSize = 4 ) %>%
+    dySeries("pH_s_seafet_temp_field", label = "pH spectro for calibration", color =  "red", strokeWidth = 0, pointSize = 4 ) %>%
+    dySeries("pH_s_sf_no_calb", label = "pH spectro no calibration", color =  "black", pointShape = "triangle", strokeWidth = 0, pointSize = 6 ) %>%
 
   dyEvent(as.POSIXct("2017-08-24 12:00:00", tz="GMT"), "seaFET #1005 installed", labelLoc = "bottom", color="red") %>%
   dyEvent(as.POSIXct("2018-02-02 09:00:00", tz="GMT"), "seaFET settings changed to every 1H", labelLoc = "bottom", color="red") %>% 
@@ -1498,10 +1503,14 @@ durPeriod <-  durPeriod %>%
 
 #put interval in a list with the start date of durafet measurements
 durinterv <- c( as_datetime("2017-08-24 13:00:00"), durPeriod[,4])
+ #Change period sfinterv[2]. Because durafet measurementwas not working on period 1. No match between spectro and sensor. Durafet spectro 1 not taking into consideration.
+durinterv[2] <- ymd_hms("2017-08-24 13:00:00")
+ #Change period sfinterv[06]. Because durafet was not responding good after 2018-03-08 23:00:00.
+durinterv[6] <- ymd_hms("2018-03-08 23:00:00")
+ #Change period sfinterv[13]. Because durafet was off just after 2018-12-28.
+durinterv[13] <- ymd_hms("2019-12-28 17:00:00")
  #Change period sfinterv[6]. Because seafet was off and on on the 2018-04-24 19:00:00
-durinterv[13] <- ymd_hms("2019-01-17 23:00:00")
- #Change period sfinterv[6]. Because seafet was off and on on the 2018-04-24 19:00:00
-durinterv[14] <- ymd_hms("2019-01-19 00:00:00")
+#durinterv[14] <- ymd_hms("2019-01-19 00:00:00")
 
 # set deployment period between 2 spectro measurements.
 # add here the new periods durinterv[..]
@@ -1586,12 +1595,17 @@ d_all$pH_durafet_corrected <- ifelse(d_all$datetime >= "2018-07-10 00:00:00" & d
 d_all$pH_durafet <- ifelse(d_all$datetime >= "2018-07-10 00:00:00" & d_all$datetime <= "2018-07-10 05:00:00", NA, d_all$pH_durafet)
 
 # DURAFET 
-durafet_contros_xts <- dplyr::select(d_all, datetime, pH_durafet, pH_s_durafet_temp_field,pH_durafet_corrected)
+# add spectro points that are not taking into consideration
+d_all <- d_all%>%
+  dplyr::mutate( pH_s_dur_no_calb = ifelse(datetime == "2017-08-24 13:00:00", pH_s_durafet_temp_field, NA ))
+
+durafet_contros_xts <- dplyr::select(d_all, datetime, pH_durafet, pH_s_durafet_temp_field,pH_durafet_corrected, pH_s_dur_no_calb)
 durafet_contros_xts <- as.xts(durafet_contros_xts, order.by = d_all$datetime)
  dygraph(durafet_contros_xts, group = "awipev", main="pH durafet (in Ferrybox)", ylab="pHT") %>%
     dySeries("pH_durafet", label = "Raw durafet pH", color ="blue", strokeWidth=0, pointSize=2) %>%
-    dySeries("pH_durafet_corrected", label = "pH durafet corrected", color =  RColorBrewer::brewer.pal(3, "Dark2")[1], strokeWidth = 0, pointSize = 2 ) %>%
-    dySeries("pH_s_durafet_temp_field", label = "pH spectro", color =  "red", strokeWidth = 0, pointSize = 4 ) %>%
+    dySeries("pH_s_durafet_temp_field", label = "pH spectro for calibration", color =  "red", strokeWidth = 0, pointSize = 4 ) %>%
+       dySeries("pH_s_dur_no_calb", label = "pH spectro no calibration", color ="black", pointShape = "triangle",strokeWidth=0, pointSize=6) %>%
+       dySeries("pH_durafet_corrected", label = "pH durafet corrected", color =  RColorBrewer::brewer.pal(3, "Dark2")[1], strokeWidth = 0, pointSize = 2 ) %>%
     dyEvent(as.POSIXct("2017-10-30 13:00:00", tz="GMT"), "New holder installed", labelLoc = "bottom", color="red") %>% 
     dyEvent(as.POSIXct("2017-08-24 12:00:00", tz="GMT"), "durafet installed", labelLoc = "bottom", color="red") %>%
     dyEvent(as.POSIXct("2019-09-02 20:00:00", tz="GMT"), "cleaning same probe ", labelLoc = "bottom", color="red") %>%
@@ -1628,6 +1642,23 @@ durafet_contros_xts <- as.xts(durafet_contros_xts, order.by = d_all$datetime)
     dyRangeSelector(height = 30, dateWindow= NULL) 
 
 print(plot_offset_dur)
+
+# #@@@@@ test plot #@@@@@ #@@@@@ #@@@@@
+durafet_contros_xts <- dplyr::select(d_all, datetime, pH_durafet, pH_s_durafet_temp_field,pH_durafet_corrected)
+durafet_contros_xts <- as.xts(durafet_contros_xts, order.by = d_all$datetime)
+ dygraph(durafet_contros_xts, group = "awipev", main="pH durafet (in Ferrybox)", ylab="pHT") %>%
+    dySeries("pH_durafet", label = "Raw durafet pH", color ="blue", strokeWidth=0, pointSize=2) %>%
+    dySeries("pH_durafet_corrected", label = "pH durafet corrected", color =  RColorBrewer::brewer.pal(3, "Dark2")[1], strokeWidth = 0, pointSize = 2 ) %>%
+    dySeries("pH_s_durafet_temp_field", label = "pH spectro", color =  "red", strokeWidth = 0, pointSize = 4 ) %>%
+    dyEvent(as.POSIXct("2017-10-30 13:00:00", tz="GMT"), "New holder installed", labelLoc = "bottom", color="red") %>% 
+    dyEvent(as.POSIXct("2017-08-24 12:00:00", tz="GMT"), "durafet installed", labelLoc = "bottom", color="red") %>%
+    dyEvent(as.POSIXct("2019-09-02 20:00:00", tz="GMT"), "cleaning same probe ", labelLoc = "bottom", color="red") %>%
+  dyLegend(show = "auto")   %>%
+  dyHighlight(highlightCircleSize = 8,highlightSeriesBackgroundAlpha = 0.5,hideOnMouseOut = TRUE) %>%
+  dyOptions(drawGrid = TRUE, drawPoints = TRUE, pointSize = c(1,8,1),useDataTimezone = TRUE, digitsAfterDecimal=4) %>%
+  dyRangeSelector(height = 30, dateWindow= NULL)
+# #@@@@@ #@@@@@ #@@@@@ #@@@@@ #@@@@@
+
 
 # #plot for POSTER june 2019
 # #plot of pH durafet
@@ -1682,14 +1713,12 @@ range_month <-
   d_all %>%
   group_by(Month = month(datetime, label=TRUE, abbr=FALSE)) %>%
   #summarize(pH_range_month = mean(pH_range, na.rm=TRUE))%>%
-  summarize(Tinsi_max = max(temp_insitu, na.rm=TRUE),
-            Tinsi_min = min(temp_insitu, na.rm=TRUE),
-            Tfrbx_max = max(temp_fb, na.rm=TRUE),
-            Tfrbx_min = min(temp_fb, na.rm=TRUE),
-            pH_sf_max = max(pHint_tot_sf, na.rm=TRUE),
-            pH_sf_min = min(pHint_tot_sf, na.rm=TRUE),
-            pH_dur_max = max(pH_durafet_corrected, na.rm=TRUE),
-            pH_dur_min = min(pH_durafet_corrected, na.rm=TRUE))
+  summarize(Tinsi_max =round( max(temp_insitu, na.rm=TRUE), digits = 2),
+            Tinsi_min = round(min(temp_insitu, na.rm=TRUE), digits = 2),
+            sal_max = round(max(sal_fb, na.rm=TRUE), digits = 2),
+            sal_min = round(min(sal_fb, na.rm=TRUE), digits = 2),
+            pH_sf_max = round(max(pHint_tot_sf, na.rm=TRUE), digits = 4),
+            pH_sf_min = round(min(pHint_tot_sf, na.rm=TRUE), digits = 4))
 kable(range_month)
 ```
 
