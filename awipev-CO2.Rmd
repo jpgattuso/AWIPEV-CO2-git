@@ -1603,7 +1603,7 @@ durafet_contros_xts <- dplyr::select(d_all, datetime, pH_durafet, pH_s_durafet_t
 durafet_contros_xts <- as.xts(durafet_contros_xts, order.by = d_all$datetime)
  dygraph(durafet_contros_xts, group = "awipev", main="pH durafet (in Ferrybox)", ylab="pHT") %>%
     dySeries("pH_durafet", label = "Raw durafet pH", color ="blue", strokeWidth=0, pointSize=2) %>%
-    dySeries("pH_s_durafet_temp_field", label = "pH spectro for calibration", color =  "red", strokeWidth = 0, pointSize = 4 ) %>%
+    dySeries("pH_s_durafet_temp_field", label = "pH spectro for calibration", color =  "red", strokeWidth = 0, pointSize = 6 ) %>%
        dySeries("pH_s_dur_no_calb", label = "pH spectro no calibration", color ="black", pointShape = "triangle",strokeWidth=0, pointSize=6) %>%
        dySeries("pH_durafet_corrected", label = "pH durafet corrected", color =  RColorBrewer::brewer.pal(3, "Dark2")[1], strokeWidth = 0, pointSize = 2 ) %>%
     dyEvent(as.POSIXct("2017-10-30 13:00:00", tz="GMT"), "New holder installed", labelLoc = "bottom", color="red") %>% 
@@ -1642,23 +1642,6 @@ durafet_contros_xts <- as.xts(durafet_contros_xts, order.by = d_all$datetime)
     dyRangeSelector(height = 30, dateWindow= NULL) 
 
 print(plot_offset_dur)
-
-# #@@@@@ test plot #@@@@@ #@@@@@ #@@@@@
-durafet_contros_xts <- dplyr::select(d_all, datetime, pH_durafet, pH_s_durafet_temp_field,pH_durafet_corrected)
-durafet_contros_xts <- as.xts(durafet_contros_xts, order.by = d_all$datetime)
- dygraph(durafet_contros_xts, group = "awipev", main="pH durafet (in Ferrybox)", ylab="pHT") %>%
-    dySeries("pH_durafet", label = "Raw durafet pH", color ="blue", strokeWidth=0, pointSize=2) %>%
-    dySeries("pH_durafet_corrected", label = "pH durafet corrected", color =  RColorBrewer::brewer.pal(3, "Dark2")[1], strokeWidth = 0, pointSize = 2 ) %>%
-    dySeries("pH_s_durafet_temp_field", label = "pH spectro", color =  "red", strokeWidth = 0, pointSize = 4 ) %>%
-    dyEvent(as.POSIXct("2017-10-30 13:00:00", tz="GMT"), "New holder installed", labelLoc = "bottom", color="red") %>% 
-    dyEvent(as.POSIXct("2017-08-24 12:00:00", tz="GMT"), "durafet installed", labelLoc = "bottom", color="red") %>%
-    dyEvent(as.POSIXct("2019-09-02 20:00:00", tz="GMT"), "cleaning same probe ", labelLoc = "bottom", color="red") %>%
-  dyLegend(show = "auto")   %>%
-  dyHighlight(highlightCircleSize = 8,highlightSeriesBackgroundAlpha = 0.5,hideOnMouseOut = TRUE) %>%
-  dyOptions(drawGrid = TRUE, drawPoints = TRUE, pointSize = c(1,8,1),useDataTimezone = TRUE, digitsAfterDecimal=4) %>%
-  dyRangeSelector(height = 30, dateWindow= NULL)
-# #@@@@@ #@@@@@ #@@@@@ #@@@@@ #@@@@@
-
 
 # #plot for POSTER june 2019
 # #plot of pH durafet
