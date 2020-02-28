@@ -1,0 +1,63 @@
+---
+title: "Salinity and temperature at Ny-Ålesund" 
+author: "Jean-Pierre Gattuso and Samir Alliouane"
+date: '`r format(Sys.Date(), "%d %B %Y")`'
+output:
+  rmarkdown::html_document:
+    theme: paper
+    number_sections: false
+    
+---
+![ ](Images/AWIPEV-Logo.jpg){width=250px}
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+```{r Read and prepare ferrybox data, echo=FALSE, warning=FALSE, message=FALSE}
+
+####define who is the user and define path
+rm(list = ls())
+
+if (Sys.getenv("LOGNAME") == "gattuso") path = "../../pCloud\ Sync/Documents/experiments/exp168_AWIPEV-CO2/fb_awipev-co2_server/ny-alesund/data/NRT_data/"
+
+####Set environmental variables####
+Sys.setenv(TZ="UTC")
+if (!require("data.table")) install.packages("data.table")
+##Provide in this section the parameters to be downloaded
+#*********************************
+#Use the following aggregation parameters
+agg_time = "MINUTE" #SECOND, MINUTE, HOUR, DAY, MONTH, YEAR
+#Calculate the following statistical values. 
+agg_fun_1 = "MEAN" #MEDIAN
+agg_fun_2 = "STDDEV"
+agg_fun_3 = "N"
+#*********************************
+
+#### Download data ####
+# Choose end date or take the date of today
+# end_date <- ymd_hms("2017-12-31 23:59:59")
+end_date <- ymd_hms(paste0(Sys.Date(), " 00:00:00 UTC"))
+enddate <- format(end_date,"%Y-%m-%dT%H:%M:%S")
+
+# Choose start date
+start_date <- ymd_hms("2015-07-23 00:00:00")
+startdate <- format(start_date, "%Y-%m-%dT%H:%M:%S") 
+
+# if enddate - startdate < 1 d one skips everything until the end of this script
+if (end_date-start_date <= days(1)) {
+  stop()
+  }
+
+if(agg_time=="MINUTE"){
+  aggregate_string=paste0("&aggregate=",agg_time)
+} else {
+  aggregate_string=paste0("&aggregate=",agg_time,"&aggregateFunctions=",agg_fun_1,"&aggregateFunctions=",agg_fun_2,"&aggregateFunctions=",agg_fun_3)
+}
+
+code <- paste0("https://dashboard.awi.de/data-xxl/rest/data?beginDate=",startdate,"&endDate=",enddate,"&format=text/tab-separated-values",aggregate_string,
+               "&sensors=station:svluwobs:fb_731101:sbe45_awi_0403:salinity",
+               "&sensors=station:svluwobs:svluw2:sbe38_awi_0657:temperature")
+
+data <- data.table::fread(code, encoding = "UTF-8", showProgress    = TRUE)
+colnames(data) <- c("datetime", "Salinity", "Temperature" )
+data$datetime <- ymd_hms(data$datetime)
+```
