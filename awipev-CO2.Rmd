@@ -722,6 +722,11 @@ This approach was performed:
   - on the same period than in Steffen email's (**First period**, 2016-02-23 to 2017-02-09)
   - and during the **third period**, with the new analyzer (2018-01-07 to 2018-06-20)
   
+```{r TA 2nd cleaning , echo=FALSE, warning=FALSE, message=FALSE, out.width="50%",fig.show='hold', fig.align="center"}
+  
+```
+  
+  
 ##### **First period** 
 
 ```{r First period, echo=FALSE, warning=FALSE, message=FALSE, out.width="50%",fig.show='hold', fig.align="center"}
@@ -1036,6 +1041,14 @@ The HydroC CO~2~ FT sensor (S/N: CO2FT-0215-001) was bought from Contros (German
 During those steps (except zeroing) the sensor runs normally. Equilibration between the gas inside the sensor and the dissolved gas in ambient water takes place. Gas is led to NDIR unit while T control is running.
 
 ### **Corrected Contros vs calculated *p*CO~2~ data**
+
+
+```{r pCO2 2nd cleaning, echo=FALSE, warning=FALSE, message=FALSE}
+
+
+```
+
+
 ```{r measured vs calculated pCO2, echo=FALSE, warning=FALSE, message=FALSE}
 title <- "Contros vs calculated pCO2"
 fit <- lmodel2(data = d_all,  pco2_contros ~ pco2calc , nperm = 99)
@@ -1139,67 +1152,86 @@ Within this deployment period, calibration is made with E0 calculation (first pl
 Missing data which could be estimated on : 2017-08-24, 2017-09-28, 2019-09-13 x 2.
 Missing data which could not be estimated on : 2018-04-16 , 2018-12-14, 2019-01-18.
 
+We decided to change the calculation of E0. Before E0 was calculated for each pH spectro measurements. Now, EO is calculated making a mean of several E0 that come from one deployment period (sensor in the water for several months).
+
+### **seaFET data cleaning**
+
+```{r seaFET 2nd cleaning, echo=FALSE, message= FALSE, warning=FALSE, out.width= "60%"}
+
+
+```                
 ### **seaFET calibration constante E0**
 
 Plots of E0int25 and E0ext25 returned by the function "pHCalib" for each period of deployement are shown below.
 
 ```{r seaFET calibration sf_calib, echo=FALSE, message= FALSE, warning=FALSE, out.width= "60%"}
 
-# We decided to calibrate pH data within each pH spectro measurement.
-# Thus, each pH spectro is taken as one calibration periode. 
-# We calculate here the day between 2 pH spectro in order to have the start/end of one deployment period.
-sfPeriod <- d_all%>%
-  dplyr::select(datetime, pH_s_seafet_temp_field)%>%
-  dplyr::filter(!is.na(pH_s_seafet_temp_field))
-# Remove pH spectro that not allow a calibration because of missing calibration value (voltINT, Sal or Temp insi)
-sfPeriod <- sfPeriod%>%
-dplyr::filter(datetime != "2018-04-16 07:00:00" & datetime != "2018-12-14 09:00:00" & datetime != "2019-01-18 09:00:00")
+# # We decided to calibrate pH data within each pH spectro measurement.
+# # Thus, each pH spectro is taken as one calibration periode. 
+# # We calculate here the day between 2 pH spectro in order to have the start/end of one deployment period.
+# sfPeriod <- d_all%>%
+#   dplyr::select(datetime, pH_s_seafet_temp_field)%>%
+#   dplyr::filter(!is.na(pH_s_seafet_temp_field))
+# # Remove pH spectro that not allow a calibration because of missing calibration value (voltINT, Sal or Temp insi)
+# sfPeriod <- sfPeriod%>%
+# dplyr::filter(datetime != "2018-04-16 07:00:00" & datetime != "2018-12-14 09:00:00" & datetime != "2019-01-18 09:00:00")
+# 
+# sfPeriod <-  sfPeriod %>%
+#   dplyr::arrange(datetime) %>%
+#   dplyr::mutate(middle=  seconds_to_period(c(0,difftime(time1= datetime[-1], time2= datetime[-nrow(sfPeriod)])/2* 3600)))%>%
+#   dplyr::mutate(sf_interval = datetime + middle[2:nrow(sfPeriod)])
+# 
+# #put interval in a list with the start date of seaFET measurements
+# sfinterv <- c( as_datetime("2017-08-24 13:00:00"), sfPeriod[,4])
+# #Change period sfinterv[5]. make the end of this period longer until 2018-03-21 23:59:00 
+# # This is needed in order to take in consideration pH from March 2018 with a calibration E0 lower (-1.4) than the next period (-0.38).
+# sfinterv[5] <- ymd_hms("2018-03-22 23:59:59")
+# #  #Change period sfinterv[6]. Because seafet was off and on on the 2018-04-24 19:00:00
+# # sfinterv[6] <- ymd_hms("2018-04-24 18:00:00")
+# #  #Change period sfinterv[6]. Because seafet was off and on on the 2018-04-24 19:00:00
+# # sfinterv[14] <- ymd_hms("2019-01-29 16:00:00")
+# 
+# #sfinterv <-sort(unlist(sfinterv, use.names=FALSE))
+# # set deployment period between 2 spectro measurements.
 
-sfPeriod <-  sfPeriod %>%
-  dplyr::arrange(datetime) %>%
-  dplyr::mutate(middle=  seconds_to_period(c(0,difftime(time1= datetime[-1], time2= datetime[-nrow(sfPeriod)])/2* 3600)))%>%
-  dplyr::mutate(sf_interval = datetime + middle[2:nrow(sfPeriod)])
+# # add here the new periods sfinterv[..]
+# d_all <- d_all %>%
+#   dplyr::mutate(deployment_sf = ifelse(datetime >= sfinterv[1] & datetime <= sfinterv[2], 01, 
+#                                 ifelse(datetime >= sfinterv[2] & datetime <= sfinterv[3], 02, 
+#                                 ifelse(datetime >= sfinterv[3] & datetime <= sfinterv[4], 03, 
+#                                 ifelse(datetime >= sfinterv[4] & datetime <= sfinterv[5], 04,
+#                                 ifelse(datetime >= sfinterv[5] & datetime <= sfinterv[6], 05,
+#                                 ifelse(datetime >= sfinterv[6] & datetime <= sfinterv[7], 06,
+#                                 ifelse(datetime >= sfinterv[7] & datetime <= sfinterv[8], 07,
+#                                 ifelse(datetime >= sfinterv[8] & datetime <= sfinterv[9], 08,
+#                                 ifelse(datetime >= sfinterv[9] & datetime <= sfinterv[10], 09,
+#                                 ifelse(datetime >= sfinterv[10] & datetime <= sfinterv[11], 10,
+#                                 ifelse(datetime >= sfinterv[11] & datetime <= sfinterv[12], 11,
+#                                  ifelse(datetime >= sfinterv[12] & datetime <= sfinterv[13], 12,
+#                                  ifelse(datetime >= sfinterv[13] & datetime <= sfinterv[14], 13,
+#                                  ifelse(datetime >= sfinterv[14] & datetime <= sfinterv[15], 14,
+#                                  ifelse(datetime >= sfinterv[15] & datetime <= sfinterv[16], 15,
+#                                  ifelse(datetime >= sfinterv[16] & datetime <= sfinterv[17], 16,
+#                                  ifelse(datetime >= sfinterv[17] & datetime <= sfinterv[18], 17,
+#                                 ifelse(datetime >= sfinterv[18] & datetime <= sfinterv[19], 18,
+#                                 ifelse(datetime >= sfinterv[19] & datetime <= sfinterv[20], 19,
+#                                 ifelse(datetime >= sfinterv[20] & datetime <= sfinterv[21], 20,
+#                                 ifelse(datetime >= sfinterv[21] & datetime <= sfinterv[22], 21,
+#                                 #ifelse(datetime >= sfinterv[22] & datetime <= sfinterv[23], 22,
+#                                 #ifelse(datetime >= sfinterv[23] & datetime <= sfinterv[24], 23,
+#                                 #ifelse(datetime >= sfinterv[24] & datetime <= sfinterv[25], 24,
+#                                 #ifelse(datetime >= sfinterv[25] & datetime <= sfinterv[26], 25,
+#                                 ifelse(datetime >= sfinterv[22] , 22,NA )))))))))))))))))))))))
 
-#put interval in a list with the start date of seaFET measurements
-sfinterv <- c( as_datetime("2017-08-24 13:00:00"), sfPeriod[,4])
-#Change period sfinterv[5]. make the end of this period longer until 2018-03-21 23:59:00 
-# This is needed in order to take in consideration pH from March 2018 with a calibration E0 lower (-1.4) than the next period (-0.38).
-sfinterv[5] <- ymd_hms("2018-03-22 23:59:59")
-#  #Change period sfinterv[6]. Because seafet was off and on on the 2018-04-24 19:00:00
-# sfinterv[6] <- ymd_hms("2018-04-24 18:00:00")
-#  #Change period sfinterv[6]. Because seafet was off and on on the 2018-04-24 19:00:00
-# sfinterv[14] <- ymd_hms("2019-01-29 16:00:00")
+# set deployment period when seaFET is in/out of water
+sfinterv <- c("2017-08-24 12:00:00","2018-04-17 12:00:00", "2019-09-02 12:00:00")
 
-#sfinterv <-sort(unlist(sfinterv, use.names=FALSE))
-# set deployment period between 2 spectro measurements.
 # add here the new periods sfinterv[..]
 d_all <- d_all %>%
-  dplyr::mutate(deployment_sf = ifelse(datetime >= sfinterv[1] & datetime <= sfinterv[2], 01, 
-                                ifelse(datetime >= sfinterv[2] & datetime <= sfinterv[3], 02, 
-                                ifelse(datetime >= sfinterv[3] & datetime <= sfinterv[4], 03, 
-                                ifelse(datetime >= sfinterv[4] & datetime <= sfinterv[5], 04,
-                                ifelse(datetime >= sfinterv[5] & datetime <= sfinterv[6], 05,
-                                ifelse(datetime >= sfinterv[6] & datetime <= sfinterv[7], 06,
-                                ifelse(datetime >= sfinterv[7] & datetime <= sfinterv[8], 07,
-                                ifelse(datetime >= sfinterv[8] & datetime <= sfinterv[9], 08,
-                                ifelse(datetime >= sfinterv[9] & datetime <= sfinterv[10], 09,
-                                ifelse(datetime >= sfinterv[10] & datetime <= sfinterv[11], 10,
-                                ifelse(datetime >= sfinterv[11] & datetime <= sfinterv[12], 11,
-                                 ifelse(datetime >= sfinterv[12] & datetime <= sfinterv[13], 12,
-                                 ifelse(datetime >= sfinterv[13] & datetime <= sfinterv[14], 13,
-                                 ifelse(datetime >= sfinterv[14] & datetime <= sfinterv[15], 14,
-                                 ifelse(datetime >= sfinterv[15] & datetime <= sfinterv[16], 15,
-                                 ifelse(datetime >= sfinterv[16] & datetime <= sfinterv[17], 16,
-                                 ifelse(datetime >= sfinterv[17] & datetime <= sfinterv[18], 17,
-                                ifelse(datetime >= sfinterv[18] & datetime <= sfinterv[19], 18,
-                                ifelse(datetime >= sfinterv[19] & datetime <= sfinterv[20], 19,
-                                ifelse(datetime >= sfinterv[20] & datetime <= sfinterv[21], 20,
-                                ifelse(datetime >= sfinterv[21] & datetime <= sfinterv[22], 21,
-                                #ifelse(datetime >= sfinterv[22] & datetime <= sfinterv[23], 22,
-                                #ifelse(datetime >= sfinterv[23] & datetime <= sfinterv[24], 23,
-                                #ifelse(datetime >= sfinterv[24] & datetime <= sfinterv[25], 24,
-                                #ifelse(datetime >= sfinterv[25] & datetime <= sfinterv[26], 25,
-                                ifelse(datetime >= sfinterv[22] , 22,NA )))))))))))))))))))))))
+  dplyr::mutate(deployment_sf = ifelse(datetime >= sfinterv[1] & datetime <= sfinterv[2], 01,
+                                ifelse(datetime >= sfinterv[2] & datetime <= sfinterv[3], 02,
+                                ifelse(datetime >= sfinterv[3] , 03,NA ))))
+
 
 # To make sf calibration against pH spectro, we need: sal - T insi - voltINT/EXT . If we missed one of these parameters, calibration will not run
 # Here we try to fill the gap when it is possible: make a mean with 4 previous/next hours available in the time serie. 
@@ -1244,7 +1276,7 @@ mean_TseaF_4h <- as.numeric(mean_TseaF_4h)
 d_all <- d_all%>%
   dplyr::mutate(temp_insitu = ifelse(datetime == "2017-08-24 13:00:00" , mean_TseaF_4h, temp_insitu))
 
-# period 2, mean of 4 next hours for volt int + T seaF
+# period 1 also, mean of 4 next hours for volt int + T seaF
 mean_voltINT_4h <- d_all%>%
   dplyr::filter(datetime >= "2017-09-28 15:00:00" & datetime <= "2017-09-28 18:00:00")%>%
   dplyr::summarise( mean(voltINT, na.rm = TRUE))
@@ -1259,7 +1291,7 @@ mean_voltEXT_4h <- as.numeric(mean_voltEXT_4h)
 d_all <- d_all%>%
   dplyr::mutate(voltEXT = ifelse(datetime == "2017-09-28 13:00:00" , mean_voltEXT_4h, voltEXT))
 
-# period 20, mean of 4 previous hours for volt int + T seaF
+# period 03, mean of 4 previous hours for volt int + T seaF
 mean_voltINT_4h <- d_all%>%
   dplyr::filter(datetime >= "2019-09-13 04:00:00" & datetime <= "2019-09-13 07:00:00")%>%
   dplyr::summarise( mean(voltINT, na.rm = TRUE))
@@ -1274,7 +1306,7 @@ mean_voltEXT_4h <- as.numeric(mean_voltEXT_4h)
 d_all <- d_all%>%
   dplyr::mutate(voltEXT = ifelse(datetime == "2019-09-13 08:00:00" , mean_voltEXT_4h, voltEXT))
 
-# period 21, mean of 4 previous hours for volt int + T seaF
+# period 03 also, mean of 4 previous hours for volt int + T seaF
 mean_voltINT_4h <- d_all%>%
   dplyr::filter(datetime >= "2019-09-13 11:00:00" & datetime <= "2019-09-13 12:00:00")%>%
   dplyr::summarise( mean(voltINT, na.rm = TRUE))
@@ -1372,6 +1404,8 @@ dygraph(seafet_contros_xts, group = "awipev", main="pH seaFET (in situ)", ylab="
   dyEvent(as.POSIXct("2017-08-24 12:00:00", tz="GMT"), "seaFET #1005 installed", labelLoc = "bottom", color="red") %>%
   dyEvent(as.POSIXct("2018-02-02 09:00:00", tz="GMT"), "seaFET settings changed to every 1H", labelLoc = "bottom", color="red") %>% 
   dyEvent(as.POSIXct("2018-04-17 12:00:00", tz="GMT"), "seaFET #0007 installed + continuous mode set", labelLoc = "bottom", color="red") %>%
+    dyEvent(as.POSIXct("2019-09-02 12:00:00", tz="GMT"), "seaFET #0007 out of water for cleaning", labelLoc = "bottom", color="red") %>%
+
   dyShading(from =  sfinterv[1], to= sfinterv[2], color = "#CCCCCC") %>%
   dyShading(from =  sfinterv[2], to= sfinterv[3], color = "#E0E0E0") %>%
   dyShading(from = sfinterv[3], to= sfinterv[4], color = "#CCCCCC") %>%
@@ -1399,26 +1433,30 @@ dygraph(seafet_contros_xts, group = "awipev", main="pH seaFET (in situ)", ylab="
   dyOptions(drawGrid = TRUE, drawPoints = TRUE, pointSize = c(1,8,1),useDataTimezone = TRUE, digitsAfterDecimal=4) %>%
   dyRangeSelector(height = 30, dateWindow= NULL) 
 
-# # #@@@@@ test plot #@@@@@ #@@@@@ #@@@@@ 
-# seafet_contros_xts <- dplyr::select(d_all, datetime, voltINT, phINT_filtered,pH_s_seafet_temp_field, T_seaF, temp_fb, temp_insitu, sal_fb,pHint_tot_sf)
-# #seafet_contros_xts <- dplyr::select(d_all, datetime,voltINT)
-# seafet_contros_xts <- as.xts(seafet_contros_xts, order.by = d_all$datetime)
-# dygraph(seafet_contros_xts, group = "awipev", main="pH seaFET (in situ)", ylab="pHT") %>%
-#   dySeries("voltINT", label = "voltINTINT", color ="blue", strokeWidth=0, pointSize=2) %>%
-#     dySeries("pH_s_seafet_temp_field", label = "pH spectro", axis= "y2", color =  "green", strokeWidth = 0, pointSize = 4 ) %>%
-#     dySeries("pHint_tot_sf", label = "corr pH INT", color ="red",axis= "y2", strokeWidth=0, pointSize=2) %>%
-#   dySeries("temp_fb", label = "temp_fb", color ="orange",axis= "y2", strokeWidth=0, pointSize=2) %>%
-# 
-#   dySeries("sal_fb", label = "sal_fb", color ="pink",axis= "y2", strokeWidth=0, pointSize=2) %>%
-#   dySeries("temp_insitu", label = "temp_insitu", color ="black",axis= "y2", strokeWidth=0, pointSize=2) %>%
-#     dySeries("T_seaF", label = "T_seaF", color ="grey",axis= "y2", strokeWidth=0, pointSize=2) %>%
-#   dyLegend(show = "auto")   %>%
-#   dyAxis( "y2",valueRange = c(-3, 36))%>%
-#   dyAxis( "y",valueRange = c(-2, 2))%>%
-#   dyHighlight(highlightCircleSize = 8,highlightSeriesBackgroundAlpha = 0.5,hideOnMouseOut = TRUE) %>%
-#   dyOptions(drawGrid = TRUE, drawPoints = TRUE, pointSize = c(1,8,1),useDataTimezone = TRUE, digitsAfterDecimal=4) %>%
-#   dyRangeSelector(height = 30, dateWindow= NULL)
-# # #@@@@@ #@@@@@ #@@@@@ #@@@@@ #@@@@@ 
+# #@@@@@ test plot #@@@@@ #@@@@@ #@@@@@
+seafet_contros_xts <- dplyr::select(d_all, datetime, voltINT, phINT_filtered,pH_s_seafet_temp_field, T_seaF, temp_fb, temp_insitu, sal_fb)
+#seafet_contros_xts <- dplyr::select(d_all, datetime,voltINT)
+seafet_contros_xts <- as.xts(seafet_contros_xts, order.by = d_all$datetime)
+dygraph(seafet_contros_xts, group = "awipev", main="pH seaFET (in situ)", ylab="pHT") %>%
+  dySeries("voltINT", label = "voltINTINT", color ="blue", strokeWidth=0, pointSize=2) %>%
+    dySeries("pH_s_seafet_temp_field", label = "pH spectro", axis= "y2", color =  "green", strokeWidth = 0, pointSize = 4 ) %>%
+    #dySeries("pHint_tot_sf", label = "corr pH INT", color ="red",axis= "y2", strokeWidth=0, pointSize=2) %>%
+  dySeries("temp_fb", label = "temp_fb", color ="orange",axis= "y2", strokeWidth=0, pointSize=2) %>%
+
+  dySeries("sal_fb", label = "sal_fb", color ="pink",axis= "y2", strokeWidth=0, pointSize=2) %>%
+  dySeries("temp_insitu", label = "temp_insitu", color ="black",axis= "y2", strokeWidth=0, pointSize=2) %>%
+    dySeries("T_seaF", label = "T_seaF", color ="grey",axis= "y2", strokeWidth=0, pointSize=2) %>%
+    dyEvent(as.POSIXct("2017-08-24 12:00:00", tz="GMT"), "seaFET #1005 installed", labelLoc = "bottom", color="red") %>%
+  dyEvent(as.POSIXct("2018-02-02 09:00:00", tz="GMT"), "seaFET settings changed to every 1H", labelLoc = "bottom", color="red") %>% 
+  dyEvent(as.POSIXct("2018-04-17 12:00:00", tz="GMT"), "seaFET #0007 installed + continuous mode set", labelLoc = "bottom", color="red") %>%
+    dyEvent(as.POSIXct("2019-09-02 12:00:00", tz="GMT"), "seaFET #0007 out of water for cleaning", labelLoc = "bottom", color="red") %>%
+  dyLegend(show = "auto")   %>%
+  dyAxis( "y2",valueRange = c(-3, 36))%>%
+  dyAxis( "y",valueRange = c(-2, 2))%>%
+  dyHighlight(highlightCircleSize = 8,highlightSeriesBackgroundAlpha = 0.5,hideOnMouseOut = TRUE) %>%
+  dyOptions(drawGrid = TRUE, drawPoints = TRUE, pointSize = c(1,8,1),useDataTimezone = TRUE, digitsAfterDecimal=4) %>%
+  dyRangeSelector(height = 30, dateWindow= NULL)
+# #@@@@@ #@@@@@ #@@@@@ #@@@@@ #@@@@@
 
 # Offset between seafet pH and spec pH 
 sfoffset <- left_join(sfPeriod[,c(1,2)], d_all%>%dplyr::select(datetime, pHint_tot_sf), by="datetime")
