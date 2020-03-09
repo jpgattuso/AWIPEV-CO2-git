@@ -9,6 +9,7 @@ output:
     
 ---
 ![ ](Images/AWIPEV-Logo.jpg){width=250px}
+<<<<<<< HEAD
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
@@ -26,6 +27,118 @@ if (!require("data.table")) install.packages("data.table")
 #*********************************
 #Use the following aggregation parameters
 agg_time = "MINUTE" #SECOND, MINUTE, HOUR, DAY, MONTH, YEAR
+=======
+```{r set-up, echo=FALSE, warning=FALSE, message=FALSE, include=FALSE}
+Sys.setlocale("LC_ALL", "en_US.UTF-8")
+Sys.setenv(TZ='UTC') # on utilise UTC
+rm(list = ls())
+library(tidyverse)
+library(robfilter)
+library(seacarb)
+library(gridExtra)
+library(reshape2)
+library(lubridate)
+library(lmtest)
+library(grid)
+library(viridis)
+library(dygraphs)
+require("knitr")
+library("lmodel2")
+library(captioner)
+library(xts)
+library(seismicRoll)
+library(scales)
+if (!require("data.table")) install.packages("data.table")
+knitr::opts_chunk$set(echo = TRUE)
+
+fig_nums <- captioner()
+table_nums <- captioner(prefix = "Table")
+
+#define who is the user and define path
+if (Sys.getenv("LOGNAME") == "gattuso") path = "../../pCloud\ Sync/Documents/experiments/exp168_awipev-CO2/"
+if (Sys.getenv("LOGNAME") == "samir") path = "../../pCloud\ Sync/exp168_awipev-CO2/"
+
+
+######## function to make regression plot with model I equation in title
+ggreg <- function (fit, point_size=2) {
+  ggplot(fit$model, aes_string(x = names(fit$model)[2],
+                               y = names(fit$model)[1])) +
+    geom_point(size = point_size, col = "blue") +
+    stat_smooth(method = "lm", col = "black") +
+    labs(title = paste(title, "\nAdj R2 = ",signif(summary(fit)$adj.r.squared, 5),
+                       "; Intercept =",signif(fit$coef[[1]],5 ),
+                       "; Slope =",signif(fit$coef[[2]], 5),
+                       "; P =",signif(summary(fit)$coef[2,4], 5))) +
+    theme(plot.title = element_text(size=7))
+}
+
+#################### which.closest function
+which.closest <- function(x, table, ...) {
+  round(approx(x=table, y=1:length(table), xout=x, ...)$y)
+}
+
+#################### Regression function
+# function regression plot with model II equation (MA) in title
+## Dans labs ajout de la variable TITRE pour mettre titre avant chaque graphe
+ggreg2 <- function (fit, xdata, ydata) { # x and y are the names of the variables
+  fit_data <- data.frame(fit$x, fit$y)
+  colnames(fit_data) = c(xdata, ydata)
+reg <- fit$regression.results[2,] #one selects MA only
+intercept <- reg$Intercept
+slope <- reg$Slope
+  ggplot(data = fit_data, aes_string(x = xdata, y = ydata)) + 
+  geom_point(size = 2, col = "blue") +
+  geom_abline(aes(intercept = fit$regression.results[2,2], slope = fit$regression.results[2,3]),
+              colour = "blue")  + 
+  labs(title = paste(titre,"\n Adj R2 = ", signif(fit$rsquare, 3),
+                     "; Intercept =", signif(intercept, 3),
+                     "; Slope =", signif(slope, 3),
+                     "; P =", signif(fit$P.param, 3)))
+}
+
+mytheme <- theme_bw() +
+  theme(axis.text.x=element_text(size=16, color="black"),
+        axis.title.x=element_text(face="bold", size=16),
+        axis.text.y=element_text(size=16, color="black"),
+        axis.title.y=element_text(face="bold", size=16),
+        plot.title = element_text(face="bold", size=14)
+)
+
+#################### Mytheme
+Mytheme <- function(size_labs = 7, face_font="plain") {
+  theme_bw() +
+  theme(axis.text.x = element_text(face=face_font, size=size_labs, color="black"),
+        axis.title.x = element_text(face=face_font, size=size_labs),
+        axis.text.y = element_text(face=face_font, color="black", size=size_labs),
+        axis.title.y = element_text(face=face_font, size=size_labs),
+        axis.ticks.x = element_line(size=0.1),
+        axis.ticks.y = element_line(size=0.1),
+        axis.ticks.length = unit(1.1, "mm"),
+        panel.grid.major = element_line(size = 0.25, color="black", linetype="dashed"),
+        aspect.ratio = 1 / 2,
+        plot.margin = margin(t = 0, r = 0, b = 0, l = 0, unit = "cm")
+  )
+}
+
+ggplotRegression <- function(fit){
+  require(ggplot2)
+  ggplot(fit$model, aes_string(x = names(fit$model)[2], y = names(fit$model)[1])) + 
+  geom_point() +
+  stat_smooth(method = "lm", col = "red", se= FALSE) +
+  labs(title = paste("Adj R2 = ",signif(summary(fit)$adj.r.squared, 5),
+                     "Intercept =",signif(fit$coef[[1]],5 ),
+                     " Slope =",signif(fit$coef[[2]], 5),
+                     " P =",signif(summary(fit)$coef[2,4], 5)))
+}
+```
+
+```{r Read and prepare ferrybox data, echo=FALSE, warning=FALSE, message=FALSE}
+
+##Provide in this section the parameters to be downloaded
+#*********************************
+#Use the following aggregation parameters
+agg_time = "HOUR" #SECOND, MINUTE, HOUR, DAY, MONTH, YEAR
+>>>>>>> 48bcc4139085cd684d6f465609b885ba7f649f59
 #Calculate the following statistical values. 
 agg_fun_1 = "MEAN" #MEDIAN
 agg_fun_2 = "STDDEV"
@@ -39,18 +152,26 @@ end_date <- ymd_hms(paste0(Sys.Date(), " 00:00:00 UTC"))
 enddate <- format(end_date,"%Y-%m-%dT%H:%M:%S")
 
 # Choose start date
-start_date <- ymd_hms("2015-07-23 00:00:00")
+
+start_date <- ymd_hms("2012-01-01 00:00:00")
 startdate <- format(start_date, "%Y-%m-%dT%H:%M:%S") 
+
+# Choose end date
+end_date <- ymd_hms("2019-12-31 23:59:59")
+#end_date <- ymd_hms(paste0(Sys.Date(), " 00:00:00 UTC"))
+enddate <- format(end_date,"%Y-%m-%dT%H:%M:%S")
 
 # if enddate - startdate < 1 d one skips everything until the end of this script
 if (end_date-start_date <= days(1)) {
   stop()
   }
 
-if(agg_time=="MINUTE"){
+
+if(agg_time=="HOUR"){
+>>>>>>> 48bcc4139085cd684d6f465609b885ba7f649f59
   aggregate_string=paste0("&aggregate=",agg_time)
 } else {
-  aggregate_string=paste0("&aggregate=",agg_time,"&aggregateFunctions=",agg_fun_1,"&aggregateFunctions=",agg_fun_2,"&aggregateFunctions=",agg_fun_3)
+aggregate_string=paste0("&aggregate=",agg_time,"&aggregateFunctions=",agg_fun_1,"&aggregateFunctions=",agg_fun_2,"&aggregateFunctions=",agg_fun_3)
 }
 
 code <- paste0("https://dashboard.awi.de/data-xxl/rest/data?beginDate=",startdate,"&endDate=",enddate,"&format=text/tab-separated-values",aggregate_string,
@@ -58,6 +179,67 @@ code <- paste0("https://dashboard.awi.de/data-xxl/rest/data?beginDate=",startdat
                "&sensors=station:svluwobs:svluw2:sbe38_awi_0657:temperature")
 
 data <- data.table::fread(code, encoding = "UTF-8", showProgress    = TRUE)
-colnames(data) <- c("datetime", "Salinity", "Temperature" )
-data$datetime <- ymd_hms(data$datetime)
+data <- tibble(data) %>%
+  dplyr::rename(datetime = data$datetime, sal = $sal)
+colnames(data) <- c("datetime", "sal", "temp" )
+#data$datetime <- ymd_hms(data$datetime)
+```
+
+```{r average, fig.width=10, fig.height=4, echo=FALSE, message= FALSE}
+data <- data %>%
+  dplyr::mutate(hour = hour(data$datetime),
+                date = 
+                )
+
+data_hour <- data %>%
+  dplyr::group_by( date, hour) %>%
+  dplyr::summarise(Salinity_filtered = mean(Salinity_filtered, na.rm = TRUE),
+                   Temperature_filtered = mean(Temperature_filtered, na.rm = TRUE),
+                   Temp_SBE38_filtered= mean(Temp_SBE38_filtered, na.rm = TRUE),
+                   PCO2_Corr_filtered = mean(PCO2_Corr_filtered, na.rm = TRUE),
+                   PeriodDeplpCO2 = mean(PeriodDeplpCO2, na.rm = TRUE),
+                   PCO2_corr_contros_filtered= mean(PCO2_corr_contros_filtered, na.rm = TRUE),
+                   AT_filtered= mean(AT_filtered, na.rm = TRUE),
+                   HW_pH1_filtered= mean(HW_pH1_filtered, na.rm = TRUE),
+                   HW_Temperature1_filtered= mean(HW_Temperature1_filtered, na.rm = TRUE),
+                   T_seaF= mean(T_seaF, na.rm = TRUE),
+                   phINT_filtered= mean(phINT_filtered, na.rm = TRUE),
+                   phEXT_filtered= mean(phEXT_filtered, na.rm = TRUE),
+                   voltINT= mean(voltINT, na.rm = TRUE),
+                   voltEXT= mean(voltEXT, na.rm = TRUE),
+                   pco2_inst= mean(pco2_inst, na.rm = TRUE),
+                   ta_inst= mean(ta_inst, na.rm = TRUE),
+                   seafet_inst= mean(seafet_inst, na.rm = TRUE) ) %>%
+  dplyr::mutate(datetime = ymd_h(paste(date, hour, sep=" ", tz = "UTC"))) %>%
+  dplyr::ungroup() %>% # this is to be able to perform the following changes
+  dplyr::select(datetime, everything()) %>%
+  dplyr::select(-c( hour)) %>% # not needed in the shiny display
+  dplyr::arrange(desc(datetime))
+
+```
+
+```{r whole time series, fig.width=10, fig.height=4, echo=FALSE, message= FALSE}
+
+#SAL
+sal_xts <- dplyr::select(data, datetime, sal)
+  #dplyr::filter(sal_fb >28)
+sal_xts <- as.xts(sal_xts, order.by = sal_xts$datetime)
+dygraph(sal_xts, group = "awipev", main="Salinity", ylab="Salinity") %>%
+      dySeries("sal", color = "blue", strokeWidth = 0, label = "S") %>%
+      dyHighlight(highlightCircleSize = 8,highlightSeriesBackgroundAlpha =0.2,hideOnMouseOut =TRUE) %>%
+      dyOptions( drawGrid = TRUE, drawPoints = TRUE, pointSize = 2,useDataTimezone = TRUE) %>%
+    dyLegend(show = "follow")   %>%
+    dyAxis("y",valueRange = c(30, 37)) %>%
+      dyRangeSelector(height = 30, dateWindow= NULL)
+
+# temp
+temp_xts <- dplyr::select(data, datetime, temp)
+temp_xts <- as.xts(temp_xts, order.by = temp_xts$datetime)
+dygraph(temp_xts, group = "awipev", main="Temperature", ylab="Temperature") %>%
+      dySeries("temp_fb", color = "blue", strokeWidth = 0, label = "T") %>%
+      dyAxis("y", valueRange = c(-2.5, 10)) %>%
+      dyLegend(show = "follow")   %>%
+      dyHighlight(highlightCircleSize = 8,highlightSeriesBackgroundAlpha = 0.5,hideOnMouseOut = TRUE) %>%
+      dyOptions(drawGrid = TRUE, drawPoints = TRUE, pointSize = 2,useDataTimezone = TRUE) %>%
+      dyRangeSelector(height = 30, dateWindow= NULL)
 ```
