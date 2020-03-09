@@ -722,6 +722,11 @@ This approach was performed:
   - on the same period than in Steffen email's (**First period**, 2016-02-23 to 2017-02-09)
   - and during the **third period**, with the new analyzer (2018-01-07 to 2018-06-20)
   
+```{r TA 2nd cleaning , echo=FALSE, warning=FALSE, message=FALSE, out.width="50%",fig.show='hold', fig.align="center"}
+  
+```
+  
+  
 ##### **First period** 
 
 ```{r First period, echo=FALSE, warning=FALSE, message=FALSE, out.width="50%",fig.show='hold', fig.align="center"}
@@ -1036,6 +1041,14 @@ The HydroC CO~2~ FT sensor (S/N: CO2FT-0215-001) was bought from Contros (German
 During those steps (except zeroing) the sensor runs normally. Equilibration between the gas inside the sensor and the dissolved gas in ambient water takes place. Gas is led to NDIR unit while T control is running.
 
 ### **Corrected Contros vs calculated *p*CO~2~ data**
+
+
+```{r pCO2 2nd cleaning, echo=FALSE, warning=FALSE, message=FALSE}
+
+
+```
+
+
 ```{r measured vs calculated pCO2, echo=FALSE, warning=FALSE, message=FALSE}
 title <- "Contros vs calculated pCO2"
 fit <- lmodel2(data = d_all,  pco2_contros ~ pco2calc , nperm = 99)
@@ -1141,6 +1154,12 @@ Missing data which could not be estimated on : 2018-04-16 , 2018-12-14, 2019-01-
 
 We decided to change the calculation of E0. Before E0 was calculated for each pH spectro measurements. Now, EO is calculated making a mean of several E0 that come from one deployment period (sensor in the water for several months).
 
+### **seaFET data cleaning**
+
+```{r seaFET 2nd cleaning, echo=FALSE, message= FALSE, warning=FALSE, out.width= "60%"}
+
+
+```                
 ### **seaFET calibration constante E0**
 
 Plots of E0int25 and E0ext25 returned by the function "pHCalib" for each period of deployement are shown below.
