@@ -217,9 +217,7 @@ discrete$pco2calc<- carb$pCO2
 ```
 
 ```{r Read and prepare ferrybox data, echo=FALSE, warning=FALSE, message=FALSE}
-load(file = paste0(path, "fb_awipev-co2_server/ny-alesund/data/NRT_data/all_nydata_hour.Rdata"))
-#load(file = paste0(path, "fb_server/shinyroot/AWIPEV-CO2/nydata_hour_shiny.Rdata"))
-#load(file = "../fb_server/shinyroot/AWIPEV-CO2/nydata_shiny.Rdata") #d
+d_hour <- readRDS(file = paste0(path, "fb_awipev-co2_server/ny-alesund/data/NRT_data/all_nydata_hour.rds"))
 # load = d_hour
 d_hour <- d_hour %>%
   dplyr::select(-date) %>%
@@ -320,7 +318,7 @@ discrete2merge <- discrete %>%
   rename(datetime=closest_datetime)
 d_all <- full_join(d_all, discrete2merge, by="datetime")
 
-save(file= paste0(path, "fb_data/d_all.Rdata"), d_all)
+save(file= paste0(path, "fb_data/d_all.rds"), d_all)
 
 ## bind the voltages and deployment ##
 
@@ -550,6 +548,11 @@ f <- as.data.frame(table(d_all$at))
 
 ```
 
+```{r water masses, fig.width=10, fig.height=4, echo=FALSE, message= FALSE}
+# One tries to identify water masses coming from the Atlantic or freshwater
+
+
+```
 ## Temperatures
 Several temperature sensors are on site, 1 inside the Ferrybox and 2 outside:
 
@@ -1976,7 +1979,7 @@ ggsave(paste0("figures/delta_ct_awipev_snapo.png"), pdelta_ct_snapo, units="cm")
 # d_all comprises additional columns calculated in this script
 # These additional variablrs are useful elsewhere (for example in "presentation")
 # Hence, here we save it for this use
-save(file= paste0(path, "fb_data/d_all.Rdata"), d_all)
+save(file= paste0(path, "fb_data/d_all.rds"), d_all)
 ```
 
 
