@@ -1436,45 +1436,45 @@ dygraph(seafet_contros_xts, group = "awipev", main="pH seaFET (in situ)", ylab="
   dyOptions(drawGrid = TRUE, drawPoints = TRUE, pointSize = c(1,8,1),useDataTimezone = TRUE, digitsAfterDecimal=4) %>%
   dyRangeSelector(height = 30, dateWindow= NULL) 
 
-# #@@@@@ test plot #@@@@@ #@@@@@ #@@@@@
-seafet_contros_xts <- dplyr::select(d_all, datetime, voltINT, phINT_filtered,pH_s_seafet_temp_field, T_seaF, temp_fb, temp_insitu, sal_fb)
-#seafet_contros_xts <- dplyr::select(d_all, datetime,voltINT)
-seafet_contros_xts <- as.xts(seafet_contros_xts, order.by = d_all$datetime)
-dygraph(seafet_contros_xts, group = "awipev", main="pH seaFET (in situ)", ylab="pHT") %>%
-  dySeries("voltINT", label = "voltINTINT", color ="blue", strokeWidth=0, pointSize=2) %>%
-    dySeries("pH_s_seafet_temp_field", label = "pH spectro", axis= "y2", color =  "green", strokeWidth = 0, pointSize = 4 ) %>%
-    #dySeries("pHint_tot_sf", label = "corr pH INT", color ="red",axis= "y2", strokeWidth=0, pointSize=2) %>%
-  dySeries("temp_fb", label = "temp_fb", color ="orange",axis= "y2", strokeWidth=0, pointSize=2) %>%
+# # #@@@@@ test plot #@@@@@ #@@@@@ #@@@@@
+# seafet_contros_xts <- dplyr::select(d_all, datetime, voltINT, phINT_filtered,pH_s_seafet_temp_field, T_seaF, temp_fb, temp_insitu, sal_fb)
+# #seafet_contros_xts <- dplyr::select(d_all, datetime,voltINT)
+# seafet_contros_xts <- as.xts(seafet_contros_xts, order.by = d_all$datetime)
+# dygraph(seafet_contros_xts, group = "awipev", main="pH seaFET (in situ)", ylab="pHT") %>%
+#   dySeries("voltINT", label = "voltINTINT", color ="blue", strokeWidth=0, pointSize=2) %>%
+#     dySeries("pH_s_seafet_temp_field", label = "pH spectro", axis= "y2", color =  "green", strokeWidth = 0, pointSize = 4 ) %>%
+#     #dySeries("pHint_tot_sf", label = "corr pH INT", color ="red",axis= "y2", strokeWidth=0, pointSize=2) %>%
+#   dySeries("temp_fb", label = "temp_fb", color ="orange",axis= "y2", strokeWidth=0, pointSize=2) %>%
+# 
+#   dySeries("sal_fb", label = "sal_fb", color ="pink",axis= "y2", strokeWidth=0, pointSize=2) %>%
+#   dySeries("temp_insitu", label = "temp_insitu", color ="black",axis= "y2", strokeWidth=0, pointSize=2) %>%
+#     dySeries("T_seaF", label = "T_seaF", color ="grey",axis= "y2", strokeWidth=0, pointSize=2) %>%
+#     dyEvent(as.POSIXct("2017-08-24 12:00:00", tz="GMT"), "seaFET #1005 installed", labelLoc = "bottom", color="red") %>%
+#   dyEvent(as.POSIXct("2018-02-02 09:00:00", tz="GMT"), "seaFET settings changed to every 1H", labelLoc = "bottom", color="red") %>% 
+#   dyEvent(as.POSIXct("2018-04-17 12:00:00", tz="GMT"), "seaFET #0007 installed + continuous mode set", labelLoc = "bottom", color="red") %>%
+#     dyEvent(as.POSIXct("2019-09-02 12:00:00", tz="GMT"), "seaFET #0007 out of water for cleaning", labelLoc = "bottom", color="red") %>%
+#   dyLegend(show = "auto")   %>%
+#   dyAxis( "y2",valueRange = c(-3, 36))%>%
+#   dyAxis( "y",valueRange = c(-2, 2))%>%
+#   dyHighlight(highlightCircleSize = 8,highlightSeriesBackgroundAlpha = 0.5,hideOnMouseOut = TRUE) %>%
+#   dyOptions(drawGrid = TRUE, drawPoints = TRUE, pointSize = c(1,8,1),useDataTimezone = TRUE, digitsAfterDecimal=4) %>%
+#   dyRangeSelector(height = 30, dateWindow= NULL)
+# # #@@@@@ #@@@@@ #@@@@@ #@@@@@ #@@@@@
 
-  dySeries("sal_fb", label = "sal_fb", color ="pink",axis= "y2", strokeWidth=0, pointSize=2) %>%
-  dySeries("temp_insitu", label = "temp_insitu", color ="black",axis= "y2", strokeWidth=0, pointSize=2) %>%
-    dySeries("T_seaF", label = "T_seaF", color ="grey",axis= "y2", strokeWidth=0, pointSize=2) %>%
-    dyEvent(as.POSIXct("2017-08-24 12:00:00", tz="GMT"), "seaFET #1005 installed", labelLoc = "bottom", color="red") %>%
-  dyEvent(as.POSIXct("2018-02-02 09:00:00", tz="GMT"), "seaFET settings changed to every 1H", labelLoc = "bottom", color="red") %>% 
-  dyEvent(as.POSIXct("2018-04-17 12:00:00", tz="GMT"), "seaFET #0007 installed + continuous mode set", labelLoc = "bottom", color="red") %>%
-    dyEvent(as.POSIXct("2019-09-02 12:00:00", tz="GMT"), "seaFET #0007 out of water for cleaning", labelLoc = "bottom", color="red") %>%
-  dyLegend(show = "auto")   %>%
-  dyAxis( "y2",valueRange = c(-3, 36))%>%
-  dyAxis( "y",valueRange = c(-2, 2))%>%
-  dyHighlight(highlightCircleSize = 8,highlightSeriesBackgroundAlpha = 0.5,hideOnMouseOut = TRUE) %>%
-  dyOptions(drawGrid = TRUE, drawPoints = TRUE, pointSize = c(1,8,1),useDataTimezone = TRUE, digitsAfterDecimal=4) %>%
-  dyRangeSelector(height = 30, dateWindow= NULL)
-# #@@@@@ #@@@@@ #@@@@@ #@@@@@ #@@@@@
-
-# Offset between seafet pH and spec pH 
-sfoffset <- left_join(sfPeriod[,c(1,2)], d_all%>%dplyr::select(datetime, pHint_tot_sf), by="datetime")
-dat <- mutate(sfoffset, diff_pH_sf = round((pH_s_seafet_temp_field - pHint_tot_sf),digits  = 4))
-average_offset <- mean(abs(dat$diff_pH_sf), na.rm=TRUE)
-
-plot_offset <- ggplot(data = filter(dat, !is.na(diff_pH_sf))) +
-  geom_hline(yintercept=mean(dat$diff_pH_sf, na.rm = TRUE), size=0.3, linetype="dashed", col="red") +
-  geom_hline(yintercept=0, size=0.3) +
-  geom_point(aes(x = datetime, y = diff_pH_sf), size = 1, colour = "#51C56AFF") +
-  labs(x = NULL, y=expression(paste(pH[T], " difference")), title = NULL) +
-  scale_x_datetime(date_breaks="month", date_minor_breaks="1 week", labels=date_format("%b %Y")) +
-  Mytheme() + theme(panel.grid.major.x = element_blank(), axis.text.x = element_text(angle = 45, hjust = 1)) 
-
-print(plot_offset)
+# # Offset between seafet pH and spec pH 
+# sfoffset <- left_join(sfPeriod[,c(1,2)], d_all%>%dplyr::select(datetime, pHint_tot_sf), by="datetime")
+# dat <- mutate(sfoffset, diff_pH_sf = round((pH_s_seafet_temp_field - pHint_tot_sf),digits  = 4))
+# average_offset <- mean(abs(dat$diff_pH_sf), na.rm=TRUE)
+# 
+# plot_offset <- ggplot(data = filter(dat, !is.na(diff_pH_sf))) +
+#   geom_hline(yintercept=mean(dat$diff_pH_sf, na.rm = TRUE), size=0.3, linetype="dashed", col="red") +
+#   geom_hline(yintercept=0, size=0.3) +
+#   geom_point(aes(x = datetime, y = diff_pH_sf), size = 1, colour = "#51C56AFF") +
+#   labs(x = NULL, y=expression(paste(pH[T], " difference")), title = NULL) +
+#   scale_x_datetime(date_breaks="month", date_minor_breaks="1 week", labels=date_format("%b %Y")) +
+#   Mytheme() + theme(panel.grid.major.x = element_blank(), axis.text.x = element_text(angle = 45, hjust = 1)) 
+# 
+# print(plot_offset)
 
 # #plot for POSTER june 2019
 # #plot of pH seafet
