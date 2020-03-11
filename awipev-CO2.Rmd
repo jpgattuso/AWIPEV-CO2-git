@@ -1437,29 +1437,28 @@ dygraph(seafet_contros_xts, group = "awipev", main="pH seaFET (in situ)", ylab="
   dyRangeSelector(height = 30, dateWindow= NULL) 
 
 # # #@@@@@ test plot #@@@@@ #@@@@@ #@@@@@
-# seafet_contros_xts <- dplyr::select(d_all, datetime, voltINT, phINT_filtered,pH_s_seafet_temp_field, T_seaF, temp_fb, temp_insitu, sal_fb)
-# #seafet_contros_xts <- dplyr::select(d_all, datetime,voltINT)
-# seafet_contros_xts <- as.xts(seafet_contros_xts, order.by = d_all$datetime)
-# dygraph(seafet_contros_xts, group = "awipev", main="pH seaFET (in situ)", ylab="pHT") %>%
-#   dySeries("voltINT", label = "voltINTINT", color ="blue", strokeWidth=0, pointSize=2) %>%
-#     dySeries("pH_s_seafet_temp_field", label = "pH spectro", axis= "y2", color =  "green", strokeWidth = 0, pointSize = 4 ) %>%
-#     #dySeries("pHint_tot_sf", label = "corr pH INT", color ="red",axis= "y2", strokeWidth=0, pointSize=2) %>%
-#   dySeries("temp_fb", label = "temp_fb", color ="orange",axis= "y2", strokeWidth=0, pointSize=2) %>%
-# 
-#   dySeries("sal_fb", label = "sal_fb", color ="pink",axis= "y2", strokeWidth=0, pointSize=2) %>%
-#   dySeries("temp_insitu", label = "temp_insitu", color ="black",axis= "y2", strokeWidth=0, pointSize=2) %>%
-#     dySeries("T_seaF", label = "T_seaF", color ="grey",axis= "y2", strokeWidth=0, pointSize=2) %>%
-#     dyEvent(as.POSIXct("2017-08-24 12:00:00", tz="GMT"), "seaFET #1005 installed", labelLoc = "bottom", color="red") %>%
-#   dyEvent(as.POSIXct("2018-02-02 09:00:00", tz="GMT"), "seaFET settings changed to every 1H", labelLoc = "bottom", color="red") %>% 
-#   dyEvent(as.POSIXct("2018-04-17 12:00:00", tz="GMT"), "seaFET #0007 installed + continuous mode set", labelLoc = "bottom", color="red") %>%
-#     dyEvent(as.POSIXct("2019-09-02 12:00:00", tz="GMT"), "seaFET #0007 out of water for cleaning", labelLoc = "bottom", color="red") %>%
-#   dyLegend(show = "auto")   %>%
-#   dyAxis( "y2",valueRange = c(-3, 36))%>%
-#   dyAxis( "y",valueRange = c(-2, 2))%>%
-#   dyHighlight(highlightCircleSize = 8,highlightSeriesBackgroundAlpha = 0.5,hideOnMouseOut = TRUE) %>%
-#   dyOptions(drawGrid = TRUE, drawPoints = TRUE, pointSize = c(1,8,1),useDataTimezone = TRUE, digitsAfterDecimal=4) %>%
-#   dyRangeSelector(height = 30, dateWindow= NULL)
-# # #@@@@@ #@@@@@ #@@@@@ #@@@@@ #@@@@@
+seafet_contros_xts <- dplyr::select(d_all, datetime, at, ct)#voltINT, phINT_filtered,pH_s_seafet_temp_field, T_seaF, temp_fb, temp_insitu, sal_fb)
+#seafet_contros_xts <- dplyr::select(d_all, datetime,voltINT)
+seafet_contros_xts <- as.xts(seafet_contros_xts, order.by = d_all$datetime)
+dygraph(seafet_contros_xts, group = "awipev", main="pH seaFET (in situ)", ylab="pHT") %>%
+  #dySeries("voltINT", label = "voltINTINT", color ="blue", strokeWidth=0, pointSize=2) %>%
+   # dySeries("pH_s_seafet_temp_field", label = "pH spectro", axis= "y2", color =  "green", strokeWidth = 0, pointSize = 4 ) %>%
+    #dySeries("pHint_tot_sf", label = "corr pH INT", color ="red",axis= "y2", strokeWidth=0, pointSize=2) %>%
+  dySeries("ct", label = "ct", color ="red",axis= "y2", strokeWidth=0, pointSize=2) %>%
+dySeries("at", label = "at", color ="blue",axis= "y2", strokeWidth=0, pointSize=2) %>%
+  #dySeries("temp_insitu", label = "temp_insitu", color ="black",axis= "y2", strokeWidth=0, pointSize=2) %>%
+   # dySeries("T_seaF", label = "T_seaF", color ="grey",axis= "y2", strokeWidth=0, pointSize=2) %>%
+ #   dyEvent(as.POSIXct("2017-08-24 12:00:00", tz="GMT"), "seaFET #1005 installed", labelLoc = "bottom", color="red") %>%
+  #dyEvent(as.POSIXct("2018-02-02 09:00:00", tz="GMT"), "seaFET settings changed to every 1H", labelLoc = "bottom", color="red") %>%
+  #dyEvent(as.POSIXct("2018-04-17 12:00:00", tz="GMT"), "seaFET #0007 installed + continuous mode set", labelLoc = "bottom", color="red") %>%
+   # dyEvent(as.POSIXct("2019-09-02 12:00:00", tz="GMT"), "seaFET #0007 out of water for cleaning", labelLoc = "bottom", color="red") %>%
+  dyLegend(show = "auto")   %>%
+  #dyAxis( "y2",valueRange = c(-3, 36))%>%
+  #dyAxis( "y",valueRange = c(-2, 2))%>%
+  dyHighlight(highlightCircleSize = 8,highlightSeriesBackgroundAlpha = 0.5,hideOnMouseOut = TRUE) %>%
+  dyOptions(drawGrid = TRUE, drawPoints = TRUE, pointSize = c(1,8,1),useDataTimezone = TRUE, digitsAfterDecimal=4) %>%
+  dyRangeSelector(height = 30, dateWindow= NULL)
+# #@@@@@ #@@@@@ #@@@@@ #@@@@@ #@@@@@
 
 # # Offset between seafet pH and spec pH 
 # sfoffset <- left_join(sfPeriod[,c(1,2)], d_all%>%dplyr::select(datetime, pHint_tot_sf), by="datetime")
@@ -1919,11 +1918,11 @@ We found that some analysed discrete seawater replicates for AT/CT, performed by
 For TA, dulpicates's flags that have been changed to 1 are:
 
 2015-11-18
-, 2016-07-28, 2016-09-29, 2016-11-17, 2016-11-23, 2016-12-29, 2017-01-19, 2017-05-04, 2017-08-31, 2018-04-26, 2018-05-04, 2018-05-16, 2018-05-25, 2018-06-22, 2018-06-30, 2018-07-27, 2018-07-20, 2018-08-03, 2018-08-10, 2018-08-24, 2018-08-31, 2018-09-07, 2018-09-14, 2018-09-21, 2018-09-28, 2018-10-05, 2018-10-12, 2018-10-19, 2018-10-26, 2018-11-02, 2018-11-09, 2018-11-16, 2018-11-23.
+, 2016-07-28, 2016-09-29, 2016-11-17, 2016-11-23, 2016-12-29, 2017-01-19, 2017-05-04, 2017-08-31, 2018-04-26, 2018-05-04, 2018-05-16, 2018-05-25, 2018-06-22, 2018-06-30, 2018-07-27, 2018-07-20, 2018-08-03, 2018-08-10, 2018-08-24, 2018-08-31, 2018-09-07, 2018-09-14, 2018-09-21, 2018-09-28, 2018-10-05, 2018-10-12, 2018-10-19, 2018-10-26, 2018-11-02, 2018-11-09, 2018-11-16, 2018-11-23, 2019-08-23.
 
 For CT, duplicates's flags that have been changed to 1 are:
 
-2015-08-06, 2015-08-13, 2016-05-12, 2016-05-19, 2016-06-16, 2016-07-28, 2016-09-08, 2016-10-27, 2016-11-17, 2017-01-19, 2017-03-02, 2017-04-27, 2017-09-14, 2018-04-26, 2018-05-04, 2018-05-12, 2018-05-25, 2018-06-30, 2018-07-20, 2018-08-03, 2018-08-31, 2018-09-07, 2018-09-14, 2018-09-28, 2018-10-05, 2018-10-12, 2018-10-19, 2018-10-26, 2018-11-02, 2018-11-09, 2018-11-16, 2018-11-23.
+2015-08-06, 2015-08-13, 2016-05-12, 2016-05-19, 2016-06-16, 2016-07-28, 2016-09-08, 2016-10-27, 2016-11-17, 2017-01-19, 2017-03-02, 2017-04-27, 2017-09-14, 2018-04-26, 2018-05-04, 2018-05-12, 2018-05-25, 2018-06-30, 2018-07-20, 2018-08-03, 2018-08-31, 2018-09-07, 2018-09-14, 2018-09-28, 2018-10-05, 2018-10-12, 2018-10-19, 2018-10-26, 2018-11-02, 2018-11-09, 2018-11-16, 2018-11-23, 2019-05-03, 2019-05-10, 2019-08-23.
 
 
 ```{r SNAPO, echo=FALSE, message= FALSE, warning=FALSE}
@@ -2017,7 +2016,7 @@ ggsave(paste0("figures/delta_ct_awipev_snapo.png"), pdelta_ct_snapo, units="cm")
 # d_all comprises additional columns calculated in this script
 # These additional variablrs are useful elsewhere (for example in "presentation")
 # Hence, here we save it for this use
-save(file= paste0(path, "fb_data/d_all.rds"), d_all)
+saveRDS(file= paste0(path, "fb_data/d_all.rds"), d_all)
 ```
 
 
@@ -2166,6 +2165,7 @@ All documents concerning maintenance, tasks to do, calibration... are accessible
 - Reference spectro measurement from the 2019-01-18 11:00 do not match with a durafet raw data because Ferrybox was off. This reference point was not takken in consideration for calibration. The window of the previous and next calibration periods was extended.
 
 ### ***p*CO~2~**
+- **2020-03-11**: Post calibration parameters for period 4 (2018-04-16 to 2018-10-31) were not taken in consideration because they lead to wrong correction.
 - **2019-11-18**: Calibration parameters from #0215-001 were added to "server.../data/NRT_data/Data_Processing_sheet_pCO2.csv" (new path).
 - **2018-08-29**: Calibration parameters from #0215-001 were added to "./data/Calibration_pCO2/Data_Processing_sheet_pCO2.csv".
 - **2018-04-20**: For *p*CO~2~ Calibration the previous period (N° 4) was added to the script "ny-alesund_cc" line 466.
