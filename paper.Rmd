@@ -187,18 +187,20 @@ g <- cowplot::plot_grid(ts_sal, ts_temp, ts_pCO2, ts_pH, ts_at, align='v', ncol=
 print(g)
 ```
 
-```{r water masses, fig.width=15, fig.height=15, echo=FALSE, message= FALSE}
+```{r water masses, fig.width=10, fig.height=10, echo=FALSE, message= FALSE}
 # One tries to identify water masses coming from the Atlantic or freshwater
 temp_sal <- d_all %>%
-  ggplot(aes(x = sal_fb, y = temp_insitu, col = month), na.rm=TRUE) +
-  geom_point(colour="black", na.rm=TRUE, size=size_point) + 
+  #dplyr::mutate(month=factor(month)) %>%
+  ggplot(aes(x = sal_fb, y = temp_insitu), na.rm=TRUE) +
+  geom_point(aes(colour=factor(month)), na.rm=TRUE, size=size_point) + 
   labs(title="Temperature vs salinity SBE45",x="Salinity", y="Temp. (°C)") +
+  facet_wrap(~ year) +
+  stat_smooth(method=lm, na.rm=TRUE, show.legend=TRUE, se=FALSE, aes(fill=factor(month), colour=factor(month))) +
   coord_fixed() +
-  Mytheme(size_labs = 8) #+
-  #theme(axis.text.x=element_blank())
-#  +annotation_custom(grob_A)
+  Mytheme(size_labs = 8) 
+  #scale_color_viridis(name="Month", discrete=FALSE, option="plasma")
 print(temp_sal)
-
+    
 den <- seacarb::rho(S = d_all$sal_fb , T = d_all$temp_insitu, P = 1)
 d_all <- d_all %>%
   dplyr::mutate(den = den)
