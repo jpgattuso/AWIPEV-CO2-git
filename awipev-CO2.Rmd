@@ -226,7 +226,7 @@ d_hour <- d_hour %>%
          #pH_AT = ifelse(pH_AT == "NaN", NA, pH_AT),
          #PCO2_Corr_Zero2 = ifelse(PCO2_Corr_Zero2 %in% c("NaN", 66666), NA, PCO2_Corr_Zero2)
          ) %>%
-  dplyr::rename(at_contros=AT,pco2_contros=PCO2_corr_contros_filtered,pH_durafet=HW_pH1_filtered,temp_insitu=Temp_SBE38_filtered, sal_fb=Salinity_filtered,temp_fb=Temperature_filtered)
+  dplyr::rename(at_contros=AT,pco2_contros=PCO2_corr_contros_filtered,pH_durafet=HW_pH1_filtered,temp_insitu=Temp_SBE38_filtered, sal_fb=sal_fb_filtered, sal_insi=sal_insi_filtered, sal=sal_filtered, temp_fb=Temperature_filtered)
 ```
 
 ```{r Combine discrete and continous data, echo=FALSE}
