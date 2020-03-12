@@ -6,7 +6,8 @@ output:
   rmarkdown::html_document:
     theme: paper
     number_sections: false
-    
+fig_width: 12 
+fig_height: 8     
 ---
 
 ```{r set-up, echo=FALSE, warning=FALSE, message=FALSE, include=FALSE}
@@ -17,7 +18,6 @@ library(tidyverse)
 #library(robfilter)
 library(seacarb)
 library(gridExtra)
-#library(reshape2)
 library(lubridate)
 #library(lmtest)
 #library(grid)
@@ -29,14 +29,20 @@ library("lmodel2")
 #library(xts)
 #library(seismicRoll)
 library(scales)
+library(plotly)
+library(htmlwidgets)
 knitr::opts_chunk$set(echo = TRUE)
+#knitr::opts_knit$set(root.dir = normalizePath("/Users/gattuso/not_synced_git/AWIPEV-CO2-git")) 
+
+#knitr::opts_chunk$set(fig.width=12, fig.height=8) 
 
 #fig_nums <- captioner()
 #table_nums <- captioner(prefix = "Table")
 
-#define who is the user and define path
-if (Sys.getenv("LOGNAME") == "gattuso") path = "../../pCloud\ Sync/Documents/experiments/exp168_awipev-CO2/"
-if (Sys.getenv("LOGNAME") == "samir") path = "../../pCloud\ Sync/exp168_awipev-CO2/"
+#define who is the user and define paths
+if (Sys.getenv("LOGNAME") == "gattuso") path_data = "../../pCloud\ Sync/Documents/experiments/exp168_awipev-CO2/"
+if (Sys.getenv("LOGNAME") == "gattuso") path_fig = "/Users/gattuso/pCloud\ Sync/Documents/publications/publications_inpreparation/gattuso_etal_awipev-CO2/figures/"
+if (Sys.getenv("LOGNAME") == "samir") path_data = "../../pCloud\ Sync/exp168_awipev-CO2/"
 
 
 ######## function to make regression plot with model I equation in title
@@ -95,7 +101,7 @@ Mytheme <- function(size_labs = 7, face_font="plain") {
         axis.ticks.y = element_line(size=0.1),
         axis.ticks.length = unit(1.1, "mm"),
         panel.grid.major = element_line(size = 0.25, color="black", linetype="dashed"),
-        #aspect.ratio = 1 / 2,
+        #aspect.ratio = 1 / 3,
         plot.margin = margin(t = 0, r = 0, b = 0, l = 0, unit = "cm")
   )
 }
@@ -113,13 +119,14 @@ ggplot(fit$model, aes_string(x = names(fit$model)[2], y = names(fit$model)[1])) 
 
 ```{r read and clean data, echo=FALSE, warning=FALSE, message=FALSE}
 d_all <- as_tibble(
-  readRDS(file = paste0(path, "fb_data/d_all.rds"))
+  #readRDS(file = paste0(path_data, "fb_data/d_all.rds"))
+  readRDS(file = paste0(path_data, "fb_data/d_all_copy.rds"))
 ) %>%
   filter(sal_fb > 28) # remove salinity data lower than 28
 ```
 
 ## Whole time series
-```{r whole time series, fig.width=10, fig.height=15, echo=FALSE, message= FALSE}
+```{r whole time series, fig.width=10, fig.height=10, echo=FALSE, message= FALSE}
 size_point <- 1 # size of data points
 
 #SAL SBE45
@@ -130,6 +137,9 @@ ts_sal <- d_all %>%
   labs(title="Salinity FerryBox? SBE45",x="", y="Salinity") +
   #coord_fixed() +
   Mytheme(size_labs = 8)
+ts_sal_py <- ggplotly(ts_sal,dynamicTicks = TRUE)
+filename.html <- paste0(path_fig, "ts_sal_py.html")
+saveWidget(ts_sal_py, filename.html, selfcontained = T, libdir = "lib")
 
 # TEMP in situ SBE38
 ts_temp <- d_all %>%
@@ -180,8 +190,7 @@ print(g)
 ```{r water masses, fig.width=15, fig.height=15, echo=FALSE, message= FALSE}
 # One tries to identify water masses coming from the Atlantic or freshwater
 temp_sal <- d_all %>%
-  ggplot(aes(x = sal_fb, y = temp_insitu), na.rm=TRUE) +
-  #scale_x_datetime(breaks = date_breaks("2 year"), labels = date_format("%Y")) +
+  ggplot(aes(x = sal_fb, y = temp_insitu, col = month), na.rm=TRUE) +
   geom_point(colour="black", na.rm=TRUE, size=size_point) + 
   labs(title="Temperature vs salinity SBE45",x="Salinity", y="Temp. (°C)") +
   coord_fixed() +
@@ -190,6 +199,17 @@ temp_sal <- d_all %>%
 #  +annotation_custom(grob_A)
 print(temp_sal)
 
+den <- seacarb::rho(S = d_all$sal_fb , T = d_all$temp_insitu, P = 1)
+d_all <- d_all %>%
+  dplyr::mutate(den = den)
+ts_den <- d_all %>%
+  ggplot(aes(x = datetime, y = den), na.rm=TRUE) +
+  scale_x_datetime(breaks = date_breaks("1 year"), labels = date_format("%Y")) +
+  geom_point(colour="black", na.rm=TRUE, size=size_point) + 
+  labs(title="Density",x="Time", y="Density") +
+  #coord_fixed() +
+  Mytheme(size_labs = 8)
+print(ts_den)
 ```
 
 
