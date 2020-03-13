@@ -553,6 +553,47 @@ f <- as.data.frame(table(d_all$at))
 
 
 ```
+
+## Salinities
+Several salinity sensors are on site, 1 inside the Ferrybox and 1 outside. Note that several CTD have been replace in situ. The sal_insitu variable combine all these CTD salinity measurements:
+
+- 1 SBE45 inside the Ferrybox (sal_fb)
+- 1 CTD at 11 meters depth (sal_insitu)
+
+Comparative approch allowed by following plots:
+
+### **Sal FB / Sal *in situ* **
+```{r Sal comparaison, echo=FALSE, message= FALSE, warning=FALSE}
+
+d_all <- d_all%>%
+  dplyr::mutate( sal = ifelse(sal <28, NA, sal) ,
+                 sal_fb = ifelse(sal_fb <28, NA, sal_fb),
+                 sal_insitu = ifelse(sal_insitu <28, NA, sal_insitu))
+
+fit <- lmodel2(data = d_all,  sal_fb ~ sal_insitu , nperm = 99)
+
+p_sal_fb_sal_insitu<-  ggplot(d_all,aes(x=sal_insitu, y= sal_fb, label = month))+
+  geom_text( aes(color=factor(month))) + 
+ # scale_color_viridis_d(option = "C", guide="none")+
+  geom_line(aes(x = sal_fb, y = sal_fb), linetype = "dashed") +
+  geom_abline(aes(intercept = fit$regression.results[2,2], slope = fit$regression.results[2,3]),colour = "blue") +
+  labs(title = paste("Sal in situ vs Sal FB","\n Adj R2 = ", signif(fit$rsquare, 3),
+                     "; Intercept =", signif(fit$regression.results[2,2], 3),
+                     "; Slope =", signif( fit$regression.results[2,3], 3),
+                     "; P =", signif(fit$P.param, 3))) +
+  theme(aspect.ratio=1,plot.title = element_text(size=7)) + 
+  coord_fixed(ratio = 1 )+ scale_colour_discrete(guide="none") +
+  labs( x="Salinity insitu", y="Salinity FB ", color = "Months")  +theme_bw()
+print(p_sal_fb_sal_insitu)
+
+d_all$diff_sal_fb_insitu <- d_all$sal_insitu - d_all$sal_fb
+mean_diff_sal_fb_insitu <- round(mean(d_all$diff_sal_fb_insitu, na.rm = TRUE), digits = 2)
+sd_diff_sal_fb_insitu <- round(sd(d_all$diff_sal_fb_insitu, na.rm = TRUE), digits = 2)
+
+```
+
+The mean difference between salinity FB and in situ is: `r mean_diff_sal_fb_insitu` ± `r sd_diff_sal_fb_insitu`°C.
+
 ## Temperatures
 Several temperature sensors are on site, 1 inside the Ferrybox and 2 outside:
 
@@ -1437,16 +1478,16 @@ dygraph(seafet_contros_xts, group = "awipev", main="pH seaFET (in situ)", ylab="
   dyRangeSelector(height = 30, dateWindow= NULL) 
 
 # # #@@@@@ test plot #@@@@@ #@@@@@ #@@@@@
-seafet_contros_xts <- dplyr::select(d_all, datetime, at, ct)#voltINT, phINT_filtered,pH_s_seafet_temp_field, T_seaF, temp_fb, temp_insitu, sal)
+seafet_contros_xts <- dplyr::select(d_all, datetime, sal_fb, sal_insitu, sal)#voltINT, phINT_filtered,pH_s_seafet_temp_field, T_seaF, temp_fb, temp_insitu, sal)
 #seafet_contros_xts <- dplyr::select(d_all, datetime,voltINT)
 seafet_contros_xts <- as.xts(seafet_contros_xts, order.by = d_all$datetime)
 dygraph(seafet_contros_xts, group = "awipev", main="pH seaFET (in situ)", ylab="pHT") %>%
   #dySeries("voltINT", label = "voltINTINT", color ="blue", strokeWidth=0, pointSize=2) %>%
    # dySeries("pH_s_seafet_temp_field", label = "pH spectro", axis= "y2", color =  "green", strokeWidth = 0, pointSize = 4 ) %>%
     #dySeries("pHint_tot_sf", label = "corr pH INT", color ="red",axis= "y2", strokeWidth=0, pointSize=2) %>%
-  dySeries("ct", label = "ct", color ="red",axis= "y2", strokeWidth=0, pointSize=2) %>%
-dySeries("at", label = "at", color ="blue",axis= "y2", strokeWidth=0, pointSize=2) %>%
-  #dySeries("temp_insitu", label = "temp_insitu", color ="black",axis= "y2", strokeWidth=0, pointSize=2) %>%
+  dySeries("sal_insitu", label = "sal_insitu", color ="red",axis= "y2", strokeWidth=0, pointSize=2) %>%
+dySeries("sal_fb", label = "sal_fb", color ="blue",axis= "y2", strokeWidth=0, pointSize=2) %>%
+  dySeries("sal", label = "sal", color ="black",axis= "y2", strokeWidth=0, pointSize=2) %>%
    # dySeries("T_seaF", label = "T_seaF", color ="grey",axis= "y2", strokeWidth=0, pointSize=2) %>%
  #   dyEvent(as.POSIXct("2017-08-24 12:00:00", tz="GMT"), "seaFET #1005 installed", labelLoc = "bottom", color="red") %>%
   #dyEvent(as.POSIXct("2018-02-02 09:00:00", tz="GMT"), "seaFET settings changed to every 1H", labelLoc = "bottom", color="red") %>%
@@ -2153,6 +2194,8 @@ All documents concerning maintenance, tasks to do, calibration... are accessible
 [Quick overview AWI NRT database](https://dashboard.awi.de/?dashboard=9736) 
 
 ### **FerryBox**
+
+- **2020-03-13**: Salinity was filtered above 28 in d_all.rds file.
 - **2018-11-14**: One instrument was removed by Uwe (Chlorophyl-a), that means that one column (CHl_A_Cyclops) was also removed from the Ferrybox data file. Script was modified in consequence.
 
 ### **pH seaFET**
