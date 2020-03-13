@@ -119,8 +119,8 @@ ggplot(fit$model, aes_string(x = names(fit$model)[2], y = names(fit$model)[1])) 
 
 ```{r read and clean data, echo=FALSE, warning=FALSE, message=FALSE}
 d_all <- as_tibble(
-  #readRDS(file = paste0(path_data, "fb_data/d_all.rds"))
-  readRDS(file = paste0(path_data, "fb_data/d_all_copy.rds"))
+  readRDS(file = paste0(path_data, "fb_data/d_all.rds"))
+  #readRDS(file = paste0(path_data, "fb_data/d_all_copy.rds"))
 ) %>%
   filter(sal_fb > 28) # remove salinity data lower than 28
 ```
@@ -187,21 +187,44 @@ g <- cowplot::plot_grid(ts_sal, ts_temp, ts_pCO2, ts_pH, ts_at, align='v', ncol=
 print(g)
 ```
 
-```{r water masses, fig.width=10, fig.height=10, echo=FALSE, message= FALSE}
+#Temperature vs salinity
+We explore the use of a TS diagram to investigate changes in water sources. Now need to calculate slopes and r2, and see whether some months have a consistently different behaviour.
+
+```{r temperature vs salinity, fig.width=10, fig.height=10, echo=FALSE, message= FALSE}
 # One tries to identify water masses coming from the Atlantic or freshwater
-temp_sal <- d_all %>%
-  #dplyr::mutate(month=factor(month)) %>%
-  ggplot(aes(x = sal_fb, y = temp_insitu), na.rm=TRUE) +
-  geom_point(aes(colour=factor(month)), na.rm=TRUE, size=size_point) + 
-  labs(title="Temperature vs salinity SBE45",x="Salinity", y="Temp. (°C)") +
-  facet_wrap(~ year) +
-  stat_smooth(method=lm, na.rm=TRUE, show.legend=TRUE, se=FALSE, aes(fill=factor(month), colour=factor(month))) +
+den <- rho(S = s, T = t, P = 1)
+s <- c(seq(30.4, 35.3, by=0.1)) # pCO2
+t <- seq(-2, 8, by=0.1) #temperature throughout the year
+grid <- as_tibble(expand.grid(s, t)) %>%
+  rename(s=Var1, t=Var2) %>%
+  mutate(z=rho(S = s, T = t, P = 1))
+
+
+tmp <- ggplot(data = z, 
+              aes(x=s, y=s, z = z), na.rm = TRUE) +
+  geom_contour()
+
+d <- d_all %>%
+  dplyr::filter(year < 2020) %>%
+  dplyr::mutate(month=month(datetime, label = TRUE, abbr = TRUE)) # abbreviated months rather than digital months
+  #ggplot(aes(x = sal_fb, y = temp_insitu), na.rm=TRUE) +
+temp_sal <-  ggplot() +
+  geom_point(data = d, aes(x = sal_fb, y = temp_insitu, fill=month), na.rm=TRUE,
+             size=size_point) + 
+  labs(title="Temperature vs salinity SBE45", x="Salinity", y="Temp. (°C)") +
+  facet_wrap(~ year, ncol = 5) +
+  stat_smooth(data = d, aes(x = sal_fb, y = temp_insitu, color=month),
+              method=lm, na.rm=TRUE, show.legend=TRUE, se=FALSE) +
+  geom_contour(data = d, aes(x = s, y = t, z = z)) +
   coord_fixed() +
-  Mytheme(size_labs = 8) 
-  #scale_color_viridis(name="Month", discrete=FALSE, option="plasma")
+  Mytheme(size_labs = 14) +
+  #scale_color_viridis(name="Month", discrete=TRUE, option="plasma")
 print(temp_sal)
-    
-den <- seacarb::rho(S = d_all$sal_fb , T = d_all$temp_insitu, P = 1)
+```
+
+
+
+```{r density, fig.width=10, fig.height=10, echo=FALSE, message= FALSE}
 d_all <- d_all %>%
   dplyr::mutate(den = den)
 ts_den <- d_all %>%
@@ -210,7 +233,7 @@ ts_den <- d_all %>%
   geom_point(colour="black", na.rm=TRUE, size=size_point) + 
   labs(title="Density",x="Time", y="Density") +
   #coord_fixed() +
-  Mytheme(size_labs = 8)
+  Mytheme(size_labs = 14)
 print(ts_den)
 ```
 
