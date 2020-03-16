@@ -569,6 +569,10 @@ d_all <- d_all%>%
   dplyr::mutate( sal = ifelse(sal <28, NA, sal) ,
                  sal_fb = ifelse(sal_fb <28, NA, sal_fb),
                  sal_insitu = ifelse(sal_insitu <28, NA, sal_insitu))
+  d_all <- d_all%>%
+  dplyr::mutate( sal = ifelse(datetime > "2019-12-26 00:00:00", NA, sal),
+                 sal_insitu = ifelse(datetime > "2019-12-26 00:00:00", NA, sal_insitu))
+
 
 fit <- lmodel2(data = d_all,  sal_fb ~ sal_insitu , nperm = 99)
 
