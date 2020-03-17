@@ -594,9 +594,38 @@ d_all$diff_sal_fb_insitu <- d_all$sal_insitu - d_all$sal_fb
 mean_diff_sal_fb_insitu <- round(mean(d_all$diff_sal_fb_insitu, na.rm = TRUE), digits = 2)
 sd_diff_sal_fb_insitu <- round(sd(d_all$diff_sal_fb_insitu, na.rm = TRUE), digits = 2)
 
+# PLOT
+seafet_contros_xts <- dplyr::select(d_all, datetime, sal_fb, sal_insitu, sal)
+seafet_contros_xts <- as.xts(seafet_contros_xts, order.by = d_all$datetime)
+dygraph(seafet_contros_xts, group = "awipev", main="pH seaFET (in situ)", ylab="pHT") %>%
+  dySeries("sal_insitu", label = "sal_insitu", color ="red",axis= "y2", strokeWidth=0, pointSize=2) %>%
+dySeries("sal_fb", label = "sal_fb", color ="blue",axis= "y2", strokeWidth=0, pointSize=2) %>%
+dySeries("sal", label = "sal", color ="black",axis= "y2", strokeWidth=0, pointSize=2) %>%
+  dyLegend(show = "auto")   %>%
+  #dyAxis( "y2",valueRange = c(-3, 36))%>%
+  #dyAxis( "y",valueRange = c(-2, 2))%>%
+  dyHighlight(highlightCircleSize = 8,highlightSeriesBackgroundAlpha = 0.5,hideOnMouseOut = TRUE) %>%
+  dyOptions(drawGrid = TRUE, drawPoints = TRUE, pointSize = c(1,8,1),useDataTimezone = TRUE, digitsAfterDecimal=4) %>%
+  dyRangeSelector(height = 30, dateWindow= NULL)
+
+#Plot for philipp
+sal_15 <- ggplot(data= d_all%>%dplyr::filter(datetime > "2015-10-01 00:00:00" & datetime < "2015-12-31 00:00:00"), aes(x=datetime,  colour = "salinity"))+ 
+geom_point(aes(y=sal_fb,col="FB") , size=2) +
+geom_point(aes(y=sal_insitu, col="in situ"))  +
+labs(title=  "salinity 2015", x = "Time", y= "")
+
+sal_19 <-ggplot(data= d_all%>%dplyr::filter(datetime > "2019-10-01 00:00:00" & datetime < "2019-12-31 00:00:00"), aes(x=datetime,  colour = "salinity"))+ 
+geom_point(aes(y=sal_fb,col="FB") , size=2) +
+geom_point(aes(y=sal_insitu, col="in situ"))  +
+labs(title=  "salinity 2019", x = "Time", y= "")
+
+ggsave("figures/sal_2019.png", sal_19, units="cm")
+ggsave("figures/sal_2015.png", sal_15, units="cm")
+ggsave("figures/sal_property.png", p_sal_fb_sal_insitu, units="cm")
+
 ```
 
-The mean difference between salinity FB and in situ is: `r mean_diff_sal_fb_insitu` ± `r sd_diff_sal_fb_insitu`°C.
+The mean difference between salinity FB and in situ is: `r mean_diff_sal_fb_insitu` ± `r sd_diff_sal_fb_insitu` PSU.
 
 ## Temperatures
 Several temperature sensors are on site, 1 inside the Ferrybox and 2 outside:
