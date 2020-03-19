@@ -6,9 +6,43 @@ output:
   rmarkdown::html_document:
     theme: paper
     number_sections: false
+theme: cerulean
 fig_width: 12 
 fig_height: 8     
 ---
+
+<style type="text/css">
+
+body{ /* Normal  */
+      font-size: 16px;
+  }
+td {  /* Table  */
+  font-size: 8px;
+}
+h1.title {
+  font-size: 38px;
+  color: DarkRed;
+}
+h1 { /* Header 1 */
+  font-size: 28px;
+  color: DarkBlue;
+}
+h2 { /* Header 2 */
+    font-size: 22px;
+  color: DarkBlue;
+}
+h3 { /* Header 3 */
+  font-size: 18px;
+  font-family: "Times New Roman", Times, serif;
+  color: DarkBlue;
+}
+code.r{ /* Code block */
+    font-size: 12px;
+}
+pre { /* Code block - determines code spacing between lines */
+    font-size: 14px;
+}
+</style>
 
 ```{r set-up, echo=FALSE, warning=FALSE, message=FALSE, include=FALSE}
 Sys.setlocale("LC_ALL", "en_US.UTF-8")
@@ -186,8 +220,10 @@ g <- cowplot::plot_grid(ts_sal, ts_temp, ts_pCO2, ts_pH, ts_at, align='v', ncol=
 print(g)
 ```
 
-#Temperature vs salinity
+## Temperature vs salinity
 We explore the use of a TS diagram to investigate changes in water sources. Monthly slopes of the T vs S plots are calculated. It seems that slopes are mostly not significant in winter and that they can be both positive and negative in summer.
+
+**To do when the situation of the in situ CTDs will be clarified**: compare salinity values from the Ferrybox and in situ.
 
 ```{r temperature vs salinity plots, fig.width=8, fig.height=8, echo=FALSE, message= FALSE}
 # One tries to identify water masses coming from the Atlantic or freshwater
@@ -216,12 +252,12 @@ temp_sal <-  ggplot() +
   annotate("text", label="Fresh and cold", x=31.5, y=-1.5) +
   annotate("text", label="Salty and warm", x=34.5, y=8.1) +
   Mytheme(size_labs = 10)
+print(temp_sal)
 ggsave(temp_sal,filename = paste0(path_fig, "temp_sal.png"), width = 20, height = 20 ,units="cm")
 temp_sal_py <- ggplotly(temp_sal,dynamicTicks = TRUE)
 filename.html <- paste0(path_fig, "temp_sal_py.html")
 saveWidget(temp_sal_py, filename.html, selfcontained = T, libdir = "lib")
 ```
-print(temp_sal)
 
 ```{r temperature vs salinity regressions, fig.width=6, fig.height=6, echo=FALSE, message= FALSE}
 # AT as a function of salinity for every year
@@ -263,10 +299,9 @@ fig_reg_temp_sal <- tmp_reg_temp_sal %>%
   geom_errorbar(aes(x=date, ymin=Slope-2*SE_Slope, ymax=Slope+2*SE_Slope), width=.2) +
   Mytheme(size_labs = 14) +
   guides(colour = guide_legend("Month", override.aes = list(size=4)), size = guide_legend("P value slope"))
-fig_reg_temp_sal
-```
 kable(tab_reg_temp_sal)
 print(fig_reg_temp_sal)
+```
 
 
 ```{r density, fig.width=10, fig.height=10, echo=FALSE, message= FALSE}
@@ -282,25 +317,39 @@ print(fig_reg_temp_sal)
 # print(ts_den)
 ```
 
-```{r pangaea data, fig.width=10, fig.height=10, echo=FALSE, message= FALSE}
+```{r pangaea data, fig.width=9, fig.height=6, echo=FALSE, message= FALSE}
 data_2015 <- pg_data(doi="10.1594/PANGAEA.896771", overwrite = TRUE)
 data_2016 <- pg_data(doi="10.1594/PANGAEA.896770", overwrite = TRUE)
 data_2017 <- pg_data(doi="10.1594/PANGAEA.896170", overwrite = TRUE)
 data_2018 <- pg_data(doi="10.1594/PANGAEA.897349", overwrite = TRUE)
 tmp <- rbind(data_2015[[1]]$data, data_2016[[1]]$data, data_2017[[1]]$data, data_2018[[1]]$data)
-tmp <- tmp[, c(1,8)] # select date time and salinity
+tmp <- tmp[, c(1, 8, 11)] # select date time and salinity
 tmp$`Date/Time` <- as.POSIXct(strptime(tmp$`Date/Time`, "%Y-%m-%dT%H:%M", tz = "UTC"))
 
-all_data <- tmp %>%
+pg_ts <- tmp %>% #Pangaea time series
   dplyr::filter(!are_duplicated(tmp)) %>%
   dplyr::rename(datetime = `Date/Time`,
-                sal = `Sal ([PSU])`) %>%
+                sal = `Sal ([PSU])`,
+                temp = `Temp [°C]`) %>%
   as_tsibble(key = NULL, index = datetime) %>%
   fill_gaps()
 
-all_data %>%
+fig_sal_pangaea <- pg_ts %>%
   ggplot() +
-  geom_point(aes(x=datetime, y=sal), na.rm = TRUE)
+  geom_point(aes(x=datetime, y=sal), na.rm = TRUE) +
+  labs(title="Salinity recovered from Pangaea") +
+  Mytheme(size_labs = 14)
+print(fig_sal_pangaea)
+
+fig_temp_pangaea <- pg_ts %>%
+  ggplot() +
+  geom_point(aes(x=datetime, y=temp), na.rm = TRUE) +
+  labs(title="Temperature recovered from Pangaea") +
+  Mytheme(size_labs = 14)
+print(fig_temp_pangaea)
 ```
+
+## Total alkalinity
+It is proposed not to use the data from the Contros instrument. It is too unfeliable and difficult to calibrate. We use instead the relationship between salinity and the discrete measurements of AT.
 
 
