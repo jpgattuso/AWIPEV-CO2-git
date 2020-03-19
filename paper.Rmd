@@ -31,6 +31,9 @@ library("lmodel2")
 library(scales)
 library(plotly)
 library(htmlwidgets)
+library(tsibble)
+if (!require("directlabels")) install.packages("directlabels")
+library("directlabels")
 knitr::opts_chunk$set(echo = TRUE)
 #knitr::opts_knit$set(root.dir = normalizePath("/Users/gattuso/not_synced_git/AWIPEV-CO2-git")) 
 
@@ -118,11 +121,9 @@ ggplot(fit$model, aes_string(x = names(fit$model)[2], y = names(fit$model)[1])) 
 ```
 
 ```{r read and clean data, echo=FALSE, warning=FALSE, message=FALSE}
-d_all <- as_tibble(
-  readRDS(file = paste0(path_data, "fb_data/d_all.rds"))
-  #readRDS(file = paste0(path_data, "fb_data/d_all_copy.rds"))
-) %>%
-  filter(sal_fb > 28) # remove salinity data lower than 28
+d_all <- as_tibble(readRDS(file = paste0(path_data, "fb_data/d_all_copy.rds"))) %>% 
+  dplyr::filter(sal_fb > 28) %>% # remove salinity data lower than 28
+  dplyr::mutate(year_month = format(datetime, '%Y-%m'))
 ```
 
 ## Whole time series
@@ -161,7 +162,6 @@ ts_pCO2 <- d_all %>%
   #coord_fixed() +
   Mytheme(size_labs = 8)
 
-
 # SEAFET pH
 ts_pH <- d_all %>%
   ggplot(aes(x = datetime, y = pHint_tot_sf), na.rm=TRUE) +
@@ -170,7 +170,6 @@ ts_pH <- d_all %>%
   labs(title="In situ pH",x="", y="pCO2 (uatm)") +
   #coord_fixed() +
   Mytheme(size_labs = 8)
-
 
 # TA
 ts_at <- d_all %>%
@@ -181,8 +180,6 @@ ts_at <- d_all %>%
   #coord_fixed() +
   Mytheme(size_labs = 8)
 
-
-
 g <- cowplot::plot_grid(ts_sal, ts_temp, ts_pCO2, ts_pH, ts_at, align='v', ncol=1)
 print(g)
 ```
@@ -190,19 +187,12 @@ print(g)
 #Temperature vs salinity
 We explore the use of a TS diagram to investigate changes in water sources. Now need to calculate slopes and r2, and see whether some months have a consistently different behaviour.
 
-```{r temperature vs salinity, fig.width=10, fig.height=10, echo=FALSE, message= FALSE}
+```{r temperature vs salinity plots, fig.width=8, fig.height=8, echo=FALSE, message= FALSE}
 # One tries to identify water masses coming from the Atlantic or freshwater
-den <- rho(S = s, T = t, P = 1)
-s <- c(seq(30.4, 35.3, by=0.1)) # pCO2
-t <- seq(-2, 8, by=0.1) #temperature throughout the year
-grid <- as_tibble(expand.grid(s, t)) %>%
-  rename(s=Var1, t=Var2) %>%
-  mutate(z=rho(S = s, T = t, P = 1))
-
-
-tmp <- ggplot(data = z, 
-              aes(x=s, y=s, z = z), na.rm = TRUE) +
-  geom_contour()
+s <- c(seq(30.4, 35.3, length.out = 100)) # pCO2
+t <- seq(-2, 8, length.out = 100) #temperature throughout the year
+grid <- as_tibble(expand.grid(s=s, t=t))
+grid$z <- rho(S = grid$s, T = grid$t, P = 1)
 
 d <- d_all %>%
   dplyr::filter(year < 2020) %>%
@@ -210,31 +200,94 @@ d <- d_all %>%
   #ggplot(aes(x = sal_fb, y = temp_insitu), na.rm=TRUE) +
 temp_sal <-  ggplot() +
   geom_point(data = d, aes(x = sal_fb, y = temp_insitu, fill=month), na.rm=TRUE,
-             size=size_point) + 
-  labs(title="Temperature vs salinity SBE45", x="Salinity", y="Temp. (°C)") +
-  facet_wrap(~ year, ncol = 5) +
+             size=size_point, show.legend=FALSE) + 
+  labs(title="Temperature vs salinity, blue lines show density", x="Salinity", y="Temp. (°C)") +
+  facet_wrap(~ year, ncol = 3) +
   stat_smooth(data = d, aes(x = sal_fb, y = temp_insitu, color=month),
-              method=lm, na.rm=TRUE, show.legend=TRUE, se=FALSE) +
-  geom_contour(data = d, aes(x = s, y = t, z = z)) +
+              method=lm, na.rm=TRUE, se=FALSE) +
+  scale_color_viridis(name="Month", discrete=TRUE, option="plasma") +
+  geom_contour(data = grid, aes(x = s, y = t, z = z), 
+               stat = "contour", binwidth=1, show.legend=FALSE) +
+  #stat_contour(aes(colour=..level..), breaks=seq(1025, 1028, by=1)) +
   coord_fixed() +
-  Mytheme(size_labs = 14) +
-  #scale_color_viridis(name="Month", discrete=TRUE, option="plasma")
-print(temp_sal)
+  Mytheme(size_labs = 10)
+ggsave(temp_sal,filename = paste0(path_fig, "temp_sal.png"), width = 20, height = 20 ,units="cm")
+temp_sal_py <- ggplotly(temp_sal,dynamicTicks = TRUE)
+filename.html <- paste0(path_fig, "temp_sal_py.html")
+saveWidget(temp_sal_py, filename.html, selfcontained = T, libdir = "lib")
 ```
 
+```{r temperature vs salinity regressions, fig.width=8, fig.height=8, echo=FALSE, message= FALSE}
+# AT as a function of salinity for every year
+j <- 0
+reg <- data.frame()
+for (i in 1:length(unique(d$year_month))) { #one loops through all years
+  j <- j + 1
+  ym <- unique(d$year_month)[i]
+  d_reg <- filter(d, year_month==ym)
+  if (length(!is.na(d_reg$temp_fb)) > 2) { #there is no temp_insitu in 2016-08, hence skip. Not needed if one uses temp_fb
+  lms <- summary(lm(data=d_reg, sal_fb ~ temp_fb))
+  # calculate probability of fstatistic because it cannot be extracted from lms above
+  # see http://stats.stackexchange.com/questions/92824/extracting-the-model-p-value-for-a-multiple-regression-in-r
+  # slope returned by lm is per second
+  prob <- pf(lms$fstatistic[1],lms$fstatistic[2],lms$fstatistic[3],lower.tail=FALSE)
+  reg <- rbind(reg, as.numeric(c(lms$coefficients[2,1], lms$coefficients[2,2], 
+                                 lms$coefficients[2,4], lms$coefficients[1,1], lms$coefficients[1,2],
+                                 lms$coefficients[1,4], lms$fstatistic[1], lms$fstatistic[3], lms$r.squared, prob)))
+  }
+}
+names(reg) <- c("Slope", "SE Slope", "P Slope","Intercept","SE int.","P int.", "F", "df",
+                "R2","P value")
+row.names(reg) <- as.character(unique(d$year_month))
+#transform in latex table and save
+tab_reg_temp_sal <- reg
+tmp_reg_temp_sal <- reg %>% # to enable plotting below
+  dplyr::mutate(date = as.Date(paste0(row.names(reg), "-01")),
+                month = month(date, label=TRUE, abbr = TRUE))
+#plot
+fig_reg_temp_sal <- tmp_reg_temp_sal %>%
+  ggplot() +
+  geom_point(aes(x=date, y=Slope, color=month), size=5) +
+  scale_color_viridis(name="Month", discrete = TRUE) +
+  Mytheme(size_labs = 14)
+fig_reg_temp_sal
+```
+kable(tab_fig_dyf_surf_date_AT)
+print(dyf_surf_salinity_AT)
 
 
 ```{r density, fig.width=10, fig.height=10, echo=FALSE, message= FALSE}
-d_all <- d_all %>%
-  dplyr::mutate(den = den)
-ts_den <- d_all %>%
-  ggplot(aes(x = datetime, y = den), na.rm=TRUE) +
-  scale_x_datetime(breaks = date_breaks("1 year"), labels = date_format("%Y")) +
-  geom_point(colour="black", na.rm=TRUE, size=size_point) + 
-  labs(title="Density",x="Time", y="Density") +
-  #coord_fixed() +
-  Mytheme(size_labs = 14)
-print(ts_den)
+# d_all <- d_all %>%
+#   dplyr::mutate(den = den)
+# ts_den <- d_all %>%
+#   ggplot(aes(x = datetime, y = den), na.rm=TRUE) +
+#   scale_x_datetime(breaks = date_breaks("1 year"), labels = date_format("%Y")) +
+#   geom_point(colour="black", na.rm=TRUE, size=size_point) + 
+#   labs(title="Density",x="Time", y="Density") +
+#   #coord_fixed() +
+#   Mytheme(size_labs = 14)
+# print(ts_den)
+```
+
+```{r pangaea data, fig.width=10, fig.height=10, echo=FALSE, message= FALSE}
+data_2015 <- pg_data(doi="10.1594/PANGAEA.896771", overwrite = TRUE)
+data_2016 <- pg_data(doi="10.1594/PANGAEA.896770", overwrite = TRUE)
+data_2017 <- pg_data(doi="10.1594/PANGAEA.896170", overwrite = TRUE)
+data_2018 <- pg_data(doi="10.1594/PANGAEA.897349", overwrite = TRUE)
+tmp <- rbind(data_2015[[1]]$data, data_2016[[1]]$data, data_2017[[1]]$data, data_2018[[1]]$data)
+tmp <- tmp[, c(1,8)] # select date time and salinity
+tmp$`Date/Time` <- as.POSIXct(strptime(tmp$`Date/Time`, "%Y-%m-%dT%H:%M", tz = "UTC"))
+
+all_data <- tmp %>%
+  dplyr::filter(!are_duplicated(tmp)) %>%
+  dplyr::rename(datetime = `Date/Time`,
+                sal = `Sal ([PSU])`) %>%
+  as_tsibble(key = NULL, index = datetime) %>%
+  fill_gaps()
+
+all_data %>%
+  ggplot() +
+  geom_point(aes(x=datetime, y=sal), na.rm = TRUE)
 ```
 
 
