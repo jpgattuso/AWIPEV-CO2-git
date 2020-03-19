@@ -563,7 +563,7 @@ Several salinity sensors are on site, 1 inside the Ferrybox and 1 outside. Note 
 Comparative approch allowed by following plots:
 
 ### **Sal FB / Sal *in situ* **
-```{r Sal comparaison, echo=FALSE, message= FALSE, warning=FALSE}
+```{r Sal comparaison, echo=FALSE, message= FALSE, warning=FALSE, out.width="80%",fig.show='hold', fig.align="center"}
 
 d_all <- d_all%>%
   dplyr::mutate( sal = ifelse(sal <28, NA, sal) ,
@@ -608,20 +608,20 @@ dySeries("sal", label = "sal", color ="black",axis= "y2", strokeWidth=0, pointSi
   dyOptions(drawGrid = TRUE, drawPoints = TRUE, pointSize = c(1,8,1),useDataTimezone = TRUE, digitsAfterDecimal=4) %>%
   dyRangeSelector(height = 30, dateWindow= NULL)
 
-#Plot for philipp
-sal_15 <- ggplot(data= d_all%>%dplyr::filter(datetime > "2015-10-01 00:00:00" & datetime < "2015-12-31 00:00:00"), aes(x=datetime,  colour = "salinity"))+ 
-geom_point(aes(y=sal_fb,col="FB") , size=2) +
-geom_point(aes(y=sal_insitu, col="in situ"))  +
-labs(title=  "salinity 2015", x = "Time", y= "")
-
-sal_19 <-ggplot(data= d_all%>%dplyr::filter(datetime > "2019-10-01 00:00:00" & datetime < "2019-12-31 00:00:00"), aes(x=datetime,  colour = "salinity"))+ 
-geom_point(aes(y=sal_fb,col="FB") , size=2) +
-geom_point(aes(y=sal_insitu, col="in situ"))  +
-labs(title=  "salinity 2019", x = "Time", y= "")
-
-ggsave("figures/sal_2019.png", sal_19, units="cm")
-ggsave("figures/sal_2015.png", sal_15, units="cm")
-ggsave("figures/sal_property.png", p_sal_fb_sal_insitu, units="cm")
+# #Plot for philipp
+# sal_15 <- ggplot(data= d_all%>%dplyr::filter(datetime > "2015-10-01 00:00:00" & datetime < "2015-12-31 00:00:00"), aes(x=datetime,  colour = "salinity"))+ 
+# geom_point(aes(y=sal_fb,col="FB") , size=2) +
+# geom_point(aes(y=sal_insitu, col="in situ"))  +
+# labs(title=  "salinity 2015", x = "Time", y= "")
+# 
+# sal_19 <-ggplot(data= d_all%>%dplyr::filter(datetime > "2019-10-01 00:00:00" & datetime < "2019-12-31 00:00:00"), aes(x=datetime,  colour = "salinity"))+ 
+# geom_point(aes(y=sal_fb,col="FB") , size=2) +
+# geom_point(aes(y=sal_insitu, col="in situ"))  +
+# labs(title=  "salinity 2019", x = "Time", y= "")
+# 
+# ggsave("figures/sal_2019.png", sal_19, units="cm")
+# ggsave("figures/sal_2015.png", sal_15, units="cm")
+# ggsave("figures/sal_property.png", p_sal_fb_sal_insitu, units="cm")
 
 ```
 
