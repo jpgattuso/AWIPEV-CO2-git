@@ -226,7 +226,7 @@ d_hour <- d_hour %>%
          #pH_AT = ifelse(pH_AT == "NaN", NA, pH_AT),
          #PCO2_Corr_Zero2 = ifelse(PCO2_Corr_Zero2 %in% c("NaN", 66666), NA, PCO2_Corr_Zero2)
          ) %>%
-  dplyr::rename(at_contros=AT,pco2_contros=PCO2_corr_contros_filtered,pH_durafet=HW_pH1_filtered,temp_insitu=Temp_SBE38_filtered, sal_fb=sal_fb_filtered, sal_insitu=sal_insitu_filtered, sal=sal_filtered, temp_fb=temp_fb_filtered)
+  dplyr::rename(at_contros=AT,pco2_contros=PCO2_corr_contros_filtered,pH_durafet=HW_pH1_filtered,temp_insitu_11m=temp_insitu_11m_filtered, sal_fb=sal_fb_filtered, sal_insitu_ctds=sal_insitu_ctds_filtered, temp_fb=temp_fb_filtered)
 ```
 
 ```{r Combine discrete and continous data, echo=FALSE}
@@ -564,6 +564,10 @@ Comparative approch allowed by following plots:
 
 ### **Sal FB / Sal *in situ* **
 ```{r Sal comparaison, echo=FALSE, message= FALSE, warning=FALSE, out.width="80%",fig.show='hold', fig.align="center"}
+########### Binding sal_fb INTO sal_insitu if we get gaps in sal_insitu = call this new column = sal_mix ########### 
+d_all <- d_all %>%
+  dplyr::mutate(sal_mix = ifelse(!is.na(sal_fb), sal_fb, sal_insitu))
+
 
 d_all <- d_all%>%
   dplyr::mutate( sal = ifelse(sal <28, NA, sal) ,
@@ -1511,16 +1515,16 @@ dygraph(seafet_contros_xts, group = "awipev", main="pH seaFET (in situ)", ylab="
   dyRangeSelector(height = 30, dateWindow= NULL) 
 
 # # #@@@@@ test plot #@@@@@ #@@@@@ #@@@@@
-seafet_contros_xts <- dplyr::select(d_all, datetime, sal_fb, sal_insitu, sal)#voltINT, phINT_filtered,pH_s_seafet_temp_field, T_seaF, temp_fb, temp_insitu, sal)
+seafet_contros_xts <- dplyr::select(d_all, datetime, temp_fb, temp_insitu)#voltINT, phINT_filtered,pH_s_seafet_temp_field, T_seaF, temp_fb, temp_insitu, sal)
 #seafet_contros_xts <- dplyr::select(d_all, datetime,voltINT)
 seafet_contros_xts <- as.xts(seafet_contros_xts, order.by = d_all$datetime)
 dygraph(seafet_contros_xts, group = "awipev", main="pH seaFET (in situ)", ylab="pHT") %>%
   #dySeries("voltINT", label = "voltINTINT", color ="blue", strokeWidth=0, pointSize=2) %>%
    # dySeries("pH_s_seafet_temp_field", label = "pH spectro", axis= "y2", color =  "green", strokeWidth = 0, pointSize = 4 ) %>%
     #dySeries("pHint_tot_sf", label = "corr pH INT", color ="red",axis= "y2", strokeWidth=0, pointSize=2) %>%
-  dySeries("sal_insitu", label = "sal_insitu", color ="red",axis= "y2", strokeWidth=0, pointSize=2) %>%
-dySeries("sal_fb", label = "sal_fb", color ="blue",axis= "y2", strokeWidth=0, pointSize=2) %>%
-  dySeries("sal", label = "sal", color ="black",axis= "y2", strokeWidth=0, pointSize=2) %>%
+  dySeries("temp_insitu", label = "temp_insitu", color ="red", strokeWidth=0, pointSize=2) %>%
+dySeries("temp_fb", label = "temp_fb", color ="blue", strokeWidth=0, pointSize=2) %>%
+ # dySeries("sal", label = "sal", color ="black",axis= "y2", strokeWidth=0, pointSize=2) %>%
    # dySeries("T_seaF", label = "T_seaF", color ="grey",axis= "y2", strokeWidth=0, pointSize=2) %>%
  #   dyEvent(as.POSIXct("2017-08-24 12:00:00", tz="GMT"), "seaFET #1005 installed", labelLoc = "bottom", color="red") %>%
   #dyEvent(as.POSIXct("2018-02-02 09:00:00", tz="GMT"), "seaFET settings changed to every 1H", labelLoc = "bottom", color="red") %>%
@@ -1528,7 +1532,7 @@ dySeries("sal_fb", label = "sal_fb", color ="blue",axis= "y2", strokeWidth=0, po
    # dyEvent(as.POSIXct("2019-09-02 12:00:00", tz="GMT"), "seaFET #0007 out of water for cleaning", labelLoc = "bottom", color="red") %>%
   dyLegend(show = "auto")   %>%
   #dyAxis( "y2",valueRange = c(-3, 36))%>%
-  #dyAxis( "y",valueRange = c(-2, 2))%>%
+  dyAxis( "y",valueRange = c(-3, 9))%>%
   dyHighlight(highlightCircleSize = 8,highlightSeriesBackgroundAlpha = 0.5,hideOnMouseOut = TRUE) %>%
   dyOptions(drawGrid = TRUE, drawPoints = TRUE, pointSize = c(1,8,1),useDataTimezone = TRUE, digitsAfterDecimal=4) %>%
   dyRangeSelector(height = 30, dateWindow= NULL)
