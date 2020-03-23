@@ -1175,13 +1175,6 @@ During those steps (except zeroing) the sensor runs normally. Equilibration betw
 
 ### **Corrected Contros vs calculated *p*CO~2~ data**
 
-
-```{r pCO2 2nd cleaning, echo=FALSE, warning=FALSE, message=FALSE}
-
-
-```
-
-
 ```{r measured vs calculated pCO2, echo=FALSE, warning=FALSE, message=FALSE}
 title <- "Contros vs calculated pCO2"
 fit <- lmodel2(data = d_all,  pco2_contros ~ pco2calc , nperm = 99)
@@ -1287,12 +1280,6 @@ Missing data which could not be estimated on : 2018-04-16 , 2018-12-14, 2019-01-
 
 We decided to change the calculation of E0. Before E0 was calculated for each pH spectro measurements. Now, EO is calculated making a mean of several E0 that come from one deployment period (sensor in the water for several months).
 
-### **seaFET data cleaning**
-
-```{r seaFET 2nd cleaning, echo=FALSE, message= FALSE, warning=FALSE, out.width= "60%"}
-
-
-```                
 ### **seaFET calibration constante E0**
 
 Plots of E0int25 and E0ext25 returned by the function "pHCalib" for each period of deployement are shown below.
@@ -1462,12 +1449,12 @@ d_all <- d_all%>%
   dplyr::mutate(temp_insitu = ifelse(datetime == "2019-09-13 13:00:00" , mean_TseaF_4h, temp_insitu))
 
 #interpolation of salinity during the FB off maintenance
-salinterp <-approx(d_all$datetime, d_all$sal, xout=d_all$datetime, method="linear", rule=2)
+salinterp <-approx(d_all$datetime, d_all$sal_mix, xout=d_all$datetime, method="linear", rule=2)
 names(salinterp) <- c("datetime", "sal_interp")
 salinterp <- as.data.frame(salinterp)
-d_all$sal_interp <- salinterp$sal_interp
+d_all$sal_mix_interp <- salinterp$sal_mix_interp
 
-d_all$sal <- ifelse(d_all$datetime > "2018-03-09 00:00:00" & d_all$datetime < "2018-04-16 16:00:00", d_all$sal_interp, d_all$sal)
+d_all$sal_mix_interp <- ifelse(d_all$datetime > "2018-03-09 00:00:00" & d_all$datetime < "2018-04-16 16:00:00", d_all$sal_mix_interp, d_all$sal_mix)
 
 # test <- d_all%>%
 #   dplyr::filter(datetime=="2017-08-24 14:00:00")
@@ -1477,7 +1464,7 @@ d_all$sal <- ifelse(d_all$datetime > "2018-03-09 00:00:00" & d_all$datetime < "2
 ##     new sf_calib function      ##
 ####
 calib_spectro <- sf_calib(calEint = d_all$voltINT, calEext = d_all$voltEXT, calpH = d_all$pH_s_seafet_temp_insitu,
-                          calT = d_all$temp_insitu, calSal = d_all$sal )
+                          calT = d_all$temp_mix, calSal = d_all$sal_mix )
 # put number of deployment 
 calib_spectro$deployment_sf <- d_all$deployment_sf 
 
@@ -1513,7 +1500,7 @@ We also defined a period of malfunction from **2017-12-14** to **2018-02-02**. i
 ## calculation of the calibrated pH ##
 ##       new sf_calc function       ##
 ####
-seafet_calib <- sf_calc(calEint = d_all$voltINT, calEext = d_all$voltEXT, E0int25 = d_all$E0int25_sf,  E0ext25 = d_all$E0ext25_sf, calT = d_all$temp_insitu, calSal = d_all$sal_interp)
+seafet_calib <- sf_calc(calEint = d_all$voltINT, calEext = d_all$voltEXT, E0int25 = d_all$E0int25_sf,  E0ext25 = d_all$E0ext25_sf, calT = d_all$temp_mix, calSal = d_all$sal_mix_interp)
 
 # bind new calibrated pH data to the seafet data set.
 names(seafet_calib) <- c("pHint_tot_sf", "pHext_tot_sf")
@@ -1567,28 +1554,28 @@ dygraph(seafet_contros_xts, group = "awipev", main="pH seaFET (in situ)", ylab="
   dyRangeSelector(height = 30, dateWindow= NULL) 
 
 # # #@@@@@ test plot #@@@@@ #@@@@@ #@@@@@
-seafet_contros_xts <- dplyr::select(d_all, datetime, temp_fb, temp_insitu)#voltINT, phINT_filtered,pH_s_seafet_temp_insitu, T_seaF, temp_fb, temp_insitu, sal)
-#seafet_contros_xts <- dplyr::select(d_all, datetime,voltINT)
-seafet_contros_xts <- as.xts(seafet_contros_xts, order.by = d_all$datetime)
-dygraph(seafet_contros_xts, group = "awipev", main="pH seaFET (in situ)", ylab="pHT") %>%
-  #dySeries("voltINT", label = "voltINTINT", color ="blue", strokeWidth=0, pointSize=2) %>%
-   # dySeries("pH_s_seafet_temp_insitu", label = "pH spectro", axis= "y2", color =  "green", strokeWidth = 0, pointSize = 4 ) %>%
-    #dySeries("pHint_tot_sf", label = "corr pH INT", color ="red",axis= "y2", strokeWidth=0, pointSize=2) %>%
-  dySeries("temp_insitu", label = "temp_insitu", color ="red", strokeWidth=0, pointSize=2) %>%
-dySeries("temp_fb", label = "temp_fb", color ="blue", strokeWidth=0, pointSize=2) %>%
- # dySeries("sal", label = "sal", color ="black",axis= "y2", strokeWidth=0, pointSize=2) %>%
-   # dySeries("T_seaF", label = "T_seaF", color ="grey",axis= "y2", strokeWidth=0, pointSize=2) %>%
- #   dyEvent(as.POSIXct("2017-08-24 12:00:00", tz="GMT"), "seaFET #1005 installed", labelLoc = "bottom", color="red") %>%
-  #dyEvent(as.POSIXct("2018-02-02 09:00:00", tz="GMT"), "seaFET settings changed to every 1H", labelLoc = "bottom", color="red") %>%
-  #dyEvent(as.POSIXct("2018-04-17 12:00:00", tz="GMT"), "seaFET #0007 installed + continuous mode set", labelLoc = "bottom", color="red") %>%
-   # dyEvent(as.POSIXct("2019-09-02 12:00:00", tz="GMT"), "seaFET #0007 out of water for cleaning", labelLoc = "bottom", color="red") %>%
-  dyLegend(show = "auto")   %>%
-  #dyAxis( "y2",valueRange = c(-3, 36))%>%
-  dyAxis( "y",valueRange = c(-3, 9))%>%
-  dyHighlight(highlightCircleSize = 8,highlightSeriesBackgroundAlpha = 0.5,hideOnMouseOut = TRUE) %>%
-  dyOptions(drawGrid = TRUE, drawPoints = TRUE, pointSize = c(1,8,1),useDataTimezone = TRUE, digitsAfterDecimal=4) %>%
-  dyRangeSelector(height = 30, dateWindow= NULL)
-# #@@@@@ #@@@@@ #@@@@@ #@@@@@ #@@@@@
+# seafet_contros_xts <- dplyr::select(d_all, datetime, temp_fb, temp_insitu)#voltINT, phINT_filtered,pH_s_seafet_temp_insitu, T_seaF, temp_fb, temp_insitu, sal)
+# #seafet_contros_xts <- dplyr::select(d_all, datetime,voltINT)
+# seafet_contros_xts <- as.xts(seafet_contros_xts, order.by = d_all$datetime)
+# dygraph(seafet_contros_xts, group = "awipev", main="pH seaFET (in situ)", ylab="pHT") %>%
+#   #dySeries("voltINT", label = "voltINTINT", color ="blue", strokeWidth=0, pointSize=2) %>%
+#    # dySeries("pH_s_seafet_temp_insitu", label = "pH spectro", axis= "y2", color =  "green", strokeWidth = 0, pointSize = 4 ) %>%
+#     #dySeries("pHint_tot_sf", label = "corr pH INT", color ="red",axis= "y2", strokeWidth=0, pointSize=2) %>%
+#   dySeries("temp_insitu", label = "temp_insitu", color ="red", strokeWidth=0, pointSize=2) %>%
+# dySeries("temp_fb", label = "temp_fb", color ="blue", strokeWidth=0, pointSize=2) %>%
+#  # dySeries("sal", label = "sal", color ="black",axis= "y2", strokeWidth=0, pointSize=2) %>%
+#    # dySeries("T_seaF", label = "T_seaF", color ="grey",axis= "y2", strokeWidth=0, pointSize=2) %>%
+#  #   dyEvent(as.POSIXct("2017-08-24 12:00:00", tz="GMT"), "seaFET #1005 installed", labelLoc = "bottom", color="red") %>%
+#   #dyEvent(as.POSIXct("2018-02-02 09:00:00", tz="GMT"), "seaFET settings changed to every 1H", labelLoc = "bottom", color="red") %>%
+#   #dyEvent(as.POSIXct("2018-04-17 12:00:00", tz="GMT"), "seaFET #0007 installed + continuous mode set", labelLoc = "bottom", color="red") %>%
+#    # dyEvent(as.POSIXct("2019-09-02 12:00:00", tz="GMT"), "seaFET #0007 out of water for cleaning", labelLoc = "bottom", color="red") %>%
+#   dyLegend(show = "auto")   %>%
+#   #dyAxis( "y2",valueRange = c(-3, 36))%>%
+#   dyAxis( "y",valueRange = c(-3, 9))%>%
+#   dyHighlight(highlightCircleSize = 8,highlightSeriesBackgroundAlpha = 0.5,hideOnMouseOut = TRUE) %>%
+#   dyOptions(drawGrid = TRUE, drawPoints = TRUE, pointSize = c(1,8,1),useDataTimezone = TRUE, digitsAfterDecimal=4) %>%
+#   dyRangeSelector(height = 30, dateWindow= NULL)
+# # #@@@@@ #@@@@@ #@@@@@ #@@@@@ #@@@@@
 
 # # Offset between seafet pH and spec pH 
 # sfoffset <- left_join(sfPeriod[,c(1,2)], d_all%>%dplyr::select(datetime, pHint_tot_sf), by="datetime")
@@ -1866,10 +1853,10 @@ range_month <-
   d_all %>%
   group_by(Month = month(datetime, label=TRUE, abbr=FALSE)) %>%
   #summarize(pH_range_month = mean(pH_range, na.rm=TRUE))%>%
-  summarize(Tinsi_max =round( max(temp_insitu, na.rm=TRUE), digits = 2),
-            Tinsi_min = round(min(temp_insitu, na.rm=TRUE), digits = 2),
-            sal_max = round(max(sal, na.rm=TRUE), digits = 2),
-            sal_min = round(min(sal, na.rm=TRUE), digits = 2),
+  summarize(Tinsi_max =round( max(temp_mix, na.rm=TRUE), digits = 2),
+            Tinsi_min = round(min(temp_mix, na.rm=TRUE), digits = 2),
+            sal_max = round(max(sal_mix, na.rm=TRUE), digits = 2),
+            sal_min = round(min(sal_mix, na.rm=TRUE), digits = 2),
             pH_sf_max = round(max(pHint_tot_sf, na.rm=TRUE), digits = 4),
             pH_sf_min = round(min(pHint_tot_sf, na.rm=TRUE), digits = 4))
 kable(range_month)
@@ -1883,15 +1870,15 @@ Comparaison is done here with **corrected pHs** (**seaFET**, **durafet** and **c
 ```{r pHs comparaison, echo=FALSE, message= FALSE, warning=FALSE}
 # remove sf biofouling period
 pH_sf <- d_all %>%
-  dplyr::select(datetime, sal,temp_fb,temp_insitu, pHint_tot_sf)%>%
-  dplyr::filter(!is.na(pHint_tot_sf), !is.na(temp_insitu), !is.na(temp_fb), !is.na(sal)) %>%
+  dplyr::select(datetime, sal_mix,temp_fb,temp_mix, pHint_tot_sf)%>%
+  dplyr::filter(!is.na(pHint_tot_sf), !is.na(temp_mix), !is.na(temp_fb), !is.na(sal_mix)) %>%
   dplyr::filter(datetime< "2018-01-01" | datetime> "2018-02-03")
-pH_sf$pHint_tot_sf_norm4 <- pHinsi(pH=pH_sf$pHint_tot_sf, ALK=2.273e-3, Tinsi=4, Tlab=pH_sf$temp_insitu, Pinsi=11, S=pH_sf$sal, Pt=0, Sit=0, k1k2 = "x", kf = "x", ks="d", pHscale = "T", b="u74")
+pH_sf$pHint_tot_sf_norm4 <- pHinsi(pH=pH_sf$pHint_tot_sf, ALK=2.273e-3, Tinsi=4, Tlab=pH_sf$temp_mix, Pinsi=11, S=pH_sf$sal_mix, Pt=0, Sit=0, k1k2 = "x", kf = "x", ks="d", pHscale = "T", b="u74")
 
 pH_dur <- d_all %>%
-  dplyr::select(datetime, sal,temp_fb,temp_insitu, pH_durafet_corrected)%>%
-  dplyr::filter(!is.na(pH_durafet_corrected), !is.na(temp_insitu), !is.na(temp_fb), !is.na(sal))
-pH_dur$pH_durafet_norm4 <- pHinsi(pH=pH_dur$pH_durafet_corrected, ALK=2.273e-3, Tinsi=4, Tlab=pH_dur$temp_insitu, Pinsi=11, S=pH_dur$sal, Pt=0, Sit=0, k1k2 = "x", kf = "x", ks="d", pHscale = "T", b="u74")
+  dplyr::select(datetime, sal_mix,temp_fb,temp_mix, pH_durafet_corrected)%>%
+  dplyr::filter(!is.na(pH_durafet_corrected), !is.na(temp_mix), !is.na(temp_fb), !is.na(sal_mix))
+pH_dur$pH_durafet_norm4 <- pHinsi(pH=pH_dur$pH_durafet_corrected, ALK=2.273e-3, Tinsi=4, Tlab=pH_dur$temp_mix, Pinsi=11, S=pH_dur$sal_mix, Pt=0, Sit=0, k1k2 = "x", kf = "x", ks="d", pHscale = "T", b="u74")
 
 # join pH sf norm + pH dur norm
 d_all <- left_join(d_all, pH_sf%>%dplyr::select(datetime,pHint_tot_sf_norm4 ), by="datetime")
@@ -1929,9 +1916,9 @@ dygraph(durafet_sf_contros_xts, group = "awipev", main="pH durafet vs pH seaFET 
 ```{r pHs comparaison dur calc, echo=FALSE, message= FALSE, warning=FALSE}
 # Normalize phcalc from AT/CT to 4°c
 pH_calc <- discrete %>%
-  dplyr::select(datetime, sal,temp, phcalc, at)%>%
-  dplyr::filter(!is.na(phcalc), !is.na(temp), !is.na(sal))
-pH_calc$pH_calc_norm4 <- pHinsi(pH=pH_calc$phcalc, ALK=pH_calc$at*1e-6, Tinsi=4, Tlab=pH_calc$temp, Pinsi=11, S=pH_calc$sal, Pt=0, Sit=0, k1k2 = "x", kf = "x", ks="d", pHscale = "T", b="u74")
+  dplyr::select(datetime, sal_mix,temp, phcalc, at)%>%
+  dplyr::filter(!is.na(phcalc), !is.na(temp), !is.na(sal_mix))
+pH_calc$pH_calc_norm4 <- pHinsi(pH=pH_calc$phcalc, ALK=pH_calc$at*1e-6, Tinsi=4, Tlab=pH_calc$temp, Pinsi=11, S=pH_calc$sal_mix, Pt=0, Sit=0, k1k2 = "x", kf = "x", ks="d", pHscale = "T", b="u74")
 
 # join pH calc norm + pH dur/sf norm in d_all
 d_all <- left_join(d_all, pH_calc%>%dplyr::select(datetime,pH_calc_norm4), by="datetime")
