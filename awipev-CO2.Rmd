@@ -256,7 +256,7 @@ discrete_no_na$pco2calc<- carb$pCO2
 discrete_is_na$phcalc<- NA
 discrete_is_na$pco2calc<- NA
 discrete <- rbind(discrete_no_na, discrete_is_na)
-discrete%>%dplyr::arrange(datetime)
+discrete <-discrete%>%dplyr::arrange(datetime)
 ```
 
 
@@ -674,21 +674,6 @@ sd_diff_sal_fb_insitu <- round(sd(d_all$diff_sal_fb_insitu, na.rm = TRUE), digit
 # filename.html <- paste0("p_p_sal_fb_ctd.html")
 # saveWidget(p_p_sal_fb_ctd, filename.html, selfcontained = T, libdir = "lib")
 
-# # PLOT
-seafet_contros_xts <- dplyr::select(d_all, datetime, sal_insitu_ctd, sal_fb, sal_mix)
-seafet_contros_xts <- as.xts(seafet_contros_xts, order.by = d_all$datetime)
-dygraph(seafet_contros_xts, group = "awipev", main="Salinities", ylab="PSU") %>%
-dySeries("sal_insitu_ctd", label = "sal_insitu_ctd", color ="red",axis= "y2", strokeWidth=0, pointSize=2) %>%
-dySeries("sal_fb", label = "sal_fb", color ="blue",axis= "y2", strokeWidth=0, pointSize=4) %>%
-dySeries("sal_mix", label = "sal_mix", color ="orange",axis= "y2", strokeWidth=0, pointSize=2) %>%
-#dySeries("pressure_insitu_ctd_filtered", label = "pressure_insitu_ctd_filtered", color ="black", strokeWidth=0, pointSize=2) %>%
-  dyLegend(show = "onmouseover")   %>%
-  #dyAxis( "y2",valueRange = c(-3, 36))%>%
-  dyAxis( "y2",valueRange = c(25, 36))%>%
-  dyHighlight(highlightCircleSize = 8,highlightSeriesBackgroundAlpha = 0.5,hideOnMouseOut = TRUE) %>%
-  dyOptions(drawGrid = TRUE, drawPoints = TRUE,useDataTimezone = TRUE, digitsAfterDecimal=4) %>%
-  dyRangeSelector(height = 30, dateWindow= NULL)
-
 # #Plot for philipp
 # sal_15 <- ggplot(data= d_all%>%dplyr::filter(datetime > "2015-10-01 00:00:00" & datetime < "2015-12-31 00:00:00"), aes(x=datetime,  colour = "salinity"))+ 
 # geom_point(aes(y=sal_fb,col="FB") , size=2) +
@@ -704,6 +689,22 @@ dySeries("sal_mix", label = "sal_mix", color ="orange",axis= "y2", strokeWidth=0
 # ggsave("figures/sal_2015.png", sal_15, units="cm")
 # ggsave("figures/sal_property.png", p_sal_fb_sal_insitu, units="cm")
 
+```
+
+```{r Sal plot, echo=FALSE, message= FALSE, warning=FALSE, out.width="80%",fig.show='hold', fig.align="center"}
+seafet_contros_xts <- dplyr::select(d_all, datetime, sal_insitu_ctd, sal_fb, sal_mix)
+seafet_contros_xts <- as.xts(seafet_contros_xts, order.by = d_all$datetime)
+dygraph(seafet_contros_xts, group = "awipev", main="Salinities", ylab="PSU") %>%
+dySeries("sal_insitu_ctd", label = "sal_insitu_ctd", color ="red",axis= "y2", strokeWidth=0, pointSize=2) %>%
+dySeries("sal_fb", label = "sal_fb", color ="blue",axis= "y2", strokeWidth=0, pointSize=4) %>%
+dySeries("sal_mix", label = "sal_mix", color ="orange",axis= "y2", strokeWidth=0, pointSize=2) %>%
+#dySeries("pressure_insitu_ctd_filtered", label = "pressure_insitu_ctd_filtered", color ="black", strokeWidth=0, pointSize=2) %>%
+  dyLegend(show = "onmouseover")   %>%
+  #dyAxis( "y2",valueRange = c(-3, 36))%>%
+  dyAxis( "y2",valueRange = c(25, 36))%>%
+  dyHighlight(highlightCircleSize = 8,highlightSeriesBackgroundAlpha = 0.5,hideOnMouseOut = TRUE) %>%
+  dyOptions(drawGrid = TRUE, drawPoints = TRUE,useDataTimezone = TRUE, digitsAfterDecimal=4) %>%
+  dyRangeSelector(height = 30, dateWindow= NULL)
 ```
 
 The mean difference between salinity FB and in situ is: `r mean_diff_sal_fb_insitu` ± `r sd_diff_sal_fb_insitu` PSU.
@@ -1597,8 +1598,8 @@ seafet_depth_xts <- dplyr::select(d_all, datetime, phINT_filtered, pH_s_seafet_t
 seafet_depth_xts <- as.xts(seafet_depth_xts, order.by = d_all$datetime)
 dygraph(seafet_depth_xts, group = "depth", main="pH seaFET RAW (in situ)", ylab="pHT") %>%
   dySeries("pH_s_seafet_temp_ctd", label = "pH spectro for calibration", color =  "red", strokeWidth = 0, pointSize = 4 ) %>%
-  dySeries("phINT_filtered", axis="y2",label = "pH RAW", color ="green", strokeWidth=0, pointSize=2,  stepPlot = TRUE) %>%
-  dySeries("pHint_tot_sf", label = "pHT corrected", color =  RColorBrewer::brewer.pal(3, "Dark2")[1], strokeWidth = 0, pointSize = 2) %>%
+  dySeries("phINT_filtered", axis="y2",label = "pH RAW", color ="blue", strokeWidth=0, pointSize=2,  stepPlot = TRUE) %>%
+  dySeries("pHint_tot_sf", axis="y2", label = "pHT corrected", color =  RColorBrewer::brewer.pal(3, "Dark2")[1], strokeWidth = 0, pointSize = 2) %>%
   dyEvent(as.POSIXct("2017-08-24 12:00:00", tz="GMT"), "seaFET #1005 installed", labelLoc = "bottom", color="red") %>%
   dyEvent(as.POSIXct("2018-02-02 09:00:00", tz="GMT"), "seaFET settings changed to every 1H", labelLoc = "bottom", color="red") %>% 
   dyEvent(as.POSIXct("2018-04-17 12:00:00", tz="GMT"), "seaFET #0007 installed + continuous mode set", labelLoc = "bottom", color="red") %>%
