@@ -17,7 +17,7 @@ body{ /* Normal  */
       font-size: 16px;
   }
 td {  /* Table  */
-  font-size: 8px;
+  font-size: 14px;
 }
 h1.title {
   font-size: 38px;
@@ -49,26 +49,20 @@ Sys.setlocale("LC_ALL", "en_US.UTF-8")
 Sys.setenv(TZ='UTC') # on utilise UTC
 rm(list = ls())
 library(tidyverse)
-#library(robfilter)
 library(seacarb)
 library(gridExtra)
 library(lubridate)
-#library(lmtest)
-#library(grid)
 library(viridis)
-#library(dygraphs)
 require("knitr")
+library(kableExtra)
 library("lmodel2")
-#library(captioner)
-#library(xts)
-#library(seismicRoll)
 library(scales)
 library(plotly)
 library(htmlwidgets)
 library(tsibble)
 if (!require("directlabels")) install.packages("directlabels")
 library("directlabels")
-if (!require("pangaear")) install.packages("pangaear")
+if (!require("pangaear")) install.packages("pangaea\r")
 library("pangaear")
 knitr::opts_chunk$set(echo = TRUE)
 #knitr::opts_knit$set(root.dir = normalizePath("/Users/gattuso/not_synced_git/AWIPEV-CO2-git")) 
@@ -83,6 +77,12 @@ if (Sys.getenv("LOGNAME") == "gattuso") path_data = "../../pCloud\ Sync/Document
 if (Sys.getenv("LOGNAME") == "gattuso") path_fig = "/Users/gattuso/pCloud\ Sync/Documents/publications/publications_inpreparation/gattuso_etal_awipev-CO2/figures/"
 if (Sys.getenv("LOGNAME") == "samir") path_data = "../../pCloud\ Sync/exp168_awipev-CO2/"
 
+
+######## function to calculate 3 quantiles
+qq <- function (data, digits) { 
+  as.numeric(formatC(quantile(x = data, probs = c(0.025, 0.50, 0.975), na.rm = TRUE),
+                     format = "f", digits = digits))
+}
 
 ######## function to make regression plot with model I equation in title
 ggreg <- function (fit, point_size=2) {
@@ -157,22 +157,26 @@ ggplot(fit$model, aes_string(x = names(fit$model)[2], y = names(fit$model)[1])) 
 ```
 
 ```{r read and clean data, echo=FALSE, warning=FALSE, message=FALSE}
-d_all <- as_tibble(readRDS(file = paste0(path_data, "fb_data/d_all_copy.rds"))) %>% 
+d_all <- as_tibble(readRDS(file = paste0(path_data, "fb_data/d_all.rds"))) %>% 
   dplyr::filter(sal_fb > 28) %>% # remove salinity data lower than 28
   dplyr::mutate(year_month = format(datetime, '%Y-%m'))
 ```
 
 ## Whole time series
+
+**To do**: Filter pH values at more than 8 m depth.
+
+
 ```{r whole time series, fig.width=10, fig.height=10, echo=FALSE, message= FALSE}
-size_point <- 1 # size of data points
+size_point <- 2 # size of data points
+alpha <- 1 #transparency
 
 #SAL SBE45
 ts_sal <- d_all %>%
   ggplot(aes(x = datetime, y = sal_fb), na.rm=TRUE) +
   scale_x_datetime(breaks = date_breaks("1 year"), labels = date_format("%Y")) +
-  geom_point(colour="black", na.rm=TRUE, size=size_point) + 
+  geom_point(colour="blue", alpha=alpha, na.rm=TRUE, size=size_point) + 
   labs(title="Salinity FerryBox? SBE45",x="", y="Salinity") +
-  #coord_fixed() +
   Mytheme(size_labs = 8)
 ts_sal_py <- ggplotly(ts_sal,dynamicTicks = TRUE)
 filename.html <- paste0(path_fig, "ts_sal_py.html")
@@ -182,9 +186,8 @@ saveWidget(ts_sal_py, filename.html, selfcontained = T, libdir = "lib")
 ts_temp <- d_all %>%
   ggplot(aes(x = datetime, y = temp_fb), na.rm=TRUE) +
   scale_x_datetime(breaks = date_breaks("1 year"), labels = date_format("%Y")) +
-  geom_point(colour="black", na.rm=TRUE, size=size_point) + 
+  geom_point(colour="blue", alpha=alpha, na.rm=TRUE, size=size_point) + 
   labs(title="Temperature FerryBox",x="", y="In situ temperature (°C)") +
-  #coord_fixed() +
   Mytheme(size_labs = 8)
 
 # PCO2 
@@ -192,38 +195,105 @@ ts_pCO2 <- d_all %>%
   ggplot() +
   scale_x_datetime(breaks = date_breaks("1 year"), labels = date_format("%Y")) +
   geom_point(aes(x = datetime, y = pco2_contros), 
-             colour="black", na.rm=TRUE, size=size_point) + 
-  geom_point(aes(x = datetime, y = pco2calc), colour="blue", na.rm=TRUE, size=size_point) + 
-  labs(title="CO2 partial pressure",x="", y="pCO2 (uatm)") +
-  #coord_fixed() +
+             colour="blue", alpha=alpha, na.rm=TRUE, size=size_point) + 
+  geom_point(aes(x = datetime, y = pco2calc), colour="red", alpha=alpha, na.rm=TRUE, size=size_point) + 
+  labs(title="Mesured (blue) and calculated (CT+AT; red) pCO2",x="", y="pCO2 (uatm)") +
   Mytheme(size_labs = 8)
 
 # SEAFET pH
 ts_pH <- d_all %>%
   ggplot(aes(x = datetime, y = pHint_tot_sf), na.rm=TRUE) +
   scale_x_datetime(breaks = date_breaks("1 year"), labels = date_format("%Y")) +
-  geom_point(colour="black", na.rm=TRUE, size=size_point) + 
-  labs(title="In situ pH",x="", y="pCO2 (uatm)") +
-  #coord_fixed() +
+  geom_point(colour="blue", alpha=alpha, na.rm=TRUE, size=size_point) + 
+  labs(title="In situ pH",x="", y=expression(paste(pH[T]))) +
   Mytheme(size_labs = 8)
 
 # TA
 ts_at <- d_all %>%
   ggplot(aes(x = datetime, y = at_calc), na.rm=TRUE) +
   scale_x_datetime(breaks = date_breaks("1 year"), labels = date_format("%Y")) +
-  geom_point(colour="black", na.rm=TRUE, size=size_point) + 
-  labs(title="Total alkalinity calculated from salinity", x="", y="AT (umol/kg)") +
-  #coord_fixed() +
+  geom_point(colour="blue", alpha=alpha, na.rm=TRUE, size=size_point) + 
+  geom_point(aes(x = datetime, y = at), colour="red", alpha=alpha, na.rm=TRUE, size=size_point) + 
+  labs(title="Total alkalinity calculated from salinity (blue) and discrete measurements (red)", x="", y="AT (umol/kg)") +
   Mytheme(size_labs = 8)
 
 g <- cowplot::plot_grid(ts_sal, ts_temp, ts_pCO2, ts_pH, ts_at, align='v', ncol=1)
 print(g)
 ```
 
+Monthly distribution of seawater carbonate chemistry using a combination of a violin plot showing the relative frequency of the observations (shaded blue area) and a box plot showing the median, ﬁrst, and third quartiles, as well as outliers (blue).
+
+```{r whole time series monthly box plots and stats, fig.width=10, fig.height=10, echo=FALSE, message= FALSE}
+size_point <- 0.5 # size of data points
+alpha <- 1 #transparency
+ts_sal_bp <- d_all %>%
+  ggplot(aes(x = month(x = datetime, label = TRUE, abbr = TRUE), y = sal_fb)) +
+  geom_violin(fill='lightblue', alpha=0.5, size=0.2, trim = TRUE) +
+  geom_boxplot(notch=TRUE, size=0.2, fill="grey50", outlier.color = "blue", outlier.size = 0.3) +
+  labs(y = "Salinity", x=NULL, title=NULL) +
+  Mytheme() +
+  theme(panel.grid.major.x = element_blank())
+
+ts_temp_bp <- d_all %>%
+  ggplot(aes(x = month(x = datetime, label = TRUE, abbr = TRUE), y = temp_fb)) +
+  geom_violin(fill='lightblue', alpha=0.5, size=0.2, trim = TRUE, na.rm=TRUE) +
+  geom_boxplot(notch=TRUE, size=0.2, fill="grey50", outlier.color = "blue", 
+               outlier.size = 0.3, na.rm=TRUE) +
+  labs(y = "Temperature", x=NULL, title=NULL) +
+  Mytheme() +
+  theme(panel.grid.major.x = element_blank())
+
+ts_pCO2_bp <- d_all %>%
+  ggplot(aes(x = month(x = datetime, label = TRUE, abbr = TRUE), y = pco2_contros)) +
+  geom_violin(fill='lightblue', alpha=0.5, size=0.2, trim = TRUE, na.rm=TRUE) +
+  geom_boxplot(notch=TRUE, size=0.2, fill="grey50", outlier.color = "blue", 
+               outlier.size = 0.3, na.rm=TRUE) +
+  labs(y = expression(paste(pCO[2])), x=NULL, title=NULL) +
+  Mytheme() +
+  theme(panel.grid.major.x = element_blank())
+
+ts_pH_bp <- d_all %>%
+  ggplot(aes(x = month(x = datetime, label = TRUE, abbr = TRUE), y = pHint_tot_sf)) +
+  geom_violin(fill='lightblue', alpha=0.5, size=0.2, trim = TRUE, na.rm=TRUE) +
+  geom_boxplot(notch=TRUE, size=0.2, fill="grey50", outlier.color = "blue", 
+               outlier.size = 0.3, na.rm=TRUE) +
+  labs(y = expression(paste(pH[T])), x=NULL, title=NULL) +
+  Mytheme() +
+  theme(panel.grid.major.x = element_blank())
+
+ts_at_bp <- d_all %>%
+  ggplot(aes(x = month(x = datetime, label = TRUE, abbr = TRUE), y = at_calc)) +
+  geom_violin(fill='lightblue', alpha=0.5, size=0.2, trim = TRUE, na.rm=TRUE) +
+  geom_boxplot(notch=TRUE, size=0.2, fill="grey50", outlier.color = "blue", 
+               outlier.size = 0.3, na.rm=TRUE) +
+  labs(y = "Total alkalinity", x=NULL, title=NULL) +
+  Mytheme() +
+  theme(panel.grid.major.x = element_blank())
+
+g <- cowplot::plot_grid(ts_sal_bp, ts_temp_bp, ts_pCO2_bp, ts_pH_bp, ts_at_bp, align='v', ncol=1)
+print(g)
+
+Salinity <- qq(d_all$sal_fb, digits=1)
+Temperature <- qq(d_all$temp_fb, digits=1)
+pCO2 <- qq(d_all$pco2_contros, digits=1)
+pH <- qq(d_all$pHint_tot_sf, digits=3)
+AT <- qq(d_all$at_calc, digits=1)
+tab_quartiles <- as_tibble(rbind(Salinity, Temperature, pCO2, pH, AT)) %>%
+  rename("2.5%"=V1, "50%"=V2, "97.5%"=V3) %>%
+  mutate(Variable=c("Salinity", "Temperature", "pCO2", "pH", "AT")) %>%
+  dplyr::select(Variable, everything())
+kable(tab_quartiles, caption = "Key quantiles") %>%
+  kable_styling(full_width=FALSE, bootstrap_options = c("striped", "hover", "condensed", "responsive"))
+```
+
+
+
 ## Temperature vs salinity
 We explore the use of a TS diagram to investigate changes in water sources. Monthly slopes of the T vs S plots are calculated. It seems that slopes are mostly not significant in winter and that they can be both positive and negative in summer.
 
 **To do when the situation of the in situ CTDs will be clarified**: compare salinity values from the Ferrybox and in situ.
+
+**To do**: add discrete pH values on plot.
 
 ```{r temperature vs salinity plots, fig.width=8, fig.height=8, echo=FALSE, message= FALSE}
 # One tries to identify water masses coming from the Atlantic or freshwater
@@ -259,7 +329,7 @@ filename.html <- paste0(path_fig, "temp_sal_py.html")
 saveWidget(temp_sal_py, filename.html, selfcontained = T, libdir = "lib")
 ```
 
-```{r temperature vs salinity regressions, fig.width=6, fig.height=6, echo=FALSE, message= FALSE}
+```{r temperature vs salinity regressions, echo=FALSE, message= FALSE, out.width="50%"}
 # AT as a function of salinity for every year
 j <- 0
 reg <- data.frame()
@@ -318,38 +388,104 @@ print(fig_reg_temp_sal)
 ```
 
 ```{r pangaea data, fig.width=9, fig.height=6, echo=FALSE, message= FALSE}
-data_2015 <- pg_data(doi="10.1594/PANGAEA.896771", overwrite = TRUE)
-data_2016 <- pg_data(doi="10.1594/PANGAEA.896770", overwrite = TRUE)
-data_2017 <- pg_data(doi="10.1594/PANGAEA.896170", overwrite = TRUE)
-data_2018 <- pg_data(doi="10.1594/PANGAEA.897349", overwrite = TRUE)
-tmp <- rbind(data_2015[[1]]$data, data_2016[[1]]$data, data_2017[[1]]$data, data_2018[[1]]$data)
-tmp <- tmp[, c(1, 8, 11)] # select date time and salinity
-tmp$`Date/Time` <- as.POSIXct(strptime(tmp$`Date/Time`, "%Y-%m-%dT%H:%M", tz = "UTC"))
-
-pg_ts <- tmp %>% #Pangaea time series
-  dplyr::filter(!are_duplicated(tmp)) %>%
-  dplyr::rename(datetime = `Date/Time`,
-                sal = `Sal ([PSU])`,
-                temp = `Temp [°C]`) %>%
-  as_tsibble(key = NULL, index = datetime) %>%
-  fill_gaps()
-
-fig_sal_pangaea <- pg_ts %>%
-  ggplot() +
-  geom_point(aes(x=datetime, y=sal), na.rm = TRUE) +
-  labs(title="Salinity recovered from Pangaea") +
-  Mytheme(size_labs = 14)
-print(fig_sal_pangaea)
-
-fig_temp_pangaea <- pg_ts %>%
-  ggplot() +
-  geom_point(aes(x=datetime, y=temp), na.rm = TRUE) +
-  labs(title="Temperature recovered from Pangaea") +
-  Mytheme(size_labs = 14)
-print(fig_temp_pangaea)
+# data_2015 <- pg_data(doi="10.1594/PANGAEA.896771", overwrite = TRUE)
+# data_2016 <- pg_data(doi="10.1594/PANGAEA.896770", overwrite = TRUE)
+# data_2017 <- pg_data(doi="10.1594/PANGAEA.896170", overwrite = TRUE)
+# data_2018 <- pg_data(doi="10.1594/PANGAEA.897349", overwrite = TRUE)
+# tmp <- rbind(data_2015[[1]]$data, data_2016[[1]]$data, data_2017[[1]]$data, data_2018[[1]]$data)
+# tmp <- tmp[, c(1, 8, 11)] # select date time and salinity
+# tmp$`Date/Time` <- as.POSIXct(strptime(tmp$`Date/Time`, "%Y-%m-%dT%H:%M", tz = "UTC"))
+# 
+# pg_ts <- tmp %>% #Pangaea time series
+#   dplyr::filter(!are_duplicated(tmp)) %>%
+#   dplyr::rename(datetime = `Date/Time`,
+#                 sal = `Sal ([PSU])`,
+#                 temp = `Temp [°C]`) %>%
+#   as_tsibble(key = NULL, index = datetime) %>%
+#   fill_gaps()
+# 
+# fig_sal_pangaea <- pg_ts %>%
+#   ggplot() +
+#   geom_point(aes(x=datetime, y=sal), na.rm = TRUE) +
+#   labs(title="Salinity recovered from Pangaea") +
+#   Mytheme(size_labs = 14)
+# print(fig_sal_pangaea)
+# 
+# fig_temp_pangaea <- pg_ts %>%
+#   ggplot() +
+#   geom_point(aes(x=datetime, y=temp), na.rm = TRUE) +
+#   labs(title="Temperature recovered from Pangaea") +
+#   Mytheme(size_labs = 14)
+# print(fig_temp_pangaea)
 ```
 
 ## Total alkalinity
-It is proposed not to use the data from the Contros instrument. It is too unfeliable and difficult to calibrate. We use instead the relationship between salinity and the discrete measurements of AT.
+It is proposed not to use the data from the Contros instrument. It is too unreliable and difficult to calibrate. We use instead the relationship between salinity and the discrete measurements of AT.
 
+```{r Discrete salinity vs TA, echo=FALSE, warning=FALSE, message=FALSE, out.width="50%", fig.align="center"}
+d_all_at_discrete <- d_all %>% #  To remove an outlier in red
+  dplyr::select(datetime, month, closest_datetime, at, sal_fb)%>%
+  dplyr::filter( !is.na(at) & !is.na(sal_fb) & sal_fb >30)
 
+#fit <- lm(data = drop_na(d_all_at_discrete, at), at ~ sal)
+fit <- lm(data = d_all_at_discrete, at ~ sal_fb)
+slope_s_at <- fit$coefficients[[2]]
+intercept_s_at <- fit$coefficients[[1]]
+# at_s <- ggreg(fit)+ labs(x="Salinity", y="Discrete TA") + Mytheme()
+
+at_s <- ggplot(d_all_at_discrete,aes(x=sal_fb, y= at, label = month))+
+#  geom_text( aes(color=factor(month))) +
+  geom_point(color = "blue") +
+#  scale_color_discrete(guide="none")+
+    labs(x="Salinity FerryBox", y="Discrete AT")  +
+    stat_smooth(method = "lm", col = "black") +
+    labs(title = paste("", "\nAdj R2 = ",signif(summary(fit)$adj.r.squared, 5),
+                       ";\nIntercept =",signif(fit$coef[[1]],5 ),
+                       ";\nSlope =",signif(fit$coef[[2]], 5),
+                       ";\nP =",signif(summary(fit)$coef[2,4], 5))) +
+  theme_bw() +
+  theme(aspect.ratio=1,
+        axis.text=element_text(size=15),
+        axis.title.y= element_text(size =15),
+        axis.title.x= element_text(size =15),
+        plot.margin = unit(c(0.5,1,1,1), "cm"),
+        plot.title = element_text(size=15, hjust=0.05,margin = margin(l = 10, b = -70)))
+print(at_s)
+
+#ggsave(paste0("figures/Discrete_TA_salinity_AWIPEV.png"), at_s, width=15, height =11, units="cm")
+
+# Salinity is a predictor of AT -> using the regression defined above
+d_all$at_calc <- slope_s_at * d_all$sal_fb + intercept_s_at
+```
+
+The relationship between titrated total alkalinity and salinity is very good with an r2 of `r round(summary(fit)$r.squared, digits=2)`. Need to compare with other relationships from the literature.
+
+## Consistency: pCO2
+
+```{r pCO2, echo=FALSE, warning=FALSE, message=FALSE}
+title <- "Contros vs calculated pCO2"
+fit <- lmodel2(data = d_all,  pco2_contros ~ pco2calc , nperm = 99)
+
+pco2calc_pCO2contros <-  ggplot(d_all, aes(x=pco2calc, y= pco2_contros))+
+  geom_point(colour="blue", alpha = alpha)+
+  geom_abline(aes(intercept = 0, slope = 1), linetype = "dashed") +
+  geom_abline(aes(intercept = fit$regression.results[2,2], slope = fit$regression.results[2,3]),colour = "blue") +
+  labs(title = paste(title,"\n Adj R2 = ", signif(fit$rsquare, 3), "\n",
+                     "Intercept =", signif(fit$regression.results[2,2], 3),
+                     "; Slope =", signif( fit$regression.results[2,3], 3),
+                     "; P =", signif(fit$P.param, 3))) +
+  theme(aspect.ratio=1, plot.title = element_text(size=7)) + 
+  coord_fixed(ratio = 1, xlim=c(200,460) , ylim=c(200,460))+
+  labs(x="Calculated pCO2", y="Measured pCO2") + theme_bw()  
+print(pco2calc_pCO2contros)
+ggsave(paste0("figures/pco2calc_pCO2contros.png"), pco2calc_pCO2contros, units="cm")
+
+# average uncertainty calculated pCO2 assuming uncertainties of 4 umol/kg for AT and CT
+e_pCO2 <- seacarb::errors(flag=15, 
+                var1=1e-6*mean(d_all$at, na.rm=TRUE), var2=1e-6*mean(d_all$ct, na.rm=TRUE),
+                S=mean(d_all$sal_fb, na.rm=TRUE), T=mean(d_all$temp_fb, na.rm=TRUE), P=0, Pt=0,
+                Sit=0,k1k2="l", kf="dg", ks="d", pHscale="T", b="u74", 
+                evar1=4e-6, evar2 = 4e-6)$pCO2
+```
+
+The relationship between the measured and calculated *p*CO~2~ is not very good. r2 (`r round(fit$rsquare, digits=2)`). Note that the accuracy of the pCO2 sensor is about 3 uatm (1% of reading) whereas it is `r round(e_pCO2, digits=1)` uatm. The later is estimated as described by Orr et al. (2019) assuming an uncertainty of 4 umol/kg for both AT and CT.
