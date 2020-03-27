@@ -45,6 +45,7 @@ pre { /* Code block - determines code spacing between lines */
 </style>
 
 ```{r set-up, echo=FALSE, warning=FALSE, message=FALSE, include=FALSE}
+#R --quiet -e 'install.packages("plotly", type="binary", repos="http://cran.us.r-project.org")'
 Sys.setlocale("LC_ALL", "en_US.UTF-8")
 Sys.setenv(TZ='UTC') # on utilise UTC
 rm(list = ls())
@@ -295,7 +296,7 @@ We explore the use of a TS diagram to investigate changes in water sources. Mont
 
 **To do**: add discrete pH values on plot.
 
-```{r temperature vs salinity plots, fig.width=8, fig.height=8, echo=FALSE, message= FALSE}
+```{r temperature vs salinity plots, echo=FALSE, message= FALSE, warning=FALSE, out.width="100%"}
 # One tries to identify water masses coming from the Atlantic or freshwater
 s <- c(seq(30.4, 35.3, length.out = 100)) # pCO2
 t <- seq(-2, 8, length.out = 100) #temperature throughout the year
@@ -310,17 +311,17 @@ temp_sal <-  ggplot() +
   geom_point(data = d, aes(x = sal_fb, y = temp_fb, fill=month), na.rm=TRUE,
              size=size_point, show.legend=FALSE) + 
   labs(title="Temperature vs salinity, both in FerryBox, blue lines show density", x="Salinity", y="Temp. (°C)") +
-  facet_wrap(~ year, ncol = 3) +
+  facet_grid(year ~ month) +
   stat_smooth(data = d, aes(x = sal_fb, y = temp_fb, color=month),
-              method=lm, na.rm=TRUE, se=FALSE) +
-  scale_color_viridis(name="Month", discrete=TRUE, option="plasma") +
+              method=lm, na.rm=TRUE, se=FALSE, show.legend=FALSE) +
+  #scale_color_viridis(name="Month", discrete=TRUE, option="plasma") +
   geom_contour(data = grid, aes(x = s, y = t, z = z), 
                stat = "contour", binwidth=1, show.legend=FALSE, na.rm=TRUE) +
   scale_x_continuous(limits = c(30.4, 35.3), expand = c(0,0) ) +
   scale_y_continuous(limits = c(-2,8.5), expand = c(0,0) ) +
   coord_fixed() +
-  annotate("text", label="Fresh and cold", x=31.5, y=-1.5) +
-  annotate("text", label="Salty and warm", x=34.5, y=8.1) +
+  #annotate("text", label="Fresh and cold", x=31.5, y=-1.5) +
+  #annotate("text", label="Salty and warm", x=34.5, y=8.1) +
   Mytheme(size_labs = 10)
 print(temp_sal)
 ggsave(temp_sal,filename = paste0(path_fig, "temp_sal.png"), width = 20, height = 20 ,units="cm")
@@ -329,7 +330,7 @@ filename.html <- paste0(path_fig, "temp_sal_py.html")
 saveWidget(temp_sal_py, filename.html, selfcontained = T, libdir = "lib")
 ```
 
-```{r temperature vs salinity regressions, echo=FALSE, message= FALSE, out.width="50%"}
+```{r temperature vs salinity regressions, echo=FALSE, message= FALSE, warning=FALSE, out.width="50%"}
 # AT as a function of salinity for every year
 j <- 0
 reg <- data.frame()
@@ -356,6 +357,8 @@ tab_reg_temp_sal <- reg
 tmp_reg_temp_sal <- reg %>% # to enable plotting below
   dplyr::mutate(date = as.Date(paste0(row.names(reg), "-01")),
                 month = month(date, label=TRUE, abbr = TRUE))
+tab_reg_temp_sal <- tab_reg_temp_sal[sort(rownames(tab_reg_temp_sal)),] # order chronologically
+
 #plot
 fig_reg_temp_sal <- tmp_reg_temp_sal %>%
   dplyr::filter(P_value < .05) %>% #eliminate when correlation not significant
@@ -369,7 +372,8 @@ fig_reg_temp_sal <- tmp_reg_temp_sal %>%
   geom_errorbar(aes(x=date, ymin=Slope-2*SE_Slope, ymax=Slope+2*SE_Slope), width=.2) +
   Mytheme(size_labs = 14) +
   guides(colour = guide_legend("Month", override.aes = list(size=4)), size = guide_legend("P value slope"))
-kable(tab_reg_temp_sal)
+kable(tab_reg_temp_sal, caption = "Regression lines", digits = c(3,3,5,1,3,3,1,0,2,5)) %>%
+    kable_styling(full_width=FALSE, bootstrap_options = c("striped", "hover", "condensed", "responsive"))
 print(fig_reg_temp_sal)
 ```
 
