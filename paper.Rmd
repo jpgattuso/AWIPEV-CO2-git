@@ -158,37 +158,52 @@ ggplot(fit$model, aes_string(x = names(fit$model)[2], y = names(fit$model)[1])) 
 ```
 
 ```{r read and clean data, echo=FALSE, warning=FALSE, message=FALSE}
-d_all <- as_tibble(readRDS(file = paste0(path_data, "fb_data/d_all.rds"))) %>% 
-  dplyr::filter(sal_fb > 28) %>% # remove salinity data lower than 28
-  dplyr::mutate(year_month = format(datetime, '%Y-%m'))
+d_all <- as_tibble(readRDS(file = paste0(path_data, "fb_data/d_all.rds"))) 
+d <- d_all %>% 
+  #dplyr::select
+  #dplyr::filter(sal_fb > 28) %>% # remove salinity data lower than 28
+  dplyr::mutate(year_month = format(datetime, '%Y-%m')) %>%
+  dplyr::arrange(datetime) %>%
+  dplyr::mutate(depth = as.numeric(str_remove(depth, pattern= " m"))) #depth is a string
 ```
 
 ## Whole time series
-
-**To do**: Filter pH values at more than 8 m depth.
 
 
 ```{r whole time series, fig.width=10, fig.height=10, echo=FALSE, message= FALSE}
 size_point <- 2 # size of data points
 alpha <- 1 #transparency
 
-#SAL SBE45
+d_ts <- d %>%
+  dplyr::mutate(pH_s_seafet_temp_ctd = ifelse(depth >= 8, pH_s_seafet_temp_ctd, NA)) %>% # keep only seafet data below 8 m depth
+  dplyr::select(datetime, temp_insitu_11m, sal_fb, par_air_filtered, PCO2_Corr_filtered, pH_s_seafet_temp_ctd, at_calc, at) #%>%
+  #tidyr::pivot_longer(-datetime, values_to = "value")
+  
+#sal_fb
 ts_sal <- d_all %>%
   ggplot(aes(x = datetime, y = sal_fb), na.rm=TRUE) +
   scale_x_datetime(breaks = date_breaks("1 year"), labels = date_format("%Y")) +
   geom_point(colour="blue", alpha=alpha, na.rm=TRUE, size=size_point) + 
-  labs(title="Salinity FerryBox? SBE45",x="", y="Salinity") +
+  labs(title="Salinity FerryBox",x="", y="Salinity") +
   Mytheme(size_labs = 8)
 ts_sal_py <- ggplotly(ts_sal,dynamicTicks = TRUE)
 filename.html <- paste0(path_fig, "ts_sal_py.html")
 saveWidget(ts_sal_py, filename.html, selfcontained = T, libdir = "lib")
 
-# TEMP ferrybox
+# temp_insitu_11m
 ts_temp <- d_all %>%
-  ggplot(aes(x = datetime, y = temp_fb), na.rm=TRUE) +
+  ggplot(aes(x = datetime, y = temp_insitu_11m), na.rm=TRUE) +
   scale_x_datetime(breaks = date_breaks("1 year"), labels = date_format("%Y")) +
   geom_point(colour="blue", alpha=alpha, na.rm=TRUE, size=size_point) + 
-  labs(title="Temperature FerryBox",x="", y="In situ temperature (°C)") +
+  labs(title="In situ temperature 11 m",x="", y="Temperature (°C)") +
+  Mytheme(size_labs = 8)
+
+# PAR
+ts_par_air <- d_all %>%
+  ggplot(aes(x = datetime, y = par_air_filtered), na.rm=TRUE) +
+  scale_x_datetime(breaks = date_breaks("1 year"), labels = date_format("%Y")) +
+  geom_point(colour="blue", alpha=alpha, na.rm=TRUE, size=size_point) + 
+  labs(title="Atmospheric PAR",x="", y="PAR (umol m-2 s-1)") +
   Mytheme(size_labs = 8)
 
 # PCO2 
@@ -203,13 +218,13 @@ ts_pCO2 <- d_all %>%
 
 # SEAFET pH
 ts_pH <- d_all %>%
-  ggplot(aes(x = datetime, y = pHint_tot_sf), na.rm=TRUE) +
+  ggplot(aes(x = datetime, y = pH_s_seafet_temp_ctd), na.rm=TRUE) +
   scale_x_datetime(breaks = date_breaks("1 year"), labels = date_format("%Y")) +
   geom_point(colour="blue", alpha=alpha, na.rm=TRUE, size=size_point) + 
-  labs(title="In situ pH",x="", y=expression(paste(pH[T]))) +
+  labs(title="In situ pH (> 8 m)",x="", y=expression(paste(pH[T]))) +
   Mytheme(size_labs = 8)
 
-# TA
+# AT
 ts_at <- d_all %>%
   ggplot(aes(x = datetime, y = at_calc), na.rm=TRUE) +
   scale_x_datetime(breaks = date_breaks("1 year"), labels = date_format("%Y")) +
@@ -218,7 +233,7 @@ ts_at <- d_all %>%
   labs(title="Total alkalinity calculated from salinity (blue) and discrete measurements (red)", x="", y="AT (umol/kg)") +
   Mytheme(size_labs = 8)
 
-g <- cowplot::plot_grid(ts_sal, ts_temp, ts_pCO2, ts_pH, ts_at, align='v', ncol=1)
+g <- cowplot::plot_grid(ts_sal, ts_temp, ts_par_air, ts_pCO2, ts_pH, ts_at, align='v', ncol=1)
 print(g)
 ```
 
