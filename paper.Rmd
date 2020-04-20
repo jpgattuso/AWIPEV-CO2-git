@@ -320,6 +320,7 @@ grid$z <- rho(S = grid$s, T = grid$t, P = 1)
 
 d <- d_all %>%
   dplyr::filter(year < 2020) %>%
+  dplyr::mutate(year_month = format(datetime, '%Y-%m')) %>%
   dplyr::mutate(month=month(datetime, label = TRUE, abbr = TRUE)) # abbreviated months rather than digital months
   #ggplot(aes(x = sal_fb, y = temp_insitu), na.rm=TRUE) +
 temp_sal <-  ggplot() +
@@ -352,8 +353,10 @@ reg <- data.frame()
 for (i in 1:length(unique(d$year_month))) { #one loops through all years
   j <- j + 1
   ym <- unique(d$year_month)[i]
-  d_reg <- filter(d, year_month==ym)
-  if (length(!is.na(d_reg$temp_fb)) > 2) { #there is no temp_insitu in 2016-08, hence skip. Not needed if one uses temp_fb
+  d_reg <- d %>%
+    dplyr::select(year_month, sal_fb, temp_fb) %>%
+    filter(year_month==ym, complete.cases(.))
+  if (nrow(d_reg) > 2) { # There are months (2017-07) with no temp_fb nor sal_fb
   lms <- summary(lm(data=d_reg, sal_fb ~ temp_fb))
   # calculate probability of fstatistic because it cannot be extracted from lms above
   # see http://stats.stackexchange.com/questions/92824/extracting-the-model-p-value-for-a-multiple-regression-in-r
@@ -362,6 +365,8 @@ for (i in 1:length(unique(d$year_month))) { #one loops through all years
   reg <- rbind(reg, as.numeric(c(lms$coefficients[2,1], lms$coefficients[2,2], 
                                  lms$coefficients[2,4], lms$coefficients[1,1], lms$coefficients[1,2],
                                  lms$coefficients[1,4], lms$fstatistic[1], lms$fstatistic[3], lms$r.squared, prob)))
+  } else {
+  reg <- rbind(reg, rep(NA, 9)) # if no sal and temp data fill with NA
   }
 }
 names(reg) <- c("Slope", "SE_Slope", "P Slope","Intercept","SE int.","P int.", "F", "df",
