@@ -455,18 +455,18 @@ TO DO: add here an horizontal bar plot showing the percent availability of the d
 
 ## Whole time series
 ```{r whole time series, fig.width=10, fig.height=4, echo=FALSE, message= FALSE}
-#SAL CTD profile
+#SAL FB 
 sal_xts <- dplyr::select(d_all, datetime, sal_insitu_ctd, sal_fb)
 sal_xts <- as.xts(sal_xts, order.by = sal_xts$datetime)
-dygraph(sal_xts, group = "awipev", main="Salinities (in situ CTD, all depths + FB)", ylab="Salinity") %>%
-      dySeries("sal_insitu_ctd", color = "blue", strokeWidth = 0, label = "CTD") %>%
-            dySeries("sal_fb", color = "black", strokeWidth = 1, label = "FB") %>%
+dygraph(sal_xts, group = "awipev", main="Salinity FerryBox)", ylab="Salinity") %>%
+            dySeries("sal_fb", color = "blue", strokeWidth = 1, label = "sal_fb") %>%
+            dySeries("sal_fb", color = "black", strokeWidth = 1, label = "sal_fb") %>%
 dyHighlight(highlightCircleSize = 8,highlightSeriesBackgroundAlpha =0.2,hideOnMouseOut =TRUE) %>%
       dyOptions( drawGrid = TRUE, drawPoints = TRUE, pointSize = 2,useDataTimezone = TRUE) %>%
     dyLegend(show = "follow")   %>%
     dyAxis("y",valueRange = c(30, 37)) %>%
       dyRangeSelector(height = 30, dateWindow= NULL)
-#SAL FB
+#SAL CTD profile
 sal_xts <- dplyr::select(d_all, datetime, sal_insitu_ctd)
 sal_xts <- as.xts(sal_xts, order.by = sal_xts$datetime)
 dygraph(sal_xts, group = "awipev", main="Salinity (in situ CTD, all depths)", ylab="Salinity") %>%
