@@ -65,6 +65,10 @@ if (!require("directlabels")) install.packages("directlabels")
 library("directlabels")
 if (!require("pangaear")) install.packages("pangaea\r")
 library("pangaear")
+if (!require("naniar")) install.packages("naniar")
+library("naniar")
+if (!require("visdat")) install.packages("visdat")
+library("visdat")
 knitr::opts_chunk$set(echo = TRUE)
 #knitr::opts_knit$set(root.dir = normalizePath("/Users/gattuso/not_synced_git/AWIPEV-CO2-git")) 
 
@@ -79,9 +83,9 @@ if (Sys.getenv("LOGNAME") == "gattuso") path_fig = "/Users/gattuso/pCloud\ Sync/
 if (Sys.getenv("LOGNAME") == "samir") path_data = "../../pCloud\ Sync/exp168_awipev-CO2/"
 
 
-######## function to calculate 3 quantiles
+######## function to calculate min, max 3 quantiles
 qq <- function (data, digits) { 
-  as.numeric(formatC(quantile(x = data, probs = c(0.025, 0.50, 0.975), na.rm = TRUE),
+  as.numeric(formatC(quantile(x = data, probs = c(0, 0.025, 0.50, 0.975, 1), na.rm = TRUE),
                      format = "f", digits = digits))
 }
 
@@ -158,14 +162,37 @@ ggplot(fit$model, aes_string(x = names(fit$model)[2], y = names(fit$model)[1])) 
 ```
 
 ```{r read and clean data, echo=FALSE, warning=FALSE, message=FALSE}
-d_all <- as_tsibble(readRDS(file = paste0(path_data, "fb_data/d_all.rds")), index = datetime) 
+# d_all <- readRDS(file = paste0(path_data, "fb_awipev-co2_server/ny-alesund/data/NRT_data/all_nydata_hour_copy.rds"))
+# d <- d_all %>% 
+#   as_tsibble(index = datetime) %>% 
+#   dplyr::rename(depth = pressure_insitu_ctd) %>% 
+#   dplyr::mutate(year_month = format(datetime, '%Y-%m'))
+# count_gaps(d, .full = TRUE)
+
+
+d_all <- readRDS(file = paste0(path_data, "fb_data/d_all.rds"))
 d <- d_all %>% 
   #dplyr::select
   #dplyr::filter(sal_fb > 28) %>% # remove salinity data lower than 28
-  dplyr::mutate(year_month = format(datetime, '%Y-%m')) %>%
+  as_tsibble(index = datetime) %>% 
   dplyr::arrange(datetime) %>%
-  dplyr::mutate(depth = as.numeric(str_remove(depth, pattern= " m"))) #depth is a string
+  dplyr::mutate(depth = as.numeric(str_remove(depth, pattern= " m"))) %>% #depth is a string
+  fill_gaps() %>%
+  dplyr::mutate(year_month = format(datetime, '%Y-%m'),
+                quarter = quarter(datetime)) %>%
+  replace(., is.na(.), NA) # replace NaN by NA everywhere
+tmp <- d %>% 
+  as_tibble() %>% 
+  dplyr::select(pH_s_seafet_temp_ctd, par_air_filtered, pco2_contros, pH_s_seafet_temp_ctd, starts_with("sal_"),
+                starts_with("temp_"), at_calc, year_month, quarter)
+tmp visdat::vis_miss(tmp)
+gg_miss_var(tmp, facet = quarter)
 ```
+
+```{r calculate missing, echo=FALSE, warning=FALSE, message=FALSE}
+
+```
+# {.tabset .tabset-fade .tabset-pills}
 
 ## Whole time series
 
@@ -304,7 +331,7 @@ kable(tab_quartiles, caption = "Key quantiles") %>%
 
 
 
-## Temperature vs salinity
+## TvsS
 We explore the use of a TS diagram to investigate changes in water sources. Monthly slopes of the T vs S plots are calculated. It seems that slopes are mostly not significant in winter and that they can be both positive and negative in summer.
 
 **To do when the situation of the in situ CTDs will be clarified**: compare salinity values from the Ferrybox and in situ.
@@ -484,6 +511,20 @@ d_all$at_calc <- slope_s_at * d_all$sal_fb + intercept_s_at
 
 The relationship between titrated total alkalinity and salinity is very good with an r2 of `r round(summary(fit)$r.squared, digits=2)`. Need to compare with other relationships from the literature.
 
+## Sensitivity
+We look at how sensitive pH are to errors in salinity (0.1 to 0.3) and temperature (-0.3 to 0.3). delta_pH is the unit difference between the starting value of pH (8 at S=34 and T=5) and the value with errors in S and T. pCO2 is measured and not sensitive, I think to errors in temperature.
+
+```{r sensitivity, echo=FALSE, warning=FALSE, message=FALSE}
+err <- as_tibble(
+  expand.grid(sal = 34+seq(0, 0.3, by = 0.1), 
+              temp = 5+round(seq(-0.3, 0.3, by = 0.1), digits=1))) %>%
+    dplyr::arrange(sal)
+err$pH <- pHinsi(pH=8,ALK=2.4e-3,Tinsi=err$temp,Tlab=5,Pinsi=1,S=err$sal,Pt=0,Sit=0)
+err$delta_pH <- round(8 - err$pH, digits = 3)
+knitr::kable(err, caption = "Errors in pH related to the uncertainty in salinity and temperature.") %>%
+  kable_styling(bootstrap_options = "striped", full_width = F)
+saveRDS(err, file=paste0(path_data, "error.rds"))
+```
 ## Consistency: pCO2
 
 ```{r pCO2, echo=FALSE, warning=FALSE, message=FALSE}
