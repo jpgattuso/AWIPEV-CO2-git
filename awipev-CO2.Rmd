@@ -2362,6 +2362,19 @@ All documents concerning maintenance, tasks to do, calibration... are accessible
 
 [Quick overview AWI NRT database](https://dashboard.awi.de/?dashboard=9736) 
 
+### Traitement des variables
+
+* temp_mix = temp 11m + temp ctd > 8m si trous.
+* sal_mix = sal FB + sal ctd > 8m si trous.
+* ph_s_sf_temp_mix: pH spectro seaFET pH insi calculé avec AT interpolée + temp_mix +sal_mix
+* ph_s_dur_temp_fb: pH spectro durafet pH insi calculé avec AT interpolée + temp_fb +sal_fb
+* ph_calc: pH calc from AT/CT ferrybox = carb avec temp_fb +sal_fb
+* pco2_calc: pco2 calc from AT/CT ferrybox = carb avec temp_fb +sal_fb
+* Relation at / sal_mix (sal FB + sal ctd > 8m si trous)
+* at_calc: calculé from sal_mix
+* E0int25_sf: calculé à partir du voltage interne + pH_s_seafet_temp_mix (temp 11m + temp ctd > 8m si trous) + temp CTD + sal CTD (calib seaFET fonction 1)
+* phint_tot_sf: calculé à partir du voltage interne + E0 + temp CTD + sal CTD (calib seaFET fonction 2)
+
 ### **FerryBox**
 
 - **2020-03-13**: Salinity was filtered above 28 in d_all.rds file.
