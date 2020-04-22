@@ -297,11 +297,11 @@ discrete_is_na <- discrete %>%
 carb <- carb(15, discrete_no_na$at*1e-6, discrete_no_na$ct*1e-6,S=discrete_no_na$sal_fb, T=discrete_no_na$temp_fb, P=0, Pt=0, Sit=0,k1k2="l", kf="dg", ks="d", pHscale="T", b="u74")
 
 discrete_no_na$phcalc<- carb$pH
-discrete_no_na$pco2calc<- carb$pCO2
+discrete_no_na$pco2_calc<- carb$pCO2
 
 #create new variable in "discrete_is_na" to bind "discrete_no_na"
 discrete_is_na$phcalc<- NA
-discrete_is_na$pco2calc<- NA
+discrete_is_na$pco2_calc<- NA
 discrete <- rbind(discrete_no_na, discrete_is_na)
 discrete <-discrete%>%dplyr::arrange(datetime)
 ```
@@ -389,7 +389,7 @@ d_all <- full_join(d_all, discrete2merge, by="datetime")
 # discrete$closest_datetime[abs(discrete$datetime - d_all$datetime[closest]) > 30*60] <- NA
 discrete2merge <- discrete %>%
   #drop_na() %>%
-  dplyr::select(closest_datetime, pco2calc) %>%
+  dplyr::select(closest_datetime, pco2_calc) %>%
   dplyr::filter(!is.na(closest_datetime)) %>%
   rename(datetime=closest_datetime)
 d_all <- full_join(d_all, discrete2merge, by="datetime")
@@ -460,11 +460,10 @@ TO DO: add here an horizontal bar plot showing the percent availability of the d
 ## Whole time series
 ```{r whole time series, fig.width=10, fig.height=4, echo=FALSE, message= FALSE}
 #SAL FB 
-sal_xts <- dplyr::select(d_all, datetime, sal_insitu_ctd, sal_fb)
+sal_xts <- dplyr::select(d_all, datetime, sal_fb)
 sal_xts <- as.xts(sal_xts, order.by = sal_xts$datetime)
 dygraph(sal_xts, group = "awipev", main="Salinity FerryBox)", ylab="Salinity") %>%
             dySeries("sal_fb", color = "blue", strokeWidth = 1, label = "sal_fb") %>%
-            dySeries("sal_fb", color = "black", strokeWidth = 1, label = "sal_fb") %>%
 dyHighlight(highlightCircleSize = 8,highlightSeriesBackgroundAlpha =0.2,hideOnMouseOut =TRUE) %>%
       dyOptions( drawGrid = TRUE, drawPoints = TRUE, pointSize = 2,useDataTimezone = TRUE) %>%
     dyLegend(show = "follow")   %>%
@@ -474,7 +473,7 @@ dyHighlight(highlightCircleSize = 8,highlightSeriesBackgroundAlpha =0.2,hideOnMo
 sal_xts <- dplyr::select(d_all, datetime, sal_insitu_ctd)
 sal_xts <- as.xts(sal_xts, order.by = sal_xts$datetime)
 dygraph(sal_xts, group = "awipev", main="Salinity (in situ CTD, all depths)", ylab="Salinity") %>%
-      dySeries("sal_insitu_ctd", color = "blue", strokeWidth = 0, label = "S") %>%
+      dySeries("sal_insitu_ctd", color = "blue", strokeWidth = 0, label = "sal_insitu_ctd") %>%
       dyHighlight(highlightCircleSize = 8,highlightSeriesBackgroundAlpha =0.2,hideOnMouseOut =TRUE) %>%
       dyOptions( drawGrid = TRUE, drawPoints = TRUE, pointSize = 2,useDataTimezone = TRUE) %>%
     dyLegend(show = "follow")   %>%
@@ -484,7 +483,7 @@ dygraph(sal_xts, group = "awipev", main="Salinity (in situ CTD, all depths)", yl
 temp_fb_xts <- dplyr::select(d_all, datetime, temp_fb)
 temp_fb_xts <- as.xts(temp_fb_xts, order.by = temp_fb_xts$datetime)
 dygraph(temp_fb_xts, group = "awipev", main="Temperature (in Ferrybox)", ylab="Temperature") %>%
-      dySeries("temp_fb", color = "blue", strokeWidth = 0, label = "T") %>%
+      dySeries("temp_fb", color = "blue", strokeWidth = 0, label = "temp_fb") %>%
       dyAxis("y", valueRange = c(-2.5, 10)) %>%
       dyLegend(show = "follow")   %>%
       dyHighlight(highlightCircleSize = 8,highlightSeriesBackgroundAlpha = 0.5,hideOnMouseOut = TRUE) %>%
@@ -494,7 +493,7 @@ dygraph(temp_fb_xts, group = "awipev", main="Temperature (in Ferrybox)", ylab="T
 temp_insitu_xts <- dplyr::select(d_all, datetime, temp_insitu_11m)
 temp_insitu_xts <- as.xts(temp_insitu_xts, order.by = temp_insitu_xts$datetime)
 dygraph(temp_insitu_xts, group = "awipev", main="Temperature (in situ 11 m)", ylab="Temperature") %>%
-      dySeries("temp_insitu_11m", color = "blue", strokeWidth = 0, label = "T") %>%
+      dySeries("temp_insitu_11m", color = "blue", strokeWidth = 0, label = "temp_insitu_11m") %>%
       dyAxis("y", valueRange = c(-2.8, 10)) %>%
       dyHighlight(highlightCircleSize = 8,highlightSeriesBackgroundAlpha = 0.5,hideOnMouseOut = TRUE) %>%
       dyOptions(drawGrid = TRUE, drawPoints = TRUE, pointSize = 2,useDataTimezone = TRUE) %>%
@@ -504,7 +503,7 @@ dygraph(temp_insitu_xts, group = "awipev", main="Temperature (in situ 11 m)", yl
 temp_insitu_xts <- dplyr::select(d_all, datetime, temp_insitu_ctd)
 temp_insitu_xts <- as.xts(temp_insitu_xts, order.by = temp_insitu_xts$datetime)
 dygraph(temp_insitu_xts, group = "awipev", main="Temperature (ctd all depths)", ylab="Temperature") %>%
-      dySeries("temp_insitu_ctd", color = "blue", strokeWidth = 0, label = "T") %>%
+      dySeries("temp_insitu_ctd", color = "blue", strokeWidth = 0, label = "temp_insitu_ctd") %>%
       dyAxis("y", valueRange = c(-2.8, 10)) %>%
       dyHighlight(highlightCircleSize = 8,highlightSeriesBackgroundAlpha = 0.5,hideOnMouseOut = TRUE) %>%
       dyOptions(drawGrid = TRUE, drawPoints = TRUE, pointSize = 2,useDataTimezone = TRUE) %>%
@@ -512,11 +511,11 @@ dygraph(temp_insitu_xts, group = "awipev", main="Temperature (ctd all depths)", 
       dyRangeSelector(height = 30, dateWindow= NULL)
 # PCO2 
 #+ Ajout de la pCO2 corrigé par le script contros (dans R server ny-alesund_cc.R)
-pco2_contros_xts <- dplyr::select(d_all, datetime, pco2calc, pco2_corr)
+pco2_contros_xts <- dplyr::select(d_all, datetime, pco2_calc, pco2_corr)
 pco2_contros_xts <- as.xts(pco2_contros_xts, order.by = d_all$datetime)
 dygraph(pco2_contros_xts, group = "awipev", main="pCO2", ylab="pCO2") %>%
     dySeries("pco2_corr", label="Corrected pCO2", color=  "blue",strokeWidth=0, pointSize=2) %>%
-    dySeries("pco2calc", label="calculated pCO2",color = "red", strokeWidth = 0, pointSize = 4 ) %>%
+    dySeries("pco2_calc", label="calculated pCO2",color = "red", strokeWidth = 0, pointSize = 4 ) %>%
     dyEvent(as.POSIXct("2016-02-28 12:00:00", tz="GMT"), "CO2FT-0515-001 installed", labelLoc = "bottom", color="red") %>% 
     dyEvent(as.POSIXct("2017-02-07 12:00:00", tz="GMT"), "CO2FT-0215-001 installed", labelLoc = "bottom", color="red") %>%
     dyEvent(as.POSIXct("2018-04-16 12:00:00", tz="GMT"), "CO2FT-0515-001 installed", labelLoc = "bottom", color="red") %>% 
@@ -1231,9 +1230,9 @@ During those steps (except zeroing) the sensor runs normally. Equilibration betw
 
 ```{r measured vs calculated pCO2, echo=FALSE, warning=FALSE, message=FALSE}
 title <- "Contros vs calculated pCO2"
-fit <- lmodel2(data = d_all,  pco2_corr ~ pco2calc , nperm = 99)
+fit <- lmodel2(data = d_all,  pco2_corr ~ pco2_calc , nperm = 99)
 
-pco2calc_pCO2_contros_text <-  ggplot(d_all,aes(x=pco2calc, y= pco2_corr, label = month))+
+pco2_calc_pco2_corr_text <-  ggplot(d_all,aes(x=pco2_calc, y= pco2_corr, label = month))+
    geom_text(aes(color = factor(month)))+
   scale_color_discrete(guide="none")+
   geom_abline(slope = 1, intercept = 0, linetype = "dashed") +
@@ -1249,19 +1248,19 @@ pco2calc_pCO2_contros_text <-  ggplot(d_all,aes(x=pco2calc, y= pco2_corr, label 
 ```
 The relationship between the Contros and calculated *p*CO~2~ is not good at all in the sense that it is far from the 1:1 line, despite a good r2 (`r round(fit$rsquare, digits=2)`).
 ```{r plot measured vs calculated pCO2, echo=FALSE, warning=FALSE, message=FALSE, out.width='100%', fig.align="center"}
-print(pco2calc_pCO2_contros_text)
-ggsave(paste0("figures/pco2calc_pCO2_contros.png"), pco2calc_pCO2_contros_text, units="cm")
+print(pco2_calc_pco2_corr_text)
+ggsave(paste0("figures/pco2_calc_pco2_corr.png"), pco2_calc_pco2_corr_text, units="cm")
 ```
 
 ### **Final *p*CO~2~ data**
 
 ```{r Final pCO2, echo=FALSE, warning=FALSE, message=FALSE, out.width='100%', fig.align="center"}
-pco2_contros_xts <- dplyr::select(d_all, datetime, pco2calc, pco2_corr)
+pco2_contros_xts <- dplyr::select(d_all, datetime, pco2_calc, pco2_corr)
 pco2_contros_xts <- as.xts(pco2_contros_xts, order.by = d_all$datetime)
 dygraph(pco2_contros_xts, group = "awipev", main="<i>p</i>CO<sub>2</sub>", ylab="<i>p</i>CO<sub>2</sub>") %>%
   dySeries("pco2_corr", label="Corrected pCO2", color=  RColorBrewer::brewer.pal(3, "Dark2")[1],strokeWidth=0, pointSize=2) %>%
     #dySeries("pco2_raw", label="Raw pCO2",color ="blue", strokeWidth = 0, pointSize = 1) %>%
-    dySeries("pco2calc", label="calculated pCO2",color = "red", strokeWidth = 0, pointSize = 4 ) %>%
+    dySeries("pco2_calc", label="pco2_calc",color = "red", strokeWidth = 0, pointSize = 4 ) %>%
     dyEvent(as.POSIXct("2016-02-28 12:00:00", tz="GMT"), "CO2FT-0515-001 installed", labelLoc = "bottom", color="red") %>% 
     dyEvent(as.POSIXct("2017-02-07 12:00:00", tz="GMT"), "CO2FT-0215-001 installed", labelLoc = "bottom", color="red") %>%
     dyEvent(as.POSIXct("2018-04-16 12:00:00", tz="GMT"), "CO2FT-0515-001 installed", labelLoc = "bottom", color="red") %>% 
@@ -1301,7 +1300,7 @@ dygraph(pco2_contros_xts, group = "awipev", main="<i>p</i>CO<sub>2</sub>", ylab=
 # 
 # poster_pco2 <- ggplot( ) +
 #   geom_point(data=d_all%>%dplyr::filter(pco2_contros > 150 & pco2_contros < 410), aes(x=datetime, y= pco2_contros, shape ="lab", colour="blue"),size=0.5 ) +
-#   geom_point(data=d_all, aes(x=datetime, y=pco2calc, shape="lab" , color= "red"))+
+#   geom_point(data=d_all, aes(x=datetime, y=pco2_calc, shape="lab" , color= "red"))+
 #   geom_point() + geom_point(data=noaa%>%dplyr::filter(analysis_value > 150), aes(x=datetime, y= analysis_value, shape="lab", color ="col" ),size=0.5)+
 #   scale_shape_discrete(labels=lab, guide="none")+
 #   scale_colour_manual(labels=lab, values=col)+
