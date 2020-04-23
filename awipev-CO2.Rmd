@@ -180,6 +180,32 @@ d_all <- d_all %>%
 d_all <- d_all %>%
   dplyr::mutate(temp_mix = ifelse(!is.na(temp_insitu_11m), temp_insitu_11m, 
                                ifelse (pressure_insitu_ctd >=8 ,temp_insitu_ctd, NA )))
+
+# qf added 
+d_all <- d_all %>% 
+  dplyr::mutate(
+    temp_fb_qf = ifelse(
+      State_Zero >= 1 | State_Flush >= 1 |
+        pco2_raw < 100 | pco2_raw > 450 |
+        Time >= "00:00:00" & Time <= "01:30:00" |
+        Time >= "12:00:00" & Time <= "13:00:00" |
+        datetime == "2017-03-22 08:00:00" ,
+      4,
+      1
+    ),
+    pco2_raw = ifelse(pco2_raw_qf == 4 , NA, pco2_raw),
+    pco2_corr_qf = ifelse(
+      State_Zero >= 1 | State_Flush >= 1 |
+        pco2_corr < 100 | pco2_corr > 450 |
+        Time >= "00:00:00" & Time <= "01:30:00" |
+        Time >= "12:00:00" & Time <= "13:00:00" |
+        datetime >= "2017-03-10 08:00:00" &
+        datetime < "2017-03-21 20:00:00",
+      4,
+      1
+    ),
+    pco2_corr = ifelse(pco2_corr_qf == 4 , NA, pco2_corr)
+  )
 ```
 
 ```{r read and prepare discrete data, echo=FALSE, warning=FALSE, message=FALSE}
@@ -463,7 +489,7 @@ TO DO: add here an horizontal bar plot showing the percent availability of the d
 sal_xts <- dplyr::select(d_all, datetime, sal_fb)
 sal_xts <- as.xts(sal_xts, order.by = sal_xts$datetime)
 dygraph(sal_xts, group = "awipev", main="Salinity FerryBox)", ylab="Salinity") %>%
-            dySeries("sal_fb", color = "blue", strokeWidth = 1, label = "sal_fb") %>%
+            dySeries("sal_fb", color = "blue", strokeWidth = 0, label = "sal_fb") %>%
 dyHighlight(highlightCircleSize = 8,highlightSeriesBackgroundAlpha =0.2,hideOnMouseOut =TRUE) %>%
       dyOptions( drawGrid = TRUE, drawPoints = TRUE, pointSize = 2,useDataTimezone = TRUE) %>%
     dyLegend(show = "follow")   %>%
@@ -1559,54 +1585,13 @@ names(seafet_calib) <- c("pHint_tot_sf", "pHext_tot_sf")
 d_all <- cbind(d_all, seafet_calib )
 
 # pH seaFET Final
+# add despike with n=2 k = 5762 to the final ph corrected data
+d_all <- d_all %>%     
+   dplyr::mutate(pHint_tot_sf = despike(d_all$pHint_tot_sf, reference= "median", n=2, k=5761, replace="NA"))
+                 
 # add spectro points that are not taking into consideration
 d_all <- d_all%>%
-  dplyr::mutate( pH_s_sf_no_calb = ifelse(datetime == "2018-04-16 07:00:00" | datetime == "2018-12-14 09:00:00" | datetime == "2019-01-18 09:00:00", ph_s_sf_temp_mix, NA ))
-
-seafet_contros_xts <- dplyr::select(d_all, datetime, phINT, ph_s_sf_temp_mix, pHint_tot_sf, pH_s_sf_no_calb, pressure_insitu_ctd, sal_insitu_ctd, temp_insitu_ctd)
-#seafet_contros_xts <- dplyr::select(d_all, datetime,voltINT)
-seafet_contros_xts <- as.xts(seafet_contros_xts, order.by = d_all$datetime)
-dygraph(seafet_contros_xts, group = "awipev", main="pH seaFET (in situ)", ylab="pHT") %>%
-dySeries("temp_insitu_ctd", axis="y",label = "T ctd", color ="grey", strokeWidth=0, pointSize=2) %>%
-dySeries("sal_insitu_ctd", axis="y",label = "S ctd", color ="orange", strokeWidth=0, pointSize=2) %>%
-dySeries("pressure_insitu_ctd", axis="y2",label = "Pression", color ="pink", strokeWidth=0, pointSize=2) %>%
-dySeries("pHint_tot_sf", label = "pHT corrected", color =  RColorBrewer::brewer.pal(3, "Dark2")[1], strokeWidth = 0, pointSize = 2) %>%
-dySeries("phINT", label = "Raw data INT", color ="blue", strokeWidth=0, pointSize=2) %>%
-dySeries("ph_s_sf_temp_mix", label = "pH spectro for calibration", color =  "red", strokeWidth = 0, pointSize = 4 ) %>%
-dySeries("pH_s_sf_no_calb", label = "pH spectro no calibration", color =  "black", pointShape = "triangle", strokeWidth = 0, pointSize = 6 ) %>%
-
-  dyEvent(as.POSIXct("2017-08-24 12:00:00", tz="GMT"), "seaFET #1005 installed", labelLoc = "bottom", color="red") %>%
-  dyEvent(as.POSIXct("2018-02-02 09:00:00", tz="GMT"), "seaFET settings changed to every 1H", labelLoc = "bottom", color="red") %>% 
-  dyEvent(as.POSIXct("2018-04-17 12:00:00", tz="GMT"), "seaFET #0007 installed + continuous mode set", labelLoc = "bottom", color="red") %>%
-    dyEvent(as.POSIXct("2019-09-02 12:00:00", tz="GMT"), "seaFET #0007 out of water for cleaning", labelLoc = "bottom", color="red") %>%
-
-  dyShading(from =  sfinterv[1], to= sfinterv[2], color = "#CCCCCC") %>%
-  dyShading(from =  sfinterv[2], to= sfinterv[3], color = "#E0E0E0") %>%
-  # dyShading(from = sfinterv[3], to= sfinterv[4], color = "#CCCCCC") %>%
-  # dyShading(from = sfinterv[4], to= sfinterv[5], color = "#E0E0E0") %>%
-  # dyShading(from = sfinterv[5], to= sfinterv[6], color = "#CCCCCC") %>%
-  # dyShading(from = sfinterv[6], to= sfinterv[7], color = "#E0E0E0") %>%
-  # dyShading(from = sfinterv[7], to= sfinterv[8], color = "#CCCCCC") %>%
-  # dyShading(from = sfinterv[8], to= sfinterv[9], color = "#E0E0E0") %>%
-  # dyShading(from = sfinterv[9], to= sfinterv[10], color = "#CCCCCC") %>%
-  # dyShading(from = sfinterv[10], to= sfinterv[11], color = "#E0E0E0") %>%
-  # dyShading(from = sfinterv[11], to= sfinterv[12], color = "#CCCCCC") %>%
-  # dyShading(from = sfinterv[12], to= sfinterv[13], color = "#E0E0E0") %>%
-  # dyShading(from = sfinterv[13], to= sfinterv[14], color = "#CCCCCC") %>%
-  #  dyShading(from = sfinterv[14], to= sfinterv[15], color = "#E0E0E0") %>%
-  #  dyShading(from = sfinterv[15], to= sfinterv[16], color = "#CCCCCC") %>%
-  #  dyShading(from = sfinterv[16], to= sfinterv[17], color = "#E0E0E0") %>%
-  # dyShading(from = sfinterv[17], to= sfinterv[18], color = "#CCCCCC") %>%
-  # dyShading(from = sfinterv[18], to= sfinterv[19], color = "#E0E0E0") %>%
-  # dyShading(from = sfinterv[19], to= sfinterv[20], color = "#CCCCCC") %>%
-  #  dyShading(from = sfinterv[20], to= sfinterv[21], color = "#E0E0E0") %>%
-  #  dyShading(from = sfinterv[21], to= sfinterv[22], color = "#CCCCCC") %>%
-  dyShading(from = sfinterv[3], to= Sys.Date(), color = "#E0E0E0") %>%
-  dyLegend(show = "auto")   %>%
-  dyHighlight(highlightCircleSize = 8,highlightSeriesBackgroundAlpha = 0.5,hideOnMouseOut = TRUE) %>%
-  dyOptions(drawGrid = TRUE, drawPoints = TRUE, pointSize = c(1,8,1),useDataTimezone = TRUE, digitsAfterDecimal=4) %>%
-  dyRangeSelector(height = 30, dateWindow= NULL) 
-
+  dplyr::mutate( pH_s_sf_no_calb = ifelse(datetime == "2018-04-16 07:00:00" | datetime == "2018-12-14 10:00:00" | datetime == "2019-01-18 11:00:00", ph_s_sf_temp_mix, NA ))
 
 # p <- ggplot(d_all%>%filter(datetime >= ("2017-07-30") & !is.na(depth) ),aes(x=datetime, y= phINT, label = depth))+
 #   geom_point( aes(color=factor(depth)), size=1, alpha=0.5, na.rm=TRUE) 
@@ -1616,12 +1601,15 @@ dySeries("pH_s_sf_no_calb", label = "pH spectro no calibration", color =  "black
 # filename.html <- paste0("p_py.html")
 # saveWidget(p_py, filename.html, selfcontained = T, libdir = "lib")
 
-seafet_depth_xts <- dplyr::select(d_all, datetime, phINT, ph_s_sf_temp_mix,pHint_tot_sf)
+seafet_depth_xts <- dplyr::select(d_all, datetime, ph_s_sf_temp_mix,pHint_tot_sf, pHint_tot_sf_filtered, pH_s_sf_no_calb)
 seafet_depth_xts <- as.xts(seafet_depth_xts, order.by = d_all$datetime)
 dygraph(seafet_depth_xts, group = "depth", main="pH seaFET (ref + corrected + raw)", ylab="pHT") %>%
-  dySeries("ph_s_sf_temp_mix", axis="y2", label = "pH spectro for calibration", color =  "red", strokeWidth = 0, pointSize = 4 ) %>%
-  dySeries("phINT", axis="y2",label = "pH RAW", color ="blue", strokeWidth=0, pointSize=2,  stepPlot = TRUE) %>%
-  dySeries("pHint_tot_sf", axis="y2", label = "pHT corrected", color =  RColorBrewer::brewer.pal(3, "Dark2")[1], strokeWidth = 0, pointSize = 2) %>%
+dySeries("pHint_tot_sf", label = "pHT corrected", color =  RColorBrewer::brewer.pal(3, "Dark2")[1], strokeWidth = 0, pointSize = 3) %>%
+dySeries("pHint_tot_sf_filtered", label = "pHint_tot_sf_filtered", color =  RColorBrewer::brewer.pal(3, "Dark2")[4], strokeWidth = 0, pointSize = 2) %>%
+dySeries("ph_s_sf_temp_mix", label = "pH spectro for calibration", color =  "red", strokeWidth = 0, pointSize = 4 ) %>%
+
+dySeries("pH_s_sf_no_calb", label = "pH spectro no calibration", color =  "black", pointShape = "triangle", strokeWidth = 0, pointSize = 6 ) %>%
+
   dyEvent(as.POSIXct("2017-08-24 12:00:00", tz="GMT"), "seaFET #1005 installed", labelLoc = "bottom", color="red") %>%
   dyEvent(as.POSIXct("2018-02-02 09:00:00", tz="GMT"), "seaFET settings changed to every 1H", labelLoc = "bottom", color="red") %>% 
   dyEvent(as.POSIXct("2018-04-17 12:00:00", tz="GMT"), "seaFET #0007 installed + continuous mode set", labelLoc = "bottom", color="red") %>%
@@ -1630,6 +1618,7 @@ dygraph(seafet_depth_xts, group = "depth", main="pH seaFET (ref + corrected + ra
   dyShading(from =  sfinterv[2], to= sfinterv[3], color = "#E0E0E0") %>%
   dyShading(from = sfinterv[3], to= Sys.Date(), color = "#E0E0E0") %>%
   dyLegend(show = "auto")   %>%
+  dyAxis("y2",valueRange = c(-2, 2)) %>%
   dyHighlight(highlightCircleSize = 8,highlightSeriesBackgroundAlpha = 0.5,hideOnMouseOut = TRUE) %>%
   dyOptions(drawGrid = TRUE, drawPoints = TRUE, pointSize = c(1,8,1),useDataTimezone = TRUE, digitsAfterDecimal=4) %>%
   dyRangeSelector(height = 30, dateWindow= NULL)
