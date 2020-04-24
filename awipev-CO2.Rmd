@@ -135,17 +135,6 @@ d_all<- d_all%>%
 
 ```
 
-```{r Depth filter, fig.width=10, fig.height=4, echo=FALSE, message= FALSE}
-#Make groups
-
-d_all <- d_all%>%
-  dplyr::mutate(depth = ifelse(pressure_insitu_ctd <=2, "1 m", 
-                        ifelse(pressure_insitu_ctd >2 & pressure_insitu_ctd <=4, "3 m", 
-                        ifelse(pressure_insitu_ctd >4 & pressure_insitu_ctd <=6, "5 m",
-                        ifelse(pressure_insitu_ctd >6 & pressure_insitu_ctd <=8, "7 m",
-                        ifelse(pressure_insitu_ctd >8, "9 m",NA))))))
-```
-
 ```{r Sal filter, fig.width=10, fig.height=4, echo=FALSE, message= FALSE}
 #### filter salinities above 28
 d_all <- d_all%>%
