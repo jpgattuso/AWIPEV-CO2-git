@@ -128,84 +128,36 @@ d_hour <- d_hour %>%
   #        #PCO2_Corr_Zero2 = ifelse(PCO2_Corr_Zero2 %in% c("NaN", 66666), NA, PCO2_Corr_Zero2)
   #        ) %>%
   # variables passed through despike with "-filtered" have been renamed without sufix.
-  dplyr::rename(pco2_corr = pco2_corr_filtered, temp_dur = temp_dur_filtered, pco2_raw = pco2_raw_filtered, sal_fb = sal_fb_filtered, temp_insitu_11m=temp_insitu_11m_filtered, temp_fb = temp_fb_filtered, temp_sf = T_seaF)
+  dplyr::rename(pco2_corr = pco2_corr_filtered, temp_dur = temp_dur_filtered, pco2_raw = pco2_raw_filtered, sal_fb = sal_fb_filtered, temp_insitu_11m=temp_insitu_11m_filtered, temp_fb = temp_fb_filtered, ph_dur = ph_dur_filtered, temp_sf = T_seaF)
 d_all <- d_hour #d_all will be the merger
 d_all<- d_all%>%
   dplyr::mutate(month = month(month(datetime)))
 
 ```
 
-```{r Depth filter, fig.width=10, fig.height=4, echo=FALSE, message= FALSE}
-#Make groups
-
-d_all <- d_all%>%
-  dplyr::mutate(depth = ifelse(pressure_insitu_ctd <=2, "1 m", 
-                        ifelse(pressure_insitu_ctd >2 & pressure_insitu_ctd <=4, "3 m", 
-                        ifelse(pressure_insitu_ctd >4 & pressure_insitu_ctd <=6, "5 m",
-                        ifelse(pressure_insitu_ctd >6 & pressure_insitu_ctd <=8, "7 m",
-                        ifelse(pressure_insitu_ctd >8, "9 m",NA))))))
-```
-
 ```{r Sal filter, fig.width=10, fig.height=4, echo=FALSE, message= FALSE}
-#### filter salinities above 28
-d_all <- d_all%>%
-  dplyr::mutate( sal_fb = ifelse(sal_fb <28, NA, sal_fb),
-                 sal_insitu_ctd = ifelse(sal_insitu_ctd <28, NA, sal_insitu_ctd))
- d_all <- d_all%>%
-  dplyr::mutate(sal_insitu_ctd = ifelse(datetime > "2019-12-26 00:00:00", NA, sal_insitu_ctd))
- 
+
 ########### Binding sal_fb + sal_insitu if we get gaps in sal_insitu = call this new column = sal_mix ########### 
 d_all <- d_all %>%
-  dplyr::mutate(sal_mix = ifelse(!is.na(sal_fb), sal_fb, 
-                               ifelse (pressure_insitu_ctd >=8 ,sal_insitu_ctd, NA )))
-### remove sal_mix data that seem to be to high compared to sal_fb
-  d_all <- d_all%>%
-  dplyr::mutate(sal_mix = ifelse(datetime > "2018-03-09 00:00:00" & datetime < "2018-04-13 18:00:00" , NA, 
-                          ifelse(datetime > "2018-05-21 19:00:00" & datetime < "2018-05-24 17:00:00" , NA,
-                          ifelse(datetime > "2018-05-29 15:00:00" & datetime < "2018-06-03 13:00:00" , NA,
-                          ifelse(datetime > "2018-06-16 06:00:00" & datetime < "2018-06-21 05:00:00" , NA,
-                          ifelse(datetime > "2019-12-02 08:00:00" & datetime < "2019-12-03 08:00:00" , NA,
-                          ifelse(datetime > "2019-12-09 07:00:00" & datetime < "2019-12-09 10:00:00" , NA, 
-                          ifelse(datetime > "2019-12-09 15:00:00" & datetime < "2019-12-09 18:00:00" , NA,
-                          ifelse(datetime > "2019-12-10 14:00:00" & datetime < "2019-12-10 18:00:00", NA, sal_mix)))))))))
- 
-### creation of column sal_insitu_sup_8m 
-   d_all <- d_all%>%
-     dplyr::mutate(sal_insitu_sup_8m = ifelse(pressure_insitu_ctd >=8, sal_insitu_ctd, NA))
+  dplyr::mutate(sal_mix = ifelse(!is.na(sal_fb), sal_fb, sal_insitu_ctd_9m))
+
+# ### remove sal_mix data that seem to be to high compared to sal_fb
+#   d_all <- d_all%>%
+#   dplyr::mutate(sal_mix = ifelse(datetime > "2018-03-09 00:00:00" & datetime < "2018-04-13 18:00:00" , NA, 
+#                           ifelse(datetime > "2018-05-21 19:00:00" & datetime < "2018-05-24 17:00:00" , NA,
+#                           ifelse(datetime > "2018-05-29 15:00:00" & datetime < "2018-06-03 13:00:00" , NA,
+#                           ifelse(datetime > "2018-06-16 06:00:00" & datetime < "2018-06-21 05:00:00" , NA,
+#                           ifelse(datetime > "2019-12-02 08:00:00" & datetime < "2019-12-03 08:00:00" , NA,
+#                           ifelse(datetime > "2019-12-09 07:00:00" & datetime < "2019-12-09 10:00:00" , NA, 
+#                           ifelse(datetime > "2019-12-09 15:00:00" & datetime < "2019-12-09 18:00:00" , NA,
+#                           ifelse(datetime > "2019-12-10 14:00:00" & datetime < "2019-12-10 18:00:00", NA, sal_mix)))))))))
 
 ```
    
 ```{r Temp filter, fig.width=10, fig.height=4, echo=FALSE, message= FALSE}
 ###### Binding temp_insitu_11m + temp_insitu_ctd if we get gaps in temp_insitu_11m = call this new column = temp_mix ####### 
 d_all <- d_all %>%
-  dplyr::mutate(temp_mix = ifelse(!is.na(temp_insitu_11m), temp_insitu_11m, 
-                               ifelse (pressure_insitu_ctd >=8 ,temp_insitu_ctd, NA )))
-
-# qf added 
-d_all <- d_all %>% 
-  dplyr::mutate(
-    temp_fb_qf = ifelse(
-      State_Zero >= 1 | State_Flush >= 1 |
-        pco2_raw < 100 | pco2_raw > 450 |
-        Time >= "00:00:00" & Time <= "01:30:00" |
-        Time >= "12:00:00" & Time <= "13:00:00" |
-        datetime == "2017-03-22 08:00:00" ,
-      4,
-      1
-    ),
-    pco2_raw = ifelse(pco2_raw_qf == 4 , NA, pco2_raw),
-    pco2_corr_qf = ifelse(
-      State_Zero >= 1 | State_Flush >= 1 |
-        pco2_corr < 100 | pco2_corr > 450 |
-        Time >= "00:00:00" & Time <= "01:30:00" |
-        Time >= "12:00:00" & Time <= "13:00:00" |
-        datetime >= "2017-03-10 08:00:00" &
-        datetime < "2017-03-21 20:00:00",
-      4,
-      1
-    ),
-    pco2_corr = ifelse(pco2_corr_qf == 4 , NA, pco2_corr)
-  )
+  dplyr::mutate(temp_mix = ifelse(!is.na(temp_insitu_11m), temp_insitu_11m, temp_insitu_ctd_9m))
 ```
 
 ```{r read and prepare discrete data, echo=FALSE, warning=FALSE, message=FALSE}
@@ -269,11 +221,11 @@ d$closest_datetime <- d_all$datetime[closest]
 d$closest_datetime[abs(d$datetime - d_all$datetime[closest]) > 30*60] <- NA
 # create closest_datetime in d_all (copy of datetime)
 d_all$closest_datetime <- d_all$datetime
-d <- left_join(d, d_all%>%dplyr::select(c(closest_datetime, sal_fb, temp_fb, sal_insitu_ctd, temp_mix, temp_insitu_ctd, temp_insitu_11m, sal_mix )), by="closest_datetime") 
+d <- left_join(d, d_all%>%dplyr::select(c(closest_datetime, sal_fb, temp_fb, temp_mix, temp_insitu_11m, sal_mix )), by="closest_datetime") 
 
 # Conversion of spectro pH to insitu mix T°
 pH_seafet <- d %>%
-  dplyr::filter(!is.na(pH_s_seafet) & !is.na(sal_insitu_ctd) & !is.na(temp_mix) )
+  dplyr::filter(!is.na(pH_s_seafet) & !is.na(temp_mix) )
 pH_seafet <- pH_seafet %>%
   dplyr::mutate(ph_s_sf_temp_mix = pHinsi(pH=pH_seafet$pH_s_seafet,ALK=pH_seafet$at_mean_interp*1e-6, Tinsi=pH_seafet$temp_mix, Tlab=pH_seafet$temp_s_lab, Pinsi= pH_seafet$depth/10, S=pH_seafet$sal_mix,Pt=0,Sit=0))
                 
@@ -496,10 +448,14 @@ dyHighlight(highlightCircleSize = 8,highlightSeriesBackgroundAlpha =0.2,hideOnMo
     dyAxis("y",valueRange = c(30, 37)) %>%
       dyRangeSelector(height = 30, dateWindow= NULL)
 #SAL CTD profile
-sal_xts <- dplyr::select(d_all, datetime, sal_insitu_ctd)
+sal_xts <- dplyr::select(d_all, datetime, sal_insitu_ctd_1m, sal_insitu_ctd_3m, sal_insitu_ctd_5m, sal_insitu_ctd_7m, sal_insitu_ctd_9m)
 sal_xts <- as.xts(sal_xts, order.by = sal_xts$datetime)
 dygraph(sal_xts, group = "awipev", main="Salinity (in situ CTD, all depths)", ylab="Salinity") %>%
-      dySeries("sal_insitu_ctd", color = "blue", strokeWidth = 0, label = "sal_insitu_ctd") %>%
+dySeries("sal_insitu_ctd_1m", color = RColorBrewer::brewer.pal(5, "Set1")[1], strokeWidth = 0, label = "1m") %>%
+dySeries("sal_insitu_ctd_3m", color = RColorBrewer::brewer.pal(5, "Set1")[2], strokeWidth = 0, label = "3m") %>%
+dySeries("sal_insitu_ctd_5m", color = RColorBrewer::brewer.pal(5, "Set1")[3], strokeWidth = 0, label = "5m") %>%
+dySeries("sal_insitu_ctd_7m", color = RColorBrewer::brewer.pal(5, "Set1")[4], strokeWidth = 0, label = "7m") %>%
+dySeries("sal_insitu_ctd_9m", color = RColorBrewer::brewer.pal(5, "Set1")[5], strokeWidth = 0, label = "9m") %>%
       dyHighlight(highlightCircleSize = 8,highlightSeriesBackgroundAlpha =0.2,hideOnMouseOut =TRUE) %>%
       dyOptions( drawGrid = TRUE, drawPoints = TRUE, pointSize = 2,useDataTimezone = TRUE) %>%
     dyLegend(show = "follow")   %>%
@@ -526,11 +482,15 @@ dygraph(temp_insitu_xts, group = "awipev", main="Temperature (in situ 11 m)", yl
       dyLegend(show = "follow")   %>%
       dyRangeSelector(height = 30, dateWindow= NULL)
 # TEMP insitu CTD
-temp_insitu_xts <- dplyr::select(d_all, datetime, temp_insitu_ctd)
+temp_insitu_xts <- dplyr::select(d_all, datetime, temp_insitu_ctd_1m, temp_insitu_ctd_3m, temp_insitu_ctd_5m, temp_insitu_ctd_7m, temp_insitu_ctd_9m)
 temp_insitu_xts <- as.xts(temp_insitu_xts, order.by = temp_insitu_xts$datetime)
 dygraph(temp_insitu_xts, group = "awipev", main="Temperature (ctd all depths)", ylab="Temperature") %>%
-      dySeries("temp_insitu_ctd", color = "blue", strokeWidth = 0, label = "temp_insitu_ctd") %>%
-      dyAxis("y", valueRange = c(-2.8, 10)) %>%
+      dySeries("temp_insitu_ctd_1m", color = RColorBrewer::brewer.pal(5, "Set1")[1], strokeWidth = 0, label = "1m") %>%
+dySeries("temp_insitu_ctd_3m", color = RColorBrewer::brewer.pal(5, "Set1")[2], strokeWidth = 0, label = "3m") %>%
+dySeries("temp_insitu_ctd_5m", color = RColorBrewer::brewer.pal(5, "Set1")[3], strokeWidth = 0, label = "5m") %>%
+dySeries("temp_insitu_ctd_7m", color = RColorBrewer::brewer.pal(5, "Set1")[4], strokeWidth = 0, label = "7m") %>%
+dySeries("temp_insitu_ctd_9m", color = RColorBrewer::brewer.pal(5, "Set1")[5], strokeWidth = 0, label = "9m") %>%
+  dyAxis("y", valueRange = c(-2.8, 10)) %>%
       dyHighlight(highlightCircleSize = 8,highlightSeriesBackgroundAlpha = 0.5,hideOnMouseOut = TRUE) %>%
       dyOptions(drawGrid = TRUE, drawPoints = TRUE, pointSize = 2,useDataTimezone = TRUE) %>%
       dyLegend(show = "follow")   %>%
@@ -677,14 +637,15 @@ Several salinity sensors are on site, 1 inside the Ferrybox (SBE45) and 5 outsid
 
 Comparative approch allowed by following plots:
 
-### **Sal FB / Sal CTD > 8 m **
+### **Sal FB / Sal CTD 9 m **
 
 Property-property salinity plot using:
 
-fit <- lmodel2(data = d_all%>%dplyr::filter(pressure_insitu_ctd >=8),  sal_fb ~ sal_insitu_ctd , nperm = 99)
+fit <- lmodel2(data = d_all,  sal_fb ~ sal_insitu_ctd_9m , nperm = 99)
+
 
 ```{r Sal comparaison, echo=FALSE, message= FALSE, warning=FALSE, out.width="80%",fig.show='hold', fig.align="center"}
-fit <- lmodel2(data = d_all%>%dplyr::filter(pressure_insitu_ctd >=8),  sal_fb ~ sal_insitu_ctd , nperm = 99)
+fit <- lmodel2(data = d_all,  sal_fb ~ sal_insitu_ctd_9m , nperm = 99)
 
 # at_contros_cleaned_xts <- dplyr::select(d_all, datetime,sal_fb,sal_insitu_ctd)
 # at_contros_cleaned_xts <-  as.xts(at_contros_cleaned_xts, order.by = d_all$datetime)
@@ -695,7 +656,7 @@ fit <- lmodel2(data = d_all%>%dplyr::filter(pressure_insitu_ctd >=8),  sal_fb ~ 
 #   dySeries("AT_filtered", label= "Raw TA", color = "blue", strokeWidth = 0, pointSize=2) 
   
 
-p_sal_fb_ctd<-  ggplot(d_all%>%dplyr::filter(pressure_insitu_ctd >=8),aes(x=sal_insitu_ctd, y= sal_fb))+
+p_sal_fb_ctd<-  ggplot(d_all,aes(x=sal_insitu_ctd_9m, y= sal_fb))+
   geom_point( aes(color=factor(month))) + 
  # scale_color_viridis_d(option = "C", guide="none")+
   #geom_line(aes(x = sal_fb, y = sal_fb), linetype = "dashed") +
@@ -709,13 +670,13 @@ p_sal_fb_ctd<-  ggplot(d_all%>%dplyr::filter(pressure_insitu_ctd >=8),aes(x=sal_
   theme(aspect.ratio=1,plot.title = element_text(size=7)) + #
   coord_fixed(ratio = 1 )+
  #  scale_colour_discrete(guide="none") +
-  labs( x="Salinity CTD > 8 m", y="Salinity FB ", color = "Months") +theme_bw()
+  labs( x="Salinity CTD 9 m", y="Salinity FB ", color = "Months") +theme_bw()
 
 print(p_sal_fb_ctd)
 
-d_all$diff_sal_fb_insitu <- d_all$sal_insitu_ctd - d_all$sal_fb
-mean_diff_sal_fb_insitu <- round(mean(d_all$diff_sal_fb_insitu, na.rm = TRUE), digits = 2)
-sd_diff_sal_fb_insitu <- round(sd(d_all$diff_sal_fb_insitu, na.rm = TRUE), digits = 2)
+d_all$diff_sal_fb_insitu_9m <- d_all$sal_insitu_ctd_9m - d_all$sal_fb
+mean_diff_sal_fb_insitu_9m <- round(mean(d_all$diff_sal_fb_insitu_9m, na.rm = TRUE), digits = 2)
+sd_diff_sal_fb_insitu_9m <- round(sd(d_all$diff_sal_fb_insitu_9m, na.rm = TRUE), digits = 2)
 
 ### Plotly
 # p_p_sal_fb_ctd <- ggplotly(p_sal_fb_ctd,dynamicTicks = TRUE)
@@ -740,29 +701,34 @@ sd_diff_sal_fb_insitu <- round(sd(d_all$diff_sal_fb_insitu, na.rm = TRUE), digit
 ```
 
 ```{r Sal plot, echo=FALSE, message= FALSE, warning=FALSE, out.width="80%",fig.show='hold', fig.align="center"}
-seafet_contros_xts <- dplyr::select(d_all, datetime, sal_insitu_ctd, sal_fb, sal_mix)
-seafet_contros_xts <- as.xts(seafet_contros_xts, order.by = d_all$datetime)
-dygraph(seafet_contros_xts, group = "awipev", main="Salinities", ylab="PSU") %>%
-dySeries("sal_insitu_ctd", label = "sal_insitu_ctd", color ="red",axis= "y2", strokeWidth=0, pointSize=2) %>%
-dySeries("sal_fb", label = "sal_fb", color ="blue",axis= "y2", strokeWidth=0, pointSize=4) %>%
-dySeries("sal_mix", label = "sal_mix", color ="orange",axis= "y2", strokeWidth=0, pointSize=2) %>%
-#dySeries("pressure_insitu_ctd", label = "pressure_insitu_ctd", color ="black", strokeWidth=0, pointSize=2) %>%
-  dyLegend(show = "onmouseover")   %>%
-  #dyAxis( "y2",valueRange = c(-3, 36))%>%
-  #dyAxis( "y2",valueRange = c(25, 36))%>%
-  dyHighlight(highlightCircleSize = 8,highlightSeriesBackgroundAlpha = 0.5,hideOnMouseOut = TRUE) %>%
-  dyOptions(drawGrid = TRUE, drawPoints = TRUE,useDataTimezone = TRUE, digitsAfterDecimal=4) %>%
-  dyRangeSelector(height = 30, dateWindow= NULL)
+
+sal_xts <- dplyr::select(d_all, datetime, sal_insitu_ctd_1m, sal_insitu_ctd_3m, sal_insitu_ctd_5m, sal_insitu_ctd_7m, sal_insitu_ctd_9m, sal_mix, sal_fb)
+sal_xts <- as.xts(sal_xts, order.by = sal_xts$datetime)
+dygraph(sal_xts, group = "awipev", main="Salinity (in situ CTD, all depths)", ylab="Salinity") %>%
+dySeries("sal_insitu_ctd_1m", color = RColorBrewer::brewer.pal(5, "Set1")[1], strokeWidth = 0, label = "1m") %>%
+dySeries("sal_insitu_ctd_3m", color = RColorBrewer::brewer.pal(5, "Set1")[2], strokeWidth = 0, label = "3m") %>%
+dySeries("sal_insitu_ctd_5m", color = RColorBrewer::brewer.pal(5, "Set1")[3], strokeWidth = 0, label = "5m") %>%
+dySeries("sal_insitu_ctd_7m", color = RColorBrewer::brewer.pal(5, "Set1")[4], strokeWidth = 0, label = "7m") %>%
+dySeries("sal_insitu_ctd_9m", color = RColorBrewer::brewer.pal(5, "Set1")[5], strokeWidth = 0, label = "9m") %>%
+  dySeries("sal_fb", color = "grey", strokeWidth = 0, label = "sal_fb") %>%
+
+dySeries("sal_mix", color = "black", strokeWidth = 0, label = "sal_mix") %>%
+
+      dyHighlight(highlightCircleSize = 8,highlightSeriesBackgroundAlpha =0.2,hideOnMouseOut =TRUE) %>%
+      dyOptions( drawGrid = TRUE, drawPoints = TRUE, pointSize = 2,useDataTimezone = TRUE) %>%
+    dyLegend(show = "follow")   %>%
+    dyAxis("y",valueRange = c(30, 37)) %>%
+      dyRangeSelector(height = 30, dateWindow= NULL)
 ```
 
-The mean difference between salinity FB and in situ is: `r mean_diff_sal_fb_insitu` ± `r sd_diff_sal_fb_insitu` PSU.
+The mean difference between salinity FB and in situ is: `r mean_diff_sal_fb_insitu_9m` ± `r sd_diff_sal_fb_insitu_9m` PSU.
 
 ## Temperatures
 Several temperature sensors are on site, 1 inside the Ferrybox (SBE45), 5 outside (ctd183, ctd181, ctd578, ctd964/964b and ctd103) that are switched periodically and 1 fixed at 11 m depth (sbe38). 
 Temperature in situ at 11 m depth is taken in consideration. If data gaps are encountered, they are filled with bottom temperature data from ctd (> 8 m). New column "temp_mix" is created. For the moment, no gaps are encountered and temp_mix = temp_insitu_11m.
 
 - 1 SBE45 inside the Ferrybox (temp_fb)
-- 5 CTD > 8 meters depth (temp_insitu_ctd)
+- 5 CTD profiling (temp_insitu_ctd_1m - 3m - 5m - 7m - 9m)
 - 1 fixed at 11 meters depth (temp_insitu_11m)
 
 Comparative approch allowed by following plots:
@@ -812,27 +778,27 @@ The mean difference between temperature Ferrybox and in situ at 11 m is: `r mean
 
 Property-property temperature plot using:
 
-fit <- lmodel2(data = d_all%>%dplyr::filter(pressure_insitu_ctd >=8),  temp_insitu_11m ~ temp_insitu_ctd , nperm = 99)
+fit <- lmodel2(data = d_all,  temp_insitu_11m ~ temp_insitu_ctd_9m , nperm = 99)
 
 ```{r Temp 11m and ctd comparaison, echo=FALSE, message= FALSE, warning=FALSE}
 
-fit <- lmodel2(data = d_all%>%dplyr::filter(pressure_insitu_ctd >=8),  temp_insitu_11m ~ temp_insitu_ctd , nperm = 99)
+fit <- lmodel2(data = d_all,  temp_insitu_11m ~ temp_insitu_ctd_9m , nperm = 99)
 
-p<-  ggplot(d_all,aes(x=temp_insitu_ctd, y= temp_insitu_11m, label = month))+
+p<-  ggplot(d_all,aes(x=temp_insitu_ctd_9m, y= temp_insitu_11m, label = month))+
   geom_text( aes(color=factor(month))) + 
  # scale_color_viridis_d(option = "C", guide="none")+
   geom_abline(slope = 1, intercept = 0, linetype = "dashed") +
   geom_abline(aes(intercept = fit$regression.results[2,2], slope = fit$regression.results[2,3]),colour = "blue") +
-  labs(title = paste("T CTD > 8 m vs T 11 m","\n Adj R2 = ", signif(fit$rsquare, 3),
+  labs(title = paste("T CTD 9 m vs T 11 m","\n Adj R2 = ", signif(fit$rsquare, 3),
                      "; Intercept =", signif(fit$regression.results[2,2], 3),
                      "; Slope =", signif( fit$regression.results[2,3], 3),
                      "; P =", signif(fit$P.param, 3))) +
   theme(aspect.ratio=1,plot.title = element_text(size=7)) + 
   coord_fixed(ratio = 1 )+ scale_colour_discrete(guide="none") +
-  labs( x="T CTD > 8 m", y="T 11 m ", color = "Months")  +theme_bw()
+  labs( x="T CTD 9 m", y="T 11 m ", color = "Months")  +theme_bw()
 print(p)
 
-d_all$diff_T_ctd_11m <- d_all$temp_sf - d_all$temp_insitu_ctd
+d_all$diff_T_ctd_11m <- d_all$temp_sf - d_all$temp_insitu_ctd_9m
 mean_diff_T_ctd_11m <- round(mean(d_all$diff_T_ctd_11m, na.rm = TRUE), digits = 2)
 sd_diff_T_ctd_11m <- round(sd(d_all$diff_T_ctd_11m, na.rm = TRUE), digits = 2)
 ```
@@ -1542,7 +1508,7 @@ d_all <- d_all %>%
 ##     new sf_calib function      ##
 ####
 calib_spectro <- sf_calib(calEint = d_all$voltINT, calEext = d_all$voltEXT, calpH = d_all$ph_s_sf_temp_mix,
-                          calT = d_all$temp_insitu_ctd, calSal = d_all$sal_insitu_ctd )
+                          calT = d_all$temp_insitu_ctd_9m, calSal = d_all$sal_insitu_ctd_9m )
 # put number of deployment 
 calib_spectro$deployment_sf <- d_all$deployment_sf 
 
@@ -1578,7 +1544,7 @@ We also defined a period of malfunction from **2017-12-14** to **2018-02-02**. i
 ## calculation of the calibrated pH ##
 ##       new sf_calc function       ##
 ####
-seafet_calib <- sf_calc(calEint = d_all$voltINT, calEext = d_all$voltEXT, E0int25 = d_all$E0int25_sf,  E0ext25 = d_all$E0ext25_sf, calT = d_all$temp_insitu_ctd, calSal = d_all$sal_insitu_ctd)
+seafet_calib <- sf_calc(calEint = d_all$voltINT, calEext = d_all$voltEXT, E0int25 = d_all$E0int25_sf,  E0ext25 = d_all$E0ext25_sf, calT = d_all$temp_insitu_ctd_9m, calSal = d_all$sal_insitu_ctd_9m)
 
 # bind new calibrated pH data to the seafet data set.
 names(seafet_calib) <- c("pHint_tot_sf", "pHext_tot_sf")
@@ -1601,16 +1567,13 @@ d_all <- d_all%>%
 # filename.html <- paste0("p_py.html")
 # saveWidget(p_py, filename.html, selfcontained = T, libdir = "lib")
 
-seafet_depth_xts <- dplyr::select(d_all, datetime, ph_s_sf_temp_mix,pHint_tot_sf, pHint_tot_sf_filtered, pH_s_sf_no_calb)
+seafet_depth_xts <- dplyr::select(d_all, datetime, ph_s_sf_temp_mix,pHint_tot_sf, pH_s_sf_no_calb)
 seafet_depth_xts <- as.xts(seafet_depth_xts, order.by = d_all$datetime)
 dygraph(seafet_depth_xts, group = "depth", main="pH seaFET (ref + corrected + raw)", ylab="pHT") %>%
 dySeries("pHint_tot_sf", label = "pHT corrected", color =  RColorBrewer::brewer.pal(3, "Dark2")[1], strokeWidth = 0, pointSize = 3) %>%
-dySeries("pHint_tot_sf_filtered", label = "pHint_tot_sf_filtered", color =  RColorBrewer::brewer.pal(3, "Dark2")[4], strokeWidth = 0, pointSize = 2) %>%
 dySeries("ph_s_sf_temp_mix", label = "pH spectro for calibration", color =  "red", strokeWidth = 0, pointSize = 4 ) %>%
-
 dySeries("pH_s_sf_no_calb", label = "pH spectro no calibration", color =  "black", pointShape = "triangle", strokeWidth = 0, pointSize = 6 ) %>%
-
-  dyEvent(as.POSIXct("2017-08-24 12:00:00", tz="GMT"), "seaFET #1005 installed", labelLoc = "bottom", color="red") %>%
+dyEvent(as.POSIXct("2017-08-24 12:00:00", tz="GMT"), "seaFET #1005 installed", labelLoc = "bottom", color="red") %>%
   dyEvent(as.POSIXct("2018-02-02 09:00:00", tz="GMT"), "seaFET settings changed to every 1H", labelLoc = "bottom", color="red") %>% 
   dyEvent(as.POSIXct("2018-04-17 12:00:00", tz="GMT"), "seaFET #0007 installed + continuous mode set", labelLoc = "bottom", color="red") %>%
     dyEvent(as.POSIXct("2019-09-02 12:00:00", tz="GMT"), "seaFET #0007 out of water for cleaning", labelLoc = "bottom", color="red") %>%
@@ -1925,16 +1888,32 @@ range_month <-
   #summarize(pH_range_month = mean(pH_range, na.rm=TRUE))%>%
   summarize(temp_mix_max =round( max(temp_mix, na.rm=TRUE), digits = 2),
             temp_mix_min = round(min(temp_mix, na.rm=TRUE), digits = 2),
-            temp_ctd_max =round( max(temp_insitu_ctd, na.rm=TRUE), digits = 2),
-            temp_ctd_min = round(min(temp_insitu_ctd, na.rm=TRUE), digits = 2),
+            temp_ctd_1m_max =round( max(temp_insitu_ctd_1m, na.rm=TRUE), digits = 2),
+            temp_ctd_1m_min = round(min(temp_insitu_ctd_1m, na.rm=TRUE), digits = 2),
+            temp_ctd_3m_max =round( max(temp_insitu_ctd_3m, na.rm=TRUE), digits = 2),
+            temp_ctd_3m_min = round(min(temp_insitu_ctd_3m, na.rm=TRUE), digits = 2),
+            temp_ctd_5m_max =round( max(temp_insitu_ctd_5m, na.rm=TRUE), digits = 2),
+            temp_ctd_5m_min = round(min(temp_insitu_ctd_5m, na.rm=TRUE), digits = 2),
+            temp_ctd_7m_max =round( max(temp_insitu_ctd_7m, na.rm=TRUE), digits = 2),
+            temp_ctd_7m_min = round(min(temp_insitu_ctd_7m, na.rm=TRUE), digits = 2),
+            temp_ctd_9m_max =round( max(temp_insitu_ctd_9m, na.rm=TRUE), digits = 2),
+            temp_ctd_9m_min = round(min(temp_insitu_ctd_9m, na.rm=TRUE), digits = 2),
             temp_11m_max =round( max(temp_insitu_11m, na.rm=TRUE), digits = 2),
             temp_11m_min = round(min(temp_insitu_11m, na.rm=TRUE), digits = 2),
             temp_fb_max = round(max(temp_fb, na.rm=TRUE), digits = 2),
             temp_fb_min =round( min(temp_fb, na.rm=TRUE), digits = 2),
             sal_mix_max = round(max(sal_mix, na.rm=TRUE), digits = 2),
             sal_mix_min = round(min(sal_mix, na.rm=TRUE), digits = 2),
-            sal_ctd_max = round(max(sal_insitu_ctd, na.rm=TRUE), digits = 2),
-            sal_ctd_min = round(min(sal_insitu_ctd, na.rm=TRUE), digits = 2),
+            sal_ctd_1m_max =round( max(sal_insitu_ctd_1m, na.rm=TRUE), digits = 2),
+            sal_ctd_1m_min = round(min(sal_insitu_ctd_1m, na.rm=TRUE), digits = 2),
+            sal_ctd_3m_max =round( max(sal_insitu_ctd_3m, na.rm=TRUE), digits = 2),
+            sal_ctd_3m_min = round(min(sal_insitu_ctd_3m, na.rm=TRUE), digits = 2),
+            sal_ctd_5m_max =round( max(sal_insitu_ctd_5m, na.rm=TRUE), digits = 2),
+            sal_ctd_5m_min = round(min(sal_insitu_ctd_5m, na.rm=TRUE), digits = 2),
+            sal_ctd_7m_max =round( max(sal_insitu_ctd_7m, na.rm=TRUE), digits = 2),
+            sal_ctd_7m_min = round(min(sal_insitu_ctd_7m, na.rm=TRUE), digits = 2),
+            sal_ctd_9m_max =round( max(sal_insitu_ctd_9m, na.rm=TRUE), digits = 2),
+            sal_ctd_9m_min = round(min(sal_insitu_ctd_9m, na.rm=TRUE), digits = 2),
             sal_fb_max = round(max(sal_fb, na.rm=TRUE), digits = 2),
             sal_fb_min = round(min(sal_fb, na.rm=TRUE), digits = 2),
             pH_sf_max = round(max(pHint_tot_sf, na.rm=TRUE), digits = 4),
@@ -1950,10 +1929,10 @@ Comparaison is done here with **corrected pHs** (**seaFET**, **durafet** and **c
 ```{r pHs comparaison, echo=FALSE, message= FALSE, warning=FALSE}
 # remove sf biofouling period
 pH_sf <- d_all %>%
-  dplyr::select(datetime, sal_insitu_ctd, temp_insitu_ctd, pHint_tot_sf)%>%
-  dplyr::filter(!is.na(pHint_tot_sf), !is.na(temp_insitu_ctd), !is.na(sal_insitu_ctd)) %>%
+  dplyr::select(datetime, sal_insitu_ctd_9m , temp_insitu_ctd_9m, pHint_tot_sf)%>%
+  dplyr::filter(!is.na(pHint_tot_sf), !is.na(temp_insitu_ctd_9m), !is.na(sal_insitu_ctd_9m)) %>%
   dplyr::filter(datetime< "2018-01-01" | datetime> "2018-02-03")
-pH_sf$pHint_tot_sf_norm4 <- pHinsi(pH=pH_sf$pHint_tot_sf, ALK=2.273e-3, Tinsi=4, Tlab=pH_sf$temp_insitu_ctd, Pinsi=11/10, S=pH_sf$sal_insitu_ctd, Pt=0, Sit=0, k1k2 = "x", kf = "x", ks="d", pHscale = "T", b="u74")
+pH_sf$pHint_tot_sf_norm4 <- pHinsi(pH=pH_sf$pHint_tot_sf, ALK=2.273e-3, Tinsi=4, Tlab=pH_sf$temp_insitu_ctd_9m, Pinsi=11/10, S=pH_sf$sal_insitu_ctd_9m, Pt=0, Sit=0, k1k2 = "x", kf = "x", ks="d", pHscale = "T", b="u74")
 
 pH_dur <- d_all %>%
   dplyr::select(datetime, sal_fb,temp_fb, ph_dur_corr)%>%
@@ -1966,10 +1945,10 @@ d_all <- left_join(d_all, pH_dur%>%dplyr::select(datetime,pH_durafet_norm4 ), by
 
 fit <- lmodel2(data = d_all,  pHint_tot_sf_norm4 ~ pH_durafet_norm4 , nperm = 99)
 pdur_sf_norm_text <-  ggplot(d_all,aes(x=pH_durafet_norm4, y= pHint_tot_sf_norm4, label = month))+
-  geom_point( aes(color=factor(depth)), size =1, alpha=0.5) + 
-  facet_wrap( ~ factor(depth), ncol = 3) +
-  stat_smooth(data = d_all, aes(x = pH_durafet_norm4, y = pHint_tot_sf_norm4, color=depth),
-              method=lm, na.rm=TRUE, se=FALSE) +
+  geom_point( aes(color=factor(month)), size =1, alpha=0.5) + 
+  facet_wrap( ~ factor(month), ncol = 3) +
+  #stat_smooth(data = d_all, aes(x = pH_durafet_norm4, y = pHint_tot_sf_norm4, color=month),
+  #            method=lm, na.rm=TRUE, se=FALSE) +
  # scale_color_viridis_d(option = "C", guide="none")+
   geom_abline(slope = 1, intercept = 0, linetype = "dashed") +
   #geom_abline(aes(intercept = fit$regression.results[2,2], slope = fit$regression.results[2,3]),colour = "blue") +
@@ -1979,7 +1958,7 @@ pdur_sf_norm_text <-  ggplot(d_all,aes(x=pH_durafet_norm4, y= pHint_tot_sf_norm4
     #                 "; P =", signif(fit$P.param, 3))) +
   theme(aspect.ratio=1,plot.title = element_text(size=7)) + 
   coord_fixed(ratio = 1 , xlim=c(7.8,8.35), ylim=c(7.8,8.35))+ #scale_colour_discrete(guide="none") +
-  labs( x="pH durafet, 4°C", y="pH seaFET, 4°C ", color = "Depth ")  +theme_bw()
+  labs( x="pH durafet, 4°C", y="pH seaFET, 4°C ", color = "Month ")  +theme_bw()
 
 print(pdur_sf_norm_text)
 
@@ -2038,21 +2017,21 @@ dygraph(durafet_calc_contros_xts, group = "awipev", main="pH calculated vs pH du
 ### **Calculated / seaFET pHs**
 ```{r pHs comparaison sf calc, echo=FALSE, message= FALSE, warning=FALSE}
 # SEAFET vs CALC
-fit <- lmodel2(data = d_all,  pH_calc_norm4 ~ pHint_tot_sf_norm4 , nperm = 99)
-
-psf_calc_norm_text <-  ggplot(d_all,aes(x=pHint_tot_sf_norm4, y= pH_calc_norm4, label = month))+
-  geom_text( aes(color=factor(month))) + 
-  scale_color_discrete(guide = "none")+
- geom_abline(slope=1, intercept =0, linetype = "dashed") +
-  geom_abline(aes(intercept = fit$regression.results[2,2], slope = fit$regression.results[2,3]),colour = "blue") +
-  labs(title = paste("pH calculated vs pH seaFET, normalized at 4°C","\n Adj R2 = ", signif(fit$rsquare, 3),
-                     "; Intercept =", signif(fit$regression.results[2,2], 3),
-                     "; Slope =", signif( fit$regression.results[2,3], 3),
-                     "; P =", signif(fit$P.param, 3))) +
-  theme(aspect.ratio=1,plot.title = element_text(size=7)) + 
-    coord_fixed(ratio = 1 , xlim=c(8,8.2), ylim=c(8,8.2))+
-  labs(x="pH seaFET, 4°C", y="pH calculated, 4°C ", color = "Months") + theme_bw() 
-psf_calc_norm_text
+# fit <- lmodel2(data = d_all,  pH_calc_norm4 ~ pHint_tot_sf_norm4 , nperm = 99)
+# 
+# psf_calc_norm_text <-  ggplot(d_all,aes(x=pHint_tot_sf_norm4, y= pH_calc_norm4, label = month))+
+#   geom_text( aes(color=factor(month))) + 
+#   scale_color_discrete(guide = "none")+
+#  geom_abline(slope=1, intercept =0, linetype = "dashed") +
+#   geom_abline(aes(intercept = fit$regression.results[2,2], slope = fit$regression.results[2,3]),colour = "blue") +
+#   labs(title = paste("pH calculated vs pH seaFET, normalized at 4°C","\n Adj R2 = ", signif(fit$rsquare, 3),
+#                      "; Intercept =", signif(fit$regression.results[2,2], 3),
+#                      "; Slope =", signif( fit$regression.results[2,3], 3),
+#                      "; P =", signif(fit$P.param, 3))) +
+#   theme(aspect.ratio=1,plot.title = element_text(size=7)) + 
+#     coord_fixed(ratio = 1 , xlim=c(8,8.2), ylim=c(8,8.2))+
+#   labs(x="pH seaFET, 4°C", y="pH calculated, 4°C ", color = "Months") + theme_bw() 
+# psf_calc_norm_text
 
 seafet_calc_contros_xts <- dplyr::select(d_all, datetime, pHint_tot_sf_norm4, pH_calc_norm4)
 seafet_calc_contros_xts <- as.xts(seafet_calc_contros_xts, order.by = d_all$datetime)
@@ -2091,21 +2070,21 @@ p_dura_spectro
 
 ```{r pHs comparaison sf spectro, echo=FALSE, message= FALSE, warning=FALSE}
 # Spectro / seafet
-fit <- lmodel2(data = d_all,  ph_s_sf_temp_mix ~ pHint_tot_sf , nperm = 99)
-
-p_sf_spectro <-  ggplot(d_all,aes(x=pHint_tot_sf, y= ph_s_sf_temp_mix, label = month))+
-  geom_text( aes(color=factor(month))) + 
-  scale_color_discrete(guide = "none")+
- geom_abline(slope=1, intercept =0, linetype = "dashed") +
-  geom_abline(aes(intercept = fit$regression.results[2,2], slope = fit$regression.results[2,3]),colour = "blue") +
-  labs(title = paste("pH spectro vs pH seaFET","\n Adj R2 = ", signif(fit$rsquare, 3),
-                     "; Intercept =", signif(fit$regression.results[2,2], 3),
-                     "; Slope =", signif( fit$regression.results[2,3], 3),
-                     "; P =", signif(fit$P.param, 3))) +
-  theme(aspect.ratio=1,plot.title = element_text(size=7)) + 
-    coord_fixed(ratio = 1 , xlim=c(8,8.2), ylim=c(8,8.2))+
-  labs(x="pH seaFET", y="pH spectro, 4°C ", color = "Months") + theme_bw() 
-p_sf_spectro
+# fit <- lmodel2(data = d_all,  ph_s_sf_temp_mix ~ pHint_tot_sf , nperm = 99)
+# 
+# p_sf_spectro <-  ggplot(d_all,aes(x=pHint_tot_sf, y= ph_s_sf_temp_mix, label = month))+
+#   geom_text( aes(color=factor(month))) + 
+#   scale_color_discrete(guide = "none")+
+#  geom_abline(slope=1, intercept =0, linetype = "dashed") +
+#   geom_abline(aes(intercept = fit$regression.results[2,2], slope = fit$regression.results[2,3]),colour = "blue") +
+#   labs(title = paste("pH spectro vs pH seaFET","\n Adj R2 = ", signif(fit$rsquare, 3),
+#                      "; Intercept =", signif(fit$regression.results[2,2], 3),
+#                      "; Slope =", signif( fit$regression.results[2,3], 3),
+#                      "; P =", signif(fit$P.param, 3))) +
+#   theme(aspect.ratio=1,plot.title = element_text(size=7)) + 
+#     coord_fixed(ratio = 1 , xlim=c(8,8.2), ylim=c(8,8.2))+
+#   labs(x="pH seaFET", y="pH spectro, 4°C ", color = "Months") + theme_bw() 
+# p_sf_spectro
 ```
 
 ## SNAPO-CO2
@@ -2354,15 +2333,15 @@ All documents concerning maintenance, tasks to do, calibration... are accessible
 
 ### Traitement des variables
 
-* temp_mix = temp 11m + temp ctd > 8m si trous.
-* sal_mix = sal FB + sal ctd > 8m si trous.
+* temp_mix = temp 11m + temp_insitu_ctd_9m si trous.
+* sal_mix = sal FB + sal_insitu_ctd_9m si trous.
 * ph_s_sf_temp_mix: pH spectro seaFET pH insi calculé avec AT interpolée + temp_mix +sal_mix
 * ph_s_dur_temp_fb: pH spectro durafet pH insi calculé avec AT interpolée + temp_fb +sal_fb
 * ph_calc: pH calc from AT/CT ferrybox = carb avec temp_fb +sal_fb
 * pco2_calc: pco2 calc from AT/CT ferrybox = carb avec temp_fb +sal_fb
-* Relation at / sal_mix (sal FB + sal ctd > 8m si trous)
+* Relation at / sal_mix 
 * at_calc: calculé from sal_mix
-* E0int25_sf: calculé à partir du voltage interne + ph_s_sf_temp_mix (temp 11m + temp ctd > 8m si trous) + temp CTD + sal CTD (calib seaFET fonction 1)
+* E0int25_sf: calculé à partir du voltage interne + ph_s_sf_temp_mix (temp 11m + temp_insitu_ctd_9m si trous) + temp CTD 9m + sal CTD 9m (calib seaFET fonction 1)
 * phint_tot_sf: calculé à partir du voltage interne + E0 + temp CTD + sal CTD (calib seaFET fonction 2)
 
 ### **FerryBox**
