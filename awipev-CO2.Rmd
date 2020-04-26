@@ -104,9 +104,6 @@ Mytheme <- function(size_labs = 7, face_font="plain") {
 }
 
 ggplotRegression <- function(fit){
-
-require(ggplot2)
-
 ggplot(fit$model, aes_string(x = names(fit$model)[2], y = names(fit$model)[1])) + 
   geom_point() +
   stat_smooth(method = "lm", col = "red", se= FALSE) +
@@ -118,7 +115,7 @@ ggplot(fit$model, aes_string(x = names(fit$model)[2], y = names(fit$model)[1])) 
 ```
 
 ```{r Read and prepare ferrybox data, echo=FALSE, warning=FALSE, message=FALSE}
-d_hour <- readRDS(file = paste0(path, "fb_awipev-co2_server/ny-alesund/data/NRT_data/all_nydata_hour.rds"))
+d_hour <- readRDS(file = paste0(path, "fb_awipev-co2_server/ny-alesund/data/NRT_data/nydata_hour.rds"))
 # load = d_hour
 d_hour <- d_hour %>%
   dplyr::select(-date) %>%
@@ -128,7 +125,7 @@ d_hour <- d_hour %>%
   #        #PCO2_Corr_Zero2 = ifelse(PCO2_Corr_Zero2 %in% c("NaN", 66666), NA, PCO2_Corr_Zero2)
   #        ) %>%
   # variables passed through despike with "-filtered" have been renamed without sufix.
-  dplyr::rename(pco2_corr = pco2_corr_filtered, temp_dur = temp_dur_filtered, pco2_raw = pco2_raw_filtered, sal_fb = sal_fb_filtered, temp_insitu_11m=temp_insitu_11m_filtered, temp_fb = temp_fb_filtered, ph_dur = ph_dur_filtered, temp_sf = T_seaF)
+  dplyr::rename(pco2_corr = pco2_corr_filtered, temp_dur = temp_dur_filtered, pco2_raw = pco2_raw_filtered, sal_fb = sal_fb_filtered, temp_insitu_11m=temp_insitu_11m_filtered, temp_fb = temp_fb_filtered, ph_dur = ph_dur_filtered)
 d_all <- d_hour #d_all will be the merger
 d_all<- d_all%>%
   dplyr::mutate(month = month(month(datetime)))
@@ -1325,7 +1322,7 @@ Missing data which could not be estimated on : 2018-04-16 , 2018-12-14, 2019-01-
 
 We decided to change the calculation of E0. Before E0 was calculated for each pH spectro measurements. Now, EO is calculated making a mean of several E0 that come from one deployment period (sensor in the water for several months).
 
-### **seaFET calibration constante E0**
+### **seaFET calibration constant E0**
 
 Plots of E0int25 and E0ext25 returned by the function "pHCalib" for each period of deployement are shown below.
 
@@ -1508,7 +1505,7 @@ d_all <- d_all %>%
 ##     new sf_calib function      ##
 ####
 calib_spectro <- sf_calib(calEint = d_all$voltINT, calEext = d_all$voltEXT, calpH = d_all$ph_s_sf_temp_mix,
-                          calT = d_all$temp_insitu_ctd_9m, calSal = d_all$sal_insitu_ctd_9m )
+                          calT = d_all$temp_sf, calSal = d_all$sal_insitu_ctd)
 # put number of deployment 
 calib_spectro$deployment_sf <- d_all$deployment_sf 
 
@@ -1544,7 +1541,7 @@ We also defined a period of malfunction from **2017-12-14** to **2018-02-02**. i
 ## calculation of the calibrated pH ##
 ##       new sf_calc function       ##
 ####
-seafet_calib <- sf_calc(calEint = d_all$voltINT, calEext = d_all$voltEXT, E0int25 = d_all$E0int25_sf,  E0ext25 = d_all$E0ext25_sf, calT = d_all$temp_insitu_ctd_9m, calSal = d_all$sal_insitu_ctd_9m)
+seafet_calib <- sf_calc(calEint = d_all$voltINT, calEext = d_all$voltEXT, E0int25 = d_all$E0int25_sf,  E0ext25 = d_all$E0ext25_sf, calT = d_all$temp_sf, calSal = d_all$sal_insitu_ctd)
 
 # bind new calibrated pH data to the seafet data set.
 names(seafet_calib) <- c("pHint_tot_sf", "pHext_tot_sf")

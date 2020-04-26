@@ -170,26 +170,47 @@ ggplot(fit$model, aes_string(x = names(fit$model)[2], y = names(fit$model)[1])) 
 # count_gaps(d, .full = TRUE)
 
 
-d_all <- readRDS(file = paste0(path_data, "fb_data/d_all.rds"))
+d_all <- readRDS(file = paste0(path_data, "fb_data/d_all_copy.rds"))
 d <- d_all %>% 
-  #dplyr::select
-  #dplyr::filter(sal_fb > 28) %>% # remove salinity data lower than 28
   as_tsibble(index = datetime) %>% 
   dplyr::arrange(datetime) %>%
-  dplyr::mutate(depth = as.numeric(str_remove(depth, pattern= " m"))) %>% #depth is a string
   fill_gaps() %>%
   dplyr::mutate(year_month = format(datetime, '%Y-%m'),
                 quarter = quarter(datetime)) %>%
   replace(., is.na(.), NA) # replace NaN by NA everywhere
-tmp <- d %>% 
-  as_tibble() %>% 
-  dplyr::select(pH_s_seafet_temp_ctd, par_air_filtered, pco2_contros, pH_s_seafet_temp_ctd, starts_with("sal_"),
-                starts_with("temp_"), at_calc, year_month, quarter)
-tmp visdat::vis_miss(tmp)
-gg_miss_var(tmp, facet = quarter)
 ```
 
 ```{r calculate missing, echo=FALSE, warning=FALSE, message=FALSE}
+
+
+
+var_list <- c("sal_fb", "temp_fb")
+n_na <- NULL
+for (i in 1:length(var)) {
+  na <- sum(!is.na([[i]]))
+  a
+}
+
+
+pc_na <- function(x=df) {
+  NAs <- as.tibble(map_df(x, function(x) sum(!is.na(x)))) %>% # number of NAs
+    dplyr::select(-datetime)
+  NAs <- as.data.frame(t(NAs))
+  n <- nrow(x) # total number of rows
+  pc_na <- n_na/n #fraction of NAs
+  NAs$pc <- pc_na$V1
+  return(NAs)
+}
+tmp <- d %>% 
+  as_tibble() %>% 
+  dplyr::select(pH_s_seafet_temp_ctd, par_air_filtered, pco2_contros, pH_s_seafet_temp_ctd, starts_with("sal_"),
+                starts_with("temp_"), at_calc, year_month, quarter) %>%
+  summarize()
+
+
+
+tmp visdat::vis_miss(tmp)
+gg_miss_var(tmp, facet = quarter)
 
 ```
 # {.tabset .tabset-fade .tabset-pills}
