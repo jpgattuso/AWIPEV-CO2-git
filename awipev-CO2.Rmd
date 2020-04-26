@@ -227,9 +227,10 @@ pH_seafet <- pH_seafet %>%
   dplyr::mutate(ph_s_sf_temp_mix = pHinsi(pH=pH_seafet$pH_s_seafet,ALK=pH_seafet$at_mean_interp*1e-6, Tinsi=pH_seafet$temp_mix, Tlab=pH_seafet$temp_s_lab, Pinsi= pH_seafet$depth/10, S=pH_seafet$sal_mix,Pt=0,Sit=0))
                 
 pH_durafet <- d %>%
-  dplyr::filter(!is.na(pH_s_durafet))
+#  dplyr::filter(!is.na(pH_s_durafet))
+    dplyr::filter(!is.na(pH_s_durafet) & !is.na(sal_fb) & !is.na(temp_fb))
 pH_durafet <- pH_durafet %>%
-  dplyr::mutate(ph_s_dur_temp_fb = pHinsi(pH=pH_durafet$pH_s_durafet, ALK=pH_durafet$at_mean_interp*1e-6, Tinsi=pH_durafet$temp_fb, Tlab=pH_durafet$temp_s_lab, Pinsi= pH_durafet$depth/10, S=pH_durafet$sal_fb,Pt=0,Sit=0))
+  dplyr::mutate(ph_s_dur_temp_fb = pHinsi(pH=pH_durafet$pH_s_durafet, ALK=pH_durafet$at_mean_interp*1e-6, Tinsi=pH_durafet$temp_fb, Tlab=pH_durafet$temp_s_lab, Pinsi= pH_durafet$depth/10, S=pH_durafet$sal_fb, Pt=0, Sit=0))
  
 # create separate seafet/durafet df to join to initial "d" df
 pH_seafet_mean <- pH_seafet%>%
