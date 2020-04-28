@@ -87,6 +87,10 @@ mytheme <- theme_bw() +
         plot.title = element_text(face="bold", size=14)
 )
 
+#################### Function RMSE root mean square error
+rmse <- function(error) { sqrt(mean(error^2)) }
+#rmse(fit$residuals)
+
 #################### Mytheme
 Mytheme <- function(size_labs = 7, face_font="plain") {
   theme_bw() +
@@ -163,11 +167,11 @@ d <- read.table(paste0(path, "fb_data/Discrete_analyses_AT_CT/Discrete_sampling_
 d$datetime <- dmy_hm(d$sampling_date, tz="UTC")
 d$measure_date <- dmy(d$measure_date, tz="UTC")
 
-# Add the flag location: some samples have been collected at the peer. Notes them here.
+# Add the flag location: some samples have been collected at the pier. Notes them here.
 # Flag 1 = collected on the peer by Niskin and flag 0 = collected in the FB (normal collect)
  # And keep data with flag 0 for FB location
 d <- d%>%
-  dplyr::mutate(location_flag = ifelse(datetime == "2016-04-21 09:25:00" | datetime == "2016-02-10 14:00:00" | datetime == "2016-02-17 09:20:00" |datetime == "2016-02-24 14:20:00" | datetime == "2016-02-04 09:30:00" |datetime == "2016-01-27 15:00:00" |datetime == "2016-01-13 13:45:00" |datetime == "2016-01-06 14:10:00" |datetime == "2015-12-24 10:45:00" |datetime == "2015-12-30 13:30:00" |datetime == "2018-01-05 15:20:00" |datetime == "2018-02-02 14:35:00"|datetime == "2018-03-02 14:10:00"|datetime == "2019-05-31 11:45:00", 1,0)
+  dplyr::mutate(location_flag = ifelse(datetime == "2016-04-21 09:25:00" | datetime == "2016-02-10 14:00:00" | datetime == "2016-02-17 09:20:00" |datetime == "2016-02-24 14:20:00" | datetime == "2016-02-04 09:30:00" |datetime == "2016-01-27 15:00:00" |datetime == "2016-01-13 13:45:00" |datetime == "2016-01-06 14:10:00" |datetime == "2015-12-24 10:45:00" |datetime == "2015-12-30 13:30:00" |datetime == "2018-01-05 15:20:00" |datetime == "2018-02-02 14:35:00"|datetime == "2018-03-02 14:10:00"|datetime == "2019-05-31 11:45:00", 1, 0)
   )
 d <- d%>%
   dplyr::filter(location_flag== 0)
@@ -181,7 +185,7 @@ d <- d%>%
                 pH_s_durafet= replace(pH_s_durafet, qflag_pH_s_durafet != 2, NA))
 
 
-# Mercury chloride correction (Dickson et al. 2007, SOP3a)
+# Mercuric chloride correction (Dickson et al. 2007, SOP3a)
 # AT
 d$at <- d$at * 1.0002
 #CT
@@ -218,13 +222,13 @@ d$closest_datetime <- d_all$datetime[closest]
 d$closest_datetime[abs(d$datetime - d_all$datetime[closest]) > 30*60] <- NA
 # create closest_datetime in d_all (copy of datetime)
 d_all$closest_datetime <- d_all$datetime
-d <- left_join(d, d_all%>%dplyr::select(c(closest_datetime, sal_fb, temp_fb, temp_mix, temp_insitu_11m, sal_mix )), by="closest_datetime") 
+d <- left_join(d, d_all%>%dplyr::select(c(closest_datetime, sal_fb, temp_fb, temp_sf, temp_mix, temp_insitu_11m, sal_mix)), by="closest_datetime") 
 
 # Conversion of spectro pH to insitu mix T°
 pH_seafet <- d %>%
-  dplyr::filter(!is.na(pH_s_seafet) & !is.na(temp_mix) )
+  dplyr::filter(!is.na(pH_s_seafet) & !is.na(temp_sf) )
 pH_seafet <- pH_seafet %>%
-  dplyr::mutate(ph_s_sf_temp_mix = pHinsi(pH=pH_seafet$pH_s_seafet,ALK=pH_seafet$at_mean_interp*1e-6, Tinsi=pH_seafet$temp_mix, Tlab=pH_seafet$temp_s_lab, Pinsi= pH_seafet$depth/10, S=pH_seafet$sal_mix,Pt=0,Sit=0))
+  dplyr::mutate(ph_s_sf_temp_mix = pHinsi(pH=pH_seafet$pH_s_seafet,ALK=pH_seafet$at_mean_interp*1e-6, Tinsi=pH_seafet$temp_sf, Tlab=pH_seafet$temp_s_lab, Pinsi= pH_seafet$depth/10, S=pH_seafet$sal_mix,Pt=0,Sit=0))
                 
 pH_durafet <- d %>%
 #  dplyr::filter(!is.na(pH_s_durafet))
@@ -432,13 +436,18 @@ In August 2017, a Durafet III pH electrode connected to a UDA2128 Analyser (Hone
 ### **Data availability**
 TO DO: add here an horizontal bar plot showing the percent availability of the data
 
+## Salinities
+Several salinity sensors are on site, 1 inside the Ferrybox (SBE45) and 5 outside (ctd183, ctd181, ctd578, ctd964/964b and ctd103) that are switched periodically. Salinity from FB is taken in consideration. If data gaps are encountered, they are filled with bottom salinty data from ctd (> 8 m). New column "sal_mix" is created.
 
-## Whole time series
-```{r whole time series, fig.width=10, fig.height=4, echo=FALSE, message= FALSE}
-#SAL FB 
+- 1 SBE45 inside the Ferrybox (sal_fb)
+- 5 CTD > 8 meters depth (sal_insitu_ctd)
+
+### **Depth profile**
+
+```{r Sal profile, echo=FALSE, message= FALSE, warning=FALSE, out.width="80%",fig.show='hold', fig.align="center"}
 sal_xts <- dplyr::select(d_all, datetime, sal_fb)
 sal_xts <- as.xts(sal_xts, order.by = sal_xts$datetime)
-dygraph(sal_xts, group = "awipev", main="Salinity FerryBox)", ylab="Salinity") %>%
+dygraph(sal_xts, group = "awipev", main="Salinity (in FerryBox)", ylab="Salinity") %>%
             dySeries("sal_fb", color = "blue", strokeWidth = 0, label = "sal_fb") %>%
 dyHighlight(highlightCircleSize = 8,highlightSeriesBackgroundAlpha =0.2,hideOnMouseOut =TRUE) %>%
       dyOptions( drawGrid = TRUE, drawPoints = TRUE, pointSize = 2,useDataTimezone = TRUE) %>%
@@ -459,183 +468,7 @@ dySeries("sal_insitu_ctd_9m", color = RColorBrewer::brewer.pal(5, "Set1")[5], st
     dyLegend(show = "follow")   %>%
     dyAxis("y",valueRange = c(30, 37)) %>%
       dyRangeSelector(height = 30, dateWindow= NULL)
-# TEMP Ferrybox SBE45
-temp_fb_xts <- dplyr::select(d_all, datetime, temp_fb)
-temp_fb_xts <- as.xts(temp_fb_xts, order.by = temp_fb_xts$datetime)
-dygraph(temp_fb_xts, group = "awipev", main="Temperature (in Ferrybox)", ylab="Temperature") %>%
-      dySeries("temp_fb", color = "blue", strokeWidth = 0, label = "temp_fb") %>%
-      dyAxis("y", valueRange = c(-2.5, 10)) %>%
-      dyLegend(show = "follow")   %>%
-      dyHighlight(highlightCircleSize = 8,highlightSeriesBackgroundAlpha = 0.5,hideOnMouseOut = TRUE) %>%
-      dyOptions(drawGrid = TRUE, drawPoints = TRUE, pointSize = 2,useDataTimezone = TRUE) %>%
-      dyRangeSelector(height = 30, dateWindow= NULL)
-# TEMP insitu SBE38
-temp_insitu_xts <- dplyr::select(d_all, datetime, temp_insitu_11m)
-temp_insitu_xts <- as.xts(temp_insitu_xts, order.by = temp_insitu_xts$datetime)
-dygraph(temp_insitu_xts, group = "awipev", main="Temperature (in situ 11 m)", ylab="Temperature") %>%
-      dySeries("temp_insitu_11m", color = "blue", strokeWidth = 0, label = "temp_insitu_11m") %>%
-      dyAxis("y", valueRange = c(-2.8, 10)) %>%
-      dyHighlight(highlightCircleSize = 8,highlightSeriesBackgroundAlpha = 0.5,hideOnMouseOut = TRUE) %>%
-      dyOptions(drawGrid = TRUE, drawPoints = TRUE, pointSize = 2,useDataTimezone = TRUE) %>%
-      dyLegend(show = "follow")   %>%
-      dyRangeSelector(height = 30, dateWindow= NULL)
-# TEMP insitu CTD
-temp_insitu_xts <- dplyr::select(d_all, datetime, temp_insitu_ctd_1m, temp_insitu_ctd_3m, temp_insitu_ctd_5m, temp_insitu_ctd_7m, temp_insitu_ctd_9m)
-temp_insitu_xts <- as.xts(temp_insitu_xts, order.by = temp_insitu_xts$datetime)
-dygraph(temp_insitu_xts, group = "awipev", main="Temperature (ctd all depths)", ylab="Temperature") %>%
-      dySeries("temp_insitu_ctd_1m", color = RColorBrewer::brewer.pal(5, "Set1")[1], strokeWidth = 0, label = "1m") %>%
-dySeries("temp_insitu_ctd_3m", color = RColorBrewer::brewer.pal(5, "Set1")[2], strokeWidth = 0, label = "3m") %>%
-dySeries("temp_insitu_ctd_5m", color = RColorBrewer::brewer.pal(5, "Set1")[3], strokeWidth = 0, label = "5m") %>%
-dySeries("temp_insitu_ctd_7m", color = RColorBrewer::brewer.pal(5, "Set1")[4], strokeWidth = 0, label = "7m") %>%
-dySeries("temp_insitu_ctd_9m", color = RColorBrewer::brewer.pal(5, "Set1")[5], strokeWidth = 0, label = "9m") %>%
-  dyAxis("y", valueRange = c(-2.8, 10)) %>%
-      dyHighlight(highlightCircleSize = 8,highlightSeriesBackgroundAlpha = 0.5,hideOnMouseOut = TRUE) %>%
-      dyOptions(drawGrid = TRUE, drawPoints = TRUE, pointSize = 2,useDataTimezone = TRUE) %>%
-      dyLegend(show = "follow")   %>%
-      dyRangeSelector(height = 30, dateWindow= NULL)
-# PCO2 
-#+ Ajout de la pCO2 corrigé par le script contros (dans R server ny-alesund_cc.R)
-pco2_contros_xts <- dplyr::select(d_all, datetime, pco2_calc, pco2_corr)
-pco2_contros_xts <- as.xts(pco2_contros_xts, order.by = d_all$datetime)
-dygraph(pco2_contros_xts, group = "awipev", main="pCO2", ylab="pCO2") %>%
-    dySeries("pco2_corr", label="Corrected pCO2", color=  "blue",strokeWidth=0, pointSize=2) %>%
-    dySeries("pco2_calc", label="calculated pCO2",color = "red", strokeWidth = 0, pointSize = 4 ) %>%
-    dyEvent(as.POSIXct("2016-02-28 12:00:00", tz="GMT"), "CO2FT-0515-001 installed", labelLoc = "bottom", color="red") %>% 
-    dyEvent(as.POSIXct("2017-02-07 12:00:00", tz="GMT"), "CO2FT-0215-001 installed", labelLoc = "bottom", color="red") %>%
-    dyEvent(as.POSIXct("2018-04-16 12:00:00", tz="GMT"), "CO2FT-0515-001 installed", labelLoc = "bottom", color="red") %>% 
-    dyEvent(as.POSIXct("2018-10-31 15:00:00", tz="GMT"), "CO2FT-0215-001 installed", labelLoc = "bottom", color="red") %>% 
-    dyEvent(as.POSIXct("2019-09-03 15:00:00", tz="GMT"), "CO2FT-0515-001 installed", labelLoc = "bottom", color="red") %>% 
-    #dyOptions(colors = RColorBrewer::brewer.pal(3, "Dark2"), pointSize = 4) %>%
-    dyHighlight(highlightCircleSize = 8,highlightSeriesBackgroundAlpha = 0.5,hideOnMouseOut = TRUE) %>%
-    dyOptions(drawGrid = TRUE, drawPoints = TRUE, pointSize = c(1,8,1),useDataTimezone = TRUE) %>%
-    dyLegend(show = "follow")   %>%
-    dyRangeSelector(height = 30, dateWindow= NULL)
-# # DURAFET 
-# durafet_contros_xts <- dplyr::select(d_all, datetime, ph_dur, ph_s_dur_temp_fb)
-# durafet_contros_xts <- as.xts(durafet_contros_xts, order.by = d_all$datetime)
-# dygraph(durafet_contros_xts, group = "awipev", main="pH durafet (in Ferrybox)", ylab="pHT") %>%
-#     dySeries("ph_dur", label = "Raw durafet pH", color ="blue", strokeWidth=0, pointSize=2) %>%
-#     dySeries("ph_s_dur_temp_fb", label = "pH spectro", color =  "red", strokeWidth = 0, pointSize = 4 ) %>%
-#     dyEvent(as.POSIXct("2017-08-24 12:00:00", tz="GMT"), "durafet installed", labelLoc = "bottom", color="red") %>%
-#     dyEvent(as.POSIXct("2017-10-30 13:00:00", tz="GMT"), "New holder installed", labelLoc = "bottom", color="red") %>% 
-#     # dyOptions(colors = RColorBrewer::brewer.pal(3, "Dark2"), pointSize = 4) %>%
-#     dyHighlight(highlightCircleSize = 8,highlightSeriesBackgroundAlpha = 0.5,hideOnMouseOut = TRUE) %>%
-#     dyOptions(drawGrid = TRUE, drawPoints = TRUE, pointSize = c(1,8,1),useDataTimezone = TRUE, digitsAfterDecimal=4) %>%
-#     dyAxis("y",valueRange = c(8, 8.8)) %>%
-#     dyLegend(show = "follow")   %>%
-#     dyRangeSelector(height = 30, dateWindow= NULL) 
-# # SEAFET 
-# seafet_contros_xts <- dplyr::select(d_all, datetime, phINT,ph_s_sf_temp_mix)
-# seafet_contros_xts <- as.xts(seafet_contros_xts, order.by = d_all$datetime)
-# dygraph(seafet_contros_xts, group = "awipev", main="pH seaFET (in situ T CTD)", ylab="pHT") %>%
-#   dySeries("phINT", label = "Raw data INT", color ="blue", strokeWidth=0, pointSize=2) %>%
-#   dySeries("ph_s_sf_temp_mix", label = "pH spectro", color =  "red", strokeWidth = 0, pointSize = 4 ) %>%
-#   dyEvent(as.POSIXct("2017-08-24 12:00:00", tz="GMT"), "seaFET #1005 installed", labelLoc = "bottom", color="red") %>%
-#   dyEvent(as.POSIXct("2018-02-02 09:00:00", tz="GMT"), "seaFET settings changed to every 1H", labelLoc = "bottom", color="red") %>% 
-#   dyEvent(as.POSIXct("2018-04-17 12:00:00", tz="GMT"), "seaFET #0007 installed + continuous mode set", labelLoc = "bottom", color="red") %>%
-#     dyHighlight(highlightCircleSize = 8,highlightSeriesBackgroundAlpha = 0.5,hideOnMouseOut = TRUE) %>%
-#     dyOptions(drawGrid = TRUE, drawPoints = TRUE, pointSize = c(1,8,1),useDataTimezone = TRUE, digitsAfterDecimal=4) %>%
-#     dyAxis("y",valueRange = c(7.45, 8.8)) %>%
-#     dyLegend(show = "follow")   %>%
-#     dyRangeSelector(height = 30, dateWindow= NULL) 
-# # TA
-# # to create periods according to TA deployments
-TAevents <- c("2016-02-26 00:00:00", "2017-02-09 12:00:00", "2017-02-09 12:00:00", "2017-03-10 12:00:00",
-              "2018-01-07 00:00:00", "2018-06-20 00:00:00", "2018-07-31 00:00:00", "2018-10-30 18:00:00", "2018-10-31 09:00:00", "2019-01-16 09:00:00", "2019-01-26 13:25:00", format(Sys.Date(), "%Y-%m-%d %H:%M:%S"))
 
-# at_contros_cleaned_xts <- dplyr::select(d_all, datetime,AT,at)
-# at_contros_cleaned_xts <-  as.xts(at_contros_cleaned_xts, order.by = d_all$datetime)
-# dygraph(at_contros_cleaned_xts, group = "awipev", main=" Total Alkalinity (in Ferrybox)", ylab="Total alkalinity") %>%
-#    #dySeries("at_contros", color = RColorBrewer::brewer.pal(3, "Set2"), strokeWidth = 0, pointSize=2) %>%
-#   #dySeries("AT_filtered2", color = RColorBrewer::brewer.pal(4, "Set2"), strokeWidth = 0, pointSize=2) %>%
-#   dySeries("at", label="TA reference",color = "red", strokeWidth = 0, pointSize=4) %>% 
-#   dySeries("AT", label= "Raw TA", color = "blue", strokeWidth = 0, pointSize=2) %>%
-#   dyEvent(as.POSIXct("2016-05-31 10:00:00", tz="GMT"), "HCl Changed", labelLoc = "bottom") %>%
-#   dyEvent(as.POSIXct("2016-06-24 10:00:00", tz="GMT"), "BCG Changed", labelLoc = "bottom") %>%
-#   dyEvent(as.POSIXct("2016-02-24 14:00:00", tz="GMT"), "Calibration 1", labelLoc = "bottom") %>%
-#   dyEvent(as.POSIXct("2016-09-16 10:00:00", tz="GMT"), "Calibration 2", labelLoc = "bottom") %>% 
-#   dyEvent(as.POSIXct("2017-03-21 12:00:00", tz="GMT"), "TA analyser changed", labelLoc = "top", color="red") %>%
-#   dyEvent(as.POSIXct("2018-01-08 12:55:00", tz="GMT"), "TA analyser changed #TA-0317-001", labelLoc = "top", color="red") %>%
-#   dyEvent(as.POSIXct("2018-07-31 00:00:00", tz="GMT"), "TA analyser changed #TA-1215-001", labelLoc = "top", color="red") %>%
-#   dyEvent(as.POSIXct("2018-10-30 18:00:00", tz="GMT"), "TA analyser changed #TA-0317-001", labelLoc = "top", color="red") %>%
-#   dyEvent(as.POSIXct("2016-11-15 09:00:00", tz="GMT"), "CRM measurement", labelLoc = "bottom") %>% 
-#   dyEvent(as.POSIXct("2017-02-09 12:20:00", tz="GMT"), "CRM measurement", labelLoc = "bottom") %>% 
-#   dyEvent(as.POSIXct("2017-04-11 06:20:00", tz="GMT"), "CRM measurement", labelLoc = "bottom") %>% 
-#   dyEvent(as.POSIXct("2018-01-22 13:00:12", tz="GMT"), "CRM measurement", labelLoc = "bottom") %>%
-#   dyEvent(as.POSIXct("2018-05-16 12:39:39", tz="GMT"), "CRM measurement", labelLoc = "bottom") %>%
-#   dyEvent(as.POSIXct("2018-10-31 10:29:27", tz="GMT"), "CRM measurement", labelLoc = "bottom") %>%
-#   dyEvent(as.POSIXct("2019-01-26 13:25:20", tz="GMT"), "Calibration mode - CRM", labelLoc = "bottom") %>%
-#   #dyOptions(colors = RColorBrewer::brewer.pal(3, "Dark2"), pointSize = 4) %>%
-#   dyShading(from = TAevents[1], to = TAevents[2], color = "#EDEDED") %>%
-#   dyShading(from = TAevents[3], to = TAevents[4], color = "#C2C2C2") %>%
-#   dyShading(from = TAevents[5], to = TAevents[6], color = "#EDEDED") %>%
-#   dyShading(from = TAevents[7], to = TAevents[8], color = "#C2C2C2") %>%
-#   dyShading(from = TAevents[9], to = TAevents[10], color = "#EDEDED") %>%
-#   dyShading(from = TAevents[11], to = TAevents[12], color = "#C2C2C2") %>%
-#   dyAxis("y",valueRange = c(2000, 2650)) %>%
-#   dyHighlight(highlightCircleSize = 8,highlightSeriesBackgroundAlpha = 0.5,hideOnMouseOut = TRUE) %>%
-#   dyOptions( strokeWidth= 0) %>%
-#   dyLegend(show = "follow")   %>%
-#   dyOptions(drawGrid = TRUE, drawPoints = TRUE,useDataTimezone = TRUE) %>%
-#     dyRangeSelector(height = 30, dateWindow= NULL) 
-#  
-f <- as.data.frame(table(d_all$at))
-#sum(f$Freq)  
-# Number of outliers removed in the dataset
-# numberOutliers <- length(which((dat_ATnoNA$outliers > 0)))
-
-# #plot for POSTER june 2019
-# #plot of S/T
-# poster_temp <- ggplot(data = d_all%>%dplyr::filter(temp_fb<10 &sal>30 )) + geom_point(aes(x=datetime,y=temp_fb),col="blue", size=0.5) +
-#   geom_point(aes(x=datetime,y=sal/5),col="red", size=0.5 )+
-#   labs(x = "Time", y="Temperature (°C)") +
-#   scale_x_datetime(date_minor_breaks ="1 month")+
-#   theme_bw() + theme(legend.position="bottom",legend.title = element_blank())+
-#   scale_y_continuous(sec.axis = sec_axis(~.*5, name = "Salinity"))
-# print(poster_temp)
-# #
-# png("figures/poster_sal_temp.png", width= 1100, height=600)
-# par(mar=c(5, 4, 4, 6) + 0.1)
-# #
-# plot(sal ~ datetime,d_all,pch=16, axes=T, ylim=c(30.5,36), cex=0.5, col="red", ylab="", xlab="", yaxt ="n", lty=1, cex.axis=1.8) +
-# axis(2, ylim=c(0,1),col="red",col.axis="red", las = 1,lty=1, cex.axis =1.8)
-# #
-#    grid(lty=1)
-# #
-#    par(new = T)
-# #
-# plot(as.Date(d_all$datetime,"%Y-%m-d %H:%M:%S", tz= "UTC"), d_all$temp_fb, col="blue", pch=16, cex=0.5, xlab="", ylab="",xaxt="n", axes=FALSE,ylim=c(-2,9))+
-# axis(side = 4, col="blue",col.axis="blue",las=1, cex.axis =1.8) +
-# mtext("",side=1,col="black",line=1.5, cex=1.8)
-# legend("topleft", legend=c("Temperature (°C)", "Salinity"),
-#        col = c("blue", "red"), pch  = c(16, 16),  box.lty=0 , cex = 2)
-#   grid(nx = 1, ny = NULL, col = "lightgray", lty = 1,
-#     lwd = "months")
-#      box()
-#      dev.off()
-# 
-# 
-# ggsave(paste0("figures/poster_temp.png"), width= 30, height=10, poster_temp, units="cm")
-# #
-# poster_sal <- ggplot(data = d_all%>%dplyr::filter(sal>30 ), aes(x=datetime,y=sal), colour="sal") +
-#   geom_point(col="blue", size=0.5 )+
-#   labs(x = "Time", y="Salinity (PSU)") +
-#   scale_x_datetime(date_minor_breaks ="1 month")+
-#   theme_bw() + theme(legend.position="bottom",legend.title = element_blank())
-# print(poster_sal)
-# ggsave(paste0("figures/poster_sal.png"), width= 30, height=10, poster_sal, units="cm")
-
-```
-
-## Salinities
-Several salinity sensors are on site, 1 inside the Ferrybox (SBE45) and 5 outside (ctd183, ctd181, ctd578, ctd964/964b and ctd103) that are switched periodically. Salinity from FB is taken in consideration. If data gaps are encountered, they are filled with bottom salinty data from ctd (> 8 m). New column "sal_mix" is created.
-
-- 1 SBE45 inside the Ferrybox (sal_fb)
-- 5 CTD > 8 meters depth (sal_insitu_ctd)
-
-### **Depth profile**
-
-```{r Sal profile, echo=FALSE, message= FALSE, warning=FALSE, out.width="80%",fig.show='hold', fig.align="center"}
 df <- d_all %>% 
   dplyr::select(datetime, sal_insitu_ctd_1m, sal_insitu_ctd_3m, sal_insitu_ctd_5m, sal_insitu_ctd_7m, sal_insitu_ctd_9m) %>%
   dplyr::mutate(date = format(datetime, '%Y-%m-%d')) %>% 
@@ -644,7 +477,6 @@ df <- d_all %>%
             mean9m = mean(sal_insitu_ctd_9m, na.rm = TRUE),
             range = mean(sal_insitu_ctd_1m, na.rm = TRUE)-mean(sal_insitu_ctd_9m, na.rm = TRUE)) %>% 
   ungroup()
-summary(df)
 ```
 There are `r sum(!is.na(df$range))` days with salinity values at both 1 m (0-2 m) and 9 m (> 8 m). The salinity difference between 1 and 9 m ranges between `r min(df$range)` and `r max(df$range)` (mean: `r mean(df$range)`; `r median(df$range)`). The difference with depth is therefore significant.
 
@@ -668,7 +500,7 @@ fit <- lmodel2(data = d_all,  sal_fb ~ sal_insitu_ctd_9m , nperm = 99)
 #   dySeries("AT_filtered", label= "Raw TA", color = "blue", strokeWidth = 0, pointSize=2) 
   
 
-p_sal_fb_ctd<-  ggplot(d_all,aes(x=sal_insitu_ctd_9m, y= sal_fb))+
+p <-  ggplot(d_all,aes(x=sal_insitu_ctd_9m, y= sal_fb))+
   geom_point( aes(color=factor(month))) + 
  # scale_color_viridis_d(option = "C", guide="none")+
   #geom_line(aes(x = sal_fb, y = sal_fb), linetype = "dashed") +
@@ -684,7 +516,7 @@ p_sal_fb_ctd<-  ggplot(d_all,aes(x=sal_insitu_ctd_9m, y= sal_fb))+
  #  scale_colour_discrete(guide="none") +
   labs( x="Salinity CTD 9 m", y="Salinity FB ", color = "Months") +theme_bw()
 
-print(p_sal_fb_ctd)
+print(p) #p_sal_fb_ctd
 
 d_all$diff_sal_fb_insitu_9m <- d_all$sal_insitu_ctd_9m - d_all$sal_fb
 mean_diff_sal_fb_insitu_9m <- round(mean(d_all$diff_sal_fb_insitu_9m, na.rm = TRUE), digits = 2)
@@ -743,6 +575,29 @@ Temperature in situ at 11 m depth is taken in consideration. If data gaps are en
 - 5 CTD profiling (temp_insitu_ctd_1m - 3m - 5m - 7m - 9m)
 - 1 fixed at 11 meters depth (temp_insitu_11m)
 
+```{r temperature time series, echo=FALSE, message= FALSE, warning=FALSE, out.width="80%",fig.show='hold', fig.align="center"}
+# TEMP Ferrybox SBE45
+temp_fb_xts <- dplyr::select(d_all, datetime, temp_fb)
+temp_fb_xts <- as.xts(temp_fb_xts, order.by = temp_fb_xts$datetime)
+dygraph(temp_fb_xts, group = "awipev", main="Temperature (in Ferrybox)", ylab="Temperature") %>%
+      dySeries("temp_fb", color = "blue", strokeWidth = 0, label = "temp_fb") %>%
+      dyAxis("y", valueRange = c(-2.5, 10)) %>%
+      dyLegend(show = "follow")   %>%
+      dyHighlight(highlightCircleSize = 8,highlightSeriesBackgroundAlpha = 0.5,hideOnMouseOut = TRUE) %>%
+      dyOptions(drawGrid = TRUE, drawPoints = TRUE, pointSize = 2,useDataTimezone = TRUE) %>%
+      dyRangeSelector(height = 30, dateWindow= NULL)
+# TEMP insitu SBE38
+temp_insitu_xts <- dplyr::select(d_all, datetime, temp_insitu_11m)
+temp_insitu_xts <- as.xts(temp_insitu_xts, order.by = temp_insitu_xts$datetime)
+dygraph(temp_insitu_xts, group = "awipev", main="Temperature (in situ 11 m)", ylab="Temperature") %>%
+      dySeries("temp_insitu_11m", color = "blue", strokeWidth = 0, label = "temp_insitu_11m") %>%
+      dyAxis("y", valueRange = c(-2.8, 10)) %>%
+      dyHighlight(highlightCircleSize = 8,highlightSeriesBackgroundAlpha = 0.5,hideOnMouseOut = TRUE) %>%
+      dyOptions(drawGrid = TRUE, drawPoints = TRUE, pointSize = 2,useDataTimezone = TRUE) %>%
+      dyLegend(show = "follow")   %>%
+      dyRangeSelector(height = 30, dateWindow= NULL)
+```
+      
 ### **Temperature profiles**
 ```{r temperature profiles, echo=FALSE, message= FALSE, warning=FALSE, out.width="80%",fig.show='hold', fig.align="center"}
 temp_xts <- dplyr::select(d_all, datetime, temp_insitu_ctd_1m, temp_insitu_ctd_3m, temp_insitu_ctd_5m, temp_insitu_ctd_7m, temp_insitu_ctd_9m)
@@ -787,7 +642,7 @@ d_all <- d_all %>%
 
 fit <- lmodel2(data = d_all,  temp_fb ~ temp_insitu_11m , nperm = 99)
 
-p_temp_11_fb<-  ggplot(d_all,aes(x=temp_insitu_11m, y= temp_fb, label = month))+
+p <-  ggplot(d_all,aes(x=temp_insitu_11m, y= temp_fb, label = month))+
   geom_text( aes(color=factor(month))) + 
  # scale_color_viridis_d(option = "C", guide="none")+
   geom_abline(slope = 1, intercept = 0, linetype = "dashed") +
@@ -799,7 +654,7 @@ p_temp_11_fb<-  ggplot(d_all,aes(x=temp_insitu_11m, y= temp_fb, label = month))+
   theme(aspect.ratio=1,plot.title = element_text(size=7)) + 
   coord_fixed(ratio = 1 )+ scale_colour_discrete(guide="none") +
   labs( x="T 11 m", y="T FB ", color = "Months")  +theme_bw()
-print(p_temp_11_fb)
+print(p) # p_temp_11_fb
 
 d_all$diff_T_fb_11m <- d_all$temp_fb - d_all$temp_insitu_11m
 mean_diff_T_fb_11m <- round(mean(d_all$diff_T_fb_11m, na.rm = TRUE), digits = 2)
@@ -1151,8 +1006,7 @@ at_s <- ggplot(d_all_at_discrete,aes(x=sal_mix, y= at, label = month))+
         plot.margin = unit(c(0.5,1,1,1), "cm"),
         plot.title = element_text(size=15, hjust=0.05,margin = margin(l = 10, b = -70)))
   #print(at_s)
-
-ggsave(paste0("figures/Discrete_TA_salinity_AWIPEV.png"), at_s, width=15, height =11, units="cm")
+#ggsave(paste0("figures/Discrete_TA_salinity_AWIPEV.png"), at_s, width=15, height =11, units="cm")
 
 # Salinity is a predictor of AT -> using the regression defined above
 d_all$at_calc <- slope_s_at * d_all$sal_mix + intercept_s_at
@@ -1170,6 +1024,8 @@ The relationship between titrated total alkalinity (references) and salinity is 
 #### **Final TA re-calculated data (Salinity relationship)**
 
 ```{r Plot TA calc TA meas, echo=FALSE, warning=FALSE, message=FALSE,out.width='100%',fig.align='hold'}
+TAevents <- c("2016-02-26 00:00:00", "2017-02-09 12:00:00", "2017-02-09 12:00:00", "2017-03-10 12:00:00",
+              "2018-01-07 00:00:00", "2018-06-20 00:00:00", "2018-07-31 00:00:00", "2018-10-30 18:00:00", "2018-10-31 09:00:00", "2019-01-16 09:00:00", "2019-01-26 13:25:00", format(Sys.Date(), "%Y-%m-%d %H:%M:%S"))
 at_contros_calc_xts <- dplyr::select(d_all, datetime,at_calc, at)
 at_contros_calc_xts <-  as.xts(at_contros_calc_xts, order.by =d_all$datetime)
 dygraph(at_contros_calc_xts, group = "awipev", main="TA + TA calc from sal_mix + TA reference", ylab="Total alkalinity") %>%
@@ -1204,24 +1060,6 @@ dygraph(at_contros_calc_xts, group = "awipev", main="TA + TA calc from sal_mix +
   dyLegend(show = "follow")   %>%
   dyOptions(drawGrid = TRUE, drawPoints = TRUE,useDataTimezone = TRUE) %>%
     dyRangeSelector(height = 30, dateWindow= NULL)
-
-# #plot for POSTER june 2019
-# #plot of TA calculated from S + discrete
-# p_at_sal <- ggplot(data = d_all%>%dplyr::filter(at_calc > 2000), aes(x=datetime,y=at_calc,col="TA calculated from salinity") ) +
-#   geom_point(col="blue", size=0.5 )+
-#   geom_point(aes(y=at, fill= "Discrete measurements"), col="red") +
-#   labs(title=  "Calculated from salinity (µmol/kg)", x = "", y= "") + ylim(2100,2350)+
-#   theme_bw() + scale_x_datetime(minor_breaks  = "1 month ")+
-#   theme(legend.position= c(0.5, 0.93),
-#                      legend.text=element_text(size=15),
-#                      plot.title = element_text(hjust =0.1, vjust = 1,size = rel(1.5),margin = margin(t = 9, b = -25)),
-#                      axis.text=element_text(size=15),
-#                      axis.title.x= element_text(size =15),
-#                      legend.title=element_blank())
-#
-#
-# print(p_at_sal)
-# ggsave(paste0("figures/poster_at_sal.png"), width= 30, height=10, p_at_sal, units="cm")
 
 ```
 
@@ -1266,7 +1104,7 @@ During those steps (except zeroing) the sensor runs normally. Equilibration betw
 title <- "Contros vs calculated pCO2"
 fit <- lmodel2(data = d_all,  pco2_corr ~ pco2_calc , nperm = 99)
 
-pco2_calc_pco2_corr_text <-  ggplot(d_all,aes(x=pco2_calc, y= pco2_corr, label = month))+
+p <-  ggplot(d_all,aes(x=pco2_calc, y= pco2_corr, label = month))+
    geom_text(aes(color = factor(month)))+
   scale_color_discrete(guide="none")+
   geom_abline(slope = 1, intercept = 0, linetype = "dashed") +
@@ -1278,81 +1116,83 @@ pco2_calc_pco2_corr_text <-  ggplot(d_all,aes(x=pco2_calc, y= pco2_corr, label =
   theme(aspect.ratio=1,plot.title = element_text(size=7)) + 
   coord_fixed(ratio = 1 ,xlim=c(200,460) , ylim=c(200,460))+
   labs(x="Calculated pCO2", y="Contros pCO2 corrected", color = "Months") + theme_bw()  
-
 ```
 The relationship between the Contros and calculated *p*CO~2~ is not good at all in the sense that it is far from the 1:1 line, despite a good r2 (`r round(fit$rsquare, digits=2)`).
 ```{r plot measured vs calculated pCO2, echo=FALSE, warning=FALSE, message=FALSE, out.width='100%', fig.align="center"}
-print(pco2_calc_pco2_corr_text)
-ggsave(paste0("figures/pco2_calc_pco2_corr.png"), pco2_calc_pco2_corr_text, units="cm")
+print(p) # pco2_calc_pco2_corr_text
+#ggsave(paste0("figures/pco2_calc_pco2_corr.png"), pco2_calc_pco2_corr_text, units="cm")
 ```
 
 ### **Final *p*CO~2~ data**
 
 ```{r Final pCO2, echo=FALSE, warning=FALSE, message=FALSE, out.width='100%', fig.align="center"}
-pco2_contros_xts <- dplyr::select(d_all, datetime, pco2_calc, pco2_corr)
-pco2_contros_xts <- as.xts(pco2_contros_xts, order.by = d_all$datetime)
-dygraph(pco2_contros_xts, group = "awipev", main="<i>p</i>CO<sub>2</sub>", ylab="<i>p</i>CO<sub>2</sub>") %>%
-  dySeries("pco2_corr", label="Corrected pCO2", color=  RColorBrewer::brewer.pal(3, "Dark2")[1],strokeWidth=0, pointSize=2) %>%
-    #dySeries("pco2_raw", label="Raw pCO2",color ="blue", strokeWidth = 0, pointSize = 1) %>%
-    dySeries("pco2_calc", label="pco2_calc",color = "red", strokeWidth = 0, pointSize = 4 ) %>%
-    dyEvent(as.POSIXct("2016-02-28 12:00:00", tz="GMT"), "CO2FT-0515-001 installed", labelLoc = "bottom", color="red") %>% 
-    dyEvent(as.POSIXct("2017-02-07 12:00:00", tz="GMT"), "CO2FT-0215-001 installed", labelLoc = "bottom", color="red") %>%
-    dyEvent(as.POSIXct("2018-04-16 12:00:00", tz="GMT"), "CO2FT-0515-001 installed", labelLoc = "bottom", color="red") %>% 
-    dyEvent(as.POSIXct("2018-10-31 15:00:00", tz="GMT"), "CO2FT-0215-001 installed", labelLoc = "bottom", color="red") %>% 
-    dyEvent(as.POSIXct("2019-09-03 15:00:00", tz="GMT"), "CO2FT-0515-001 installed", labelLoc = "bottom", color="red") %>% 
-
-    #dyOptions(colors = RColorBrewer::brewer.pal(3, "Dark2"), pointSize = 4) %>%
-    dyHighlight(highlightCircleSize = 8,highlightSeriesBackgroundAlpha = 0.5,hideOnMouseOut = TRUE) %>%
-    dyLegend(show = "follow")   %>%
-    dyOptions(drawGrid = TRUE, drawPoints = TRUE, pointSize = c(1,8,1),useDataTimezone = TRUE) %>%
-    dyRangeSelector(height = 30, dateWindow= NULL)
-
-# #plot for POSTER june 2019
-# #plot of pCO2
-# 
-# #  add pCO2 atmospheric data from URL
-# 
-# noaa <- read.csv("pco2_noaa.txt", header=T, sep ="", dec=".", stringsAsFactors = FALSE)
-# noaa <- noaa %>%
-#   dplyr::select(sample_year, sample_month, sample_day, sample_hour, sample_minute, sample_seconds, analysis_value, analysis_uncertainty) %>%
-#   unite("date", c("sample_year", "sample_month", "sample_day"), sep="-")%>%
-#   unite("time", c("sample_hour", "sample_minute", "sample_seconds"), sep=":") %>%
-#   unite("datetime", c("date", "time"), sep=" ")
-# 
-# noaa$datetime <- ymd_hms(noaa$datetime, tz="UTC")
-# noaa <- noaa %>%
-#  dplyr::filter(datetime > "2015-07-01 00:00:00")
-# 
-# #create a lab expression for pCO2 NOAA data lebel. Include it with scale_shape_discrete(labels=lab)
-# lab <- c( expression(paste(italic(p),CO[2]," (µatm)")),
-#           expression(paste(italic(p),CO[2]," (ppm; from NOAA)")),
-#            "Calculated from AT/CT"
-# 
-#           )
-# 
-# col <- c("blue","black","red")
-# 
-# poster_pco2 <- ggplot( ) +
-#   geom_point(data=d_all%>%dplyr::filter(pco2_contros > 150 & pco2_contros < 410), aes(x=datetime, y= pco2_contros, shape ="lab", colour="blue"),size=0.5 ) +
-#   geom_point(data=d_all, aes(x=datetime, y=pco2_calc, shape="lab" , color= "red"))+
-#   geom_point() + geom_point(data=noaa%>%dplyr::filter(analysis_value > 150), aes(x=datetime, y= analysis_value, shape="lab", color ="col" ),size=0.5)+
-#   scale_shape_discrete(labels=lab, guide="none")+
-#   scale_colour_manual(labels=lab, values=col)+
-#   labs(x = "", y ="", title = "") +
-#   theme_bw() +
-#   scale_x_datetime(minor_breaks  = "1 month ")+
-#   theme(legend.position="top",  #c(0.18, 0.85)
-#                      legend.text=element_text(size=14, colour="black"),
-#                      #plot.title = element_text(hjust =0.1, vjust = 1,size = rel(1.5),margin = margin( b = -30)),
-#                      axis.text=element_text(size=15),
-#                      plot.margin = unit(c(0.5,1,1,1), "cm"),
-#                      axis.title.x= element_text(size =15),
-#                      legend.title=element_blank()
-#                      )
-# print(poster_pco2)
-#   ggsave(paste0("figures/poster_pco2.png"), width= 30, height=10, poster_pco2, units="cm")
-
-    ```
+pco2_contros_xts <-
+  dplyr::select(d_all, datetime, pco2_calc, pco2_corr)
+pco2_contros_xts <-
+  as.xts(pco2_contros_xts, order.by = d_all$datetime)
+dygraph(pco2_contros_xts,
+        group = "awipev",
+        main = "<i>p</i>CO<sub>2</sub>",
+        ylab = "<i>p</i>CO<sub>2</sub>") %>%
+  dySeries(
+    "pco2_corr",
+    label = "Corrected pCO2",
+    color =  RColorBrewer::brewer.pal(3, "Dark2")[1],
+    strokeWidth = 0,
+    pointSize = 2
+  ) %>%
+  #dySeries("pco2_raw", label="Raw pCO2",color ="blue", strokeWidth = 0, pointSize = 1) %>%
+  dySeries(
+    "pco2_calc",
+    label = "pco2_calc",
+    color = "red",
+    strokeWidth = 0,
+    pointSize = 4
+  ) %>%
+  dyEvent(
+    as.POSIXct("2016-02-28 12:00:00", tz = "GMT"),
+    "CO2FT-0515-001 installed",
+    labelLoc = "bottom",
+    color = "red"
+  ) %>%
+  dyEvent(
+    as.POSIXct("2017-02-07 12:00:00", tz = "GMT"),
+    "CO2FT-0215-001 installed",
+    labelLoc = "bottom",
+    color = "red"
+  ) %>%
+  dyEvent(
+    as.POSIXct("2018-04-16 12:00:00", tz = "GMT"),
+    "CO2FT-0515-001 installed",
+    labelLoc = "bottom",
+    color = "red"
+  ) %>%
+  dyEvent(
+    as.POSIXct("2018-10-31 15:00:00", tz = "GMT"),
+    "CO2FT-0215-001 installed",
+    labelLoc = "bottom",
+    color = "red"
+  ) %>%
+  dyEvent(
+    as.POSIXct("2019-09-03 15:00:00", tz = "GMT"),
+    "CO2FT-0515-001 installed",
+    labelLoc = "bottom",
+    color = "red"
+  ) %>%
+  dyHighlight(
+    highlightCircleSize = 8,
+    highlightSeriesBackgroundAlpha = 0.5,
+    hideOnMouseOut = TRUE
+  ) %>%
+  dyLegend(show = "follow")   %>%
+  dyOptions(
+    drawGrid = TRUE,
+    drawPoints = TRUE,
+    pointSize = c(1, 8, 1),
+    useDataTimezone = TRUE
+  ) %>%
+  dyRangeSelector(height = 30, dateWindow = NULL)
+```
 
 ## pH seaFET
 
@@ -1550,7 +1390,7 @@ d_all <- d_all %>%
 ##     new sf_calib function      ##
 ####
 calib_spectro <- sf_calib(calEint = d_all$voltINT, calEext = d_all$voltEXT, calpH = d_all$ph_s_sf_temp_mix,
-                          calT = d_all$temp_sf, calSal = d_all$sal_insitu_ctd)
+                          calT = d_all$temp_sf, calSal = d_all$sal_mix_interp)
 # put number of deployment 
 calib_spectro$deployment_sf <- d_all$deployment_sf 
 
@@ -1581,12 +1421,12 @@ During the fifth period, seaFET cannot be calibrated because seaFET was not work
 We also defined a period of malfunction from **2017-12-14** to **2018-02-02**. in the first part of this period, until 2018-01-08, we decided to filter outliers.  In the second part, until the end of the period, data must be removed.
 
 
-```{r seaFET pH calculation sf_calc, echo=FALSE,message= FALSE, warning=FALSE}
+```{r seaFET pH calculation sf_calc, echo=FALSE, message= FALSE, warning=FALSE}
 ####
 ## calculation of the calibrated pH ##
 ##       new sf_calc function       ##
 ####
-seafet_calib <- sf_calc(calEint = d_all$voltINT, calEext = d_all$voltEXT, E0int25 = d_all$E0int25_sf,  E0ext25 = d_all$E0ext25_sf, calT = d_all$temp_sf, calSal = d_all$sal_insitu_ctd)
+seafet_calib <- sf_calc(calEint = d_all$voltINT, calEext = d_all$voltEXT, E0int25 = d_all$E0int25_sf,  E0ext25 = d_all$E0ext25_sf, calT = d_all$temp_sf, calSal = d_all$sal_mix_interp)
 
 # bind new calibrated pH data to the seafet data set.
 names(seafet_calib) <- c("pHint_tot_sf", "pHext_tot_sf")
@@ -1599,17 +1439,17 @@ d_all <- d_all %>%
                  
 # add spectro points that are not taking into consideration
 d_all <- d_all%>%
-  dplyr::mutate( pH_s_sf_no_calb = ifelse(datetime == "2018-04-16 07:00:00" | datetime == "2018-12-14 10:00:00" | datetime == "2019-01-18 11:00:00", ph_s_sf_temp_mix, NA ))
+  dplyr::mutate( pH_s_sf_no_calb = ifelse(datetime == "2018-04-16 07:00:00" | datetime == "2018-12-14 10:00:00" | datetime == "2019-01-18 11:00:00", ph_s_sf_temp_mix, NA))
 
-# p <- ggplot(d_all%>%filter(datetime >= ("2017-07-30") & !is.na(depth) ),aes(x=datetime, y= phINT, label = depth))+
-#   geom_point( aes(color=factor(depth)), size=1, alpha=0.5, na.rm=TRUE) 
+p <- ggplot(d_all, aes(x=datetime, y= pHint_tot_sf))+
+  geom_point(size=1, alpha=0.5, na.rm=TRUE)
 
 ###Plotly
 # p_py <- ggplotly(p,dynamicTicks = TRUE)
 # filename.html <- paste0("p_py.html")
 # saveWidget(p_py, filename.html, selfcontained = T, libdir = "lib")
 
-seafet_depth_xts <- dplyr::select(d_all, datetime, ph_s_sf_temp_mix,pHint_tot_sf, pH_s_sf_no_calb)
+seafet_depth_xts <- dplyr::select(d_all, datetime, ph_s_sf_temp_mix, pHint_tot_sf, pH_s_sf_no_calb)
 seafet_depth_xts <- as.xts(seafet_depth_xts, order.by = d_all$datetime)
 dygraph(seafet_depth_xts, group = "depth", main="pH seaFET (ref + corrected + raw)", ylab="pHT") %>%
 dySeries("pHint_tot_sf", label = "pHT corrected", color =  RColorBrewer::brewer.pal(3, "Dark2")[1], strokeWidth = 0, pointSize = 3) %>%
@@ -1704,15 +1544,15 @@ range_month <-
   summarize(pH_range_month = mean(pH_range, na.rm=TRUE))
 
 size_point <- 0.4 #size of data points
-plot_range_sf <-  
+p <-  
   ggplot(data=range, aes(x = as.factor(month), y = pH_range)) +
   geom_violin(fill='lightblue', alpha=0.5, size=0.2, trim = TRUE) +
   geom_boxplot(notch=TRUE, size=0.2, fill="grey50", outlier.color = "blue", outlier.size = 0.3) +
   labs(y =expression(paste(pH[T], " range seaFET")), x=NULL, title=NULL) +
   Mytheme() +
   theme(panel.grid.major.x = element_blank())
-print(plot_range_sf)
-ggsave(paste0("figures/plot_range_sf.png"), width= 30, height=10, plot_range_sf, units="cm")
+print(p) # plot_range_sf
+#ggsave(paste0("figures/plot_range_sf.png"), width= 30, height=10, plot_range_sf, units="cm")
 
 ```
 
@@ -1908,15 +1748,15 @@ range_month <-
   summarize(pH_range_month = mean(pH_range, na.rm=TRUE))
 
 size_point <- 0.4 # size of data points
-plot_range_dur <-
+p <-
   ggplot(data=range_dur, aes(x = as.factor(month), y = pH_range)) +
   geom_violin(fill='lightblue', alpha=0.5, size=0.2, trim = TRUE) +
   geom_boxplot(notch=TRUE, size=0.2, fill="grey50", outlier.color = "blue", outlier.size = 0.3) +
   labs(y =expression(paste(pH[T], " range durafet")), x=NULL, title=NULL) +
   Mytheme() +
   theme(panel.grid.major.x = element_blank())
-print(plot_range_dur)
-ggsave(paste0("figures/plot_range_dur.png"), width= 30, height=10, plot_range_dur, units="cm")
+print(p) # plot_range_dur
+#ggsave(paste0("figures/plot_range_dur.png"), width= 30, height=10, plot_range_dur, units="cm")
 ```
 
 The average offset between durafet and references (spectro) data is `r average_offset_dur` pH unit (sd = `r sd_offset_dur`, n = `r n_offset_dur`).
@@ -2108,7 +1948,7 @@ p_dura_spectro <-  ggplot(d_all,aes(x=ph_dur_corr, y= ph_s_dur_temp_fb, label = 
 p_dura_spectro
 ```
 
-### **Spectro / seaFET**
+<!-- ### **Spectro / seaFET** -->
 
 ```{r pHs comparaison sf spectro, echo=FALSE, message= FALSE, warning=FALSE}
 # Spectro / seafet
@@ -2229,8 +2069,8 @@ p_at_ts
 pdelta_ct_snapo
 pdelta_ct_snapo_dygraph
 p_ct_ts
-ggsave(paste0("figures/delta_at_awipev_snapo.png"), pdelta_at_snapo, units="cm")
-ggsave(paste0("figures/delta_ct_awipev_snapo.png"), pdelta_ct_snapo, units="cm")
+#ggsave(paste0("figures/delta_at_awipev_snapo.png"), pdelta_at_snapo, units="cm")
+#ggsave(paste0("figures/delta_ct_awipev_snapo.png"), pdelta_ct_snapo, units="cm")
 ```
 ```{r save all, echo=FALSE, message= FALSE, warning=FALSE}
 # d_hour is the real data set that is read at the beginning of the script
