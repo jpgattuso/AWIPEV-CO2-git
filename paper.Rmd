@@ -181,32 +181,20 @@ d <- d_all %>%
 ```
 
 ```{r calculate missing, echo=FALSE, warning=FALSE, message=FALSE}
+zz <- d %>%
+  group_by_key() %>%
+  index_by(quarter = ~ quarter(.)) %>% # monthly aggregates
+  summarise(
+    sal_fb_na = sum(!is.na(sal_fb))/n())
+zz
 
 
-
-var_list <- c("sal_fb", "temp_fb")
-n_na <- NULL
-for (i in 1:length(var)) {
-  na <- sum(!is.na([[i]]))
-  a
-}
-
-
-pc_na <- function(x=df) {
-  NAs <- as.tibble(map_df(x, function(x) sum(!is.na(x)))) %>% # number of NAs
-    dplyr::select(-datetime)
-  NAs <- as.data.frame(t(NAs))
-  n <- nrow(x) # total number of rows
-  pc_na <- n_na/n #fraction of NAs
-  NAs$pc <- pc_na$V1
-  return(NAs)
-}
-tmp <- d %>% 
-  as_tibble() %>% 
-  dplyr::select(pH_s_seafet_temp_ctd, par_air_filtered, pco2_contros, pH_s_seafet_temp_ctd, starts_with("sal_"),
-                starts_with("temp_"), at_calc, year_month, quarter) %>%
-  summarize()
-
+zz <- d %>%
+  group_by_key() %>%
+  index_by(year_month = ~ yearmonth(.)) %>% # monthly aggregates
+  summarise(
+    sal_fb_na = sum(!is.na(sal_fb))/n())
+zz
 
 
 tmp visdat::vis_miss(tmp)
