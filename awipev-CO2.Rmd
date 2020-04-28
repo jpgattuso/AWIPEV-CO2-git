@@ -478,7 +478,7 @@ df <- d_all %>%
             range = mean(sal_insitu_ctd_1m, na.rm = TRUE)-mean(sal_insitu_ctd_9m, na.rm = TRUE)) %>% 
   ungroup()
 ```
-There are `r sum(!is.na(df$range))` days with salinity values at both 1 m (0-2 m) and 9 m (> 8 m). The salinity difference between 1 and 9 m ranges between `r min(df$range)` and `r max(df$range)` (mean: `r mean(df$range)`; `r median(df$range)`). The difference with depth is therefore significant.
+There are `r sum(!is.na(df$range))` days with salinity values at both 1 m (0-2 m) and 9 m (> 8 m). The salinity difference between 1 and 9 m ranges between `r min(df$range, na.rm=TRUE)` and `r max(df$range, na.rm=TRUE)` (mean: `r mean(df$range, na.rm=TRUE)`; `r median(df$range, na.rm=TRUE)`). The difference with depth is therefore significant.
 
 
 ### **Sal FB / Sal CTD 9 m **
@@ -626,7 +626,7 @@ df <- d_all %>%
   ungroup()
 summary(df)
 ```
-There are `r sum(!is.na(df$range))` days with temperature values at both 1 m (0-2 m) and 9 m (> 8 m). The temperature difference between 1 and 9 m ranges between `r min(df$range)`°C and `r max(df$range)`°C (mean: `r mean(df$range)`°C; `r median(df$range)`°C). The difference with depth is therefore significant.
+There are `r sum(!is.na(df$range))` days with temperature values at both 1 m (0-2 m) and 9 m (> 8 m). The temperature difference between 1 and 9 m ranges between `r min(df$range, na.rm=TRUE)`°C and `r max(df$range, na.rm=TRUE)`°C (mean: `r mean(df$range, na.rm=TRUE)`°C; `r median(df$range, na.rm=TRUE)`°C). The difference with depth is therefore significant.
 
 ### **T Ferrybox / T insitu 11 m **
 
