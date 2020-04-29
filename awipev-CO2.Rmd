@@ -117,7 +117,7 @@ ggplot(fit$model, aes_string(x = names(fit$model)[2], y = names(fit$model)[1])) 
                      " P =",signif(summary(fit)$coef[2,4], 5)))
 }
 ```
-#blabla
+
 ```{r Read and prepare ferrybox data, echo=FALSE, warning=FALSE, message=FALSE}
 d_hour <- readRDS(file = paste0(path, "fb_awipev-co2_server/ny-alesund/data/NRT_data/nydata_hour.rds"))
 # load = d_hour
@@ -435,6 +435,35 @@ In August 2017, a Durafet III pH electrode connected to a UDA2128 Analyser (Hone
 
 ### **Data availability**
 TO DO: add here an horizontal bar plot showing the percent availability of the data
+
+```{r data availability, echo=FALSE, message= FALSE, warning=FALSE, out.width="80%",fig.show='hold', fig.align="center"}
+selected_nydata_minute <- readRDS(file = paste0(path, "fb_awipev-co2_server/ny-alesund/data/NRT_data/nydata_minute.rds")) %>%
+  dplyr::select(ends_with("_qf")) #%>%
+s1 <- summary(as.factor(selected_nydata_minute$pco2_corr_qf))*100/length(selected_nydata_minute$pco2_raw_qf)
+s2 <- summary(as.factor(selected_nydata_minute$sal_fb_qf))*100/length(selected_nydata_minute$sal_fb_qf)
+s3 <- summary(as.factor(selected_nydata_minute$sal_insitu_ctd_qf))*100/length(selected_nydata_minute$sal_insitu_ctd_qf)
+s4 <- summary(as.factor(selected_nydata_minute$temp_dur_qf))*100/length(selected_nydata_minute$temp_dur_qf)
+s5 <- summary(as.factor(selected_nydata_minute$temp_fb_qf))*100/length(selected_nydata_minute$temp_fb_qf)
+s6 <- summary(as.factor(selected_nydata_minute$temp_insitu_11m_qf))*100/length(selected_nydata_minute$temp_insitu_11m_qf)
+s7 <- summary(as.factor(selected_nydata_minute$phINT_qf))*100/length(selected_nydata_minute$phINT_qf)
+s8 <- summary(as.factor(selected_nydata_minute$phEXT_qf))*100/length(selected_nydata_minute$phEXT_qf)
+qflags <- tibble(pco2_corr = s1,
+                 sal_fb = s2,
+                 sal_insitu_ctd = s3,
+                 temp_dur = s4,
+                 temp_fb = s5,
+                 temp_insitu_11m = s6,
+                 phINT = s7,
+                 phEXT = s8)
+  
+  summarise_all(percentcumsum)
+  dplyr::mutate_all(funs("percent"= cumsum(.)/100))
+p <-  ggplot(data = selected_nydata_minute) +
+  geom_bar(aes(x = as.factor(pco2_corr_qf)))
+p
+rm(selected_nydata_minute)
+```
+
 
 ## Salinities
 Several salinity sensors are on site, 1 inside the Ferrybox (SBE45) and 5 outside (ctd183, ctd181, ctd578, ctd964/964b and ctd103) that are switched periodically. Salinity from FB is taken in consideration. If data gaps are encountered, they are filled with bottom salinty data from ctd (> 8 m). New column "sal_mix" is created.
