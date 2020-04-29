@@ -156,7 +156,7 @@ d_all <- d_all %>%
 ```
    
 ```{r Temp filter, fig.width=10, fig.height=4, echo=FALSE, message= FALSE}
-###### Binding temp_insitu_11m + temp_insitu_ctd if we get gaps in temp_insitu_11m = call this new column = temp_mix ####### 
+# Binding temp_insitu_11m + temp_insitu_ctd if we get gaps in temp_insitu_11m = call this new column = temp_mix 
 d_all <- d_all %>%
   dplyr::mutate(temp_mix = ifelse(!is.na(temp_insitu_11m), temp_insitu_11m, temp_insitu_ctd_9m))
 ```
@@ -222,13 +222,13 @@ d$closest_datetime <- d_all$datetime[closest]
 d$closest_datetime[abs(d$datetime - d_all$datetime[closest]) > 30*60] <- NA
 # create closest_datetime in d_all (copy of datetime)
 d_all$closest_datetime <- d_all$datetime
-d <- left_join(d, d_all%>%dplyr::select(c(closest_datetime, sal_fb, temp_fb, temp_sf, temp_mix, temp_insitu_11m, sal_mix)), by="closest_datetime") 
+d <- left_join(d, d_all%>%dplyr::select(c(closest_datetime, sal_fb, temp_fb, temp_mix, sal_mix, temp_insitu_ctd)), by="closest_datetime") 
 
 # Conversion of spectro pH to insitu mix T°
 pH_seafet <- d %>%
-  dplyr::filter(!is.na(pH_s_seafet) & !is.na(temp_sf) )
+  dplyr::filter(!is.na(pH_s_seafet) & !is.na(temp_insitu_ctd) )
 pH_seafet <- pH_seafet %>%
-  dplyr::mutate(ph_s_sf_temp_mix = pHinsi(pH=pH_seafet$pH_s_seafet,ALK=pH_seafet$at_mean_interp*1e-6, Tinsi=pH_seafet$temp_sf, Tlab=pH_seafet$temp_s_lab, Pinsi= pH_seafet$depth/10, S=pH_seafet$sal_mix,Pt=0,Sit=0))
+  dplyr::mutate(ph_s_sf_temp_mix = pHinsi(pH=pH_seafet$pH_s_seafet,ALK=pH_seafet$at_mean_interp*1e-6, Tinsi=pH_seafet$temp_insitu_ctd, Tlab=pH_seafet$temp_s_lab, Pinsi= pH_seafet$depth/10, S=pH_seafet$sal_mix,Pt=0,Sit=0))
                 
 pH_durafet <- d %>%
 #  dplyr::filter(!is.na(pH_s_durafet))
@@ -236,7 +236,7 @@ pH_durafet <- d %>%
 pH_durafet <- pH_durafet %>%
   dplyr::mutate(ph_s_dur_temp_fb = pHinsi(pH=pH_durafet$pH_s_durafet, ALK=pH_durafet$at_mean_interp*1e-6, Tinsi=pH_durafet$temp_fb, Tlab=pH_durafet$temp_s_lab, Pinsi= pH_durafet$depth/10, S=pH_durafet$sal_fb, Pt=0, Sit=0))
  
-# create separate seafet/durafet df to join to initial "d" df
+# Make mean for replicates. create separate seafet/durafet df to join to initial "d" df
 pH_seafet_mean <- pH_seafet%>%
   dplyr::select(datetime,ph_s_sf_temp_mix)%>% 
   dplyr::group_by(datetime) %>% 
@@ -986,7 +986,7 @@ TAevents <- c("2016-02-26 00:00:00", "2017-02-09 12:00:00", "2017-02-09 12:00:00
               "2018-01-07 00:00:00", "2018-06-20 00:00:00", "2018-07-31 00:00:00", "2018-10-30 18:00:00", "2018-10-31 09:00:00", "2019-01-16 09:00:00", "2019-01-26 13:25:00", format(Sys.Date(), "%Y-%m-%d %H:%M:%S"))
 at_contros_calc_xts <- dplyr::select(d_all, datetime,at_calc, at)
 at_contros_calc_xts <-  as.xts(at_contros_calc_xts, order.by =d_all$datetime)
-dygraph(at_contros_calc_xts, group = "awipev", main="TA + TA calc from sal_mix + TA reference", ylab="Total alkalinity") %>%
+dygraph(at_contros_calc_xts, group = "awipev", main="TA, calculated from sal_mix (blue) and reference (red)", ylab="Total alkalinity") %>%
   #dySeries("AT", label= "Raw TA", color ="blue", strokeWidth = 0, pointSize=2) %>%
   dySeries("at_calc", label="at_calc",color = "blue", strokeWidth = 0, pointSize=2) %>%
   dySeries("at", label="at (ref)",color = "red", strokeWidth = 0, pointSize=4) %>%
@@ -1237,7 +1237,64 @@ d_all <- d_all %>%
                                 ifelse(datetime >= sfinterv[2] & datetime <= sfinterv[3], 02,
                                 ifelse(datetime >= sfinterv[3] , 03,NA ))))
 
-
+pco2_contros_xts <-
+  dplyr::select(d_all, datetime, voltINT, voltEXT, sal_fb, temp_insitu_ctd, ph_s_sf_temp_mix)
+pco2_contros_xts <-
+  as.xts(pco2_contros_xts, order.by = d_all$datetime)
+dygraph(pco2_contros_xts,
+        group = "awipev",
+        main = "<i>p</i>CO<sub>2</sub>",
+        ylab = "<i>p</i>CO<sub>2</sub>") %>%
+  dySeries(
+    axis = "y2",
+    "voltINT",
+    label = "voltINT",
+    color =  RColorBrewer::brewer.pal(5, "Dark2")[1],
+    strokeWidth = 0,
+    pointSize = 2
+  ) %>%
+  dySeries(axis="y2",
+    "voltEXT",
+    label = "voltEXT",
+    color =  RColorBrewer::brewer.pal(5, "Dark2")[2],
+    strokeWidth = 0,
+    pointSize = 2
+  ) %>%
+   dySeries(
+    "temp_insitu_ctd",
+    label = "temp_insitu_ctd",
+    color =  RColorBrewer::brewer.pal(5, "Dark2")[3],
+    strokeWidth = 0,
+    pointSize = 2
+  ) %>%
+   dySeries(
+    "sal_fb",
+    label = "sal_fb",
+    color =  RColorBrewer::brewer.pal(5, "Dark2")[4],
+    strokeWidth = 0,
+    pointSize = 2
+  ) %>%
+   dySeries(
+    "ph_s_sf_temp_mix",
+    label = "ph_s_sf_temp_mix",
+    color =  RColorBrewer::brewer.pal(5, "Dark2")[5],
+    strokeWidth = 0,
+    pointSize = 4
+  ) %>%
+  dyHighlight(
+    highlightCircleSize = 8,
+    highlightSeriesBackgroundAlpha = 0.5,
+    hideOnMouseOut = TRUE
+  ) %>%
+  dyLegend(show = "follow")   %>%
+  dyAxis("y2",valueRange = c(-2,2))%>%
+  dyOptions(
+    drawGrid = TRUE,
+    drawPoints = TRUE,
+    pointSize = c(1, 8, 1),
+    useDataTimezone = TRUE
+  ) %>%
+  dyRangeSelector(height = 30, dateWindow = NULL)
 # To make sf calibration against pH spectro, we need: sal - T insi - voltINT/EXT . If we missed one of these parameters, calibration will not run
 # Here we try to fill the gap when it is possible: make a mean with 4 previous/next hours available in the time serie. 
 # If the pH spectro is too far from a needed value, we decided to skip it for the calibration.
@@ -1259,7 +1316,7 @@ d_all$phEXT <- ifelse(d_all$datetime >= "2018-01-08 17:00:00" & d_all$datetime <
 d_all$voltINT <- ifelse(d_all$datetime == "2017-11-02 21:00:00" | d_all$datetime == "2018-04-18 14:00:00", NA, d_all$voltINT)
 
 
-# period 1, mean of 4 next hours for volt int + T seaF
+#periode 1, mean of 4 next hours for volt int + T seaF
 mean_voltINT_4h <- d_all%>%
   dplyr::filter(datetime >= "2017-08-24 19:00:00" & datetime <= "2017-08-24 22:00:00")%>%
   dplyr::summarise( mean(voltINT, na.rm = TRUE))
@@ -1281,7 +1338,7 @@ mean_TseaF_4h <- as.numeric(mean_TseaF_4h)
 d_all <- d_all%>%
   dplyr::mutate(temp_mix = ifelse(datetime == "2017-08-24 13:00:00" , mean_TseaF_4h, temp_mix))
 
-# period 1 also, mean of 4 next hours for volt int + T seaF
+# Periode 2, mean of 4 next hours for volt int + T seaF
 mean_voltINT_4h <- d_all%>%
   dplyr::filter(datetime >= "2017-09-28 15:00:00" & datetime <= "2017-09-28 18:00:00")%>%
   dplyr::summarise( mean(voltINT, na.rm = TRUE))
@@ -1296,7 +1353,7 @@ mean_voltEXT_4h <- as.numeric(mean_voltEXT_4h)
 d_all <- d_all%>%
   dplyr::mutate(voltEXT = ifelse(datetime == "2017-09-28 13:00:00" , mean_voltEXT_4h, voltEXT))
 
-# period 03, mean of 4 previous hours for volt int + T seaF
+# period 03, mean of 4 previous hours for volt int + volt ext
 mean_voltINT_4h <- d_all%>%
   dplyr::filter(datetime >= "2019-09-13 04:00:00" & datetime <= "2019-09-13 07:00:00")%>%
   dplyr::summarise( mean(voltINT, na.rm = TRUE))
@@ -1311,7 +1368,7 @@ mean_voltEXT_4h <- as.numeric(mean_voltEXT_4h)
 d_all <- d_all%>%
   dplyr::mutate(voltEXT = ifelse(datetime == "2019-09-13 08:00:00" , mean_voltEXT_4h, voltEXT))
 
-# period 03 also, mean of 4 previous hours for volt int + T seaF
+# period 04 also, mean of 4 previous hours for volt int + volt ext + T seaF
 mean_voltINT_4h <- d_all%>%
   dplyr::filter(datetime >= "2019-09-13 11:00:00" & datetime <= "2019-09-13 12:00:00")%>%
   dplyr::summarise( mean(voltINT, na.rm = TRUE))
@@ -1347,8 +1404,7 @@ d_all <- d_all %>%
 ## calculation of E0INT25/E0EXT25 ##
 ##     new sf_calib function      ##
 ####
-calib_spectro <- sf_calib(calEint = d_all$voltINT, calEext = d_all$voltEXT, calpH = d_all$ph_s_sf_temp_mix,
-                          calT = d_all$temp_sf, calSal = d_all$sal_mix_interp)
+calib_spectro <- sf_calib(calEint = d_all$voltINT, calEext = d_all$voltEXT, calpH = d_all$ph_s_sf_temp_mix, calT = d_all$temp_sf, calSal = d_all$sal_mix_interp)
 # put number of deployment 
 calib_spectro$deployment_sf <- d_all$deployment_sf 
 
