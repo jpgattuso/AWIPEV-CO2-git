@@ -117,7 +117,7 @@ ggplot(fit$model, aes_string(x = names(fit$model)[2], y = names(fit$model)[1])) 
                      " P =",signif(summary(fit)$coef[2,4], 5)))
 }
 ```
-
+#blabla
 ```{r Read and prepare ferrybox data, echo=FALSE, warning=FALSE, message=FALSE}
 d_hour <- readRDS(file = paste0(path, "fb_awipev-co2_server/ny-alesund/data/NRT_data/nydata_hour.rds"))
 # load = d_hour
