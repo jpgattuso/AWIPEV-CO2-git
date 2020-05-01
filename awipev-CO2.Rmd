@@ -2254,21 +2254,7 @@ All documents concerning maintenance, tasks to do, calibration... are accessible
 
 [Quick overview AWI NRT database](https://dashboard.awi.de/?dashboard=9736) 
 
-### Traitement des variables
-
-* temp_mix = temp 11m + temp_insitu_ctd_9m si trous.
-* sal_mix = sal FB + sal_insitu_ctd_9m si trous.
-* ph_s_sf_temp_mix: pH spectro seaFET pH insi calculé avec AT interpolée + temp_mix +sal_mix
-* ph_s_dur_temp_fb: pH spectro durafet pH insi calculé avec AT interpolée + temp_fb +sal_fb
-* ph_calc: pH calc from AT/CT ferrybox = carb avec temp_fb +sal_fb
-* pco2_calc: pco2 calc from AT/CT ferrybox = carb avec temp_fb +sal_fb
-* Relation at / sal_mix 
-* at_calc: calculé from sal_mix
-* E0int25_sf: calculé à partir du voltage interne + ph_s_sf_temp_mix (temp 11m + temp_insitu_ctd_9m si trous) + temp CTD 9m + sal CTD 9m (calib seaFET fonction 1)
-* phint_tot_sf: calculé à partir du voltage interne + E0 + temp CTD + sal CTD (calib seaFET fonction 2)
-
 ### **FerryBox**
-
 - **2020-03-13**: Salinity was filtered above 28 in d_all.rds file.
 - **2018-11-14**: One instrument was removed by Uwe (Chlorophyl-a), that means that one column (CHl_A_Cyclops) was also removed from the Ferrybox data file. Script was modified in consequence.
 
@@ -2303,30 +2289,7 @@ All documents concerning maintenance, tasks to do, calibration... are accessible
 - **2018-03-09**: Script issue solved with first negative values encountred in SBE38 files. We find a regex solution to take "space + space or negative value" in consideration.
 - **2017-11-07**: Wrong seaFET files (wrong datetime starting on the 5th September) from 24 to 26 October were fixed. File "SVL_20171024_030426_to_20171026_110425_SeaFet-1005.txt" were created in SeaFet_archive.
 
-## Villefranche Server informations
-
-* Serveur : awipev-co2 (193.50.85.104)
-* 3 comptes: awipev (partagé avec Samir), gattuso, nydata (pour l’envoi des données par P. Fischer mais n'est plus utilisé).
-* Pour se connecter à awipev-co2.obs-vlfr.fr
-    + ssh awipev@awipev-co2.obs-vlfr.fr
-* Intervention sur le serveur :
-    + ssh awipev@awipev-co2.obs-vlfr.fr
-    + rebooting Ubuntu server: sudo shutdown -r now
-    + to check versions:
-        - dpkg -l | grep shiny
-        - dpkg -l | grep r-base
-    + To update Ubuntu, R and its packages:
-        - sudo su
-        - apt-get upgrade
-    + To restart shiny server: sudo systemctl restart shiny-server
-        - update shiny server: follow procedure detailed on the shiny web page Data processing
-* To install R packages:
-    + ssh gattuso@o
-    + sudo R (then password)
-    + install.packages (tidyverse")
-  
-### Data processing
-
+## Data processing
 #### Script ny-alesund_cc.R which runs on awipev@awipev-co2.obs-vlfr.fr
 * reads data from the AWI NRT database [Quick overview AWI NRT database](https://dashboard.awi.de/?dashboard=9736) 
 * calibrates pCO2 data
@@ -2356,11 +2319,44 @@ All documents concerning maintenance, tasks to do, calibration... are accessible
     + nydata_hour.rds: selected hourly means of all data after filtering and despike describe above (every minute).  This is for further data processing.
 
 #### Script awipev-co2.Rmd which runs locally
+* reads locally fb_awipev-co2_server/ny-alesund/data/NRT_data/nydata_hour.rds
 * sal_mix: when ferrybox data (sal_fb) are missing, they are replaced by data from the profiling ctd for depths > 8 m (sal_insitu_ctd_9m)
 * temp_mix: when data of in situ temperature at 11 m (temp_insitu_11m) are missing, they are replaced by data from the profiling ctd for depths > 8 m
+* pco2_calc: pco2 calc from AT/CT ferrybox = carb avec temp_fb +sal_fb
 * calibrate seafet pH
+    - ph_s_sf_temp_mix: pH spectro seaFET pH insi calculé avec AT interpolée + temp_mix +sal_mix
+    - E0int25_sf: calculé à partir du voltage interne + ph_s_sf_temp_mix (temp 11m + temp_insitu_ctd_9m si trous) + temp CTD 9m + sal CTD 9m (calib seaFET fonction 1)
+    - phint_tot_sf: calculé à partir du voltage interne + E0 + temp CTD + sal CTD (calib seaFET fonction 2)
+* ph_calc: pH calc from AT/CT ferrybox = carb avec temp_fb +sal_fb
 * calibrate durafet pH
+    - ph_s_dur_temp_fb: pH spectro durafet pH insi calculé avec AT interpolée + temp_fb +sal_fb
+* Relation at / sal_mix 
+* at_calc: calculé from sal_mix
+* saves locally d_all.rds which comprises all variables plus those generated in the script
 
+
+### Villefranche Server informations
+
+* Serveur : awipev-co2 (193.50.85.104)
+* 3 comptes: awipev (partagé avec Samir), gattuso, nydata (pour l’envoi des données par P. Fischer mais n'est plus utilisé).
+* Pour se connecter à awipev-co2.obs-vlfr.fr
+    + ssh awipev@awipev-co2.obs-vlfr.fr
+* Intervention sur le serveur :
+    + ssh awipev@awipev-co2.obs-vlfr.fr
+    + rebooting Ubuntu server: sudo shutdown -r now
+    + to check versions:
+        - dpkg -l | grep shiny
+        - dpkg -l | grep r-base
+    + To update Ubuntu, R and its packages:
+        - sudo su
+        - apt-get upgrade
+    + To restart shiny server: sudo systemctl restart shiny-server
+        - update shiny server: follow procedure detailed on the shiny web page Data processing
+* To install R packages:
+    + ssh gattuso@o
+    + sudo R (then password)
+    + install.packages (tidyverse")
+    
 **crontab awipev@awipev-co2.obs-vlfr.fr**
 Si on veut remplacer intégralement les fichiers de pCloud par ceux de awipev-co2 : ajouter “--delete” à la commande rsync.
 Pattern des commandes : # m h dom mon dow command 
@@ -2401,71 +2397,3 @@ A la main dans le terminal, cela donne :
 
 
 ![ ](Images/awipev_server_arborescence.jpg){width=65%}
-
-
-
-<!-- ```{r Graph pour proposal, echo=FALSE, message= FALSE, warning=FALSE} -->
-
-<!-- p_sal <- ggplot() + -->
-<!--          geom_point(data=d_all%>%filter(sal >28),aes(x=datetime, y=sal),size=1, color="blue") + -->
-<!--          scale_x_datetime(breaks=date_breaks("3 months"), labels = date_format("%b%y") ) + -->
-<!--          labs(y = "Salinity", x="Time")+ -->
-<!--         theme_bw() -->
-<!--  p_temp_fb <- ggplot() + -->
-<!--          geom_point(data=d_all,aes(x=datetime, y=temp_fb),size=1, color="blue") + -->
-<!--          scale_x_datetime(breaks=date_breaks("3 months"), labels = date_format("%b%y") ) + -->
-<!--          labs(y = "Temperature (in Ferrybox)", x="Time")+ ylim(c(-2.5, 9.5)) + -->
-<!--         theme_bw() -->
-<!--  p_pco2 <- ggplot() + -->
-<!--          geom_point(data=d_all%>%filter(pco2_contros < 450),aes(x=datetime, y=pco2_contros),size=1, color="blue") + -->
-<!--          scale_x_datetime(breaks=date_breaks("3 months"), labels = date_format("%b%y") ) + -->
-<!--          labs(y = "Corrected pCO2", x="Time")+ -->
-<!--         theme_bw() -->
-<!--  p_ta_raw <- ggplot() + -->
-<!--          geom_point(data=d_all,aes(x=datetime, y=sal),size=1, color="blue") + -->
-<!--          scale_x_datetime(breaks=date_breaks("3 months"), labels = date_format("%b%y") ) + -->
-<!--          labs(y = "Salinity", x="Time")+ -->
-<!--         theme_bw() -->
-<!--  p_sf <- ggplot() + -->
-<!--          geom_point(data=d_all,aes(x=datetime, y=pHint_tot_sf),size=1, color="blue") + -->
-<!--          scale_x_datetime(breaks=date_breaks("3 months"), labels = date_format("%b%y") ) + -->
-<!--          labs(y = "Corrected seaFET pH", x="Time")+ -->
-<!--         theme_bw() -->
-<!--  p_df <- ggplot() + -->
-<!--          geom_point(data=d_all,aes(x=datetime, y=pH_durafet_),size=1, color="blue") + -->
-<!--          scale_x_datetime(breaks=date_breaks("3 months"), labels = date_format("%b%y") ) + -->
-<!--          labs(y = "Corrected seaFET pH", x="Time")+ -->
-<!--         theme_bw() -->
-<!-- ggsave("../fb_figures/Plots_proposal/p_sal.png", p_sal,width = 15, height = 5 ,units="cm") -->
-<!-- ggsave("../fb_figures/Plots_proposal/p_temp_fb.png", p_temp_fb,width = 15, height = 5 ,units="cm") -->
-<!-- ggsave("../fb_figures/Plots_proposal/p_pco2.png", p_pco2,width = 15, height = 5 ,units="cm") -->
-<!-- ggsave("../fb_figures/Plots_proposal/p_sf.png", p_sf,width = 15, height = 5 ,units="cm") -->
-<!-- ggsave("../fb_figures/Plots_proposal/p_df.png", p_df,width = 15, height = 5 ,units="cm") -->
-<!-- ggsave("../fb_figures/Plots_proposal/p_ta.png", p_ta,width = 15, height = 5 ,units="cm") -->
-
-<!--  # DURAFET  -->
-<!-- durafet_contros_xts <- dplyr::select(d_all, datetime, pH_durafet, ph_s_dur_temp_fb) -->
-<!-- durafet_contros_xts <- as.xts(durafet_contros_xts, order.by = d_all$datetime) -->
-<!-- dygraph(durafet_contros_xts, group = "awipev", main="pH durafet (in Ferrybox)", ylab="pHT") %>% -->
-<!--     dySeries("pH_durafet", label = "Raw durafet pH", color ="blue", strokeWidth=0, pointSize=2) %>% -->
-<!--     dySeries("ph_s_dur_temp_fb", label = "pH spectro", color =  "red", strokeWidth = 0, pointSize = 4 ) %>% -->
-<!--     dyEvent(as.POSIXct("2017-08-24 12:00:00", tz="GMT"), "durafet installed", labelLoc = "bottom", color="red") %>% -->
-<!--     dyEvent(as.POSIXct("2017-10-30 13:00:00", tz="GMT"), "New holder installed", labelLoc = "bottom", color="red") %>%  -->
-<!--     # dyOptions(colors = RColorBrewer::brewer.pal(3, "Dark2"), pointSize = 4) %>% -->
-<!--     dyHighlight(highlightCircleSize = 8,highlightSeriesBackgroundAlpha = 0.5,hideOnMouseOut = TRUE) %>% -->
-<!--     dyOptions(drawGrid = TRUE, drawPoints = TRUE, pointSize = c(1,8,1),useDataTimezone = TRUE, digitsAfterDecimal=4) %>% -->
-<!--     dyRangeSelector(height = 30)  -->
-<!-- # SEAFET  -->
-<!-- seafet_contros_xts <- dplyr::select(d_all, datetime, phINT,ph_s_sf_temp_mix) -->
-<!-- seafet_contros_xts <- as.xts(seafet_contros_xts, order.by = d_all$datetime) -->
-<!-- dygraph(seafet_contros_xts, group = "awipev", main="pH seaFET (in situ)", ylab="pHT") %>% -->
-<!--   dySeries("phINT", label = "Raw data INT", color ="blue", strokeWidth=0, pointSize=2) %>% -->
-<!--   dySeries("ph_s_sf_temp_mix", label = "pH spectro", color =  "red", strokeWidth = 0, pointSize = 4 ) %>% -->
-<!--   dyEvent(as.POSIXct("2017-08-24 12:00:00", tz="GMT"), "seaFET #1005 installed", labelLoc = "bottom", color="red") %>% -->
-<!--   dyEvent(as.POSIXct("2018-02-02 09:00:00", tz="GMT"), "seaFET settings changed to every 1H", labelLoc = "bottom", color="red") %>%  -->
-<!--   dyEvent(as.POSIXct("2018-04-17 12:00:00", tz="GMT"), "seaFET #0007 installed + continuous mode set", labelLoc = "bottom", color="red") %>% -->
-<!--     dyHighlight(highlightCircleSize = 8,highlightSeriesBackgroundAlpha = 0.5,hideOnMouseOut = TRUE) %>% -->
-<!--     dyOptions(drawGrid = TRUE, drawPoints = TRUE, pointSize = c(1,8,1),useDataTimezone = TRUE, digitsAfterDecimal=4) %>% -->
-<!--     dyRangeSelector(height = 30)  -->
-
-<!-- ``` -->
