@@ -374,7 +374,7 @@ discrete2merge <- discrete %>%
   rename(datetime=closest_datetime)
 d_all <- full_join(d_all, discrete2merge, by="datetime")
 
-save(file= paste0(path, "fb_data/d_all.rds"), d_all)
+saveRDS(file= paste0(path, "fb_data/d_all.rds"), d_all)
 
 ## bind the voltages and deployment ##
 
@@ -2118,8 +2118,6 @@ p_ct_ts
 ```{r save all, echo=FALSE, message= FALSE, warning=FALSE}
 # d_hour is the real data set that is read at the beginning of the script
 # d_all comprises additional columns calculated in this script
-# These additional variablrs are useful elsewhere (for example in "presentation")
-# Hence, here we save it for this use
 saveRDS(file= paste0(path, "fb_data/d_all.rds"), d_all)
 ```
 
@@ -2328,9 +2326,42 @@ All documents concerning maintenance, tasks to do, calibration... are accessible
     + install.packages (tidyverse")
   
 ### Data processing
-We use the AWI database [Quick overview AWI NRT database](https://dashboard.awi.de/?dashboard=9736) 
 
-* **crontab awipev@awipev-co2.obs-vlfr.fr**
+#### Script ny-alesund_cc.R which runs on awipev@awipev-co2.obs-vlfr.fr
+* reads data from the AWI NRT database [Quick overview AWI NRT database](https://dashboard.awi.de/?dashboard=9736) 
+* calibrates pCO2 data
+* data cleaning:
+  + Argo Global Range Test.
+  + filter salinities above 28
+  + filter temperatures above 10
+  + filter seaFET Volt (outliers)
+  + filter seaFET pH (outliers)
+  + filter durafet (outliers)
+* Quality flags
+    + 1: good data
+    + 3: impossible date and time test
+    + 4: data not usable according to manufacturer (flush mode, zero mode, calibration mode...) 
+    + 6: failing the manufacturer range test (not used)
+    + 7: failing the regional range test 
+    + 12: failing the spike test (NAs from despike)
+    + 13: failing the gradient test
+    + 15: the instrument was not deployed or operated
+    + 99: failing the final visual inspection of the data. 
+* Despike using oce::despike with n=2, k=5761
+* Files generated:
+    + previous_NRT_data.rds: all NRT data without alteration from the beginning (2015)
+    + all_nydata_minute.rds: all data after filtering and despike describe above (every minute)
+    + all_nydata_hour.rds: hourly means of all data after filtering and despike describe above (every minute)
+    + nydata_minute.rds: selected data after filtering and despike describe above (every minute). **Useful?**
+    + nydata_hour.rds: selected hourly means of all data after filtering and despike describe above (every minute).  This is for further data processing.
+
+#### Script awipev-co2.Rmd which runs locally
+* sal_mix: when ferrybox data (sal_fb) are missing, they are replaced by data from the profiling ctd for depths > 8 m (sal_insitu_ctd_9m)
+* temp_mix: when data of in situ temperature at 11 m (temp_insitu_11m) are missing, they are replaced by data from the profiling ctd for depths > 8 m
+* calibrate seafet pH
+* calibrate durafet pH
+
+**crontab awipev@awipev-co2.obs-vlfr.fr**
 Si on veut remplacer intégralement les fichiers de pCloud par ceux de awipev-co2 : ajouter “--delete” à la commande rsync.
 Pattern des commandes : # m h dom mon dow command 
 
@@ -2352,14 +2383,19 @@ Pattern des commandes : # m h dom mon dow command
     + awipev-CO2_web.Rmd
     + awipev-co2.sh (lancer par bash awipev-co2.sh)
 * Accessible https://awipev-co2.obs-vlfr.fr 
-* On utilise un shell script awipev-co2.sh:
+* On utilise un shell script awipev-co2.sh :
+    
     #!/bin/bash 
+    
     # script de lancement via crontab echo '---------deb awipev-co2.sh -----------' 
+    
     # On lance la fabrication du html cd web; R -e 
     'library("rmarkdown");library("knitr");rmarkdown::render("awipev-CO2_web.Rmd")'; cp awipev-CO2_web.html ../awipev-CO2_web/index.html 
+    
     echo '---------fin awipev-co2.sh -----------'
 
 A la main dans le terminal, cela donne :
+
 * ssh awipev@awipev-co2.obs-vlfr.fr
 * R --vanilla < web/awipev-CO2_web.Rmd
 
