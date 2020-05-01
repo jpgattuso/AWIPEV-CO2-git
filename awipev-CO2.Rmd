@@ -439,29 +439,29 @@ TO DO: add here an horizontal bar plot showing the percent availability of the d
 ```{r data availability, echo=FALSE, message= FALSE, warning=FALSE, out.width="80%",fig.show='hold', fig.align="center"}
 selected_nydata_minute <- readRDS(file = paste0(path, "fb_awipev-co2_server/ny-alesund/data/NRT_data/nydata_minute.rds")) %>%
   dplyr::select(ends_with("_qf")) #%>%
-s1 <- summary(as.factor(selected_nydata_minute$pco2_corr_qf))*100/length(selected_nydata_minute$pco2_raw_qf)
-s2 <- summary(as.factor(selected_nydata_minute$sal_fb_qf))*100/length(selected_nydata_minute$sal_fb_qf)
-s3 <- summary(as.factor(selected_nydata_minute$sal_insitu_ctd_qf))*100/length(selected_nydata_minute$sal_insitu_ctd_qf)
-s4 <- summary(as.factor(selected_nydata_minute$temp_dur_qf))*100/length(selected_nydata_minute$temp_dur_qf)
-s5 <- summary(as.factor(selected_nydata_minute$temp_fb_qf))*100/length(selected_nydata_minute$temp_fb_qf)
-s6 <- summary(as.factor(selected_nydata_minute$temp_insitu_11m_qf))*100/length(selected_nydata_minute$temp_insitu_11m_qf)
-s7 <- summary(as.factor(selected_nydata_minute$phINT_qf))*100/length(selected_nydata_minute$phINT_qf)
-s8 <- summary(as.factor(selected_nydata_minute$phEXT_qf))*100/length(selected_nydata_minute$phEXT_qf)
-qflags <- tibble(pco2_corr = s1,
-                 sal_fb = s2,
-                 sal_insitu_ctd = s3,
-                 temp_dur = s4,
-                 temp_fb = s5,
-                 temp_insitu_11m = s6,
-                 phINT = s7,
-                 phEXT = s8)
-  
-  summarise_all(percentcumsum)
-  dplyr::mutate_all(funs("percent"= cumsum(.)/100))
-p <-  ggplot(data = selected_nydata_minute) +
-  geom_bar(aes(x = as.factor(pco2_corr_qf)))
-p
-rm(selected_nydata_minute)
+# s1 <- summary(as.factor(selected_nydata_minute$pco2_corr_qf))*100/length(selected_nydata_minute$pco2_raw_qf)
+# s2 <- summary(as.factor(selected_nydata_minute$sal_fb_qf))*100/length(selected_nydata_minute$sal_fb_qf)
+# s3 <- summary(as.factor(selected_nydata_minute$sal_insitu_ctd_qf))*100/length(selected_nydata_minute$sal_insitu_ctd_qf)
+# s4 <- summary(as.factor(selected_nydata_minute$temp_dur_qf))*100/length(selected_nydata_minute$temp_dur_qf)
+# s5 <- summary(as.factor(selected_nydata_minute$temp_fb_qf))*100/length(selected_nydata_minute$temp_fb_qf)
+# s6 <- summary(as.factor(selected_nydata_minute$temp_insitu_11m_qf))*100/length(selected_nydata_minute$temp_insitu_11m_qf)
+# s7 <- summary(as.factor(selected_nydata_minute$phINT_qf))*100/length(selected_nydata_minute$phINT_qf)
+# s8 <- summary(as.factor(selected_nydata_minute$phEXT_qf))*100/length(selected_nydata_minute$phEXT_qf)
+# qflags <- tibble(pco2_corr = s1,
+#                  sal_fb = s2,
+#                  sal_insitu_ctd = s3,
+#                  temp_dur = s4,
+#                  temp_fb = s5,
+#                  temp_insitu_11m = s6,
+#                  phINT = s7,
+#                  phEXT = s8)
+#   
+#   summarise_all(percentcumsum)
+#   dplyr::mutate_all(funs("percent"= cumsum(.)/100))
+# p <-  ggplot(data = selected_nydata_minute) +
+#   geom_bar(aes(x = as.factor(pco2_corr_qf)))
+# p
+# rm(selected_nydata_minute)
 ```
 
 
@@ -2307,72 +2307,61 @@ All documents concerning maintenance, tasks to do, calibration... are accessible
 
 ## Villefranche Server informations
 
-- Serveur : awipev-co2 (193.50.85.104)
-- 3 comptes: awipev (partagé avec Samir), gattuso, nydata (pour l’envoi des données par P. Fischer mais n'est plus utilisé).
-- Pour se connecter à awipev-co2.obs-vlfr.fr
-        - ssh awipev@awipev-co2.obs-vlfr.fr
-- Intervention sur le serveur :
-        - ssh awipev@awipev-co2.obs-vlfr.fr
-        - rebooting Ubuntu server: sudo shutdown -r now
-        - to check versions:
-            - dpkg -l | grep shiny
-            - dpkg -l | grep r-base
-        - To update Ubuntu, R and its packages:
-            - sudo su
-            - apt-get upgrade
-        - To restart shiny server: sudo systemctl restart shiny-server
+* Serveur : awipev-co2 (193.50.85.104)
+* 3 comptes: awipev (partagé avec Samir), gattuso, nydata (pour l’envoi des données par P. Fischer mais n'est plus utilisé).
+* Pour se connecter à awipev-co2.obs-vlfr.fr
+    + ssh awipev@awipev-co2.obs-vlfr.fr
+* Intervention sur le serveur :
+    + ssh awipev@awipev-co2.obs-vlfr.fr
+    + rebooting Ubuntu server: sudo shutdown -r now
+    + to check versions:
+        - dpkg -l | grep shiny
+        - dpkg -l | grep r-base
+    + To update Ubuntu, R and its packages:
+        - sudo su
+        - apt-get upgrade
+    + To restart shiny server: sudo systemctl restart shiny-server
         - update shiny server: follow procedure detailed on the shiny web page Data processing
+* To install R packages:
+    + ssh gattuso@o
+    + sudo R (then password)
+    + install.packages (tidyverse")
+  
+### Data processing
+We use the AWI database [Quick overview AWI NRT database](https://dashboard.awi.de/?dashboard=9736) 
 
-** Data processing**
-
-We use the AWI database XXXXX
-
-**crontab awipev@awipev-co2.obs-vlfr.fr**
-
-si on veut remplacer intégralement les fichiers de pCloud par ceux de awipev-co2 : ajouter “--delete” à la commande rsync 
-
+* **crontab awipev@awipev-co2.obs-vlfr.fr**
+Si on veut remplacer intégralement les fichiers de pCloud par ceux de awipev-co2 : ajouter “--delete” à la commande rsync.
 Pattern des commandes : # m h dom mon dow command 
 
-- (At 01:00, a crontab action runs automatically the script ny-alesund/R/ny-alesund_cc.R. This script essentially appends the daily files from AWI-NRT database and cleans the data)
+* (At 01:00, a crontab action runs automatically the script ny-alesund/R/ny-alesund_cc.R. This script essentially appends the daily files from AWI-NRT database and cleans the data)
+    + 00 01 * * * cd ; R \-\-vanilla < ny-alesund/R/ny-alesund_cc.R 
+* (At 03:00, web page is generated)
+    + 00 03 * * * bash web/awipev-co2.sh > web/awipev-co2.log 2>&1  
+* (At 05:00 the files from server/web are copied to gattuso’s iMac in pCloud ... Exp168)
+    + 00 05 * * * /usr/bin/rsync -e "ssh -o StrictHostKeyChecking=no" -avh /home/awipev/web 'gattuso@gattuso.obs-vlfr.fr:/Users/gattuso/pCloud\ Sync/Documents/experiments/exp168_awipev-CO2/fb_awipev-co2_server/'
+* (At 05:00 the files from server/ny-alesund are copied to gattuso’s iMac in pCloud/Exp168)
+    + 00 05 * * * /usr/bin/rsync -e "ssh -o StrictHostKeyChecking=no" -avh /home/awipev/ny-alesund 'gattuso@gattuso.obs-vlfr.fr:/Users/gattuso/pCloud\ Sync/Documents/experiments/exp168_awipev-CO2/fb_awipev-co2_server/' 
 
-00 01 * * * cd ; R \-\-vanilla < ny-alesund/R/ny-alesund_cc.R 
+### Web page
 
-- (At 03:00, web page is generated)
-
-00 03 * * * bash web/awipev-co2.sh > web/awipev-co2.log 2>&1  
-
-- (At 05:00 the files from server/web are copied to gattuso’s iMac in pCloud ... Exp168)
-
-00 05 * * * /usr/bin/rsync -e "ssh -o StrictHostKeyChecking=no" -avh /home/awipev/web 'gattuso@gattuso.obs-vlfr.fr:/Users/gattuso/pCloud\ Sync/Documents/experiments/exp168_awipev-CO2/fb_awipev-co2_server/'
-
-- (At 05:00 the files from server/ny-alesund are copied to gattuso’s iMac in pCloud/Exp168)
-
-00 05 * * * /usr/bin/rsync -e "ssh -o StrictHostKeyChecking=no" -avh /home/awipev/ny-alesund 'gattuso@gattuso.obs-vlfr.fr:/Users/gattuso/pCloud\ Sync/Documents/experiments/exp168_awipev-CO2/fb_awipev-co2_server/' 
-
-**Web page**
-
-- La page web index.html est faite sur le serveur awipev/web grâce au script awipev-CO2_web.Rmd puis transférée et renommée dans awipev/awipev-CO2_web
-- Création du répertoire web qui contient ce qu’il faut pour générer la page web:
-    - AWIPEV-Logo.jpg
-    - Discrete_sampling_AWIPEV.csurv
-    - awipev-CO2_web.Rmd
-    - awipev-co2.sh (lancer par bash awipev-co2.sh)
-- Accessible https://awipev-co2.obs-vlfr.fr 
-
-**On utilise un shell script awipev-co2.sh:**
-
- #!/bin/bash 
- 
- # script de lancement via crontab echo '---------deb awipev-co2.sh -----------' 
-
- # On lance la fabrication du html cd web; R -e 
+* La page web index.html est faite sur le serveur awipev/web grâce au script awipev-CO2_web.Rmd puis transférée et renommée dans awipev/awipev-CO2_web
+* Création du répertoire web qui contient ce qu’il faut pour générer la page web:
+    + AWIPEV-Logo.jpg
+    + Discrete_sampling_AWIPEV.csurv
+    + awipev-CO2_web.Rmd
+    + awipev-co2.sh (lancer par bash awipev-co2.sh)
+* Accessible https://awipev-co2.obs-vlfr.fr 
+* On utilise un shell script awipev-co2.sh:
+    #!/bin/bash 
+    # script de lancement via crontab echo '---------deb awipev-co2.sh -----------' 
+    # On lance la fabrication du html cd web; R -e 
     'library("rmarkdown");library("knitr");rmarkdown::render("awipev-CO2_web.Rmd")'; cp awipev-CO2_web.html ../awipev-CO2_web/index.html 
- 
-echo '---------fin awipev-co2.sh -----------'
+    echo '---------fin awipev-co2.sh -----------'
 
 A la main dans le terminal, cela donne :
-ssh awipev@awipev-co2.obs-vlfr.fr
-R --vanilla < web/awipev-CO2_web.Rmd
+* ssh awipev@awipev-co2.obs-vlfr.fr
+* R --vanilla < web/awipev-CO2_web.Rmd
 
 
 ![ ](Images/awipev_server_arborescence.jpg){width=65%}
