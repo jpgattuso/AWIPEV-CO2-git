@@ -409,6 +409,7 @@ Several salinity sensors are on site, 1 inside the Ferrybox (SBE45) and 5 outsid
 ### **Depth profile**
 
 ```{r Sal profile, echo=FALSE, message= FALSE, warning=FALSE, out.width="80%",fig.show='hold', fig.align="center"}
+# SAL FerryBox
 sal_xts <- dplyr::select(d_all, datetime, sal_fb)
 sal_xts <- as.xts(sal_xts, order.by = sal_xts$datetime)
 dygraph(sal_xts, group = "awipev", main="Salinity (in FerryBox)", ylab="Salinity") %>%
@@ -1167,64 +1168,65 @@ d_all <- d_all %>%
                                 ifelse(datetime >= sfinterv[2] & datetime <= sfinterv[3], 02,
                                 ifelse(datetime >= sfinterv[3] , 03,NA ))))
 
-pco2_contros_xts <-
-  dplyr::select(d_all, datetime, voltINT, voltEXT, sal_fb, temp_insitu_ctd, ph_s_sf_temp_mix)
-pco2_contros_xts <-
-  as.xts(pco2_contros_xts, order.by = d_all$datetime)
-dygraph(pco2_contros_xts,
-        group = "awipev",
-        main = "<i>p</i>CO<sub>2</sub>",
-        ylab = "<i>p</i>CO<sub>2</sub>") %>%
-  dySeries(
-    axis = "y2",
-    "voltINT",
-    label = "voltINT",
-    color =  RColorBrewer::brewer.pal(5, "Dark2")[1],
-    strokeWidth = 0,
-    pointSize = 2
-  ) %>%
-  dySeries(axis="y2",
-    "voltEXT",
-    label = "voltEXT",
-    color =  RColorBrewer::brewer.pal(5, "Dark2")[2],
-    strokeWidth = 0,
-    pointSize = 2
-  ) %>%
-   dySeries(
-    "temp_insitu_ctd",
-    label = "temp_insitu_ctd",
-    color =  RColorBrewer::brewer.pal(5, "Dark2")[3],
-    strokeWidth = 0,
-    pointSize = 2
-  ) %>%
-   dySeries(
-    "sal_fb",
-    label = "sal_fb",
-    color =  RColorBrewer::brewer.pal(5, "Dark2")[4],
-    strokeWidth = 0,
-    pointSize = 2
-  ) %>%
-   dySeries(
-    "ph_s_sf_temp_mix",
-    label = "ph_s_sf_temp_mix",
-    color =  RColorBrewer::brewer.pal(5, "Dark2")[5],
-    strokeWidth = 0,
-    pointSize = 4
-  ) %>%
-  dyHighlight(
-    highlightCircleSize = 8,
-    highlightSeriesBackgroundAlpha = 0.5,
-    hideOnMouseOut = TRUE
-  ) %>%
-  dyLegend(show = "follow")   %>%
-  dyAxis("y2",valueRange = c(-2,2))%>%
-  dyOptions(
-    drawGrid = TRUE,
-    drawPoints = TRUE,
-    pointSize = c(1, 8, 1),
-    useDataTimezone = TRUE
-  ) %>%
-  dyRangeSelector(height = 30, dateWindow = NULL)
+# pco2_contros_xts <-
+#   dplyr::select(d_all, datetime, voltINT, voltEXT, sal_fb, temp_insitu_ctd, ph_s_sf_temp_mix)
+# pco2_contros_xts <-
+#   as.xts(pco2_contros_xts, order.by = d_all$datetime)
+# dygraph(pco2_contros_xts,
+#         group = "awipev",
+#         main = "<i>p</i>CO<sub>2</sub>",
+#         ylab = "<i>p</i>CO<sub>2</sub>") %>%
+#   dySeries(
+#     axis = "y2",
+#     "voltINT",
+#     label = "voltINT",
+#     color =  RColorBrewer::brewer.pal(5, "Dark2")[1],
+#     strokeWidth = 0,
+#     pointSize = 2
+#   ) %>%
+#   dySeries(axis="y2",
+#     "voltEXT",
+#     label = "voltEXT",
+#     color =  RColorBrewer::brewer.pal(5, "Dark2")[2],
+#     strokeWidth = 0,
+#     pointSize = 2
+#   ) %>%
+#    dySeries(
+#     "temp_insitu_ctd",
+#     label = "temp_insitu_ctd",
+#     color =  RColorBrewer::brewer.pal(5, "Dark2")[3],
+#     strokeWidth = 0,
+#     pointSize = 2
+#   ) %>%
+#    dySeries(
+#     "sal_fb",
+#     label = "sal_fb",
+#     color =  RColorBrewer::brewer.pal(5, "Dark2")[4],
+#     strokeWidth = 0,
+#     pointSize = 2
+#   ) %>%
+#    dySeries(
+#     "ph_s_sf_temp_mix",
+#     label = "ph_s_sf_temp_mix",
+#     color =  RColorBrewer::brewer.pal(5, "Dark2")[5],
+#     strokeWidth = 0,
+#     pointSize = 4
+#   ) %>%
+#   dyHighlight(
+#     highlightCircleSize = 8,
+#     highlightSeriesBackgroundAlpha = 0.5,
+#     hideOnMouseOut = TRUE
+#   ) %>%
+#   dyLegend(show = "follow")   %>%
+#   dyAxis("y2",valueRange = c(-2,2))%>%
+#   dyOptions(
+#     drawGrid = TRUE,
+#     drawPoints = TRUE,
+#     pointSize = c(1, 8, 1),
+#     useDataTimezone = TRUE
+#   ) %>%
+#   dyRangeSelector(height = 30, dateWindow = NULL)
+
 # To make sf calibration against pH spectro, we need: sal - T insi - voltINT/EXT . If we missed one of these parameters, calibration will not run
 # Here we try to fill the gap when it is possible: make a mean with 4 previous/next hours available in the time serie. 
 # If the pH spectro is too far from a needed value, we decided to skip it for the calibration.
@@ -1435,7 +1437,6 @@ p <-
   theme(panel.grid.major.x = element_blank())
 print(p) # plot_range_sf
 #ggsave(paste0("figures/plot_range_sf.png"), width= 30, height=10, plot_range_sf, units="cm")
-
 ```
 
 ## pH durafet
