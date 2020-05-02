@@ -2164,15 +2164,15 @@ Pattern des commandes : # m h dom mon dow command
     
     # script de lancement via crontab echo '---------deb awipev-co2.sh -----------' 
     
-    # On lance la fabrication du html cd web; R -e 
-    'library("rmarkdown");library("knitr");rmarkdown::render("awipev-CO2_web.Rmd")'; cp awipev-CO2_web.html ../awipev-CO2_web/index.html 
+    # On lance la fabrication du html (une seule ligne)
+    cd web; R -e 'library("rmarkdown");library("knitr");rmarkdown::render("awipev-CO2_web.Rmd")'; cp awipev-CO2_web.html ../awipev-CO2_web/index.html 
     
     echo '---------fin awipev-co2.sh -----------'
 
 A la main dans le terminal, cela donne :
 
 * ssh awipev@awipev-co2.obs-vlfr.fr
-* R --vanilla < web/awipev-CO2_web.Rmd
+* cd; bash web/awipev-co2.sh
 
 
 ![ ](Images/awipev_server_arborescence.jpg){width=65%}
