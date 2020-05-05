@@ -372,30 +372,43 @@ In August 2017, a Durafet III pH electrode connected to a UDA2128 Analyser (Hone
 TO DO: add here an horizontal bar plot showing the percent availability of the data
 
 ```{r data availability, echo=FALSE, message= FALSE, warning=FALSE, out.width="80%",fig.show='hold', fig.align="center"}
+# function to express the number of quality flag in pefrcent for each variable
+qflag <- function(x) {
+  summary(as.factor(x))*100/length(x)
+}
 selected_nydata_minute <- readRDS(file = paste0(path, "fb_awipev-co2_server/ny-alesund/data/NRT_data/nydata_minute.rds")) %>%
-  dplyr::select(ends_with("_qf")) #%>%
-# s1 <- summary(as.factor(selected_nydata_minute$pco2_corr_qf))*100/length(selected_nydata_minute$pco2_raw_qf)
-# s2 <- summary(as.factor(selected_nydata_minute$sal_fb_qf))*100/length(selected_nydata_minute$sal_fb_qf)
-# s3 <- summary(as.factor(selected_nydata_minute$sal_insitu_ctd_qf))*100/length(selected_nydata_minute$sal_insitu_ctd_qf)
-# s4 <- summary(as.factor(selected_nydata_minute$temp_dur_qf))*100/length(selected_nydata_minute$temp_dur_qf)
-# s5 <- summary(as.factor(selected_nydata_minute$temp_fb_qf))*100/length(selected_nydata_minute$temp_fb_qf)
-# s6 <- summary(as.factor(selected_nydata_minute$temp_insitu_11m_qf))*100/length(selected_nydata_minute$temp_insitu_11m_qf)
-# s7 <- summary(as.factor(selected_nydata_minute$phINT_qf))*100/length(selected_nydata_minute$phINT_qf)
-# s8 <- summary(as.factor(selected_nydata_minute$phEXT_qf))*100/length(selected_nydata_minute$phEXT_qf)
-# qflags <- tibble(pco2_corr = s1,
-#                  sal_fb = s2,
-#                  sal_insitu_ctd = s3,
-#                  temp_dur = s4,
-#                  temp_fb = s5,
-#                  temp_insitu_11m = s6,
-#                  phINT = s7,
-#                  phEXT = s8)
-#   
-#   summarise_all(percentcumsum)
-#   dplyr::mutate_all(funs("percent"= cumsum(.)/100))
-# p <-  ggplot(data = selected_nydata_minute) +
-#   geom_bar(aes(x = as.factor(pco2_corr_qf)))
-# p
+dplyr::select(ends_with("_qf"), -dt_qf) 
+nam <- selected_nydata_minute %>% names()
+selected_nydata_minute %>% map(~qflag(.x))
+
+s1 <- summary(as.factor(selected_nydata_minute$pco2_corr_qf))*100/length(selected_nydata_minute$pco2_corr_qf)
+s2 <- summary(as.factor(selected_nydata_minute$sal_fb_qf))*100/length(selected_nydata_minute$sal_fb_qf)
+s3 <- summary(as.factor(selected_nydata_minute$sal_insitu_ctd_qf))*100/length(selected_nydata_minute$sal_insitu_ctd_qf)
+s4 <- summary(as.factor(selected_nydata_minute$temp_dur_qf))*100/length(selected_nydata_minute$temp_dur_qf)
+s5 <- summary(as.factor(selected_nydata_minute$temp_fb_qf))*100/length(selected_nydata_minute$temp_fb_qf)
+s6 <- summary(as.factor(selected_nydata_minute$temp_insitu_11m_qf))*100/length(selected_nydata_minute$temp_insitu_11m_qf)
+s7 <- summary(as.factor(selected_nydata_minute$phINT_qf))*100/length(selected_nydata_minute$phINT_qf)
+s8 <- summary(as.factor(selected_nydata_minute$phEXT_qf))*100/length(selected_nydata_minute$phEXT_qf)
+z <- t(bind_rows(s1,s2,s3,s4,s5,s6,s7,s8))
+colname(z) <- nam
+
+qflag <- function(x) {
+  summary(as.factor(x))*100/length(x)
+}
+qflags <- tibble(pco2_corr = s1,
+                 sal_fb = s2,
+                 sal_insitu_ctd = s3,
+                 temp_dur = s4,
+                 temp_fb = s5,
+                 temp_insitu_11m = s6,
+                 phINT = s7,
+                 phEXT = s8)
+
+  summarise_all(percentcumsum)
+  dplyr::mutate_all(funs("percent"= cumsum(.)/100))
+p <-  ggplot(data = selected_nydata_minute) +
+  geom_bar(aes(x = as.factor(pco2_corr_qf)))
+p
 # rm(selected_nydata_minute)
 ```
 
@@ -2140,10 +2153,10 @@ All documents concerning maintenance, tasks to do, calibration... are accessible
 Si on veut remplacer intégralement les fichiers de pCloud par ceux de awipev-co2 : ajouter “--delete” à la commande rsync.
 Pattern des commandes : # m h dom mon dow command 
 
-* (At 01:00, a crontab action runs automatically the script ny-alesund/R/ny-alesund_cc.R. This script essentially appends the daily files from AWI-NRT database and cleans the data)
-    + 00 01 * * * cd ; R \-\-vanilla < ny-alesund/R/ny-alesund_cc.R 
-* (At 03:00, web page is generated)
-    + 00 03 * * * bash web/awipev-co2.sh > web/awipev-co2.log 2>&1  
+* (Every hour on the hour, a crontab action runs automatically the script ny-alesund/R/ny-alesund_cc.R. This script essentially appends the daily files from AWI-NRT database and cleans the data)
+    + 00 *//1 * * * cd $HOME; USER=awipev R --vanilla < ny-alesund/R/ny-alesund_cc.R > ny-alesund/R/log_ny-alesund_cc.txt 2>&1
+* (Every hour at 10 min past the hour, the web page is generated)
+    + 10 *//1 * * * bash web/awipev-co2.sh > web/awipev-co2.log 2>&1  
 * (At 05:00 the files from server/web are copied to gattuso’s iMac in pCloud ... Exp168)
     + 00 05 * * * /usr/bin/rsync -e "ssh -o StrictHostKeyChecking=no" -avh /home/awipev/web 'gattuso@gattuso.obs-vlfr.fr:/Users/gattuso/pCloud\ Sync/Documents/experiments/exp168_awipev-CO2/fb_awipev-co2_server/'
 * (At 05:00 the files from server/ny-alesund are copied to gattuso’s iMac in pCloud/Exp168)
