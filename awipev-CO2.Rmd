@@ -371,45 +371,60 @@ In August 2017, a Durafet III pH electrode connected to a UDA2128 Analyser (Hone
 ### **Data availability**
 TO DO: add here an horizontal bar plot showing the percent availability of the data
 
+    + 1: good data
+    + 3: impossible date and time test
+    + 4: data not usable according to manufacturer (flush mode, zero mode, calibration mode...) 
+    + 6: failing the manufacturer range test (not used)
+    + 7: failing the regional range test 
+    + 12: failing the spike test (NAs from despike)
+    + 13: failing the gradient test
+    + 15: the instrument was not deployed or operated
+    + 99: failing the final visual inspection of the data. 
+
+* Despike using oce::despike with n=2, k=5761
+
+
 ```{r data availability, echo=FALSE, message= FALSE, warning=FALSE, out.width="80%",fig.show='hold', fig.align="center"}
 # function to express the number of quality flag in pefrcent for each variable
-qflag <- function(x) {
-  summary(as.factor(x))*100/length(x)
-}
-selected_nydata_minute <- readRDS(file = paste0(path, "fb_awipev-co2_server/ny-alesund/data/NRT_data/nydata_minute.rds")) %>%
-dplyr::select(ends_with("_qf"), -dt_qf) 
-nam <- selected_nydata_minute %>% names()
-selected_nydata_minute %>% map(~qflag(.x))
+# qflag <- function(x, ...) {
+#   tmp <- summary(as.factor(x))*100/length(x)
+#   return(tmp)
+# }
+d <- readRDS(file = paste0(path, "fb_awipev-co2_server/ny-alesund/data/NRT_data/all_nydata_minute.rds")) %>%
+dplyr::select(datetime, c(pco2_corr_qf, sal_fb_qf, sal_insitu_ctd_qf, 
+                          temp_fb_qf, temp_insitu_11m_qf, ph_dur_qf, phINT_qf))
 
-s1 <- summary(as.factor(selected_nydata_minute$pco2_corr_qf))*100/length(selected_nydata_minute$pco2_corr_qf)
-s2 <- summary(as.factor(selected_nydata_minute$sal_fb_qf))*100/length(selected_nydata_minute$sal_fb_qf)
-s3 <- summary(as.factor(selected_nydata_minute$sal_insitu_ctd_qf))*100/length(selected_nydata_minute$sal_insitu_ctd_qf)
-s4 <- summary(as.factor(selected_nydata_minute$temp_dur_qf))*100/length(selected_nydata_minute$temp_dur_qf)
-s5 <- summary(as.factor(selected_nydata_minute$temp_fb_qf))*100/length(selected_nydata_minute$temp_fb_qf)
-s6 <- summary(as.factor(selected_nydata_minute$temp_insitu_11m_qf))*100/length(selected_nydata_minute$temp_insitu_11m_qf)
-s7 <- summary(as.factor(selected_nydata_minute$phINT_qf))*100/length(selected_nydata_minute$phINT_qf)
-s8 <- summary(as.factor(selected_nydata_minute$phEXT_qf))*100/length(selected_nydata_minute$phEXT_qf)
-z <- t(bind_rows(s1,s2,s3,s4,s5,s6,s7,s8))
-colname(z) <- nam
-
-qflag <- function(x) {
-  summary(as.factor(x))*100/length(x)
-}
-qflags <- tibble(pco2_corr = s1,
-                 sal_fb = s2,
-                 sal_insitu_ctd = s3,
-                 temp_dur = s4,
-                 temp_fb = s5,
-                 temp_insitu_11m = s6,
-                 phINT = s7,
-                 phEXT = s8)
-
-  summarise_all(percentcumsum)
-  dplyr::mutate_all(funs("percent"= cumsum(.)/100))
-p <-  ggplot(data = selected_nydata_minute) +
-  geom_bar(aes(x = as.factor(pco2_corr_qf)))
+s1 <- summary(as.factor(d$pco2_corr_qf))*100/length(d$pco2_corr_qf)
+s2 <- summary(as.factor(d$sal_fb_qf))*100/length(d$sal_fb_qf)
+s3 <- summary(as.factor(d$sal_insitu_ctd_qf))*100/length(d$sal_insitu_ctd_qf)
+s4 <- summary(as.factor(d$temp_fb_qf))*100/length(d$temp_fb_qf)
+s5 <- summary(as.factor(d$temp_insitu_11m_qf))*100/length(d$temp_insitu_11m_qf)
+# durafet and seafet started later
+x <- filter(d, datetime >= "2017-08-29 10:00:00")
+#s6 <- summary(as.factor(x$temp_dur_qf))*100/length(x$temp_dur_qf)
+s7 <- summary(as.factor(x$ph_dur_qf))*100/length(x$ph_dur_qf)
+x <- filter(d, datetime >= "2017-08-24 19:00:00")
+s8 <- summary(as.factor(x$phINT_qf))*100/length(x$phINT_qf)
+z <- t(bind_rows(s1,s2,s3,s4,s5,s7,s8)) %>%
+  as.data.frame() %>%
+         rownames_to_column(var = "flag") %>% 
+         as_tibble()
+labels <- c("Good", "Not usable", "Outside regional range", "Outliers (despike)", 
+            "Failed visual inspection", "No data")
+#colnames(z) <- c("flag", colnames(d)[-1]) # remove first col name (datetime)
+colnames(z) <- c("Flag", "pCO2", "Salinity FerryBox", "In situ salinity", 
+                 "Temperature FerryBox", "In situ temperature", "Durafet pH", "seaFET pH")
+zz <- pivot_longer(z, -Flag)
+p <-  ggplot(data = zz, aes(x = name, y = value, fill = Flag)) +
+  geom_bar(position = position_stack(reverse = TRUE), stat="identity", width = 0.3) +
+  #scale_y_reverse() +
+  discrete_scale(labels = labels) + 
+  #coord_flip() +
+  geom_text(aes(label=round(value, digits = 0)), position = position_stack(0.5), size = 3) +
+  labs(x="", y="", title = "Distribution (%) of quality flags", color = "Quality flag") +
+  theme_bw()
 p
-# rm(selected_nydata_minute)
+rm(d)
 ```
 
 
