@@ -14,24 +14,45 @@ output:
 Sys.setlocale("LC_ALL", "en_US.UTF-8")
 Sys.setenv(TZ='UTC') # on utilise UTC
 rm(list = ls())
+if (!require("tidyverse")) install.packages("tidyverse")
 library(tidyverse)
-library(robfilter)
-library(seacarb)
-library(gridExtra)
-library(reshape2)
-library(lubridate)
-library(lmtest)
+if (!require("robfilter")) install.packages("robfilter")
+if (!require("robfilter")) install.packages("robfilter")
+library("robfilter")
+if (!require("seacarb")) install.packages("seacarb")
+library("seacarb")
+if (!require("gridExtra")) install.packages("gridExtra")
+library("gridExtra")
+if (!require("reshape2")) install.packages("reshape2")
+library("reshape2")
+if (!require("lubridate")) install.packages("lubridate")
+library("lubridate")
+if (!require("lmtest")) install.packages("lmtest")
+library("lmtest")
+if (!require("grid")) install.packages("grid")
 library(grid)
-library(viridis)
-library(dygraphs)
+if (!require("viridis")) install.packages("viridis")
+library("viridis")
+if (!require("dygraphs")) install.packages("dygraphs")
+library("dygraphs")
+if (!require("knitr")) install.packages("knitr")
 require("knitr")
+if (!require("lmodel2")) install.packages("lmodel2")
 library("lmodel2")
-library(captioner)
-library(xts)
-library(seismicRoll)
-library(scales)
-library(plotly)
-library(htmlwidgets)
+if (!require("captioner")) install.packages("captioner")
+library("captioner")
+if (!require("xts")) install.packages("xts")
+library("xts")
+if (!require("seismicRoll")) install.packages("seismicRoll")
+library("seismicRoll")
+if (!require("scales")) install.packages("scales")
+library("scales")
+# if (!require("plotly")) install.packages("plotly")
+# library(plotly)
+if (!require("htmlwidgets")) install.packages("htmlwidgets")
+library("htmlwidgets")
+if (!require("hms")) install.packages("hms")
+library("hms")
 knitr::opts_chunk$set(echo = TRUE)
 
 fig_nums <- captioner()
@@ -118,7 +139,7 @@ ggplot(fit$model, aes_string(x = names(fit$model)[2], y = names(fit$model)[1])) 
 }
 ```
 
-```{r Read and prepare ferrybox data, echo=FALSE, warning=FALSE, message=FALSE}
+```{r Read, cleanup and prepare ferrybox data, echo=FALSE, warning=FALSE, message=FALSE}
 d_hour <- readRDS(file = paste0(path, "fb_awipev-co2_server/ny-alesund/data/NRT_data/nydata_hour.rds"))
 d_hour <- d_hour %>%
   dplyr::select(-date) %>%
@@ -126,7 +147,7 @@ d_hour <- d_hour %>%
 d_all <- d_hour #d_all will be the merger
 d_all<- d_all%>%
   dplyr::mutate(month = month(month(datetime)))
-
+d_all <
 ```
 
 ```{r Sal filter, fig.width=10, fig.height=4, echo=FALSE, message= FALSE}
@@ -1839,7 +1860,7 @@ For CT, duplicates's flags that have been changed to 1 are:
 ```{r SNAPO, echo=FALSE, message= FALSE, warning=FALSE}
 # use the df at_ct for mean and sd
 # creat a new df to calculate the diff between replicate
- diff <- d %>%
+ diff <- d_all %>%
     group_by(datetime) %>%
    dplyr::select(datetime, at, ct)%>%   
    dplyr::mutate(at_diff = abs(at - lag(at)),
@@ -2161,7 +2182,7 @@ All documents concerning maintenance, tasks to do, calibration... are accessible
 * To install R packages:
     + ssh gattuso@awipev-co2.obs-vlfr.fr
     + sudo R (then password)
-    + install.packages (tidyverse")
+    + install.packages("tidyverse")
     
 **crontab awipev@awipev-co2.obs-vlfr.fr**
 
