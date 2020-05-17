@@ -147,7 +147,7 @@ d_hour <- d_hour %>%
 d_all <- d_hour #d_all will be the merger
 d_all<- d_all%>%
   dplyr::mutate(month = month(month(datetime)))
-d_all <
+#d_all <
 ```
 
 ```{r Sal filter, fig.width=10, fig.height=4, echo=FALSE, message= FALSE}
@@ -173,10 +173,23 @@ d$measure_date <- dmy(d$measure_date, tz="UTC")
 # Flag 1 = collected on the peer by Niskin and flag 0 = collected in the FB (normal collect)
  # And keep data with flag 0 for FB location
 d <- d%>%
-  dplyr::mutate(location_flag = ifelse(datetime == "2016-04-21 09:25:00" | datetime == "2016-02-10 14:00:00" | datetime == "2016-02-17 09:20:00" |datetime == "2016-02-24 14:20:00" | datetime == "2016-02-04 09:30:00" |datetime == "2016-01-27 15:00:00" |datetime == "2016-01-13 13:45:00" |datetime == "2016-01-06 14:10:00" |datetime == "2015-12-24 10:45:00" |datetime == "2015-12-30 13:30:00" |datetime == "2018-01-05 15:20:00" |datetime == "2018-02-02 14:35:00"|datetime == "2018-03-02 14:10:00"|datetime == "2019-05-31 11:45:00", 1, 0)
-  )
-d <- d%>%
-  dplyr::filter(location_flag== 0)
+  dplyr::mutate(location_flag = ifelse(datetime == as.POSIXct("2016-04-21 09:25:00") | 
+                                         datetime == as.POSIXct("2016-02-10 14:00:00") | 
+                                         datetime == as.POSIXct("2016-02-17 09:20:00") |
+                                         datetime == as.POSIXct("2016-02-24 14:20:00") |
+                                         datetime == as.POSIXct("2016-02-04 09:30:00") |
+                                         datetime == as.POSIXct("2016-01-27 15:00:00") |
+                                         datetime == as.POSIXct("2016-01-13 13:45:00") |
+                                         datetime == as.POSIXct("2016-01-06 14:10:00") |
+                                         datetime == as.POSIXct("2015-12-24 10:45:00") |
+                                         datetime == as.POSIXct("2015-12-30 13:30:00") |
+                                         datetime == as.POSIXct("2018-01-05 15:20:00") |
+                                         datetime == as.POSIXct("2018-02-02 14:35:00") |
+                                         datetime == as.POSIXct("2018-03-02 14:10:00") |
+                                         datetime == as.POSIXct("2019-05-31 11:45:00"), 
+                                       1, 0))
+d <- d %>%
+  dplyr::filter(location_flag == 0)
 
 # Keep only flag = 2 for at/ct analysis 
 # Keep only flag = 2 for pH durafet and seaFET.
@@ -421,10 +434,10 @@ s3 <- summary(as.factor(d$sal_insitu_ctd_qf))*100/length(d$sal_insitu_ctd_qf)
 s4 <- summary(as.factor(d$temp_fb_qf))*100/length(d$temp_fb_qf)
 s5 <- summary(as.factor(d$temp_insitu_11m_qf))*100/length(d$temp_insitu_11m_qf)
 # durafet and seafet started later
-x <- filter(d, datetime >= "2017-08-29 10:00:00")
+x <- filter(d, datetime >= as.POSIXct("2017-08-29 10:00:00"))
 #s6 <- summary(as.factor(x$temp_dur_qf))*100/length(x$temp_dur_qf)
 s7 <- summary(as.factor(x$ph_dur_qf))*100/length(x$ph_dur_qf)
-x <- filter(d, datetime >= "2017-08-24 19:00:00")
+x <- filter(d, datetime >= as.POSIXct("2017-08-24 19:00:00"))
 s8 <- summary(as.factor(x$phINT_qf))*100/length(x$phINT_qf)
 z <- t(bind_rows(s1,s2,s3,s4,s5,s7,s8)) %>%
   as.data.frame() %>%
@@ -594,9 +607,15 @@ fit <- lmodel2(data = d_all,  temp_fb ~ temp_insitu_11m , nperm = 99)
 ```{r Temp fb insi comparaison, echo=FALSE, message= FALSE, warning=FALSE}
 # Remove temp_fb outliers 
 d_all <- d_all %>%
-  dplyr::mutate(temp_fb = ifelse(datetime >= "2017-03-22 08:00:00" & datetime <= "2017-03-23 16:00:00", NA, temp_fb),
-                temp_fb = ifelse(temp_fb >15, NA, temp_fb))
-
+  dplyr::mutate(
+    temp_fb = ifelse(
+      datetime >= as.POSIXct("2017-03-22 08:00:00") &
+        datetime <= as.POSIXct("2017-03-23 16:00:00"),
+      NA,
+      temp_fb
+    ),
+    temp_fb = ifelse(temp_fb > 15, NA, temp_fb)
+  )
 fit <- lmodel2(data = d_all,  temp_fb ~ temp_insitu_11m , nperm = 99)
 
 p <-  ggplot(d_all,aes(x=temp_insitu_11m, y= temp_fb, label = month))+
@@ -964,8 +983,10 @@ The relationship between titrated total alkalinity (references) and salinity is 
 #### **Final TA re-calculated data (Salinity relationship)**
 
 ```{r Plot TA calc TA meas, echo=FALSE, warning=FALSE, message=FALSE,out.width='100%',fig.align='hold'}
-TAevents <- c("2016-02-26 00:00:00", "2017-02-09 12:00:00", "2017-02-09 12:00:00", "2017-03-10 12:00:00",
-              "2018-01-07 00:00:00", "2018-06-20 00:00:00", "2018-07-31 00:00:00", "2018-10-30 18:00:00", "2018-10-31 09:00:00", "2019-01-16 09:00:00", "2019-01-26 13:25:00", format(Sys.Date(), "%Y-%m-%d %H:%M:%S"))
+TAevents <- as.POSIXct(c("2016-02-26 00:00:00", "2017-02-09 12:00:00", "2017-02-09 12:00:00", "2017-03-10 12:00:00",
+              "2018-01-07 00:00:00", "2018-06-20 00:00:00", "2018-07-31 00:00:00", "2018-10-30 18:00:00",
+              "2018-10-31 09:00:00", "2019-01-16 09:00:00", "2019-01-26 13:25:00", format(Sys.Date(),
+              "%Y-%m-%d %H:%M:%S")))
 at_contros_calc_xts <- dplyr::select(d_all, datetime,at_calc, at)
 at_contros_calc_xts <-  as.xts(at_contros_calc_xts, order.by =d_all$datetime)
 dygraph(at_contros_calc_xts, group = "awipev", main="TA, calculated from sal_mix (blue) and reference (red)", ylab="Total alkalinity") %>%
@@ -1209,13 +1230,13 @@ Plots of E0int25 and E0ext25 returned by the function "pHCalib" for each period 
 #                                 ifelse(datetime >= sfinterv[22] , 22,NA )))))))))))))))))))))))
 
 # set deployment period when seaFET is in/out of water
-sfinterv <- c("2017-08-24 12:00:00","2018-04-17 12:00:00", "2019-09-02 12:00:00")
+sfinterv <- as.POSIXct(c("2017-08-24 12:00:00","2018-04-17 12:00:00", "2019-09-02 12:00:00"))
 
 # add here the new periods sfinterv[..]
 d_all <- d_all %>%
   dplyr::mutate(deployment_sf = ifelse(datetime >= sfinterv[1] & datetime <= sfinterv[2], 01,
                                 ifelse(datetime >= sfinterv[2] & datetime <= sfinterv[3], 02,
-                                ifelse(datetime >= sfinterv[3] , 03,NA ))))
+                                ifelse(datetime >= sfinterv[3], 03, NA ))))
 
 # pco2_contros_xts <-
 #   dplyr::select(d_all, datetime, voltINT, voltEXT, sal_fb, temp_insitu_ctd, ph_s_sf_temp_mix)
@@ -1284,101 +1305,192 @@ d_all <- d_all %>%
 # (2) removed from 2018-01-08 to 2018-02-02
 # (3) outliers removed
 # (1)
-d_all$phINT <-ifelse(d_all$datetime >= "2017-12-14" & d_all$datetime <= "2018-01-08" & d_all$phINT < 8.04, NA, d_all$phINT) 
-d_all$phEXT <-ifelse(d_all$datetime >= "2017-12-14" & d_all$datetime <= "2018-01-08" & d_all$phEXT < 8.04, NA, d_all$phEXT) 
-d_all$voltINT <-ifelse(d_all$datetime >= "2017-12-14" & d_all$datetime <= "2018-01-08" & d_all$voltINT < -0.9439, NA, d_all$voltINT) 
-d_all$voltEXT <-ifelse(d_all$datetime >= "2017-12-14" & d_all$datetime <= "2018-01-08" & d_all$voltEXT < -0.907, NA, d_all$voltEXT) 
+d_all$phINT <- ifelse(d_all$datetime >= as.POSIXct("2017-12-14") &
+                        d_all$datetime <= as.POSIXct("2018-01-08") &
+                        d_all$phINT < 8.04, NA, d_all$phINT)
+d_all$phEXT <-ifelse(d_all$datetime >= as.POSIXct("2017-12-14") &
+                       d_all$datetime <= as.POSIXct("2018-01-08") &
+                       d_all$phEXT < 8.04, NA, d_all$phEXT) 
+d_all$voltINT <-ifelse(d_all$datetime >= as.POSIXct("2017-12-14") &
+                         d_all$datetime <= as.POSIXct("2018-01-08") &
+                         d_all$voltINT < -0.9439, NA, d_all$voltINT) 
+d_all$voltEXT <-ifelse(d_all$datetime >= as.POSIXct("2017-12-14") &
+                         d_all$datetime <= as.POSIXct("2018-01-08") &
+                         d_all$voltEXT < -0.907, NA, d_all$voltEXT) 
 # (2)
-d_all$voltINT <- ifelse(d_all$datetime >= "2018-01-08 17:00:00" & d_all$datetime <= "2018-02-02 09:00:00", NA, d_all$voltINT)
-d_all$voltEXT <- ifelse(d_all$datetime >= "2018-01-08 17:00:00" & d_all$datetime <= "2018-02-02 09:00:00", NA, d_all$voltEXT)
-d_all$phINT <- ifelse(d_all$datetime >= "2018-01-08 17:00:00" & d_all$datetime <= "2018-02-02 09:00:00", NA, d_all$phINT)
-d_all$phEXT <- ifelse(d_all$datetime >= "2018-01-08 17:00:00" & d_all$datetime <= "2018-02-02 09:00:00", NA, d_all$phEXT)
+d_all$voltINT <- ifelse(d_all$datetime >= as.POSIXct("2018-01-08 17:00:00") &
+                          d_all$datetime <= as.POSIXct("2018-02-02 09:00:00"), 
+                        NA, d_all$voltINT)
+d_all$voltEXT <- ifelse(d_all$datetime >= as.POSIXct("2018-01-08 17:00:00") &
+                          d_all$datetime <= as.POSIXct("2018-02-02 09:00:00"),
+                        NA, d_all$voltEXT)
+d_all$phINT <- ifelse(d_all$datetime >= as.POSIXct("2018-01-08 17:00:00") &
+                        d_all$datetime <= as.POSIXct("2018-02-02 09:00:00"),
+                      NA, d_all$phINT)
+d_all$phEXT <- ifelse(d_all$datetime >= as.POSIXct("2018-01-08 17:00:00") &
+                        d_all$datetime <= as.POSIXct("2018-02-02 09:00:00"),
+                      NA, d_all$phEXT)
 # (3)
-d_all$voltINT <- ifelse(d_all$datetime == "2017-11-02 21:00:00" | d_all$datetime == "2018-04-18 14:00:00", NA, d_all$voltINT)
-
-
+d_all$voltINT <- ifelse(d_all$datetime == as.POSIXct("2017-11-02 21:00:00") |
+                          d_all$datetime == as.POSIXct("2018-04-18 14:00:00"),
+                        NA, d_all$voltINT)
 #periode 1, mean of 4 next hours for volt int + T seaF
-mean_voltINT_4h <- d_all%>%
-  dplyr::filter(datetime >= "2017-08-24 19:00:00" & datetime <= "2017-08-24 22:00:00")%>%
-  dplyr::summarise( mean(voltINT, na.rm = TRUE))
+mean_voltINT_4h <- d_all %>%
+  dplyr::filter(
+    datetime >= as.POSIXct("2017-08-24 19:00:00") &
+      datetime <= as.POSIXct("2017-08-24 22:00:00")
+  ) %>%
+  dplyr::summarise(mean(voltINT, na.rm = TRUE))
 mean_voltINT_4h <- as.numeric(mean_voltINT_4h)
-d_all <- d_all%>%
-  dplyr::mutate(voltINT = ifelse(datetime == "2017-08-24 13:00:00" , mean_voltINT_4h, voltINT))
-
-mean_voltEXT_4h <- d_all%>%
-  dplyr::filter(datetime >= "2017-08-24 19:00:00" & datetime <= "2017-08-24 22:00:00")%>%
-  dplyr::summarise( mean(voltEXT, na.rm = TRUE))
+d_all <- d_all %>%
+  dplyr::mutate(voltINT = ifelse(
+    datetime == as.POSIXct("2017-08-24 13:00:00"),
+    mean_voltINT_4h,
+    voltINT
+  ))
+mean_voltEXT_4h <- d_all %>%
+  dplyr::filter(
+    datetime >= as.POSIXct("2017-08-24 19:00:00") &
+      datetime <= as.POSIXct("2017-08-24 22:00:00")
+  ) %>%
+  dplyr::summarise(mean(voltEXT, na.rm = TRUE))
 mean_voltEXT_4h <- as.numeric(mean_voltEXT_4h)
-d_all <- d_all%>%
-  dplyr::mutate(voltEXT = ifelse(datetime == "2017-08-24 13:00:00" , mean_voltEXT_4h, voltEXT))
-
-mean_TseaF_4h <- d_all%>%
-  dplyr::filter(datetime >= "2017-08-24 19:00:00" & datetime <= "2017-08-24 22:00:00")%>%
-  dplyr::summarise( mean(temp_sf, na.rm = TRUE))
+d_all <- d_all %>%
+  dplyr::mutate(voltEXT = ifelse(
+    datetime == as.POSIXct("2017-08-24 13:00:00"),
+    mean_voltEXT_4h,
+    voltEXT
+  ))
+mean_TseaF_4h <- d_all %>%
+  dplyr::filter(
+    datetime >= as.POSIXct("2017-08-24 19:00:00") &
+      datetime <= as.POSIXct("2017-08-24 22:00:00")
+  ) %>%
+  dplyr::summarise(mean(temp_sf, na.rm = TRUE))
 mean_TseaF_4h <- as.numeric(mean_TseaF_4h)
-d_all <- d_all%>%
-  dplyr::mutate(temp_mix = ifelse(datetime == "2017-08-24 13:00:00" , mean_TseaF_4h, temp_mix))
-
+d_all <- d_all %>%
+  dplyr::mutate(temp_mix = ifelse(
+    datetime == as.POSIXct("2017-08-24 13:00:00"),
+    mean_TseaF_4h,
+    temp_mix
+  ))
 # Periode 2, mean of 4 next hours for volt int + T seaF
-mean_voltINT_4h <- d_all%>%
-  dplyr::filter(datetime >= "2017-09-28 15:00:00" & datetime <= "2017-09-28 18:00:00")%>%
-  dplyr::summarise( mean(voltINT, na.rm = TRUE))
+mean_voltINT_4h <- d_all %>%
+  dplyr::filter(
+    datetime >= as.POSIXct("2017-09-28 15:00:00") &
+      datetime <= as.POSIXct("2017-09-28 18:00:00")
+  ) %>%
+  dplyr::summarise(mean(voltINT, na.rm = TRUE))
 mean_voltINT_4h <- as.numeric(mean_voltINT_4h)
-d_all <- d_all%>%
-  dplyr::mutate(voltINT = ifelse(datetime == "2017-09-28 13:00:00" , mean_voltINT_4h, voltINT))
-
-mean_voltEXT_4h <- d_all%>%
-  dplyr::filter(datetime >= "2017-09-28 15:00:00" & datetime <= "2017-09-28 18:00:00")%>%
-  dplyr::summarise( mean(voltEXT, na.rm = TRUE))
+d_all <- d_all %>%
+  dplyr::mutate(voltINT = ifelse(
+    datetime == as.POSIXct("2017-09-28 13:00:00"),
+    mean_voltINT_4h,
+    voltINT
+  ))
+mean_voltEXT_4h <- d_all %>%
+  dplyr::filter(
+    datetime >= as.POSIXct("2017-09-28 15:00:00") &
+      datetime <= as.POSIXct("2017-09-28 18:00:00")
+  ) %>%
+  dplyr::summarise(mean(voltEXT, na.rm = TRUE))
 mean_voltEXT_4h <- as.numeric(mean_voltEXT_4h)
-d_all <- d_all%>%
-  dplyr::mutate(voltEXT = ifelse(datetime == "2017-09-28 13:00:00" , mean_voltEXT_4h, voltEXT))
-
+d_all <- d_all %>%
+  dplyr::mutate(voltEXT = ifelse(
+    datetime == as.POSIXct("2017-09-28 13:00:00"),
+    mean_voltEXT_4h,
+    voltEXT
+  ))
 # period 03, mean of 4 previous hours for volt int + volt ext
-mean_voltINT_4h <- d_all%>%
-  dplyr::filter(datetime >= "2019-09-13 04:00:00" & datetime <= "2019-09-13 07:00:00")%>%
-  dplyr::summarise( mean(voltINT, na.rm = TRUE))
+mean_voltINT_4h <- d_all %>%
+  dplyr::filter(
+    datetime >= as.POSIXct("2019-09-13 04:00:00") &
+      datetime <= as.POSIXct("2019-09-13 07:00:00")
+  ) %>%
+  dplyr::summarise(mean(voltINT, na.rm = TRUE))
 mean_voltINT_4h <- as.numeric(mean_voltINT_4h)
-d_all <- d_all%>%
-  dplyr::mutate(voltINT = ifelse(datetime == "2019-09-13 08:00:00" , mean_voltINT_4h, voltINT))
-
-mean_voltEXT_4h <- d_all%>%
-  dplyr::filter(datetime >= "2019-09-13 04:00:00" & datetime <= "2019-09-13 07:00:00")%>%
-  dplyr::summarise( mean(voltEXT, na.rm = TRUE))
+d_all <- d_all %>%
+  dplyr::mutate(voltINT = ifelse(
+    datetime == as.POSIXct("2019-09-13 08:00:00"),
+    mean_voltINT_4h,
+    voltINT
+  ))
+mean_voltEXT_4h <- d_all %>%
+  dplyr::filter(
+    datetime >= as.POSIXct("2019-09-13 04:00:00") &
+      datetime <= as.POSIXct("2019-09-13 07:00:00")
+  ) %>%
+  dplyr::summarise(mean(voltEXT, na.rm = TRUE))
 mean_voltEXT_4h <- as.numeric(mean_voltEXT_4h)
-d_all <- d_all%>%
-  dplyr::mutate(voltEXT = ifelse(datetime == "2019-09-13 08:00:00" , mean_voltEXT_4h, voltEXT))
-
+d_all <- d_all %>%
+  dplyr::mutate(voltEXT = ifelse(
+    datetime == as.POSIXct("2019-09-13 08:00:00"),
+    mean_voltEXT_4h,
+    voltEXT
+  ))
 # period 04 also, mean of 4 previous hours for volt int + volt ext + T seaF
-mean_voltINT_4h <- d_all%>%
-  dplyr::filter(datetime >= "2019-09-13 11:00:00" & datetime <= "2019-09-13 12:00:00")%>%
-  dplyr::summarise( mean(voltINT, na.rm = TRUE))
+mean_voltINT_4h <- d_all %>%
+  dplyr::filter(
+    datetime >= as.POSIXct("2019-09-13 11:00:00") &
+      datetime <= as.POSIXct("2019-09-13 12:00:00")
+  ) %>%
+  dplyr::summarise(mean(voltINT, na.rm = TRUE))
 mean_voltINT_4h <- as.numeric(mean_voltINT_4h)
-d_all <- d_all%>%
-  dplyr::mutate(voltINT = ifelse(datetime == "2019-09-13 13:00:00" , mean_voltINT_4h, voltINT))
-
-mean_voltEXT_4h <- d_all%>%
-  dplyr::filter(datetime >= "2019-09-13 11:00:00" & datetime <= "2019-09-13 12:00:00")%>%
-  dplyr::summarise( mean(voltINT, na.rm = TRUE))
+d_all <- d_all %>%
+  dplyr::mutate(voltINT = ifelse(
+    datetime == as.POSIXct("2019-09-13 13:00:00"),
+    mean_voltINT_4h,
+    voltINT
+  ))
+mean_voltEXT_4h <- d_all %>%
+  dplyr::filter(
+    datetime >= as.POSIXct("2019-09-13 11:00:00") &
+      datetime <= as.POSIXct("2019-09-13 12:00:00")
+  ) %>%
+  dplyr::summarise(mean(voltINT, na.rm = TRUE))
 mean_voltEXT_4h <- as.numeric(mean_voltEXT_4h)
-d_all <- d_all%>%
-  dplyr::mutate(voltEXT = ifelse(datetime == "2019-09-13 13:00:00" , mean_voltEXT_4h, voltEXT))
-
-mean_TseaF_4h <- d_all%>%
-  dplyr::filter(datetime >= "2019-09-13 11:00:00" & datetime <= "2019-09-13 12:00:00")%>%
-  dplyr::summarise( mean(temp_sf, na.rm = TRUE))
+d_all <- d_all %>%
+  dplyr::mutate(voltEXT = ifelse(
+    datetime == as.POSIXct("2019-09-13 13:00:00"),
+    mean_voltEXT_4h,
+    voltEXT
+  ))
+mean_TseaF_4h <- d_all %>%
+  dplyr::filter(
+    datetime >= as.POSIXct("2019-09-13 11:00:00") &
+      datetime <= as.POSIXct("2019-09-13 12:00:00")
+  ) %>%
+  dplyr::summarise(mean(temp_sf, na.rm = TRUE))
 mean_TseaF_4h <- as.numeric(mean_TseaF_4h)
-d_all <- d_all%>%
-  dplyr::mutate(temp_mix = ifelse(datetime == "2019-09-13 13:00:00" , mean_TseaF_4h, temp_mix))
+d_all <- d_all %>%
+  dplyr::mutate(temp_mix = ifelse(
+    datetime == as.POSIXct("2019-09-13 13:00:00"),
+    mean_TseaF_4h,
+    temp_mix
+  ))
 
 #interpolation of salinity during the FB off maintenance
-salinterp <-approx(d_all$datetime, d_all$sal_mix, xout=d_all$datetime, method="linear", rule=2)
+salinterp <-
+  approx(
+    d_all$datetime,
+    d_all$sal_mix,
+    xout = d_all$datetime,
+    method = "linear",
+    rule = 2
+  )
 names(salinterp) <- c("datetime", "sal_mix_interp")
 salinterp <- as.data.frame(salinterp)
 d_all$sal_mix_interp <- salinterp$sal_mix_interp
 
 d_all <- d_all %>%
-  dplyr::mutate(sal_mix_interp =  ifelse(datetime > "2018-03-09 00:00:00" & datetime < "2018-04-16 16:00:00", sal_mix_interp, sal_mix))
+  dplyr::mutate(
+    sal_mix_interp =  ifelse(
+      datetime > as.POSIXct("2018-03-09 00:00:00") &
+        datetime < as.POSIXct("2018-04-16 16:00:00"),
+      sal_mix_interp,
+      sal_mix
+    )
+  )
 
 
 ####
@@ -1433,8 +1545,16 @@ d_all <- d_all %>%
    dplyr::mutate(pHint_tot_sf = despike(d_all$pHint_tot_sf, reference= "median", n=2, k=5761, replace="NA"))
                  
 # add spectro points that are not taking into consideration
-d_all <- d_all%>%
-  dplyr::mutate( pH_s_sf_no_calb = ifelse(datetime == "2018-04-16 07:00:00" | datetime == "2018-12-14 10:00:00" | datetime == "2019-01-18 11:00:00", ph_s_sf_temp_mix, NA))
+d_all <- d_all %>%
+  dplyr::mutate(
+    pH_s_sf_no_calb = ifelse(
+      datetime == as.POSIXct("2018-04-16 07:00:00") |
+        datetime == as.POSIXct("2018-12-14 10:00:00") |
+        datetime == as.POSIXct("2019-01-18 11:00:00"),
+      ph_s_sf_temp_mix,
+      NA
+    )
+  )
 
 p <- ggplot(d_all, aes(x=datetime, y= pHint_tot_sf))+
   geom_point(size=1, alpha=0.5, na.rm=TRUE)
@@ -1595,13 +1715,29 @@ d_all <- d_all%>%
               )
 
 # Remove outliers from 2018-07-10 00:00 to 05:00
-d_all$ph_dur_corr <- ifelse(d_all$datetime >= "2018-07-10 00:00:00" & d_all$datetime <= "2018-07-10 05:00:00", NA, d_all$ph_dur_corr)
-d_all$ph_dur <- ifelse(d_all$datetime >= "2018-07-10 00:00:00" & d_all$datetime <= "2018-07-10 05:00:00", NA, d_all$ph_dur)
+d_all$ph_dur_corr <-
+  ifelse(
+    d_all$datetime >= as.POSIXct("2018-07-10 00:00:00") &
+      d_all$datetime <= as.POSIXct("2018-07-10 05:00:00"),
+    NA,
+    d_all$ph_dur_corr
+  )
+d_all$ph_dur <-
+  ifelse(
+    d_all$datetime >= as.POSIXct("2018-07-10 00:00:00") &
+      d_all$datetime <= as.POSIXct("2018-07-10 05:00:00"),
+    NA,
+    d_all$ph_dur
+  )
 
 # DURAFET 
 # add spectro points that are not taking into consideration
-d_all <- d_all%>%
-  dplyr::mutate( pH_s_dur_no_calb = ifelse(datetime == "2017-08-24 13:00:00", ph_s_dur_temp_fb, NA ))
+d_all <- d_all %>%
+  dplyr::mutate(pH_s_dur_no_calb = ifelse(
+    datetime == as.POSIXct("2017-08-24 13:00:00"),
+    ph_s_dur_temp_fb,
+    NA
+  ))
 
 durafet_contros_xts <- dplyr::select(d_all, datetime, ph_dur, ph_s_dur_temp_fb,ph_dur_corr, pH_s_dur_no_calb)
 durafet_contros_xts <- as.xts(durafet_contros_xts, order.by = d_all$datetime)
@@ -1726,7 +1862,7 @@ Comparaison is done here with **corrected pHs** (**seaFET**, **durafet** and **c
 pH_sf <- d_all %>%
   dplyr::select(datetime, sal_insitu_ctd_9m , temp_insitu_ctd_9m, pHint_tot_sf)%>%
   dplyr::filter(!is.na(pHint_tot_sf), !is.na(temp_insitu_ctd_9m), !is.na(sal_insitu_ctd_9m)) %>%
-  dplyr::filter(datetime< "2018-01-01" | datetime> "2018-02-03")
+  dplyr::filter(datetime < as.POSIXct("2018-01-01") | datetime > as.POSIXct("2018-02-03"))
 pH_sf$pHint_tot_sf_norm4 <- pHinsi(pH=pH_sf$pHint_tot_sf, ALK=2.273e-3, Tinsi=4, Tlab=pH_sf$temp_insitu_ctd_9m, Pinsi=11/10, S=pH_sf$sal_insitu_ctd_9m, Pt=0, Sit=0, k1k2 = "x", kf = "x", ks="d", pHscale = "T", b="u74")
 
 pH_dur <- d_all %>%
@@ -1865,6 +2001,11 @@ For CT, duplicates's flags that have been changed to 1 are:
    dplyr::select(datetime, at, ct)%>%   
    dplyr::mutate(at_diff = abs(at - lag(at)),
                  ct_diff = abs(ct - lag(ct)))
+ diff <- d_all %>%
+    group_by(datetime) %>%
+   dplyr::select(datetime, at, ct)%>%   
+   dplyr::mutate(at_diff = abs(at - lag(at)),
+                 ct_diff = abs(ct - lag(ct)))
 
 pdelta_at_snapo <-ggplot() +
     geom_point(data=diff, aes(x= datetime, y= at_diff)) +
@@ -1893,8 +2034,25 @@ p_at_ts <- ggplot() +
 # DYGRAPH
 
 # to create periods according to SNAPCO analysis 
-snapcoevents <- c("2015-07-23 00:00:00", "2015-11-18 00:00:00", "2015-11-27 00:00:00", "2016-10-13 00:00:00", 
-              "2017-05-11 00:00:00", "2018-02-09 00:00:00", "2018-02-16 00:00:00", "2018-07-27 00:00:00", "2018-08-03 00:00:00", "2018-11-23 00:00:00", "2018-11-30 00:00:00", "2019-04-12 00:00:00","2019-08-31 23:59:00", format(Sys.Date(), "%Y-%m-%d %H:%M:%S"))
+snapcoevents <-
+  as.POSIXct(
+    c(
+      "2015-07-23 00:00:00",
+      "2015-11-18 00:00:00",
+      "2015-11-27 00:00:00",
+      "2016-10-13 00:00:00",
+      "2017-05-11 00:00:00",
+      "2018-02-09 00:00:00",
+      "2018-02-16 00:00:00",
+      "2018-07-27 00:00:00",
+      "2018-08-03 00:00:00",
+      "2018-11-23 00:00:00",
+      "2018-11-30 00:00:00",
+      "2019-04-12 00:00:00",
+      "2019-08-31 23:59:00",
+      format(Sys.Date(), "%Y-%m-%d %H:%M:%S")
+    )
+  )
 
 at_diff_xts <- dplyr::select(diff, datetime, at_diff, at)
 at_diff_xts <- as.xts(at_diff_xts, order.by = diff$datetime)
