@@ -418,6 +418,19 @@ The data at one minute frequency were tagged with the following quality flags
 * Despike using oce::despike with n=2, k=5761
 
 
+    + 1: good data
+    + 3: impossible date and time test
+    + 4: data not usable according to manufacturer (flush mode, zero mode, calibration mode...) 
+    + 6: failing the manufacturer range test (not used)
+    + 7: failing the regional range test 
+    + 12: failing the spike test (NAs from despike)
+    + 13: failing the gradient test
+    + 15: the instrument was not deployed or operated
+    + 99: failing the final visual inspection of the data. 
+
+* Despike using oce::despike with n=2, k=5761
+
+
 ```{r data availability, echo=FALSE, message= FALSE, warning=FALSE, out.width="80%",fig.show='hold', fig.align="center"}
 # function to express the number of quality flag in pefrcent for each variable
 # qflag <- function(x, ...) {
