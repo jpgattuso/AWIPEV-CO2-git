@@ -2347,9 +2347,9 @@ All documents concerning maintenance, tasks to do, calibration... are accessible
 Si on veut remplacer intégralement les fichiers de pCloud par ceux de awipev-co2 : ajouter “--delete” à la commande rsync.
 Pattern des commandes : # m h dom mon dow command 
 
-* (Every hour on the hour, a crontab action runs automatically the script ny-alesund/R/ny-alesund_cc.R. This script essentially appends the daily files from AWI-NRT database and cleans the data)
+* (Every 4 hour on the hour, a crontab action runs automatically the script ny-alesund/R/ny-alesund_cc.R. This script essentially appends the daily files from AWI-NRT database and cleans the data)
     + 00 *//1 * * * cd $HOME; USER=awipev R --vanilla < ny-alesund/R/ny-alesund_cc.R > ny-alesund/R/log_ny-alesund_cc.txt 2>&1
-* (Every hour at 10 min past the hour, the web page is generated)
+* (Every 4 hour at 10 min past the hour, the web page is generated)
     + 10 *//1 * * * cd web; USER=awipev bash awipev-co2.sh > awipev-web.log 2>&1 
 * (At 05:00 the files from server/web are copied to gattuso’s iMac in pCloud ... Exp168)
     + 00 05 * * * /usr/bin/rsync -e "ssh -o StrictHostKeyChecking=no" -avh /home/awipev/web 'gattuso@gattuso.obs-vlfr.fr:/Users/gattuso/pCloud\ Sync/Documents/experiments/exp168_awipev-CO2/fb_awipev-co2_server/'
