@@ -1534,26 +1534,26 @@ d_all <- d_all %>%
     temp_mix
   ))
 
-#interpolation of salinity during the FB off maintenance
+#interpolation of salinity during gaps
 salinterp <-
   approx(
     d_all$datetime,
-    d_all$sal_mix,
+    d_all$sal_insitu_ctd,
     xout = d_all$datetime,
     method = "linear",
     rule = 2
   )
-names(salinterp) <- c("datetime", "sal_mix_interp")
+names(salinterp) <- c("datetime", "sal_insitu_ctd_interp")
 salinterp <- as.data.frame(salinterp)
-d_all$sal_mix_interp <- salinterp$sal_mix_interp
+d_all$sal_insitu_ctd_interp <- salinterp$sal_insitu_ctd_interp
 
 d_all <- d_all %>%
   dplyr::mutate(
-    sal_mix_interp =  ifelse(
-      datetime > as.POSIXct("2018-03-09 00:00:00") &
-        datetime < as.POSIXct("2018-04-16 16:00:00"),
-      sal_mix_interp,
-      sal_mix
+    sal_insitu_ctd_interp =  ifelse(
+      datetime > as.POSIXct("2018-04-16 07:00:00") &
+        datetime < as.POSIXct("2018-04-24 22:00:00"),
+      sal_insitu_ctd_interp,
+      sal_insitu_ctd
     )
   )
 
@@ -1562,7 +1562,7 @@ d_all <- d_all %>%
 ## calculation of E0INT25/E0EXT25 ##
 ##     new sf_calib function      ##
 ####
-calib_spectro <- sf_calib(calEint = d_all$voltINT, calEext = d_all$voltEXT, calpH = d_all$ph_s_sf_temp_mix, calT = d_all$temp_sf, calSal = d_all$sal_mix_interp)
+calib_spectro <- sf_calib(calEint = d_all$voltINT, calEext = d_all$voltEXT, calpH = d_all$ph_s_sf_temp_mix, calT = d_all$temp_sf, calSal = d_all$sal_insitu_ctd_interp)
 # put number of deployment 
 calib_spectro$deployment_sf <- d_all$deployment_sf 
 
@@ -1598,7 +1598,7 @@ We also defined a period of malfunction from **2017-12-14** to **2018-02-02**. i
 ## calculation of the calibrated pH ##
 ##       new sf_calc function       ##
 ####
-seafet_calib <- sf_calc(calEint = d_all$voltINT, calEext = d_all$voltEXT, E0int25 = d_all$E0int25_sf,  E0ext25 = d_all$E0ext25_sf, calT = d_all$temp_sf, calSal = d_all$sal_mix_interp)
+seafet_calib <- sf_calc(calEint = d_all$voltINT, calEext = d_all$voltEXT, E0int25 = d_all$E0int25_sf,  E0ext25 = d_all$E0ext25_sf, calT = d_all$temp_sf, calSal = d_all$sal_insitu_ctd_interp)
 
 # bind new calibrated pH data to the seafet data set.
 names(seafet_calib) <- c("pHint_tot_sf", "pHext_tot_sf")
