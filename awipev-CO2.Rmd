@@ -1575,7 +1575,7 @@ p <- ggplot(d_all, aes(x=datetime, y= pHint_tot_sf))+
 seafet_depth_xts <- dplyr::select(d_all, datetime, ph_s_sf_temp_mix, pHint_tot_sf, pH_s_sf_no_calb)
 seafet_depth_xts <- as.xts(seafet_depth_xts, order.by = d_all$datetime)
 dygraph(seafet_depth_xts, group = "depth", main="pH seaFET (ref + corrected + raw)", ylab="pHT") %>%
-dySeries("pHint_tot_sf", label = "pHT corrected", color =  RColorBrewer::brewer.pal(3, "Dark2")[1], strokeWidth = 0, pointSize = 3) %>%
+dySeries("pHint_tot_sf", label = "pHT corrected", color =  RColorBrewer::brewer.pal(3, "Dark2")[1], strokeWidth = 0, pointSize = 2) %>%
 dySeries("ph_s_sf_temp_mix", label = "pH spectro for calibration", color =  "red", strokeWidth = 0, pointSize = 4 ) %>%
 dySeries("pH_s_sf_no_calb", label = "pH spectro no calibration", color =  "black", pointShape = "triangle", strokeWidth = 0, pointSize = 6 ) %>%
 dyEvent(as.POSIXct("2017-08-24 12:00:00", tz="UTC"), "seaFET #1005 installed", labelLoc = "bottom", color="red") %>%
