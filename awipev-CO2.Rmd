@@ -184,6 +184,7 @@ d <- read.table(paste0(path, "fb_data/Discrete_analyses_AT_CT/Discrete_sampling_
 #d$datetime <- as.POSIXct(d$sampling_date, format="%d/%m/%Y %H:%M", tz="UTC")
 d$datetime <- dmy_hm(d$sampling_date, tz="UTC")
 d$measure_date <- dmy(d$measure_date, tz="UTC")
+d$date <- as.Date(d$datetime)
 
 # Add the flag location: some samples have been collected at the pier. Notes them here.
 # Flag 1 = collected on the peer by Niskin and flag 0 = collected in the FB (normal collect)
@@ -217,9 +218,7 @@ d <- d%>%
 
 
 # Mercuric chloride correction (Dickson et al. 2007, SOP3a)
-# AT
 d$at <- d$at * 1.0002
-#CT
 d$ct <- d$ct * 1.0002
 
 # Fill "at/ct" to all line with same day.
@@ -256,7 +255,7 @@ d <- left_join(d, d_all%>%dplyr::select(c(closest_datetime, sal_fb, temp_fb, tem
 pH_seafet <- d %>%
   dplyr::filter(!is.na(pH_s_seafet) & !is.na(temp_insitu_ctd) )
 pH_seafet <- pH_seafet %>%
-  dplyr::mutate(ph_s_sf_temp_mix = pHinsi(pH = pH_seafet$pH_s_seafet,ALK = pH_seafet$at_mean_interp*1e-6, Tinsi = pH_seafet$temp_insitu_ctd, Tlab = pH_seafet$temp_s_lab, Pinsi = pH_seafet$depth/10, S = pH_seafet$sal_mix, Pt = 0, Sit = 0))
+  dplyr::mutate(ph_s_sf_temp_mix = pHinsi(pH = pH_seafet$pH_s_seafet, ALK = pH_seafet$at_mean_interp*1e-6, Tinsi = pH_seafet$temp_insitu_ctd, Tlab = pH_seafet$temp_s_lab, Pinsi = pH_seafet$depth/10, S = pH_seafet$sal_mix, Pt = 0, Sit = 0))
                 
 pH_durafet <- d %>%
 #  dplyr::filter(!is.na(pH_s_durafet))
@@ -267,11 +266,11 @@ pH_durafet <- pH_durafet %>%
  
 # Make mean for replicates. create separate seafet/durafet df to join to initial "d" df
 pH_seafet_mean <- pH_seafet%>%
-  dplyr::select(datetime,ph_s_sf_temp_mix)%>% 
+  dplyr::select(datetime, ph_s_sf_temp_mix)%>% 
   dplyr::group_by(datetime) %>% 
   dplyr::summarize(ph_s_sf_temp_mix = mean(ph_s_sf_temp_mix, na.rm = T))
 pH_durafet_mean <- pH_durafet%>%
-  dplyr::select(datetime,ph_s_dur_temp_fb)%>% 
+  dplyr::select(datetime, ph_s_dur_temp_fb)%>% 
   dplyr::group_by(datetime) %>% 
   dplyr::summarize(ph_s_dur_temp_fb = mean(ph_s_dur_temp_fb, na.rm = T))
 
@@ -299,7 +298,7 @@ discrete_no_na <- discrete %>%
 discrete_is_na <- discrete %>%
   dplyr::filter(is.na(sal_fb)  | is.na(temp_fb) | is.na(at) | is.na(ct))
 
-carb <- carb(15, discrete_no_na$at*1e-6, discrete_no_na$ct*1e-6,S=discrete_no_na$sal_fb, T=discrete_no_na$temp_fb, P=0, Pt=0, Sit=0,k1k2="l", kf="dg", ks="d", pHscale="T", b="u74")
+carb <- carb(15, discrete_no_na$at*1e-6, discrete_no_na$ct*1e-6, S = discrete_no_na$sal_fb, T = discrete_no_na$temp_fb, P = 0, Pt = 0, Sit = 0, k1k2 = "l", kf = "dg", ks = "d", pHscale = "T", b = "u74")
 
 discrete_no_na$phcalc<- carb$pH
 discrete_no_na$pco2_calc<- carb$pCO2
@@ -2056,7 +2055,7 @@ dygraph(durafet_sf_contros_xts, group = "awipev", main="pH durafet vs pH seaFET 
 ```{r pHs comparaison dur calc, echo=FALSE, message= FALSE, warning=FALSE}
 # Normalize phcalc from AT/CT to 4°c
 pH_calc <- discrete %>%
-  dplyr::select(datetime, sal_fb,temp_fb, phcalc, at)%>%
+  dplyr::select(datetime, sal_fb, temp_fb, phcalc, at)%>%
   dplyr::filter(!is.na(phcalc), !is.na(temp_fb), !is.na(sal_fb))
 pH_calc$pH_calc_norm4 <- pHinsi(pH=pH_calc$phcalc, ALK=pH_calc$at*1e-6, Tinsi=4, Tlab=pH_calc$temp_fb, Pinsi=11/10, S=pH_calc$sal_fb, Pt=0, Sit=0, k1k2 = "x", kf = "x", ks="d", pHscale = "T", b="u74")
 
