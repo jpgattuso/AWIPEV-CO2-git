@@ -180,7 +180,9 @@ d_all <- d_all %>%
 ```
 
 ```{r read and prepare discrete data, echo=FALSE, warning=FALSE, message=FALSE}
-d <- read.table(paste0(path, "fb_data/Discrete_analyses_AT_CT/Discrete_sampling_AWIPEV.csv"), header = T, dec = ".", as.is = T, sep = ";", fill = TRUE)
+d <- tibble(
+  read.table(paste0(path, "fb_data/Discrete_analyses_AT_CT/Discrete_sampling_AWIPEV.csv"), header = T, dec = ".", as.is = T, sep = ";", fill = TRUE)
+)
 #d$datetime <- as.POSIXct(d$sampling_date, format="%d/%m/%Y %H:%M", tz="UTC")
 d$datetime <- dmy_hm(d$sampling_date, tz="UTC")
 d$measure_date <- dmy(d$measure_date, tz="UTC")
@@ -221,15 +223,19 @@ d <- d%>%
 d$at <- d$at * 1.0002
 d$ct <- d$ct * 1.0002
 
-# Fill "at/ct" to all line with same day.
+# mean at and ct
 at_ct_mean <- d %>% 
-  group_by(datetime)%>%
+#  group_by(datetime)%>%
+  group_by(date) %>%
   dplyr::summarize(at_mean = mean(at, na.rm = T),
                    ct_mean = mean(ct, na.rm = T),
                    at_sd = sd(at, na.rm = T), 
                    ct_sd = sd(ct, na.rm = T)
                    )
-d <- left_join(d, at_ct_mean, by='datetime')
+d <- left_join(d, at_ct_mean, by='date') %>% 
+  dplyr::select(datetime, date, temp_s_lab, pH_s_seafet, pH_s_durafet, location_flag, at_mean, ct_mean) %>% # removed useless variables and also to do unique next
+  dplyr::distinct()
+
 # Fill the gaps in at_mean with interpolation
 TAinterp <-approx(d$datetime, d$at_mean, xout=d$datetime, method="linear", rule=2)
 names(TAinterp) <- c("datetime", "at_mean_interp")
@@ -249,13 +255,13 @@ d$closest_datetime <- d_all$datetime[closest]
 d$closest_datetime[abs(d$datetime - d_all$datetime[closest]) > 30*60] <- NA
 # create closest_datetime in d_all (copy of datetime)
 d_all$closest_datetime <- d_all$datetime
-d <- left_join(d, d_all%>%dplyr::select(c(closest_datetime, sal_fb, temp_fb, temp_mix, sal_mix, temp_insitu_ctd)), by="closest_datetime") 
+d <- left_join(d, d_all %>% dplyr::select(c(closest_datetime, sal_fb, temp_fb, temp_mix, sal_mix, temp_insitu_ctd, pressure_insitu_ctd)), by="closest_datetime") 
 
 # Conversion of spectro pH to insitu mix T°
 pH_seafet <- d %>%
-  dplyr::filter(!is.na(pH_s_seafet) & !is.na(temp_insitu_ctd) )
+  dplyr::filter(!is.na(pH_s_seafet) & !is.na(temp_insitu_ctd))
 pH_seafet <- pH_seafet %>%
-  dplyr::mutate(ph_s_sf_temp_mix = pHinsi(pH = pH_seafet$pH_s_seafet, ALK = pH_seafet$at_mean_interp*1e-6, Tinsi = pH_seafet$temp_insitu_ctd, Tlab = pH_seafet$temp_s_lab, Pinsi = pH_seafet$depth/10, S = pH_seafet$sal_mix, Pt = 0, Sit = 0))
+  dplyr::mutate(ph_s_sf_temp_insi = pHinsi(pH = pH_seafet$pH_s_seafet, ALK = pH_seafet$at_mean_interp*1e-6, Tinsi = pH_seafet$temp_insitu_ctd, Tlab = pH_seafet$temp_s_lab, Pinsi = pH_seafet$pressure_insitu_ctd, S = pH_seafet$sal_mix, Pt = 0, Sit = 0))
                 
 pH_durafet <- d %>%
 #  dplyr::filter(!is.na(pH_s_durafet))
@@ -266,9 +272,9 @@ pH_durafet <- pH_durafet %>%
  
 # Make mean for replicates. create separate seafet/durafet df to join to initial "d" df
 pH_seafet_mean <- pH_seafet%>%
-  dplyr::select(datetime, ph_s_sf_temp_mix)%>% 
+  dplyr::select(datetime, ph_s_sf_temp_insi)%>% 
   dplyr::group_by(datetime) %>% 
-  dplyr::summarize(ph_s_sf_temp_mix = mean(ph_s_sf_temp_mix, na.rm = T))
+  dplyr::summarize(ph_s_sf_temp_insi = mean(ph_s_sf_temp_insi, na.rm = T))
 pH_durafet_mean <- pH_durafet%>%
   dplyr::select(datetime, ph_s_dur_temp_fb)%>% 
   dplyr::group_by(datetime) %>% 
@@ -340,14 +346,14 @@ d_all <- full_join(d_all, discrete2merge, by="datetime")
 
 # seaFET pH 
 discrete2merge <- discrete %>%
-  dplyr::select(closest_datetime, ph_s_sf_temp_mix) %>%
+  dplyr::select(closest_datetime, ph_s_sf_temp_insi) %>%
   dplyr::filter(!is.na(closest_datetime)) %>%
   rename(datetime=closest_datetime)
 d_all <- full_join(d_all, discrete2merge, by="datetime")
 d_all <- d_all %>% 
-  dplyr::mutate(ph_s_sf_temp_mix = ifelse(n_depth_ctd == 4, ph_s_sf_temp_mix, NA)) %>% # eliminate ph spectro data when the profiler was at several depth during the same hour
-  dplyr::mutate(ph_s_sf_temp_mix = ifelse(!is.na(temp_insitu_ctd_7m) | !is.na(temp_insitu_ctd_9m), 
-                                          ph_s_sf_temp_mix, NA)) # only use ph spectro data when profiler was below 6 m
+  dplyr::mutate(ph_s_sf_temp_insi = ifelse(n_depth_ctd == 4, ph_s_sf_temp_insi, NA)) %>% # eliminate ph spectro data when the profiler was at several depth during the same hour
+  dplyr::mutate(ph_s_sf_temp_insi = ifelse(!is.na(temp_insitu_ctd_7m) | !is.na(temp_insitu_ctd_9m), 
+                                          ph_s_sf_temp_insi, NA)) # only use ph spectro data when profiler was below 6 m
 
 discrete2merge <- discrete %>%
   #drop_na() %>%
@@ -1241,8 +1247,8 @@ Plots of E0int25 and E0ext25 returned by the function "pHCalib" for each period 
 # # Thus, each pH spectro is taken as one calibration periode. 
 # # We calculate here the day between 2 pH spectro in order to have the start/end of one deployment period.
 # sfPeriod <- d_all%>%
-#   dplyr::select(datetime, ph_s_sf_temp_mix)%>%
-#   dplyr::filter(!is.na(ph_s_sf_temp_mix))
+#   dplyr::select(datetime, ph_s_sf_temp_insi)%>%
+#   dplyr::filter(!is.na(ph_s_sf_temp_insi))
 # # Remove pH spectro that not allow a calibration because of missing calibration value (voltINT, Sal or Temp insi)
 # sfPeriod <- sfPeriod%>%
 # dplyr::filter(datetime != "2018-04-16 07:00:00" & datetime != "2018-12-14 09:00:00" & datetime != "2019-01-18 09:00:00")
@@ -1304,7 +1310,7 @@ d_all <- d_all %>%
                                 ifelse(datetime >= sfinterv[3], 03, NA ))))
 
 # pco2_contros_xts <-
-#   dplyr::select(d_all, datetime, voltINT, voltEXT, sal_fb, temp_insitu_ctd, ph_s_sf_temp_mix)
+#   dplyr::select(d_all, datetime, voltINT, voltEXT, sal_fb, temp_insitu_ctd, ph_s_sf_temp_insi)
 # pco2_contros_xts <-
 #   as.xts(pco2_contros_xts, order.by = d_all$datetime)
 # dygraph(pco2_contros_xts,
@@ -1341,8 +1347,8 @@ d_all <- d_all %>%
 #     pointSize = 2
 #   ) %>%
 #    dySeries(
-#     "ph_s_sf_temp_mix",
-#     label = "ph_s_sf_temp_mix",
+#     "ph_s_sf_temp_insi",
+#     label = "ph_s_sf_temp_insi",
 #     color =  RColorBrewer::brewer.pal(5, "Dark2")[5],
 #     strokeWidth = 0,
 #     pointSize = 4
@@ -1634,7 +1640,7 @@ d_all <- d_all %>%
 ## calculation of E0INT25/E0EXT25 ##
 ##     new sf_calib function      ##
 ####
-calib_spectro <- sf_calib(calEint = d_all$voltINT, calEext = d_all$voltEXT, calpH = d_all$ph_s_sf_temp_mix, calT = d_all$temp_sf, calSal = d_all$sal_insitu_ctd_interp)
+calib_spectro <- sf_calib(calEint = d_all$voltINT, calEext = d_all$voltEXT, calpH = d_all$ph_s_sf_temp_insi, calT = d_all$temp_sf, calSal = d_all$sal_insitu_ctd_interp)
 # put number of deployment 
 calib_spectro$deployment_sf <- d_all$deployment_sf 
 
@@ -1689,7 +1695,7 @@ d_all <- d_all %>%
       datetime == as.POSIXct("2018-04-16 07:00:00") |
         datetime == as.POSIXct("2018-12-14 10:00:00") |
         datetime == as.POSIXct("2019-01-18 11:00:00"),
-      ph_s_sf_temp_mix,
+      ph_s_sf_temp_insi,
       NA
     )
   )
@@ -1697,11 +1703,11 @@ d_all <- d_all %>%
 p <- ggplot(d_all, aes(x=datetime, y= pHint_tot_sf))+
   geom_point(size=1, alpha=0.5, na.rm=TRUE)
 
-seafet_depth_xts <- dplyr::select(d_all, datetime, ph_s_sf_temp_mix, pHint_tot_sf, pH_s_sf_no_calb)
+seafet_depth_xts <- dplyr::select(d_all, datetime, ph_s_sf_temp_insi, pHint_tot_sf, pH_s_sf_no_calb)
 seafet_depth_xts <- as.xts(seafet_depth_xts, order.by = d_all$datetime)
 dygraph(seafet_depth_xts, group = "depth", main="pH seaFET (ref + corrected + raw)", ylab="pHT") %>%
 dySeries("pHint_tot_sf", label = "pHT corrected", color =  RColorBrewer::brewer.pal(3, "Dark2")[1], strokeWidth = 0, pointSize = 3) %>%
-dySeries("ph_s_sf_temp_mix", label = "pH spectro for calibration", color =  "red", strokeWidth = 0, pointSize = 4 ) %>%
+dySeries("ph_s_sf_temp_insi", label = "pH spectro for calibration", color =  "red", strokeWidth = 0, pointSize = 4 ) %>%
 dySeries("pH_s_sf_no_calb", label = "pH spectro no calibration", color =  "black", pointShape = "triangle", strokeWidth = 0, pointSize = 6 ) %>%
 dyEvent(as.POSIXct("2017-08-24 12:00:00", tz="UTC"), "seaFET #1005 installed", labelLoc = "bottom", color="red") %>%
   dyEvent(as.POSIXct("2018-02-02 09:00:00", tz="UTC"), "seaFET settings changed to every 1H", labelLoc = "bottom", color="red") %>% 
@@ -2113,9 +2119,9 @@ p_dura_spectro
 
 ```{r pHs comparaison sf spectro, echo=FALSE, message= FALSE, warning=FALSE}
 # Spectro / seafet
-# fit <- lmodel2(data = d_all,  ph_s_sf_temp_mix ~ pHint_tot_sf , nperm = 99)
+# fit <- lmodel2(data = d_all,  ph_s_sf_temp_insi ~ pHint_tot_sf , nperm = 99)
 #
-# p_sf_spectro <-  ggplot(d_all,aes(x=pHint_tot_sf, y= ph_s_sf_temp_mix, label = month))+
+# p_sf_spectro <-  ggplot(d_all,aes(x=pHint_tot_sf, y= ph_s_sf_temp_insi, label = month))+
 #   geom_text( aes(color=factor(month))) +
 #   scale_color_discrete(guide = "none")+
 #  geom_abline(slope=1, intercept =0, linetype = "dashed") +
@@ -2526,8 +2532,8 @@ All documents concerning maintenance, tasks to do, calibration... are accessible
 * temp_mix: when data of in situ temperature at 11 m (temp_insitu_11m) are missing, they are replaced by data from the profiling ctd for depths > 8 m
 * pco2_calc: pco2 calc from AT/CT ferrybox = carb avec temp_fb +sal_fb
 * calibrate seafet pH
-    - ph_s_sf_temp_mix: pH spectro seaFET pH insi calculé avec AT interpolée + temp_mix +sal_mix
-    - E0int25_sf: calculé à partir du voltage interne + ph_s_sf_temp_mix (temp 11m + temp_insitu_ctd_9m si trous) + temp CTD 9m + sal CTD 9m (calib seaFET fonction 1)
+    - ph_s_sf_temp_insi: pH spectro seaFET pH insi calculé avec AT interpolée + temp_mix +sal_mix
+    - E0int25_sf: calculé à partir du voltage interne + ph_s_sf_temp_insi (temp 11m + temp_insitu_ctd_9m si trous) + temp CTD 9m + sal CTD 9m (calib seaFET fonction 1)
     - phint_tot_sf: calculé à partir du voltage interne + E0 + temp CTD + sal CTD (calib seaFET fonction 2)
 * ph_calc: pH calc from AT/CT ferrybox = carb avec temp_fb +sal_fb
 * despike pH seaFET
