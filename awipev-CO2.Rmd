@@ -150,7 +150,6 @@ d_hour <- d_hour %>%
 d_all <- d_hour #d_all will be the merger
 d_all <- d_all %>%
   dplyr::mutate_all(function(x) ifelse(is.nan(x), NA, x)) %>% # replace all NaN by NA
-  dplyr::mutate(month = month(month(datetime))) %>%
   dplyr::rowwise() %>% 
   dplyr::mutate(n_depth_ctd = sum(is.na( # create new variable to identify the hours for which there are CTD data at more than 1 depth 
   c(
@@ -161,9 +160,10 @@ d_all <- d_all %>%
     sal_insitu_ctd_9m
   )
 ), na.rm = TRUE))
-#restore datetime and date which are mangled by the murtates above
+#restore datetime, date which are mangled by the murtates above
 d_all$datetime <- d_hour$datetime
 d_all$date <- d_hour$date
+d_all$month <- month(d_all$datetime)
 ```
 
 ```{r Sal filter, fig.width=10, fig.height=4, echo=FALSE, message= FALSE}
@@ -1400,133 +1400,204 @@ d_all$voltINT <- ifelse(d_all$datetime == as.POSIXct("2017-11-02 21:00:00") |
                           d_all$datetime == as.POSIXct("2018-04-18 14:00:00"),
                         NA, d_all$voltINT)
 #periode 1, mean of 4 next hours for volt int + T seaF
-mean_voltINT_4h <- d_all %>%
+# mean_voltINT_4h <- d_all %>%
+#   dplyr::filter(
+#     datetime >= as.POSIXct("2017-08-24 19:00:00") &
+#       datetime <= as.POSIXct("2017-08-24 22:00:00")
+#   ) %>%
+#   dplyr::summarise(mean(voltINT, na.rm = TRUE))
+#mean_voltINT_4h <- as.numeric(mean_voltINT_4h)
+zz <- d_all %>%
   dplyr::filter(
     datetime >= as.POSIXct("2017-08-24 19:00:00") &
       datetime <= as.POSIXct("2017-08-24 22:00:00")
-  ) %>%
-  dplyr::summarise(mean(voltINT, na.rm = TRUE))
-mean_voltINT_4h <- as.numeric(mean_voltINT_4h)
+  )
+mean_voltINT_4h <-  mean(zz$voltINT, na.rm = TRUE)
 d_all <- d_all %>%
   dplyr::mutate(voltINT = ifelse(
     datetime == as.POSIXct("2017-08-24 13:00:00"),
     mean_voltINT_4h,
     voltINT
   ))
-mean_voltEXT_4h <- d_all %>%
+# mean_voltEXT_4h <- d_all %>%
+#   dplyr::filter(
+#     datetime >= as.POSIXct("2017-08-24 19:00:00") &
+#       datetime <= as.POSIXct("2017-08-24 22:00:00")
+#   ) %>%
+#   dplyr::summarise(mean(voltEXT, na.rm = TRUE))
+# mean_voltEXT_4h <- as.numeric(mean_voltEXT_4h)
+zz <- d_all %>%
   dplyr::filter(
     datetime >= as.POSIXct("2017-08-24 19:00:00") &
       datetime <= as.POSIXct("2017-08-24 22:00:00")
-  ) %>%
-  dplyr::summarise(mean(voltEXT, na.rm = TRUE))
-mean_voltEXT_4h <- as.numeric(mean_voltEXT_4h)
+  )
+mean_voltEXT_4h <-  mean(zz$voltEXT, na.rm = TRUE)
 d_all <- d_all %>%
   dplyr::mutate(voltEXT = ifelse(
     datetime == as.POSIXct("2017-08-24 13:00:00"),
     mean_voltEXT_4h,
     voltEXT
   ))
-mean_TseaF_4h <- d_all %>%
+# mean_TseaF_4h <- d_all %>%
+#   dplyr::filter(
+#     datetime >= as.POSIXct("2017-08-24 19:00:00") &
+#       datetime <= as.POSIXct("2017-08-24 22:00:00")
+#   ) %>%
+#   dplyr::summarise(mean(temp_sf, na.rm = TRUE))
+# mean_TseaF_4h <- as.numeric(mean_TseaF_4h)
+zz <- d_all %>%
   dplyr::filter(
     datetime >= as.POSIXct("2017-08-24 19:00:00") &
       datetime <= as.POSIXct("2017-08-24 22:00:00")
-  ) %>%
-  dplyr::summarise(mean(temp_sf, na.rm = TRUE))
-mean_TseaF_4h <- as.numeric(mean_TseaF_4h)
+  )
+mean_TseaF_4h <-  mean(zz$temp_sf, na.rm = TRUE)
 d_all <- d_all %>%
   dplyr::mutate(temp_mix = ifelse(
     datetime == as.POSIXct("2017-08-24 13:00:00"),
     mean_TseaF_4h,
     temp_mix
   ))
+
 # Periode 2, mean of 4 next hours for volt int + T seaF
-mean_voltINT_4h <- d_all %>%
+# mean_voltINT_4h <- d_all %>%
+#   dplyr::filter(
+#     datetime >= as.POSIXct("2017-09-28 15:00:00") &
+#       datetime <= as.POSIXct("2017-09-28 18:00:00")
+#   ) %>%
+#   dplyr::summarise(mean(voltINT, na.rm = TRUE))
+# mean_voltINT_4h <- as.numeric(mean_voltINT_4h)
+zz <- d_all %>%
   dplyr::filter(
     datetime >= as.POSIXct("2017-09-28 15:00:00") &
       datetime <= as.POSIXct("2017-09-28 18:00:00")
-  ) %>%
-  dplyr::summarise(mean(voltINT, na.rm = TRUE))
-mean_voltINT_4h <- as.numeric(mean_voltINT_4h)
+  )
+mean_voltINT_4h <-  mean(zz$voltINT, na.rm = TRUE)
 d_all <- d_all %>%
   dplyr::mutate(voltINT = ifelse(
     datetime == as.POSIXct("2017-09-28 13:00:00"),
     mean_voltINT_4h,
     voltINT
   ))
-mean_voltEXT_4h <- d_all %>%
+# mean_voltEXT_4h <- d_all %>%
+#   dplyr::filter(
+#     datetime >= as.POSIXct("2017-09-28 15:00:00") &
+#       datetime <= as.POSIXct("2017-09-28 18:00:00")
+#   ) %>%
+#   dplyr::summarise(mean(voltEXT, na.rm = TRUE))
+# mean_voltEXT_4h <- as.numeric(mean_voltEXT_4h)
+zz <- d_all %>%
   dplyr::filter(
     datetime >= as.POSIXct("2017-09-28 15:00:00") &
       datetime <= as.POSIXct("2017-09-28 18:00:00")
-  ) %>%
-  dplyr::summarise(mean(voltEXT, na.rm = TRUE))
-mean_voltEXT_4h <- as.numeric(mean_voltEXT_4h)
+  )
+mean_voltEXT_4h <-  mean(zz$voltEXT, na.rm = TRUE)
 d_all <- d_all %>%
   dplyr::mutate(voltEXT = ifelse(
     datetime == as.POSIXct("2017-09-28 13:00:00"),
     mean_voltEXT_4h,
     voltEXT
   ))
+
 # period 03, mean of 4 previous hours for volt int + volt ext
-mean_voltINT_4h <- d_all %>%
+# mean_voltINT_4h <- d_all %>%
+#   dplyr::filter(
+#     datetime >= as.POSIXct("2019-09-13 04:00:00") &
+#       datetime <= as.POSIXct("2019-09-13 07:00:00")
+#   ) %>%
+#   dplyr::summarise(mean(voltINT, na.rm = TRUE))
+zz <- d_all %>%
   dplyr::filter(
     datetime >= as.POSIXct("2019-09-13 04:00:00") &
       datetime <= as.POSIXct("2019-09-13 07:00:00")
-  ) %>%
-  dplyr::summarise(mean(voltINT, na.rm = TRUE))
-mean_voltINT_4h <- as.numeric(mean_voltINT_4h)
+  )
+mean_voltINT_4h <-  mean(zz$voltINT, na.rm = TRUE)
+
+# Ce qui suit (7 lignes) est très bizarre
+d_all <- d_all %>%
+  dplyr::mutate(voltINT = ifelse(
+    datetime == as.POSIXct("2017-09-28 13:00:00"),
+    mean_voltINT_4h,
+    voltINT
+  ))
+# ???????? mean_voltINT_4h <- as.numeric(mean_voltINT_4h)
 d_all <- d_all %>%
   dplyr::mutate(voltINT = ifelse(
     datetime == as.POSIXct("2019-09-13 08:00:00"),
     mean_voltINT_4h,
     voltINT
   ))
-mean_voltEXT_4h <- d_all %>%
+# mean_voltEXT_4h <- d_all %>%
+#   dplyr::filter(
+#     datetime >= as.POSIXct("2019-09-13 04:00:00") &
+#       datetime <= as.POSIXct("2019-09-13 07:00:00")
+#   ) %>%
+#   dplyr::summarise(mean(voltEXT, na.rm = TRUE))
+# mean_voltEXT_4h <- as.numeric(mean_voltEXT_4h)
+zz <- d_all %>%
   dplyr::filter(
     datetime >= as.POSIXct("2019-09-13 04:00:00") &
       datetime <= as.POSIXct("2019-09-13 07:00:00")
-  ) %>%
-  dplyr::summarise(mean(voltEXT, na.rm = TRUE))
-mean_voltEXT_4h <- as.numeric(mean_voltEXT_4h)
+  )
+mean_voltEXT_4h <-  mean(zz$voltEXT, na.rm = TRUE)
 d_all <- d_all %>%
   dplyr::mutate(voltEXT = ifelse(
     datetime == as.POSIXct("2019-09-13 08:00:00"),
     mean_voltEXT_4h,
     voltEXT
   ))
+
 # period 04 also, mean of 4 previous hours for volt int + volt ext + T seaF
-mean_voltINT_4h <- d_all %>%
+# mean_voltINT_4h <- d_all %>%
+#   dplyr::filter(
+#     datetime >= as.POSIXct("2019-09-13 11:00:00") &
+#       datetime <= as.POSIXct("2019-09-13 12:00:00")
+#   ) %>%
+#   dplyr::summarise(mean(voltINT, na.rm = TRUE))
+# mean_voltINT_4h <- as.numeric(mean_voltINT_4h)
+zz <- d_all %>%
   dplyr::filter(
     datetime >= as.POSIXct("2019-09-13 11:00:00") &
       datetime <= as.POSIXct("2019-09-13 12:00:00")
-  ) %>%
-  dplyr::summarise(mean(voltINT, na.rm = TRUE))
-mean_voltINT_4h <- as.numeric(mean_voltINT_4h)
+  )
+mean_voltINT_4h <-  mean(zz$voltINT, na.rm = TRUE)
 d_all <- d_all %>%
   dplyr::mutate(voltINT = ifelse(
     datetime == as.POSIXct("2019-09-13 13:00:00"),
     mean_voltINT_4h,
     voltINT
   ))
-mean_voltEXT_4h <- d_all %>%
+# mean_voltEXT_4h <- d_all %>%
+#   dplyr::filter(
+#     datetime >= as.POSIXct("2019-09-13 11:00:00") &
+#       datetime <= as.POSIXct("2019-09-13 12:00:00")
+#   ) %>%
+#   dplyr::summarise(mean(voltINT, na.rm = TRUE))
+# mean_voltEXT_4h <- as.numeric(mean_voltEXT_4h)
+zz <- d_all %>%
   dplyr::filter(
     datetime >= as.POSIXct("2019-09-13 11:00:00") &
       datetime <= as.POSIXct("2019-09-13 12:00:00")
-  ) %>%
-  dplyr::summarise(mean(voltINT, na.rm = TRUE))
-mean_voltEXT_4h <- as.numeric(mean_voltEXT_4h)
+  )
+mean_voltEXT_4h <-  mean(zz$voltEXT, na.rm = TRUE)
 d_all <- d_all %>%
   dplyr::mutate(voltEXT = ifelse(
     datetime == as.POSIXct("2019-09-13 13:00:00"),
     mean_voltEXT_4h,
     voltEXT
   ))
-mean_TseaF_4h <- d_all %>%
+# mean_TseaF_4h <- d_all %>%
+#   dplyr::filter(
+#     datetime >= as.POSIXct("2019-09-13 11:00:00") &
+#       datetime <= as.POSIXct("2019-09-13 12:00:00")
+#   ) %>%
+#   dplyr::summarise(mean(temp_sf, na.rm = TRUE))
+# mean_TseaF_4h <- as.numeric(mean_TseaF_4h)
+zz <- d_all %>%
   dplyr::filter(
     datetime >= as.POSIXct("2019-09-13 11:00:00") &
       datetime <= as.POSIXct("2019-09-13 12:00:00")
-  ) %>%
-  dplyr::summarise(mean(temp_sf, na.rm = TRUE))
-mean_TseaF_4h <- as.numeric(mean_TseaF_4h)
+  )
+mean_TseaF_4h <-  mean(zz$temp_sf, na.rm = TRUE)
 d_all <- d_all %>%
   dplyr::mutate(temp_mix = ifelse(
     datetime == as.POSIXct("2019-09-13 13:00:00"),
