@@ -272,13 +272,13 @@ pH_durafet <- pH_durafet %>%
  
 # Make mean for replicates. create separate seafet/durafet df to join to initial "d" df
 pH_seafet_mean <- pH_seafet%>%
-  dplyr::select(datetime, ph_s_sf_temp_insi)%>% 
-  dplyr::group_by(datetime) %>% 
-  dplyr::summarize(ph_s_sf_temp_insi = mean(ph_s_sf_temp_insi, na.rm = T))
+  dplyr::select(date, ph_s_sf_temp_insi)%>% 
+  dplyr::group_by(date) %>% 
+  dplyr::summarize(ph_s_sf_temp_insi = mean(ph_s_sf_temp_insi, na.rm = TRUE))
 pH_durafet_mean <- pH_durafet%>%
-  dplyr::select(datetime, ph_s_dur_temp_fb)%>% 
-  dplyr::group_by(datetime) %>% 
-  dplyr::summarize(ph_s_dur_temp_fb = mean(ph_s_dur_temp_fb, na.rm = T))
+  dplyr::select(date, ph_s_dur_temp_fb)%>% 
+  dplyr::group_by(date) %>% 
+  dplyr::summarize(ph_s_dur_temp_fb = mean(ph_s_dur_temp_fb, na.rm = TRUE))
 
 #  make means in "d" to have same format and call it "discrete"
 discrete <- d %>% 
