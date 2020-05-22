@@ -160,7 +160,7 @@ d_all <- d_all %>%
     sal_insitu_ctd_9m
   )
 ), na.rm = TRUE))
-#restore datetime, date which are mangled by the murtates above
+#restore datetime, date which are mangled by the mutates above
 d_all$datetime <- d_hour$datetime
 d_all$date <- d_hour$date
 d_all$month <- month(d_all$datetime)
@@ -174,7 +174,7 @@ d_all <- d_all %>%
 ```
    
 ```{r Temp filter, fig.width=10, fig.height=4, echo=FALSE, message= FALSE}
-# Binding temp_insitu_11m + temp_insitu_ctd if we get gaps in temp_insitu_11m = call this new column = temp_mix 
+# Create temp_mix: filling gaps in temp_insitu_11m using temp_insitu_9m
 d_all <- d_all %>%
   dplyr::mutate(temp_mix = ifelse(!is.na(temp_insitu_11m), temp_insitu_11m, temp_insitu_ctd_9m))
 ```
@@ -182,11 +182,14 @@ d_all <- d_all %>%
 ```{r read and prepare discrete data, echo=FALSE, warning=FALSE, message=FALSE}
 d <- tibble(
   read.table(paste0(path, "fb_data/Discrete_analyses_AT_CT/Discrete_sampling_AWIPEV.csv"), header = T, dec = ".", as.is = T, sep = ";", fill = TRUE)
-)
-#d$datetime <- as.POSIXct(d$sampling_date, format="%d/%m/%Y %H:%M", tz="UTC")
-d$datetime <- dmy_hm(d$sampling_date, tz="UTC")
-d$measure_date <- dmy(d$measure_date, tz="UTC")
-d$date <- as.Date(d$datetime)
+) %>% 
+  dplyr::mutate(datetime = dmy_hm(sampling_date, tz="UTC"),
+                measure_date = dmy(measure_date, tz="UTC"),
+                date = as.Date(datetime)) %>% 
+  dplyr::rename(ph_s_sf = pH_s_seafet,
+                ph_s_dur = pH_s_durafet,
+                qflag_ph_s_sf = qflag_pH_s_seafet,
+                qflag_ph_s_dur = qflag_pH_s_durafet)
 
 # Add the flag location: some samples have been collected at the pier. Notes them here.
 # Flag 1 = collected on the peer by Niskin and flag 0 = collected in the FB (normal collect)
@@ -213,11 +216,10 @@ d <- d %>%
 # Keep only flag = 2 for at/ct analysis 
 # Keep only flag = 2 for pH durafet and seaFET.
 d <- d%>%
-  dplyr::mutate(ct= replace(ct, qflag_ct != 2, NA),
-                at= replace(at, qflag_at != 2, NA),
-                pH_s_seafet= replace(pH_s_seafet, qflag_pH_s_seafet != 2, NA),
-                pH_s_durafet= replace(pH_s_durafet, qflag_pH_s_durafet != 2, NA))
-
+  dplyr::mutate(ct = replace(ct, qflag_ct != 2, NA),
+                at = replace(at, qflag_at != 2, NA),
+                ph_s_sf = replace(ph_s_sf, qflag_ph_s_sf != 2, NA),
+                ph_s_dur = replace(ph_s_dur, qflag_ph_s_dur != 2, NA))
 
 # Mercuric chloride correction (Dickson et al. 2007, SOP3a)
 d$at <- d$at * 1.0002
@@ -227,13 +229,13 @@ d$ct <- d$ct * 1.0002
 at_ct_mean <- d %>% 
 #  group_by(datetime)%>%
   group_by(date) %>%
-  dplyr::summarize(at_mean = mean(at, na.rm = T),
-                   ct_mean = mean(ct, na.rm = T),
-                   at_sd = sd(at, na.rm = T), 
-                   ct_sd = sd(ct, na.rm = T)
+  dplyr::summarize(at_mean = mean(at, na.rm = TRUE),
+                   ct_mean = mean(ct, na.rm = TRUE),
+                   at_sd = sd(at, na.rm = TRUE), 
+                   ct_sd = sd(ct, na.rm = TRUE)
                    )
 d <- left_join(d, at_ct_mean, by='date') %>% 
-  dplyr::select(datetime, date, temp_s_lab, pH_s_seafet, pH_s_durafet, location_flag, at_mean, ct_mean) %>% # removed useless variables and also to do unique next
+  dplyr::select(datetime, date, temp_s_lab, ph_s_sf, ph_s_dur, location_flag, at, ct, at_mean, ct_mean) %>% # removed useless variables and also to do unique next
   dplyr::distinct()
 
 # Fill the gaps in at_mean with interpolation
@@ -255,21 +257,32 @@ d$closest_datetime <- d_all$datetime[closest]
 d$closest_datetime[abs(d$datetime - d_all$datetime[closest]) > 30*60] <- NA
 # create closest_datetime in d_all (copy of datetime)
 d_all$closest_datetime <- d_all$datetime
-d <- left_join(d, d_all %>% dplyr::select(c(closest_datetime, sal_fb, temp_fb, temp_mix, sal_mix, temp_insitu_ctd, pressure_insitu_ctd)), by="closest_datetime") 
+d <- left_join(d, d_all %>%
+                 dplyr::select(
+                   c(
+                     closest_datetime,
+                     sal_fb,
+                     temp_fb,
+                     temp_mix,
+                     sal_mix,
+                     temp_insitu_11m,
+                     temp_insitu_ctd,
+                     pressure_insitu_ctd
+                   )
+                 ), by = "closest_datetime") 
 
-# Conversion of spectro pH to insitu mix T°
+# Conversion of spec pH of in situ samples to in situ temp
 pH_seafet <- d %>%
-  dplyr::filter(!is.na(pH_s_seafet) & !is.na(temp_insitu_ctd))
-pH_seafet <- pH_seafet %>%
-  dplyr::mutate(ph_s_sf_temp_insi = pHinsi(pH = pH_seafet$pH_s_seafet, ALK = pH_seafet$at_mean_interp*1e-6, Tinsi = pH_seafet$temp_insitu_ctd, Tlab = pH_seafet$temp_s_lab, Pinsi = pH_seafet$pressure_insitu_ctd, S = pH_seafet$sal_mix, Pt = 0, Sit = 0))
-                
+  dplyr::filter(!is.na(ph_s_sf) & !is.na(temp_insitu_ctd))
+pH_seafet <- pH_seafet %>% 
+  dplyr::mutate(ph_s_sf_temp_insi = pHinsi(pH = pH_seafet$ph_s_sf, ALK = pH_seafet$at_mean_interp*1e-6, Tinsi = pH_seafet$temp_insitu_ctd, Tlab = pH_seafet$temp_s_lab, Pinsi = pH_seafet$pressure_insitu_ctd/10, S = pH_seafet$sal_mix, Pt = 0, Sit = 0))
+
+# Conversion of spec pH of FerryBox samples to FerryBox temp
 pH_durafet <- d %>%
-#  dplyr::filter(!is.na(pH_s_durafet))
-    dplyr::filter(!is.na(pH_s_durafet) & !is.na(sal_fb) & !is.na(temp_fb))
-pH_durafet <- pH_durafet %>%
-#  dplyr::mutate(ph_s_dur_temp_fb = pHinsi(pH=pH_durafet$pH_s_durafet, ALK=pH_durafet$at_mean_interp*1e-6, Tinsi=pH_durafet$temp_fb, Tlab=pH_durafet$temp_s_lab, Pinsi= pH_durafet$depth/10, S=pH_durafet$sal_fb, Pt=0, Sit=0))
-  dplyr::mutate(ph_s_dur_temp_fb = pHinsi(pH=pH_durafet$pH_s_durafet, ALK=pH_durafet$at_mean_interp*1e-6, Tinsi=pH_durafet$temp_fb, Tlab=pH_durafet$temp_s_lab, Pinsi= 0, S=pH_durafet$sal_fb, Pt=0, Sit=0))
- 
+  dplyr::filter(!is.na(ph_s_dur) & !is.na(sal_fb) & !is.na(temp_fb))
+pH_durafet <- pH_durafet %>% 
+  dplyr::mutate(ph_s_dur_temp_fb = pHinsi(pH = pH_durafet$ph_s_dur, ALK = pH_durafet$at_mean_interp*1e-6, Tinsi = pH_durafet$temp_fb, Tlab = pH_durafet$temp_s_lab, Pinsi = 0, S = pH_durafet$sal_fb, Pt = 0, Sit = 0))
+
 # Make mean for replicates. create separate seafet/durafet df to join to initial "d" df
 pH_seafet_mean <- pH_seafet%>%
   dplyr::select(date, ph_s_sf_temp_insi)%>% 
@@ -281,39 +294,58 @@ pH_durafet_mean <- pH_durafet%>%
   dplyr::summarize(ph_s_dur_temp_fb = mean(ph_s_dur_temp_fb, na.rm = TRUE))
 
 #  make means in "d" to have same format and call it "discrete"
-discrete <- d %>% 
-  dplyr::group_by(datetime) %>% 
-  dplyr::summarize(sal_fb = mean(sal_fb, na.rm = T),
-                   temp_fb = mean(temp_fb, na.rm = T),
-                   at_mean_interp = mean(at_mean_interp, na.rm = T),
-            at = mean(at, na.rm = T),
-            qflag_at = mean(qflag_at, na.rm = T),
-            ct_mean_interp = mean(ct_mean_interp, na.rm = T),
-            ct = mean(ct, na.rm = T),
-            qflag_ct = mean(qflag_ct, na.rm = T)
-            )
+discrete <- d %>%
+  dplyr::group_by(date) %>%
+  dplyr::summarize(
+    sal_fb = mean(sal_fb, na.rm = TRUE),
+    sal_mix = mean(sal_mix, na.rm = TRUE),
+    temp_fb = mean(temp_fb, na.rm = TRUE),
+    at_mean_interp = mean(at_mean_interp, na.rm = TRUE),
+    at = mean(at, na.rm = TRUE),
+    #qflag_at = mean(qflag_at, na.rm = TRUE), # already dealt with above
+    ct_mean_interp = mean(ct_mean_interp, na.rm = TRUE),
+    ct = mean(ct, na.rm = TRUE),
+    #qflag_ct = mean(qflag_ct, na.rm = TRUE)  # already dealt with above
+    temp_mix = mean(temp_mix, na.rm = TRUE),
+    temp_insitu_11m = mean(temp_insitu_11m, na.rm = TRUE)
+  )
 # join discrete + seafet/durafet
-discrete <- left_join(discrete, pH_seafet_mean, by='datetime')
-discrete <- left_join(discrete, pH_durafet_mean, by='datetime')
+discrete <- left_join(discrete, pH_seafet_mean, by='date')
+discrete <- left_join(discrete, pH_durafet_mean, by='date')
 
-##   *****Attention, temp noted by logisticians in d is FB temp with SBE45 ******
+##   *****Attention, temp noted by logisticians in d is FB temp with SBE45 ****** $SA$
 ##   *****Attention, I asked to the logisticians to log insitu temp from 9 june 2019
 
+# pH calculated (at and ct) at Ferrybox sal and temp
 discrete_no_na <- discrete %>%
   dplyr::filter(!is.na(sal_fb)  & !is.na(temp_fb) & !is.na(at) & !is.na(ct))
 discrete_is_na <- discrete %>%
   dplyr::filter(is.na(sal_fb)  | is.na(temp_fb) | is.na(at) | is.na(ct))
-
 carb <- carb(15, discrete_no_na$at*1e-6, discrete_no_na$ct*1e-6, S = discrete_no_na$sal_fb, T = discrete_no_na$temp_fb, P = 0, Pt = 0, Sit = 0, k1k2 = "l", kf = "dg", ks = "d", pHscale = "T", b = "u74")
+discrete_no_na$phcalc_fb <- carb$pH # pH to compare with durafet pH (at Ferrybox temp and sal)
+#discrete_no_na$pco2_calc<- carb$pCO2
 
-discrete_no_na$phcalc<- carb$pH
-discrete_no_na$pco2_calc<- carb$pCO2
+# create new variable in "discrete_is_na" to bind "discrete_no_na"
+discrete_is_na$phcalc_fb <- NA
+#discrete_is_na$pco2_calc<- NA
+discrete <- bind_rows(discrete_no_na, discrete_is_na) %>% 
+  dplyr::arrange(date)
+
+# pH calculated (at and ct) at in situ (11 m) sal and temp
+discrete_no_na <- discrete %>%
+  dplyr::filter(!is.na(sal_mix)  & !is.na(temp_insitu_11m) & !is.na(at) & !is.na(ct))
+discrete_is_na <- discrete %>%
+  dplyr::filter(is.na(sal_mix)  | is.na(temp_insitu_11m) | is.na(at) | is.na(ct))
+carb <- carb(15, discrete_no_na$at*1e-6, discrete_no_na$ct*1e-6, S = discrete_no_na$sal_mix, T = discrete_no_na$temp_insitu_11m, P = 11/10, Pt = 0, Sit = 0, k1k2 = "l", kf = "dg", ks = "d", pHscale = "T", b = "u74")
+discrete_no_na$phcalc_insitu <- carb$pH # pH to compare with durafet pH (at Ferrybox temp and sal)
+discrete_no_na$pco2_calc_insitu <- carb$pCO2
 
 #create new variable in "discrete_is_na" to bind "discrete_no_na"
-discrete_is_na$phcalc<- NA
-discrete_is_na$pco2_calc<- NA
-discrete <- rbind(discrete_no_na, discrete_is_na)
-discrete <-discrete%>%dplyr::arrange(datetime)
+discrete_is_na$phcalc_insitu <- NA
+discrete_no_na$pco2_calc_insitu <- NA
+discrete <- bind_rows(discrete_no_na, discrete_is_na) %>% 
+  dplyr::arrange(date)
+
 ```
 
 ```{r Combine discrete and continous data, echo=FALSE}
@@ -1646,8 +1678,8 @@ calib_spectro$deployment_sf <- d_all$deployment_sf
 
 # make the mean of E0 by period of deployement
 calib_spectro <- group_by(calib_spectro, deployment_sf) %>%
-  summarise(E0int25 = mean(E0int25, na.rm = T),
-            E0ext25 = mean(E0ext25, na.rm = T) 
+  summarise(E0int25 = mean(E0int25, na.rm = TRUE),
+            E0ext25 = mean(E0ext25, na.rm = TRUE) 
             )
 names(calib_spectro) <- c("deployment_sf", "E0int25_sf", "E0ext25_sf")
 
