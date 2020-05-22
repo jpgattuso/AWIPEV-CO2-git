@@ -146,7 +146,8 @@ d_hour <- d_hour %>%
     temp_insitu_11m = temp_insitu_11m_filtered,
     temp_fb = temp_fb_filtered,
     ph_dur = ph_dur_filtered
-  )
+  ) %>% 
+  arrange(datetime)
 d_all <- d_hour #d_all will be the merger
 d_all <- d_all %>%
   dplyr::mutate_all(function(x) ifelse(is.nan(x), NA, x)) %>% # replace all NaN by NA
@@ -159,11 +160,13 @@ d_all <- d_all %>%
     sal_insitu_ctd_7m,
     sal_insitu_ctd_9m
   )
-), na.rm = TRUE))
-#restore datetime, date which are mangled by the mutates above
-d_all$datetime <- d_hour$datetime
-d_all$date <- d_hour$date
-d_all$month <- month(d_all$datetime)
+), na.rm = TRUE)) %>% 
+  ungroup()
+#restore datetime, date which are mangled by the mutates above, arrange ascending
+d_all <- d_all %>% 
+  dplyr::mutate(datetime = d_hour$datetime, 
+                       date = d_hour$date,
+                       month = month(d_hour$datetime))
 ```
 
 ```{r Sal filter, fig.width=10, fig.height=4, echo=FALSE, message= FALSE}
@@ -297,7 +300,8 @@ pH_durafet_mean <- pH_durafet%>%
 discrete <- d %>%
   dplyr::group_by(date) %>%
   dplyr::summarize(
-    sal_fb = mean(sal_fb, na.rm = TRUE),
+    datetime = mean(datetime, na.rm = TRUE),
+      sal_fb = mean(sal_fb, na.rm = TRUE),
     sal_mix = mean(sal_mix, na.rm = TRUE),
     temp_fb = mean(temp_fb, na.rm = TRUE),
     at_mean_interp = mean(at_mean_interp, na.rm = TRUE),
@@ -355,7 +359,7 @@ discrete$closest_datetime <- d_all$datetime[closest]
 # if the closest value is more than 30 min away, then we do not take it
 discrete$closest_datetime[abs(discrete$datetime - d_all$datetime[closest]) > 30*60] <- NA
 discrete2merge <- discrete %>%
-  dplyr::select(closest_datetime, at, qflag_at) %>%
+  dplyr::select(closest_datetime, at) %>%
     dplyr::filter(!is.na(closest_datetime)) %>%
   rename(datetime=closest_datetime)
 d_all <- full_join(d_all, discrete2merge, by="datetime")
@@ -363,15 +367,22 @@ d_all <- full_join(d_all, discrete2merge, by="datetime")
 # ct
 discrete2merge <- discrete %>%
   #drop_na() %>%
-  dplyr::select(closest_datetime, ct, qflag_ct) %>%
+  dplyr::select(closest_datetime, ct) %>%
   dplyr::filter(!is.na(closest_datetime)) %>%
   rename(datetime=closest_datetime)
 d_all <- full_join(d_all, discrete2merge, by="datetime")
 
-# pH calculated
+# pH calculated ferrybox
 discrete2merge <- discrete %>%
   #drop_na() %>%
-  dplyr::select(closest_datetime, phcalc) %>%
+  dplyr::select(closest_datetime, phcalc_fb) %>%
+  dplyr::filter(!is.na(closest_datetime)) %>%
+  rename(datetime=closest_datetime)
+d_all <- full_join(d_all, discrete2merge, by="datetime")
+
+# pH calculated in situ
+discrete2merge <- discrete %>%
+  dplyr::select(closest_datetime, phcalc_insitu) %>%
   dplyr::filter(!is.na(closest_datetime)) %>%
   rename(datetime=closest_datetime)
 d_all <- full_join(d_all, discrete2merge, by="datetime")
@@ -383,19 +394,20 @@ discrete2merge <- discrete %>%
   rename(datetime=closest_datetime)
 d_all <- full_join(d_all, discrete2merge, by="datetime")
 d_all <- d_all %>% 
-  dplyr::mutate(ph_s_sf_temp_insi = ifelse(n_depth_ctd == 4, ph_s_sf_temp_insi, NA)) %>% # eliminate ph spectro data when the profiler was at several depth during the same hour
+  dplyr::mutate(ph_s_sf_temp_insi = ifelse(n_depth_ctd == 4, ph_s_sf_temp_insi, NA)) %>% # eliminate ph spec data when the profiler was at several depth during the same hour
   dplyr::mutate(ph_s_sf_temp_insi = ifelse(!is.na(temp_insitu_ctd_7m) | !is.na(temp_insitu_ctd_9m), 
-                                          ph_s_sf_temp_insi, NA)) # only use ph spectro data when profiler was below 6 m
+                                          ph_s_sf_temp_insi, NA)) # only use ph spec data when profiler was below 6 m
 
+# durafet pH 
 discrete2merge <- discrete %>%
-  #drop_na() %>%
   dplyr::select(closest_datetime, ph_s_dur_temp_fb) %>%
   dplyr::filter(!is.na(closest_datetime)) %>%
   rename(datetime=closest_datetime)
 d_all <- full_join(d_all, discrete2merge, by="datetime")
+
+# calculated pCO2 
 discrete2merge <- discrete %>%
-  #drop_na() %>%
-  dplyr::select(closest_datetime, pco2_calc) %>%
+  dplyr::select(closest_datetime, pco2_calc_insitu) %>%
   dplyr::filter(!is.na(closest_datetime)) %>%
   rename(datetime=closest_datetime)
 d_all <- full_join(d_all, discrete2merge, by="datetime")
@@ -406,7 +418,7 @@ saveRDS(file= paste0(path, "fb_data/d_all.rds"), d_all)
 
 # Duplicate datetime in closest_datetime to do the left_join
 d_all$closest_datetime <- d_all$datetime
-discrete <- left_join(discrete, d_all%>%dplyr::select(c(closest_datetime, voltEXT, voltINT)), by="closest_datetime")
+discrete <- left_join(discrete, d_all %>% dplyr::select(c(closest_datetime, voltEXT, voltINT)), by="closest_datetime")
 ```
 
 <style type="text/css">
