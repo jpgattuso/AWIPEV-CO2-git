@@ -1716,7 +1716,6 @@ During the fifth period, seaFET cannot be calibrated because seaFET was not work
 
 We also defined a period of malfunction from **2017-12-14** to **2018-02-02**. in the first part of this period, until 2018-01-08, we decided to filter outliers.  In the second part, until the end of the period, data must be removed.
 
-
 ```{r seaFET pH calculation sf_calc, echo=FALSE, message= FALSE, warning=FALSE}
 ####
 ## calculation of the calibrated pH ##
