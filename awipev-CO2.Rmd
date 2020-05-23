@@ -2415,10 +2415,10 @@ cp <- cowplot::plot_grid(ts_sal, ts_temp, ts_pco2, ts_ph, ts_at,
 print(cp)
 cowplot::ggsave2(filename = "figures/ts_gg.png", plot = cp, height = 20, units = "cm")
 
-ts_sal / ts_temp / ts_at
-grid.arrange(ts_sal, ts_temp, ts_pco2, ts_ph, ts_at, ncol = 1)
-cowplot::save_plot(filename = "figures/ts_sp.pdf", plot = cp)
-multiplot(ts_sal, ts_temp, ts_pco2, ts_ph, ts_at, cols = 1)
+# ts_sal / ts_temp / ts_at
+# grid.arrange(ts_sal, ts_temp, ts_pco2, ts_ph, ts_at, ncol = 1)
+# cowplot::save_plot(filename = "figures/ts_sp.pdf", plot = cp)
+# multiplot(ts_sal, ts_temp, ts_pco2, ts_ph, ts_at, cols = 1)
 ```
 
 <!-- ```{r Klara Wolf} -->
