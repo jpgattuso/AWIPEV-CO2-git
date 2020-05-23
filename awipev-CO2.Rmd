@@ -47,8 +47,8 @@ if (!require("seismicRoll")) install.packages("seismicRoll")
 library("seismicRoll")
 if (!require("scales")) install.packages("scales")
 library("scales")
-# if (!require("plotly")) install.packages("plotly")
-# library(plotly)
+if (!require("cowplot")) install.packages("cowplot")
+library(cowplot)
 if (!require("htmlwidgets")) install.packages("htmlwidgets")
 library("htmlwidgets")
 if (!require("hms")) install.packages("hms")
@@ -2316,65 +2316,109 @@ saveRDS(file= paste0(path, "fb_data/d_all.rds"), d_all)
 ```{r figures for ESSD paper, echo=FALSE, message= FALSE, warning=FALSE}
 Mytheme <- function(size_labs = 6, face_font="plain", ...) {
   theme_bw() +
-  theme(axis.text.x = element_text(face=face_font, size=size_labs, color="black"),
-        axis.title.x = element_text(face="bold", size=size_labs, margin=margin(0,0,0,0,"pt")),
-        axis.text.y = element_text(face=face_font, color="black", size=size_labs),
-        axis.title.y = element_text(face="bold", size=size_labs),
-        axis.ticks.x = element_line(size=0.1),
-        axis.ticks.y = element_line(size=0.1),
-        axis.ticks.length = unit(1.1, "mm"),
-        panel.grid.major = element_line(size = 0.25, color="black", linetype="dotted"),
-        aspect.ratio = 1 / 3,
-        plot.margin = margin(t = 0, r = 1.5, b = 0, l = 1.5, unit = "lines")
+  theme(
+    # axis.text.x = element_text(face=face_font, size=size_labs, color="black"),
+    #     axis.title.x = element_text(face="plain", size=size_labs, margin=margin(0,0,0,0,"pt")),
+    #     axis.text.y = element_text(face=face_font, color="black", size=size_labs),
+    axis.text.x = element_blank(),
+    #     axis.title.y = element_text(face="plain", size=size_labs),
+    #     axis.ticks.x = element_line(size=0.1),
+    #     axis.ticks.y = element_line(size=0.1),
+    #     axis.ticks.length = unit(1.1, "mm"),
+    #     panel.grid.major = element_line(size = 0.2, color="black", linetype="dotted"),
+    #     aspect.ratio = 1 / 3,
+        plot.margin = margin(t = 0, r = 0.3, b = 0, l = 0.3, unit = "cm")
   )
 }
+xlim <- c(as.POSIXct("2015-07-01 00:00:00"), as.POSIXct("2020-07-01 00:00:00"))
 # select time series data
 d <- as_tibble(d_all) %>%
   dplyr::select(datetime, temp_insitu_11m, sal_mix, pco2_corr, pHint_tot_sf, ph_dur_corr, at_calc)
 # time series temp
 ts_temp <- d %>%
   dplyr::filter(!is.na(temp_insitu_11m)) %>% 
-ggplot() +
+  ggplot() +
   geom_point(aes(x = datetime, y = temp_insitu_11m), col = "blue", size = 0.15) +
-  labs(title = "", x = "Time", y = "In situ temperature (°C)") +
+  labs(title = "", x = "", y = "Temp. 11 m (°C)") +
   Mytheme(size_labs = 8)
-ggsave(filename = "figures/ts_temp.png")
 print(ts_temp) 
 # time series sal
 ts_sal <- d %>%
   dplyr::filter(!is.na(sal_mix)) %>% 
 ggplot() +
-  geom_point(aes(x = datetime, y = sal_mix), col = "blue", size = 0.15) +
-  labs(title = "", x = "Time", y = "Salinity") +
+  geom_point(aes(x = datetime, y = sal_mix), col = "blue", size = 0.15) + 
+  labs(title = "", x = "", y = "Salinity") +
   Mytheme(size_labs = 8)
-ggsave(filename = "figures/ts_sal.png")
 print(ts_sal) 
 # time series pco2
 ts_pco2 <- d %>%
   dplyr::filter(!is.na(pco2_corr)) %>% 
-ggplot() +
+  ggplot() +
   geom_point(aes(x = datetime, y = pco2_corr), col = "blue", size = 0.15) +
-  labs(title = "", x = "Time", y = expression(paste("C", O[2], " partial pressure (", mu, "atm)"))) +
+  scale_x_datetime(limits = xlim) +
+  labs(title = "", x = "", y = expression(paste("pC", O[2], " (", mu, "atm)"))) +
   Mytheme(size_labs = 8)
-ggsave(filename = "figures/ts_pco2.png")
 print(ts_pco2) 
 # time series pH
 ts_ph <- d %>%
   dplyr::select(datetime, pHint_tot_sf, ph_dur_corr) %>%
-  dplyr::filter(!is.na(pHint_tot_sf)) %>% 
+  dplyr::filter(!is.na(pHint_tot_sf)) %>%
   pivot_longer(-datetime, names_to = "pH", values_to = "value") %>%
   ggplot() +
   geom_point(aes(x = datetime, y = value, colour = pH), size = 0.15) +
-  labs(title = "", x = "Time", y = expression(paste("p", H[T]))) +
-  scale_color_manual(values=c("blue", "red"), 
-                       name="",
-                       breaks=c("pHint_tot_sf", "ph_dur_corr"),
-                       labels=c("SeaFET", "Durafet")) +
-  Mytheme(size_labs = 8)
+  scale_x_datetime(limits = xlim) +
+  labs(title = "",
+       x = "",
+       y = expression(paste("p", H[T]))) +
+  # scale_color_manual(
+  #   values = c("blue", "red"),
+  #   name = "",
+  #   breaks = c("pHint_tot_sf", "ph_dur_corr"),
+  #   labels = c("SeaFET", "Durafet")
+  # ) +
+  annotate(
+    geom = "text",
+    x = as.POSIXct("2018-06-01"),
+    y = 8.35,
+    label = "seaFET",
+    color = "blue", size = 2
+  ) +
+  annotate(
+    geom = "text",
+    x = as.POSIXct("2018-06-01"),
+    y = 8.25,
+    label = "Durafet",
+    color = "red", size = 2
+  ) +
+  Mytheme(size_labs = 8) +
+  theme(legend.position = "none")
 print(ts_ph) 
+# time series AT
+ts_at <- d %>%
+  dplyr::filter(!is.na(at_calc)) %>% 
+  ggplot() +
+  geom_point(aes(x = datetime, y = at_calc), col = "blue", size = 0.15) +
+  scale_x_datetime(limits = xlim) +
+  labs(title = "", x = "Time", y = expression(paste(italic(A)[T]," ","(",mu, mol.kg^-1,")"))) +
+  Mytheme(size_labs = 8) +
+  theme(axis.title.x = element_text(face="plain", size=8))
+print(ts_at) 
 
-ggsave(filename = "figures/ts_ph.png")
+#assemble time-series figure
+cp <- cowplot::plot_grid(ts_sal, ts_temp, ts_pco2, ts_ph, ts_at, 
+                   align = "v",
+                   #labels = "AUTO",
+                   ncol = 1
+                   #width = 18,
+                   #units = "cm"
+                   )
+print(cp)
+cowplot::ggsave2(filename = "figures/ts_gg.png", plot = cp, height = 20, units = "cm")
 
+ts_sal / ts_temp / ts_at
+grid.arrange(ts_sal, ts_temp, ts_pco2, ts_ph, ts_at, ncol = 1)
+cowplot::save_plot(filename = "figures/ts_sp.pdf", plot = cp)
+multiplot(ts_sal, ts_temp, ts_pco2, ts_ph, ts_at, cols = 1)
 ```
 
 <!-- ```{r Klara Wolf} -->
