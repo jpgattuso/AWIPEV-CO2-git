@@ -477,6 +477,7 @@ The data at one minute frequency were tagged with the following quality flags
 + 1: good data
 + 3: failing the date and time test
 + 4: data not usable according to manufacturer
++ 6: failing the manufacturer range test (not used)
 + 7: failing the regional range test 
 + 12: failing the spike test (NAs from despike)
 + 13: failing the gradient test
@@ -487,25 +488,7 @@ The data at one minute frequency were tagged with the following quality flags
 * Despike using oce::despike with n=2, k=5761
 
 
-    + 1: good data
-    + 3: impossible date and time test
-    + 4: data not usable according to manufacturer (flush mode, zero mode, calibration mode...) 
-    + 6: failing the manufacturer range test (not used)
-    + 7: failing the regional range test 
-    + 12: failing the spike test (NAs from despike)
-    + 13: failing the gradient test
-    + 15: the instrument was not deployed or operated
-    + 99: failing the final visual inspection of the data. 
-
-* Despike using oce::despike with n=2, k=5761
-
-
 ```{r data availability, echo=FALSE, message= FALSE, warning=FALSE, out.width="80%",fig.show='hold', fig.align="center"}
-# function to express the number of quality flag in pefrcent for each variable
-# qflag <- function(x, ...) {
-#   tmp <- summary(as.factor(x))*100/length(x)
-#   return(tmp)
-# }
 d <- readRDS(file = paste0(path, "fb_awipev-co2_server/ny-alesund/data/NRT_data/all_nydata_minute.rds")) %>%
 dplyr::select(datetime, c(pco2_corr_qf, sal_fb_qf, sal_insitu_ctd_qf, 
                           temp_fb_qf, temp_insitu_11m_qf, ph_dur_qf, phINT_qf))
@@ -526,20 +509,21 @@ z <- t(bind_rows(s1,s2,s3,s4,s5,s7,s8)) %>%
          rownames_to_column(var = "flag") %>% 
          as_tibble()
 labels <- c("Good", "Not usable", "Outside regional range", "Outliers (despike)", 
-            "Failed visual inspection", "No data")
-#colnames(z) <- c("flag", colnames(d)[-1]) # remove first col name (datetime)
+            "Failed visual inspection", "Not deployed or operated", "Acid flush", "Failed visual inspection")
 colnames(z) <- c("Flag", "pCO2", "Salinity FerryBox", "In situ salinity", 
                  "Temperature FerryBox", "In situ temperature", "Durafet pH", "seaFET pH")
 zz <- pivot_longer(z, -Flag)
-p <-  ggplot(data = zz, aes(x = name, y = value, fill = Flag)) +
+p <- ggplot(data = zz, aes(x = name, y = value, fill = Flag)) +
   geom_bar(position = position_stack(reverse = TRUE), stat="identity", width = 0.3) +
   #scale_y_reverse() +
-  #discrete_scale(labels = labels) + 
+  scale_fill_discrete(labels = labels) + 
   coord_flip() +
-  geom_text(aes(label=round(value, digits = 0)), position = position_stack(0.5), size = 3) +
+  #geom_text(aes(label=round(value, digits = 0)), position = position_stack((hjust = 0.5)), size = 3) +
   labs(x="", y="", title = "Distribution (%) of quality flags", color = "Quality flag") +
-  theme_bw()
-p
+  Mytheme(size_labs = 8) +
+  theme(plot.margin = margin(t = 0, r = 0.0, b = 0, l = 0.0, unit = "cm"))
+ggsave(filename = "figures/availability.png", plot = p, width = 20, units = "cm")
+kable(z, digits = 1)
 rm(d)
 ```
 
@@ -2329,6 +2313,7 @@ Mytheme <- function(size_labs = 6, face_font="plain", ...) {
         plot.margin = margin(t = 0, r = 0.3, b = 0, l = 0.3, unit = "cm")
   )
 }
+
 xlim <- c(as.POSIXct("2015-07-01 00:00:00"), as.POSIXct("2020-07-01 00:00:00"))
 # select time series data
 d <- as_tibble(d_all) %>%
@@ -2606,6 +2591,7 @@ All documents concerning maintenance, tasks to do, calibration... are accessible
     + 12: failing the spike test (NAs from despike)
     + 13: failing the gradient test
     + 15: the instrument was not deployed or operated
+    + 16: acid flush
     + 99: failing the final visual inspection of the data. 
 * Despike using oce::despike with n=2, k=5761
 * Files generated:
