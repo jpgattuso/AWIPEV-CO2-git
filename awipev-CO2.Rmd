@@ -679,7 +679,6 @@ df <- d_all %>%
             mean9m = mean(temp_insitu_ctd_9m, na.rm = TRUE),
             range = mean(temp_insitu_ctd_1m, na.rm = TRUE)-mean(temp_insitu_ctd_9m, na.rm = TRUE)) %>% 
   ungroup()
-summary(df)
 ```
 There are `r sum(!is.na(df$range))` days with temperature values at both 1 m (0-2 m) and 9 m (> 8 m). The temperature difference between 1 and 9 m ranges between `r min(df$range, na.rm=TRUE)`°C and `r max(df$range, na.rm=TRUE)`°C (mean: `r mean(df$range, na.rm=TRUE)`°C; `r median(df$range, na.rm=TRUE)`°C). The difference with depth is therefore significant.
 
@@ -1072,7 +1071,7 @@ TAevents <- as.POSIXct(c("2016-02-26 00:00:00", "2017-02-09 12:00:00", "2017-02-
               "2018-01-07 00:00:00", "2018-06-20 00:00:00", "2018-07-31 00:00:00", "2018-10-30 18:00:00",
               "2018-10-31 09:00:00", "2019-01-16 09:00:00", "2019-01-26 13:25:00", format(Sys.Date(),
               "%Y-%m-%d %H:%M:%S")))
-at_contros_calc_xts <- dplyr::select(d_all, datetime,at_calc, at)
+at_contros_calc_xts <- dplyr::select(d_all, datetime, at_calc, at)
 at_contros_calc_xts <-  as.xts(at_contros_calc_xts, order.by =d_all$datetime)
 dygraph(at_contros_calc_xts, group = "awipev", main="TA, calculated from sal_mix (blue) and reference (red)", ylab="Total alkalinity") %>%
   #dySeries("AT", label= "Raw TA", color ="blue", strokeWidth = 0, pointSize=2) %>%
@@ -2288,9 +2287,12 @@ pdelta_ct_snapo
 pdelta_ct_snapo_dygraph
 p_ct_ts
 ```
+
 ```{r save all, echo=FALSE, message= FALSE, warning=FALSE}
 # d_hour is the real data set that is read at the beginning of the script
 # d_all comprises additional columns calculated in this script
+d_all$at <- ifelse(is.nan(d_all$at), NA, d_all$at) # replace all NaN by NA
+d_all$ct <- ifelse(is.nan(d_all$at), NA, d_all$ct) # replace all NaN by NA
 saveRDS(file= paste0(path, "fb_data/d_all.rds"), d_all)
 ```
 
@@ -2315,9 +2317,23 @@ Mytheme <- function(size_labs = 6, face_font="plain", ...) {
 }
 
 xlim <- c(as.POSIXct("2015-07-01 00:00:00"), as.POSIXct("2020-07-01 00:00:00"))
+# calculate omeaga arag
+z <- d_all %>% 
+  dplyr::filter(!(is.na(pco2_corr) | is.na(at_calc) | is.na(sal_mix) |is.na(temp_insitu_11m) | is.na(pressure_insitu_ctd)))
+oa_tbf <- as_tibble(
+  carb(24, z$pco2_corr, z$at_calc*1e-6, S = z$sal_mix, T = z$temp_insitu_11m, 
+                          P = z$pressure_insitu_ctd/10, Pt = 0, Sit = 0, k1k2 = "l", kf = "dg", 
+                          ks = "d", pHscale = "T", b = "u74")
+) %>% 
+  dplyr::mutate(datetime = z$datetime,
+                oa = OmegaAragonite) %>% 
+dplyr::select(datetime, oa)
 # select time series data
 d <- as_tibble(d_all) %>%
-  dplyr::select(datetime, temp_insitu_11m, sal_mix, pco2_corr, pHint_tot_sf, ph_dur_corr, at_calc)
+  dplyr::select(datetime, pressure_insitu_ctd, temp_insitu_11m, sal_mix, pco2_corr, pHint_tot_sf, 
+                ph_dur_corr, at_calc)
+d <- left_join(d, oa_tbf, by = 'datetime')
+
 # time series temp
 ts_temp <- d %>%
   dplyr::filter(!is.na(temp_insitu_11m)) %>% 
@@ -2387,9 +2403,18 @@ ts_at <- d %>%
   Mytheme(size_labs = 8) +
   theme(axis.title.x = element_text(face="plain", size=8))
 print(ts_at) 
-
+# time series Omega
+ts_oa <- d %>%
+  dplyr::filter(!is.na(oa)) %>% 
+  ggplot() +
+  geom_point(aes(x = datetime, y = oa), col = "blue", size = 0.15) +
+  scale_x_datetime(limits = xlim) +
+  labs(title = "", x = "Time", y = "Omega aragonite") +
+  Mytheme(size_labs = 8) +
+  theme(axis.title.x = element_text(face="plain", size=8))
+print(ts_oa) 
 #assemble time-series figure
-cp <- cowplot::plot_grid(ts_sal, ts_temp, ts_pco2, ts_ph, ts_at, 
+cp <- cowplot::plot_grid(ts_sal, ts_temp, ts_pco2, ts_ph, ts_at, ts_oa,
                    align = "v",
                    #labels = "AUTO",
                    ncol = 1
