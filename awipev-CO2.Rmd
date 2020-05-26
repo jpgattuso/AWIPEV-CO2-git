@@ -2293,26 +2293,26 @@ p_ct_ts
 # d_all comprises additional columns calculated in this script
 d_all$at <- ifelse(is.nan(d_all$at), NA, d_all$at) # replace all NaN by NA
 d_all$ct <- ifelse(is.nan(d_all$at), NA, d_all$ct) # replace all NaN by NA
+  dplyr::mutate(month = as.factor(month(x = datetime, label = TRUE))) %>% 
+
 saveRDS(file= paste0(path, "fb_data/d_all.rds"), d_all)
 ```
 
 ## Figures for ESSD paper
 
-```{r figures for ESSD paper, echo=FALSE, message= FALSE, warning=FALSE}
-Mytheme <- function(size_labs = 6, face_font="plain", ...) {
+```{r ESSD time series, echo=FALSE, message= FALSE, warning=FALSE}
+mytheme <- function(size_labs = 6, face_font="plain", ...) {
   theme_bw() +
-  theme(
-    # axis.text.x = element_text(face=face_font, size=size_labs, color="black"),
-    #     axis.title.x = element_text(face="plain", size=size_labs, margin=margin(0,0,0,0,"pt")),
-    #     axis.text.y = element_text(face=face_font, color="black", size=size_labs),
-    axis.text.x = element_blank(),
-    #     axis.title.y = element_text(face="plain", size=size_labs),
-    #     axis.ticks.x = element_line(size=0.1),
-    #     axis.ticks.y = element_line(size=0.1),
-    #     axis.ticks.length = unit(1.1, "mm"),
-    #     panel.grid.major = element_line(size = 0.2, color="black", linetype="dotted"),
-    #     aspect.ratio = 1 / 3,
-        plot.margin = margin(t = 0, r = 0.3, b = 0, l = 0.3, unit = "cm")
+  theme(axis.text.x = element_text(face=face_font, size=size_labs, color="black"),
+        axis.title.x = element_text(face=face_font, size=size_labs, margin=margin(0,0,0,0,"pt")),
+        axis.text.y = element_text(face=face_font, color="black", size=size_labs),
+        axis.title.y = element_text(face=face_font, size=size_labs),
+        axis.ticks.x = element_line(size=0.1),
+        axis.ticks.y = element_line(size=0.1),
+        axis.ticks.length = unit(1.1, "mm"),
+        panel.grid.major = element_line(size = 0.25, color="black", linetype="dotted"),
+        aspect.ratio = 1 / 3,
+        plot.margin = margin(t = 0, r = 1, b = 0, l = 0, unit = "lines")
   )
 }
 
@@ -2328,7 +2328,7 @@ oa_tbf <- as_tibble(
   dplyr::mutate(datetime = z$datetime,
                 oa = OmegaAragonite) %>% 
 dplyr::select(datetime, oa)
-# select time series data
+# select time series data and add Omega
 d <- as_tibble(d_all) %>%
   dplyr::select(datetime, pressure_insitu_ctd, temp_insitu_11m, sal_mix, pco2_corr, pHint_tot_sf, 
                 ph_dur_corr, at_calc)
@@ -2340,7 +2340,7 @@ ts_temp <- d %>%
   ggplot() +
   geom_point(aes(x = datetime, y = temp_insitu_11m), col = "blue", size = 0.15) +
   labs(title = "", x = "", y = "Temp. 11 m (°C)") +
-  Mytheme(size_labs = 8)
+  mytheme(size_labs = 8)
 print(ts_temp) 
 # time series sal
 ts_sal <- d %>%
@@ -2348,7 +2348,7 @@ ts_sal <- d %>%
 ggplot() +
   geom_point(aes(x = datetime, y = sal_mix), col = "blue", size = 0.15) + 
   labs(title = "", x = "", y = "Salinity") +
-  Mytheme(size_labs = 8)
+  mytheme(size_labs = 8)
 print(ts_sal) 
 # time series pco2
 ts_pco2 <- d %>%
@@ -2357,7 +2357,7 @@ ts_pco2 <- d %>%
   geom_point(aes(x = datetime, y = pco2_corr), col = "blue", size = 0.15) +
   scale_x_datetime(limits = xlim) +
   labs(title = "", x = "", y = expression(paste("pC", O[2], " (", mu, "atm)"))) +
-  Mytheme(size_labs = 8)
+  mytheme(size_labs = 8)
 print(ts_pco2) 
 # time series pH
 ts_ph <- d %>%
@@ -2390,7 +2390,7 @@ ts_ph <- d %>%
     label = "Durafet",
     color = "red", size = 2
   ) +
-  Mytheme(size_labs = 8) +
+  mytheme(size_labs = 8) +
   theme(legend.position = "none")
 print(ts_ph) 
 # time series AT
@@ -2400,7 +2400,7 @@ ts_at <- d %>%
   geom_point(aes(x = datetime, y = at_calc), col = "blue", size = 0.15) +
   scale_x_datetime(limits = xlim) +
   labs(title = "", x = "Time", y = expression(paste(italic(A)[T]," ","(",mu, mol.kg^-1,")"))) +
-  Mytheme(size_labs = 8) +
+  mytheme(size_labs = 8) +
   theme(axis.title.x = element_text(face="plain", size=8))
 print(ts_at) 
 # time series Omega
@@ -2409,7 +2409,7 @@ ts_oa <- d %>%
   ggplot() +
   geom_point(aes(x = datetime, y = oa), col = "blue", size = 0.15) +
   scale_x_datetime(limits = xlim) +
-  labs(title = "", x = "Time", y = "Omega aragonite") +
+  labs(title = "", x = "Time", y = expression(paste(Omega[a]))) +
   Mytheme(size_labs = 8) +
   theme(axis.title.x = element_text(face="plain", size=8))
 print(ts_oa) 
@@ -2429,13 +2429,61 @@ cowplot::ggsave2(filename = "figures/ts_gg.png", plot = cp, height = 20, units =
 # cowplot::save_plot(filename = "figures/ts_sp.pdf", plot = cp)
 # multiplot(ts_sal, ts_temp, ts_pco2, ts_ph, ts_at, cols = 1)
 ```
+```{r ESSD boxplots, echo=FALSE, message= FALSE, warning=FALSE}
+mytheme_bp <- function(size_labs = 9, face_font="plain", ...) {
+  mytheme() +
+    theme_bw() +
+  theme(aspect.ratio = 1/2,
+        plot.margin = margin(t = -2, r = 0.2, b = -2, l = 0, unit = "cm"),
+        axis.text.x=element_blank())
+  }
+d_long <- d %>% 
+  dplyr::mutate(month = as.factor(month(x = datetime, label = TRUE))) %>% 
+  tidyr::pivot_longer(-c(datetime, month), names_to = "variable", values_to = "value")
 
-<!-- ```{r Klara Wolf} -->
-<!-- wolf <- d_all %>% -->
-<!--   dplyr::select(datetime, PCO2_Corr_filtered, phcalc, pH_calc_norm4) %>% -->
-<!--   dplyr::filter(datetime >= "2016-03-01" & datetime <= "2016-09-30") -->
-<!-- write_csv(path = "wolf.csv", wolf, col_names = TRUE) -->
-<!-- ``` -->
+sal_mix_bp <- ggplot(filter(d_long, variable=="sal_mix"), aes(x = month, y = value, group=month)) +
+  geom_violin(fill='lightblue', alpha=0.5, size=0.2, trim = TRUE) +
+  geom_boxplot(notch=TRUE, size=0.2, fill="grey50", outlier.color = "blue", outlier.size = 0.3) +
+  scale_x_discrete(breaks=c("Jan", "", "Mar", "", "May", "", "Jul", "", "Sep", "", "Nov", "")) +
+  labs(title=NULL,x=NULL,y = "Salinity") +
+  mytheme_bp()
+temp_11m_bp <- ggplot(filter(d_long, variable=="temp_insitu_11m"), aes(x = month, y = value, group=month)) +
+  geom_violin(fill='lightblue', alpha=0.5, size=0.2, trim = TRUE) +
+  geom_boxplot(notch=TRUE, size=0.2, fill="grey50", outlier.color = "blue", outlier.size = 0.3) +
+  scale_x_discrete(breaks=c("Jan", "", "Mar", "", "May", "", "Jul", "", "Sep", "", "Nov", "")) +
+  labs(title=NULL,x=NULL,y = "Temp. 11 m (°C)") +
+  mytheme_bp()
+pco2_bp <- ggplot(filter(d_long, variable=="pco2_corr"), aes(x = month, y = value, group=month)) +
+  geom_violin(fill='lightblue', alpha=0.5, size=0.2, trim = TRUE) +
+  geom_boxplot(notch=TRUE, size=0.2, fill="grey50", outlier.color = "blue", outlier.size = 0.3) +
+  scale_x_discrete(breaks=c("Jan", "", "Mar", "", "May", "", "Jul", "", "Sep", "", "Nov", "")) +
+  labs(title=NULL,x=NULL,y = expression(paste("pC", O[2], " (", mu, "atm)"))) +
+  mytheme_bp()
+ph_bp <- ggplot(filter(d_long, variable=="pHint_tot_sf"), aes(x = month, y = value, group=month)) +
+  geom_violin(fill='lightblue', alpha=0.5, size=0.2, trim = TRUE) +
+  geom_boxplot(notch=TRUE, size=0.2, fill="grey50", outlier.color = "blue", outlier.size = 0.3) +
+  scale_x_discrete(breaks=c("Jan", "", "Mar", "", "May", "", "Jul", "", "Sep", "", "Nov", "")) +
+  labs(title=NULL,x=NULL,y = expression(paste("p", H[T]))) +
+  mytheme_bp()
+at_bp <- ggplot(filter(d_long, variable=="at_calc"), aes(x = month, y = value, group=month)) +
+  geom_violin(fill='lightblue', alpha=0.5, size=0.2, trim = TRUE) +
+  geom_boxplot(notch=TRUE, size=0.2, fill="grey50", outlier.color = "blue", outlier.size = 0.3) +
+  scale_x_discrete(breaks=c("Jan", "", "Mar", "", "May", "", "Jul", "", "Sep", "", "Nov", "")) +
+  labs(title=NULL,x=NULL,y = expression(paste(italic(A)[T]," ","(",mu, mol.kg^-1,")"))) +
+  mytheme_bp() +
+  theme(axis.text.x = element_text(vjust = 1))
+oa_bp <- ggplot(filter(d_long, variable=="oa"), aes(x = month, y = value, group=month)) +
+  geom_violin(fill='lightblue', alpha=0.5, size=0.2, trim = TRUE) +
+  geom_boxplot(notch=TRUE, size=0.2, fill="grey50", outlier.color = "blue", outlier.size = 0.3) +
+  scale_x_discrete(breaks=c("Jan", "", "Mar", "", "May", "", "Jul", "", "Sep", "", "Nov", "")) +
+  labs(title=NULL,x=NULL,y = expression(paste(Omega[a]))) +
+  mytheme_bp() +
+  theme(axis.text.x = element_text(vjust = 1))
+g <- cowplot::plot_grid(sal_mix_bp, temp_11m_bp, pco2_bp, ph_bp, at_bp, oa_bp, ncol=2,
+               align="v")
+ggsave(file="figures/boxplots.png", g,  width = 18, height = 14, units = "cm")
+```
+
 
 ## Maintenance
 <div style="text-align: justify"> 
