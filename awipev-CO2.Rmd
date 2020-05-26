@@ -2342,7 +2342,6 @@ ts_temp <- d %>%
   geom_point(aes(x = datetime, y = temp_insitu_11m), col = "blue", size = 0.15) +
   labs(title = "", x = "", y = "Temp. 11 m (°C)") +
   mytheme(size_labs = 8)
-print(ts_temp) 
 # time series sal
 ts_sal <- d %>%
   dplyr::filter(!is.na(sal_mix)) %>% 
@@ -2350,7 +2349,6 @@ ggplot() +
   geom_point(aes(x = datetime, y = sal_mix), col = "blue", size = 0.15) + 
   labs(title = "", x = "", y = "Salinity") +
   mytheme(size_labs = 8)
-print(ts_sal) 
 # time series pco2
 ts_pco2 <- d %>%
   dplyr::filter(!is.na(pco2_corr)) %>% 
@@ -2359,7 +2357,6 @@ ts_pco2 <- d %>%
   scale_x_datetime(limits = xlim) +
   labs(title = "", x = "", y = expression(paste("pC", O[2], " (", mu, "atm)"))) +
   mytheme(size_labs = 8)
-print(ts_pco2) 
 # time series pH
 ts_ph <- d %>%
   dplyr::select(datetime, pHint_tot_sf, ph_dur_corr) %>%
@@ -2393,7 +2390,6 @@ ts_ph <- d %>%
   ) +
   mytheme(size_labs = 8) +
   theme(legend.position = "none")
-print(ts_ph) 
 # time series AT
 ts_at <- d %>%
   dplyr::filter(!is.na(at_calc)) %>% 
@@ -2403,7 +2399,6 @@ ts_at <- d %>%
   labs(title = "", x = "Time", y = expression(paste(italic(A)[T]," ","(",mu, mol.kg^-1,")"))) +
   mytheme(size_labs = 8) +
   theme(axis.title.x = element_text(face="plain", size=8))
-print(ts_at) 
 # time series Omega
 ts_oa <- d %>%
   dplyr::filter(!is.na(oa)) %>% 
@@ -2413,7 +2408,6 @@ ts_oa <- d %>%
   labs(title = "", x = "Time", y = expression(paste(Omega[a]))) +
   Mytheme(size_labs = 8) +
   theme(axis.title.x = element_text(face="plain", size=8))
-print(ts_oa) 
 #assemble time-series figure
 cp <- cowplot::plot_grid(ts_sal, ts_temp, ts_pco2, ts_ph, ts_at, ts_oa,
                    align = "v",
@@ -2422,7 +2416,6 @@ cp <- cowplot::plot_grid(ts_sal, ts_temp, ts_pco2, ts_ph, ts_at, ts_oa,
                    #width = 18,
                    #units = "cm"
                    )
-print(cp)
 cowplot::ggsave2(filename = "figures/ts_gg.png", plot = cp, height = 20, units = "cm")
 
 # ts_sal / ts_temp / ts_at
