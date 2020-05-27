@@ -2510,11 +2510,13 @@ All documents concerning maintenance, tasks to do, calibration... are accessible
 
 [wiki document](https://spaces.awi.de/confluence/login.action?os_destination=%2Fpages%2Fviewpage.action%3FspaceKey%3DMOS%26title%3DWater%2Bsampling&permissionViolation=true)
 
+[Logbook discrete sampling](https://docs.google.com/spreadsheets/d/1bNh9q4bkNoh2ra78XC451EmGb9Q8kMf4ByBnKngeHOg/edit#gid=1034421443)
+
 [UWO-Ferrybox variables from our sensors](https://docs.google.com/spreadsheets/d/1arKYfUjmg3YrgQ5g9LN_XFwUORyz7nqlKNWq3uYok3U/edit?ts=5c7e1d16#gid=393659093)
 
 [Procedure to download NRT data](https://spaces.awi.de/confluence/display/MOS/NRT+data+download+procedures)
 
-[AWI NRT database](https://dashboard.awi.de/data-xxl/overview.jsp)
+[AWI NRT database](https://dashboard.awi.de/data-xxl/), search for svluwobs
 
 [Quick overview AWI NRT database](https://dashboard.awi.de/?dashboard=9736) 
 
