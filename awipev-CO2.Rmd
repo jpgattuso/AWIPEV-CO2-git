@@ -317,8 +317,9 @@ discrete <- d %>%
 discrete <- left_join(discrete, pH_seafet_mean, by='date')
 discrete <- left_join(discrete, pH_durafet_mean, by='date')
 
-##   *****Attention, temp noted by logisticians in d is FB temp with SBE45 ****** $SA$
+##   *****Attention, temp noted by logisticians in d is FB temp with SBE45 ******
 ##   *****Attention, I asked to the logisticians to log insitu temp from 9 june 2019
+##   *****Attention, but no longer used in the script, so no problem
 
 # pH calculated (at and ct) at Ferrybox sal and temp
 discrete_no_na <- discrete %>%
@@ -1433,15 +1434,7 @@ d_all$voltINT <- ifelse(d_all$datetime == as.POSIXct("2017-11-02 21:00:00") |
                           d_all$datetime == as.POSIXct("2018-04-18 14:00:00"),
                         NA, d_all$voltINT)
 
-# $SA$ below
-#periode 1, mean of 4 next hours for volt int + T seaF
-# mean_voltINT_4h <- d_all %>%
-#   dplyr::filter(
-#     datetime >= as.POSIXct("2017-08-24 19:00:00") &
-#       datetime <= as.POSIXct("2017-08-24 22:00:00")
-#   ) %>%
-#   dplyr::summarise(mean(voltINT, na.rm = TRUE))
-#mean_voltINT_4h <- as.numeric(mean_voltINT_4h)
+# For this spec pH, some volt int and T seaF data are missing so we use the closest data
 zz <- d_all %>%
   dplyr::filter(
     datetime >= as.POSIXct("2017-08-24 19:00:00") &
@@ -1454,13 +1447,6 @@ d_all <- d_all %>%
     mean_voltINT_4h,
     voltINT
   ))
-# mean_voltEXT_4h <- d_all %>%
-#   dplyr::filter(
-#     datetime >= as.POSIXct("2017-08-24 19:00:00") &
-#       datetime <= as.POSIXct("2017-08-24 22:00:00")
-#   ) %>%
-#   dplyr::summarise(mean(voltEXT, na.rm = TRUE))
-# mean_voltEXT_4h <- as.numeric(mean_voltEXT_4h)
 zz <- d_all %>%
   dplyr::filter(
     datetime >= as.POSIXct("2017-08-24 19:00:00") &
@@ -1473,13 +1459,6 @@ d_all <- d_all %>%
     mean_voltEXT_4h,
     voltEXT
   ))
-# mean_TseaF_4h <- d_all %>%
-#   dplyr::filter(
-#     datetime >= as.POSIXct("2017-08-24 19:00:00") &
-#       datetime <= as.POSIXct("2017-08-24 22:00:00")
-#   ) %>%
-#   dplyr::summarise(mean(temp_sf, na.rm = TRUE))
-# mean_TseaF_4h <- as.numeric(mean_TseaF_4h)
 zz <- d_all %>%
   dplyr::filter(
     datetime >= as.POSIXct("2017-08-24 19:00:00") &
@@ -1493,14 +1472,7 @@ d_all <- d_all %>%
     temp_mix
   ))
 
-# Periode 2, mean of 4 next hours for volt int + T seaF
-# mean_voltINT_4h <- d_all %>%
-#   dplyr::filter(
-#     datetime >= as.POSIXct("2017-09-28 15:00:00") &
-#       datetime <= as.POSIXct("2017-09-28 18:00:00")
-#   ) %>%
-#   dplyr::summarise(mean(voltINT, na.rm = TRUE))
-# mean_voltINT_4h <- as.numeric(mean_voltINT_4h)
+# For this spec pH, some volt int and T seaF data are missing so we use the closest data
 zz <- d_all %>%
   dplyr::filter(
     datetime >= as.POSIXct("2017-09-28 15:00:00") &
@@ -1513,13 +1485,6 @@ d_all <- d_all %>%
     mean_voltINT_4h,
     voltINT
   ))
-# mean_voltEXT_4h <- d_all %>%
-#   dplyr::filter(
-#     datetime >= as.POSIXct("2017-09-28 15:00:00") &
-#       datetime <= as.POSIXct("2017-09-28 18:00:00")
-#   ) %>%
-#   dplyr::summarise(mean(voltEXT, na.rm = TRUE))
-# mean_voltEXT_4h <- as.numeric(mean_voltEXT_4h)
 zz <- d_all %>%
   dplyr::filter(
     datetime >= as.POSIXct("2017-09-28 15:00:00") &
@@ -1533,41 +1498,25 @@ d_all <- d_all %>%
     voltEXT
   ))
 
-# period 03, mean of 4 previous hours for volt int + volt ext
-# mean_voltINT_4h <- d_all %>%
-#   dplyr::filter(
-#     datetime >= as.POSIXct("2019-09-13 04:00:00") &
-#       datetime <= as.POSIXct("2019-09-13 07:00:00")
-#   ) %>%
-#   dplyr::summarise(mean(voltINT, na.rm = TRUE))
+# For this spec pH, some volt int and T seaF data are missing so we use the closest data
 zz <- d_all %>%
   dplyr::filter(
     datetime >= as.POSIXct("2019-09-13 04:00:00") &
       datetime <= as.POSIXct("2019-09-13 07:00:00")
   )
 mean_voltINT_4h <-  mean(zz$voltINT, na.rm = TRUE)
-
-# Ce qui suit (7 lignes) est très bizarre
 d_all <- d_all %>%
   dplyr::mutate(voltINT = ifelse(
-    datetime == as.POSIXct("2017-09-28 13:00:00"),
+    datetime == as.POSIXct("2019-09-13 13:00:00"),
     mean_voltINT_4h,
     voltINT
   ))
-# ???????? mean_voltINT_4h <- as.numeric(mean_voltINT_4h)
 d_all <- d_all %>%
   dplyr::mutate(voltINT = ifelse(
     datetime == as.POSIXct("2019-09-13 08:00:00"),
     mean_voltINT_4h,
     voltINT
   ))
-# mean_voltEXT_4h <- d_all %>%
-#   dplyr::filter(
-#     datetime >= as.POSIXct("2019-09-13 04:00:00") &
-#       datetime <= as.POSIXct("2019-09-13 07:00:00")
-#   ) %>%
-#   dplyr::summarise(mean(voltEXT, na.rm = TRUE))
-# mean_voltEXT_4h <- as.numeric(mean_voltEXT_4h)
 zz <- d_all %>%
   dplyr::filter(
     datetime >= as.POSIXct("2019-09-13 04:00:00") &
@@ -1581,14 +1530,7 @@ d_all <- d_all %>%
     voltEXT
   ))
 
-# period 04 also, mean of 4 previous hours for volt int + volt ext + T seaF
-# mean_voltINT_4h <- d_all %>%
-#   dplyr::filter(
-#     datetime >= as.POSIXct("2019-09-13 11:00:00") &
-#       datetime <= as.POSIXct("2019-09-13 12:00:00")
-#   ) %>%
-#   dplyr::summarise(mean(voltINT, na.rm = TRUE))
-# mean_voltINT_4h <- as.numeric(mean_voltINT_4h)
+# For this spec pH, some volt int and T seaF data are missing so we use the closest data
 zz <- d_all %>%
   dplyr::filter(
     datetime >= as.POSIXct("2019-09-13 11:00:00") &
@@ -1601,13 +1543,6 @@ d_all <- d_all %>%
     mean_voltINT_4h,
     voltINT
   ))
-# mean_voltEXT_4h <- d_all %>%
-#   dplyr::filter(
-#     datetime >= as.POSIXct("2019-09-13 11:00:00") &
-#       datetime <= as.POSIXct("2019-09-13 12:00:00")
-#   ) %>%
-#   dplyr::summarise(mean(voltINT, na.rm = TRUE))
-# mean_voltEXT_4h <- as.numeric(mean_voltEXT_4h)
 zz <- d_all %>%
   dplyr::filter(
     datetime >= as.POSIXct("2019-09-13 11:00:00") &
@@ -1620,13 +1555,6 @@ d_all <- d_all %>%
     mean_voltEXT_4h,
     voltEXT
   ))
-# mean_TseaF_4h <- d_all %>%
-#   dplyr::filter(
-#     datetime >= as.POSIXct("2019-09-13 11:00:00") &
-#       datetime <= as.POSIXct("2019-09-13 12:00:00")
-#   ) %>%
-#   dplyr::summarise(mean(temp_sf, na.rm = TRUE))
-# mean_TseaF_4h <- as.numeric(mean_TseaF_4h)
 zz <- d_all %>%
   dplyr::filter(
     datetime >= as.POSIXct("2019-09-13 11:00:00") &
@@ -1683,9 +1611,8 @@ names(calib_spectro) <- c("deployment_sf", "E0int25_sf", "E0ext25_sf")
 d_all <-left_join(d_all, calib_spectro,by="deployment_sf" )
 
 #### plot
-# $SA$ 3 points?
 kk <- melt(calib_spectro, id.vars="deployment_sf")
-p_calib <- ggplot(kk) + geom_point(aes(x=deployment_sf, y=value, color=variable),size=2) +
+p_calib <- ggplot(kk) + geom_point(aes(x=deployment_sf, y=value, color=variable), size=2) +
   facet_grid(variable~., scales="free_y") + theme_bw() +
   scale_colour_discrete(guide="none")
 print(p_calib)
@@ -2608,13 +2535,9 @@ All documents concerning maintenance, tasks to do, calibration... are accessible
 
 [UWO-Ferrybox variables from our sensors](https://docs.google.com/spreadsheets/d/1arKYfUjmg3YrgQ5g9LN_XFwUORyz7nqlKNWq3uYok3U/edit?ts=5c7e1d16#gid=393659093)
 
-[All UWO-Ferrybox data / NearRealTime (NRT) AWI database](https://dashboard.awi.de/data-xxl/overview.jsp)
-
 [Procedure to download NRT data](https://spaces.awi.de/confluence/display/MOS/NRT+data+download+procedures)
 
 [AWI NRT database](https://dashboard.awi.de/data-xxl/overview.jsp)
-
-[Missing data to add to the NRT database](https://docs.google.com/spreadsheets/d/1Cbc4hWyclnBsNsOH_3QDA3AGZfwF4I1HuadfBe1BVjI/edit?usp=sharing)
 
 [Quick overview AWI NRT database](https://dashboard.awi.de/?dashboard=9736) 
 
