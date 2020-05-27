@@ -335,22 +335,6 @@ discrete_is_na$phcalc_fb <- NA
 #discrete_is_na$pco2_calc<- NA
 discrete <- bind_rows(discrete_no_na, discrete_is_na) %>% 
   dplyr::arrange(date)
-
-# pH calculated (at and ct) at in situ (11 m) sal and temp
-discrete_no_na <- discrete %>%
-  dplyr::filter(!is.na(sal_mix)  & !is.na(temp_insitu_11m) & !is.na(at) & !is.na(ct))
-discrete_is_na <- discrete %>%
-  dplyr::filter(is.na(sal_mix)  | is.na(temp_insitu_11m) | is.na(at) | is.na(ct))
-carb <- carb(15, discrete_no_na$at*1e-6, discrete_no_na$ct*1e-6, S = discrete_no_na$sal_mix, T = discrete_no_na$temp_insitu_11m, P = 11/10, Pt = 0, Sit = 0, k1k2 = "l", kf = "dg", ks = "d", pHscale = "T", b = "u74")
-discrete_no_na$phcalc_insitu <- carb$pH # pH to compare with durafet pH (at Ferrybox temp and sal)
-discrete_no_na$pco2_calc_insitu <- carb$pCO2
-
-#create new variable in "discrete_is_na" to bind "discrete_no_na"
-discrete_is_na$phcalc_insitu <- NA
-discrete_is_na$pco2_calc_insitu <- NA
-discrete <- bind_rows(discrete_no_na, discrete_is_na) %>% 
-  dplyr::arrange(date)
-
 ```
 
 ```{r Combine discrete and continous data, echo=FALSE}
@@ -377,13 +361,6 @@ d_all <- full_join(d_all, discrete2merge, by="datetime")
 discrete2merge <- discrete %>%
   #drop_na() %>%
   dplyr::select(closest_datetime, phcalc_fb) %>%
-  dplyr::filter(!is.na(closest_datetime)) %>%
-  rename(datetime=closest_datetime)
-d_all <- full_join(d_all, discrete2merge, by="datetime")
-
-# pH calculated in situ
-discrete2merge <- discrete %>%
-  dplyr::select(closest_datetime, phcalc_insitu) %>%
   dplyr::filter(!is.na(closest_datetime)) %>%
   rename(datetime=closest_datetime)
 d_all <- full_join(d_all, discrete2merge, by="datetime")
