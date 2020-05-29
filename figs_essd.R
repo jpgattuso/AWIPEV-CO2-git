@@ -66,6 +66,7 @@ mytheme <- function(size_labs = 6, face_font="plain", ...) {
           aspect.ratio = 1 / 3,
           plot.margin = margin(t = 0, r = 1, b = 0, l = 0, unit = "lines")
     )
+}
 
 # Read data ####
 d <-
@@ -78,48 +79,48 @@ d <-
 # time series ####
 xlim <- c(as.POSIXct("2015-07-01 00:00:00"), as.POSIXct("2020-07-01 00:00:00"))
 # calculate omeaga arag
-z <- d_all %>% 
-  dplyr::filter(!(is.na(pco2_corr) | is.na(at_calc) | is.na(sal_mix) |is.na(temp_insitu_11m) | is.na(pressure_insitu_ctd)))
+z <- d %>% 
+  dplyr::filter(!(is.na(pco2) | is.na(at_calc) | is.na(s_mix) |is.na(t_11m) | is.na(pressure)))
 oa_tbf <- as_tibble(
-  carb(24, z$pco2_corr, z$at_calc*1e-6, S = z$sal_mix, T = z$temp_insitu_11m, 
-       P = z$pressure_insitu_ctd/10, Pt = 0, Sit = 0, k1k2 = "l", kf = "dg", 
+  carb(24, z$pco2, z$at_calc*1e-6, S = z$s_mix, T = z$t_11m, 
+       P = z$pressure/10, Pt = 0, Sit = 0, k1k2 = "l", kf = "dg", 
        ks = "d", pHscale = "T", b = "u74")
 ) %>% 
   dplyr::mutate(datetime = z$datetime,
                 oa = OmegaAragonite) %>% 
   dplyr::select(datetime, oa)
 # select time series data and add Omega
-d <- as_tibble(d_all) %>%
-  dplyr::select(datetime, pressure_insitu_ctd, temp_insitu_11m, sal_mix, pco2_corr, pHint_tot_sf, 
-                ph_dur_corr, pco2_calc_fb, at_calc)
+d <- as_tibble(d) %>%
+  dplyr::select(datetime, pressure, t_11m, s_mix, pco2, pH_sf, 
+                ph_dur, pco2_calc, at_calc)
 d <- left_join(d, oa_tbf, by = 'datetime')
 
 # time series temp
 ts_temp <- d %>%
-  dplyr::filter(!is.na(temp_insitu_11m)) %>% 
+  dplyr::filter(!is.na(t_11m)) %>% 
   ggplot() +
-  geom_point(aes(x = datetime, y = temp_insitu_11m), col = "blue", size = 0.15) +
+  geom_point(aes(x = datetime, y = t_11m), col = "blue", size = 0.15) +
   labs(title = "", x = "", y = "Temp. 11 m (°C)") +
   mytheme(size_labs = 8)
 # time series sal
 ts_sal <- d %>%
-  dplyr::filter(!is.na(sal_mix)) %>% 
+  dplyr::filter(!is.na(s_mix)) %>% 
   ggplot() +
-  geom_point(aes(x = datetime, y = sal_mix), col = "blue", size = 0.15) + 
+  geom_point(aes(x = datetime, y = s_mix), col = "blue", size = 0.15) + 
   labs(title = "", x = "", y = "Salinity") +
   mytheme(size_labs = 8)
 # time series pco2
 ts_pco2 <- d %>%
-  dplyr::filter(!is.na(pco2_corr)) %>% 
+  dplyr::filter(!is.na(pco2)) %>% 
   ggplot() +
-  geom_point(aes(x = datetime, y = pco2_corr), col = "blue", size = 0.15) +
+  geom_point(aes(x = datetime, y = pco2), col = "blue", size = 0.15) +
   scale_x_datetime(limits = xlim) +
   labs(title = "", x = "", y = expression(paste("pC", O[2], " (", mu, "atm)"))) +
   mytheme(size_labs = 8)
 # time series pH
 ts_ph <- d %>%
-  dplyr::select(datetime, pHint_tot_sf, ph_dur_corr) %>%
-  dplyr::filter(!is.na(pHint_tot_sf)) %>%
+  dplyr::select(datetime, pH_sf, ph_dur) %>%
+  dplyr::filter(!is.na(pH_sf)) %>%
   pivot_longer(-datetime, names_to = "pH", values_to = "value") %>%
   ggplot() +
   geom_point(aes(x = datetime, y = value, colour = pH), size = 0.15) +
@@ -194,19 +195,19 @@ d_long <- d %>%
   dplyr::mutate(month = as.factor(month(x = datetime, label = TRUE))) %>% 
   tidyr::pivot_longer(-c(datetime, month), names_to = "variable", values_to = "value")
 
-sal_mix_bp <- ggplot(filter(d_long, variable=="sal_mix"), aes(x = month, y = value, group=month)) +
+s_mix_bp <- ggplot(filter(d_long, variable=="s_mix"), aes(x = month, y = value, group=month)) +
   geom_violin(fill='lightblue', alpha=0.5, size=0.2, trim = TRUE) +
   geom_boxplot(notch=TRUE, size=0.2, fill="grey50", outlier.color = "blue", outlier.size = 0.3) +
   scale_x_discrete(breaks=c("Jan", "", "Mar", "", "May", "", "Jul", "", "Sep", "", "Nov", "")) +
   labs(title=NULL,x=NULL,y = "Salinity") +
   mytheme_bp()
-temp_11m_bp <- ggplot(filter(d_long, variable=="temp_insitu_11m"), aes(x = month, y = value, group=month)) +
+temp_11m_bp <- ggplot(filter(d_long, variable=="t_11m"), aes(x = month, y = value, group=month)) +
   geom_violin(fill='lightblue', alpha=0.5, size=0.2, trim = TRUE) +
   geom_boxplot(notch=TRUE, size=0.2, fill="grey50", outlier.color = "blue", outlier.size = 0.3) +
   scale_x_discrete(breaks=c("Jan", "", "Mar", "", "May", "", "Jul", "", "Sep", "", "Nov", "")) +
   labs(title=NULL,x=NULL,y = "Temp. 11 m (°C)") +
   mytheme_bp()
-pco2_bp <- ggplot(filter(d_long, variable=="pco2_corr"), aes(x = month, y = value, group=month)) +
+pco2_bp <- ggplot(filter(d_long, variable=="pco2"), aes(x = month, y = value, group=month)) +
   geom_violin(fill='lightblue', alpha=0.5, size=0.2, trim = TRUE) +
   geom_boxplot(notch=TRUE, size=0.2, fill="grey50", outlier.color = "blue", outlier.size = 0.3) +
   scale_x_discrete(breaks=c("Jan", "", "Mar", "", "May", "", "Jul", "", "Sep", "", "Nov", "")) +
@@ -232,14 +233,14 @@ oa_bp <- ggplot(filter(d_long, variable=="oa"), aes(x = month, y = value, group=
   labs(title=NULL,x=NULL,y = expression(paste(Omega[a]))) +
   mytheme_bp() +
   theme(axis.text.x = element_text(vjust = 1))
-g <- cowplot::plot_grid(sal_mix_bp, temp_11m_bp, pco2_bp, ph_bp, at_bp, oa_bp, ncol=2,
+g <- cowplot::plot_grid(s_mix_bp, temp_11m_bp, pco2_bp, ph_bp, at_bp, oa_bp, ncol=2,
                         align="v")
 ggsave(file="figures/boxplots.png", g,  width = 18, height = 14, units = "cm")
 
 # pCO2 ####
-fit <- lmodel2(data = d,  pco2_corr ~ pco2_calc_fb , nperm = 99)
+fit <- lmodel2(data = d,  pco2 ~ pco2_calc , nperm = 99)
 
-p <-  ggplot(d, aes(x=pco2_calc_fb, y= pco2_corr)) +
+p <-  ggplot(d, aes(x=pco2_calc, y= pco2), na.rm = TRUE) +
   geom_point(color = "blue") +
   geom_abline(slope = 1, intercept = 0, linetype = "dashed") +
   geom_abline(aes(intercept = fit$regression.results[2,2], slope = fit$regression.results[2,3]), colour = "blue") +
