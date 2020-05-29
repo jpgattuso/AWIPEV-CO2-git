@@ -2201,10 +2201,11 @@ dplyr::mutate(d_all, month = as.factor(month(x = datetime, label = TRUE)))
 saveRDS(file= paste0(path, "fb_data/d_all.rds"), d_all)
 
 pangaea <- as_tibble(d_all) %>% 
-  dplyr::select(datetime, pressure_insitu_ctd, sal_insitu_ctd, sal_fb, temp_insitu_11m, temp_insitu_ctd, temp_fb, temp_sf, temp_dur, at, ct, ph_s_sf_temp_insi, ph_s_dur_temp_fb, pco2_corr, at_calc, ph_dur_corr, pHint_tot_sf) %>%
+  dplyr::select(datetime, pressure_insitu_ctd, sal_insitu_ctd, sal_fb, sal_mix, temp_insitu_11m, temp_insitu_ctd, temp_fb, temp_sf, temp_dur, at, ct, ph_s_sf_temp_insi, ph_s_dur_temp_fb, pco2_corr, pco2_calc_fb, at_calc, ph_dur_corr, pHint_tot_sf) %>%
   dplyr::rename(pressure = pressure_insitu_ctd,
                 s_insitu = sal_insitu_ctd,
-                sal_fb = sal_fb, 
+                s_fb = sal_fb, 
+                s_mix = sal_mix,
                 t_11m = temp_insitu_11m,
                 t_insitu = temp_insitu_ctd, 
                 t_fb = temp_fb, 
@@ -2213,9 +2214,10 @@ pangaea <- as_tibble(d_all) %>%
                 at = at, 
                 at_calc =at_calc,
                 ct = ct, 
-                ph_s_sf_temp_insi = ph_s_sf_temp_insi, 
-                ph_s_dur_temp_fb = ph_s_dur_temp_fb,
+                ph_s_sf_t_insi = ph_s_sf_temp_insi, 
+                ph_s_dur_t_fb = ph_s_dur_temp_fb,
                 pco2 = pco2_corr,
+                pco2_calc = pco2_calc_fb,
                 pH_sf = pHint_tot_sf,
                 ph_dur = ph_dur_corr
                 )
@@ -2224,7 +2226,8 @@ write_csv(pangaea, path = paste0(path, "fb_data/pangaea.csv"))
 # Metadata Pangaea
 # pressure = pressure in situ (profiler)
 # s_insitu = salinity in situ (profiler)
-# sal_fb = salinity in FerryBox 
+# s_fb = salinity in FerryBox 
+# s_mix = salinity in FerryBox with gaps filled by s_insitu below 8 m
 # t_11m = temperature in situ at 11 m
 # t_insitu = temperature in situ (profiler), 
 # t_fb = temperature in FerryBox 
@@ -2233,9 +2236,10 @@ write_csv(pangaea, path = paste0(path, "fb_data/pangaea.csv"))
 # at = total alkalinity, discrete measurements (FerryBox)
 # at_calc = total alkalinity, calculated from salinity
 # ct = dissolved inorganic carbon, discrete measurements (FerryBox)
-# ph_s_sf_temp_insi = pH spectrophotometric SeaFET in situ (11 m)
-# ph_s_dur_temp_fb = pH spectrophotometric Durafet in FerryBox
+# ph_s_sf_t_insi = pH spectrophotometric SeaFET in situ (11 m)
+# ph_s_dur_t_fb = pH spectrophotometric Durafet in FerryBox
 # pco2 = pCO2 in Ferrybox
+# pco2_calc = pCO2 calculated in the FerryBox calculated from discrete measurments of AT and CT
 # pH_sf = pH SeaFET at in situ temperature (profiler)
 # ph_dur = pH Durafet at FerryBox temperature (FerryBox)
 ```
