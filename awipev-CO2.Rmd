@@ -2231,7 +2231,7 @@ write_csv(pangaea, path = paste0(path, "fb_data/pangaea.csv"))
 # t_11m = temperature in situ at 11 m
 # t_insitu = temperature in situ (profiler), 
 # t_fb = temperature in FerryBox 
-# t_sf = temperature SeaFET (profiler) 
+# t_sf = temperature SeaFET (profiler), °C
 # t_dur = temperature Durafet (FerryBox)
 # at = total alkalinity, discrete measurements (FerryBox)
 # at_calc = total alkalinity, calculated from salinity
@@ -2550,11 +2550,15 @@ ggsave(file="figures/pco2.png", p,  width = 14, height = 14, units = "cm")
 Here is reported all important modifications made on *ny-alesund_cc.*.
 All documents concerning maintenance, tasks to do, calibration... are accessible by the AWIPEV staff on this link with special access:
 
-[wiki document](https://spaces.awi.de/confluence/login.action?os_destination=%2Fpages%2Fviewpage.action%3FspaceKey%3DMOS%26title%3DWater%2Bsampling&permissionViolation=true)
+[wiki document](https://spaces.awi.de)
 
 [Logbook discrete sampling](https://docs.google.com/spreadsheets/d/1bNh9q4bkNoh2ra78XC451EmGb9Q8kMf4ByBnKngeHOg/edit#gid=1034421443)
 
+[Logbook FerryBox](https://docs.google.com/spreadsheets/d/1QwAJm7TttoEwue-CUM0efhqEAMwj5m148Gy_Mp-1maM/edit?ts=5ed0fca6#gid=2036495380)
+
 [UWO-Ferrybox variables from our sensors](https://docs.google.com/spreadsheets/d/1arKYfUjmg3YrgQ5g9LN_XFwUORyz7nqlKNWq3uYok3U/edit?ts=5c7e1d16#gid=393659093)
+
+[Dashboard](https://dashboard.awi.de/?dashboard=3760)
 
 [Procedure to download NRT data](https://spaces.awi.de/confluence/display/MOS/NRT+data+download+procedures)
 
