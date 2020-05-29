@@ -328,11 +328,11 @@ discrete_is_na <- discrete %>%
   dplyr::filter(is.na(sal_fb)  | is.na(temp_fb) | is.na(at) | is.na(ct))
 carb <- carb(15, discrete_no_na$at*1e-6, discrete_no_na$ct*1e-6, S = discrete_no_na$sal_fb, T = discrete_no_na$temp_fb, P = 0, Pt = 0, Sit = 0, k1k2 = "l", kf = "dg", ks = "d", pHscale = "T", b = "u74")
 discrete_no_na$phcalc_fb <- carb$pH # pH to compare with durafet pH (at Ferrybox temp and sal)
-#discrete_no_na$pco2_calc<- carb$pCO2
+discrete_no_na$pco2_calc_fb <- carb$pCO2
 
 # create new variable in "discrete_is_na" to bind "discrete_no_na"
 discrete_is_na$phcalc_fb <- NA
-#discrete_is_na$pco2_calc<- NA
+discrete_is_na$pco2_calc_fb <- NA
 discrete <- bind_rows(discrete_no_na, discrete_is_na) %>% 
   dplyr::arrange(date)
 ```
@@ -385,7 +385,7 @@ d_all <- full_join(d_all, discrete2merge, by="datetime")
 
 # calculated pCO2 
 discrete2merge <- discrete %>%
-  dplyr::select(closest_datetime, pco2_calc_insitu) %>%
+  dplyr::select(closest_datetime, pco2_calc_fb) %>%
   dplyr::filter(!is.na(closest_datetime)) %>%
   rename(datetime=closest_datetime)
 d_all <- full_join(d_all, discrete2merge, by="datetime")
@@ -1125,9 +1125,9 @@ During those steps (except zeroing) the sensor runs normally. Equilibration betw
 
 ```{r measured vs calculated pCO2, echo=FALSE, warning=FALSE, message=FALSE}
 title <- "Contros vs calculated pCO2"
-fit <- lmodel2(data = d_all,  pco2_corr ~ pco2_calc_insitu , nperm = 99)
+fit <- lmodel2(data = d_all,  pco2_corr ~ pco2_calc_fb , nperm = 99)
 
-p <-  ggplot(d_all,aes(x=pco2_calc_insitu, y= pco2_corr, label = month))+
+p <-  ggplot(d_all,aes(x=pco2_calc_fb, y= pco2_corr, label = month))+
    geom_text(aes(color = factor(month)))+
   scale_color_discrete(guide="none")+
   geom_abline(slope = 1, intercept = 0, linetype = "dashed") +
@@ -1142,14 +1142,14 @@ p <-  ggplot(d_all,aes(x=pco2_calc_insitu, y= pco2_corr, label = month))+
 ```
 The relationship between the Contros and calculated *p*CO~2~ is not good at all in the sense that it is far from the 1:1 line, despite a good r2 (`r round(fit$rsquare, digits=2)`).
 ```{r plot measured vs calculated pCO2, echo=FALSE, warning=FALSE, message=FALSE, out.width='100%', fig.align="center"}
-print(p) # pco2_calc_insitu_pco2_corr_text
+print(p) # pco2_calc_fb_pco2_corr_text
 ```
 
 ### **Final *p*CO~2~ data**
 
 ```{r Final pCO2, echo=FALSE, warning=FALSE, message=FALSE, out.width='100%', fig.align="center"}
 pco2_contros_xts <-
-  dplyr::select(d_all, datetime, pco2_calc_insitu, pco2_corr)
+  dplyr::select(d_all, datetime, pco2_calc_fb, pco2_corr)
 pco2_contros_xts <-
   as.xts(pco2_contros_xts, order.by = d_all$datetime)
 dygraph(pco2_contros_xts,
@@ -1164,8 +1164,8 @@ dygraph(pco2_contros_xts,
     pointSize = 2
   ) %>%
   dySeries(
-    "pco2_calc_insitu",
-    label = "pco2_calc_insitu",
+    "pco2_calc_fb",
+    label = "pco2_calc_fb",
     color = "red",
     strokeWidth = 0,
     pointSize = 4
@@ -2197,7 +2197,7 @@ p_ct_ts
 # d_all comprises additional columns calculated in this script
 d_all$at <- ifelse(is.nan(d_all$at), NA, d_all$at) # replace all NaN by NA
 d_all$ct <- ifelse(is.nan(d_all$at), NA, d_all$ct) # replace all NaN by NA
-  dplyr::mutate(month = as.factor(month(x = datetime, label = TRUE))) %>% 
+dplyr::mutate(d_all, month = as.factor(month(x = datetime, label = TRUE)))
 
 saveRDS(file= paste0(path, "fb_data/d_all.rds"), d_all)
 ```
@@ -2236,7 +2236,7 @@ dplyr::select(datetime, oa)
 # select time series data and add Omega
 d <- as_tibble(d_all) %>%
   dplyr::select(datetime, pressure_insitu_ctd, temp_insitu_11m, sal_mix, pco2_corr, pHint_tot_sf, 
-                ph_dur_corr, pco2_calc_insitu, at_calc)
+                ph_dur_corr, pco2_calc_fb, at_calc)
 d <- left_join(d, oa_tbf, by = 'datetime')
 
 # time series temp
@@ -2381,9 +2381,9 @@ g <- cowplot::plot_grid(sal_mix_bp, temp_11m_bp, pco2_bp, ph_bp, at_bp, oa_bp, n
 ggsave(file="figures/boxplots.png", g,  width = 18, height = 14, units = "cm")
 ```
 ```{r ESSD pCO2, echo=FALSE, warning=FALSE, message=FALSE}
-fit <- lmodel2(data = d,  pco2_corr ~ pco2_calc_insitu , nperm = 99)
+fit <- lmodel2(data = d,  pco2_corr ~ pco2_calc_fb , nperm = 99)
 
-p <-  ggplot(d, aes(x=pco2_calc_insitu, y= pco2_corr)) +
+p <-  ggplot(d, aes(x=pco2_calc_fb, y= pco2_corr)) +
   geom_point(color = "blue") +
   geom_abline(slope = 1, intercept = 0, linetype = "dashed") +
   geom_abline(aes(intercept = fit$regression.results[2,2], slope = fit$regression.results[2,3]), colour = "blue") +
@@ -2589,7 +2589,7 @@ All documents concerning maintenance, tasks to do, calibration... are accessible
 * reads locally fb_awipev-co2_server/ny-alesund/data/NRT_data/nydata_hour.rds
 * sal_mix: when ferrybox data (sal_fb) are missing, they are replaced by data from the profiling ctd for depths > 8 m (sal_insitu_ctd_9m)
 * temp_mix: when data of in situ temperature at 11 m (temp_insitu_11m) are missing, they are replaced by data from the profiling ctd for depths > 8 m
-* pco2_calc_insitu: pco2 calc from AT/CT ferrybox = carb avec temp_fb +sal_fb
+* pco2_calc_fb: pco2 calc from AT/CT ferrybox = carb avec temp_fb +sal_fb
 * calibrate seafet pH
     - ph_s_sf_temp_insi: pH spectro seaFET pH insi calculé avec AT interpolée + temp_mix +sal_mix
     - E0int25_sf: calculé à partir du voltage interne + ph_s_sf_temp_insi (temp 11m + temp_insitu_ctd_9m si trous) + temp CTD 9m + sal CTD 9m (calib seaFET fonction 1)
