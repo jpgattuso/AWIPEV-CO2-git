@@ -1,7 +1,12 @@
-
-#install.packages('seacarb', repos="http://ftp.igh.cnrs.fr/pub/CRAN/")
-
+if (!require("tidyverse")) install.packages("tidyverse")
+library(tidyverse)
+if (!require("directlabels")) install.packages("directlabels")
+library(directlabels)
+if (!require("cowplot")) install.packages("cowplot")
+library(cowplot)
+if (!require("seacarb")) install.packages("seacarb")
 library(seacarb)
+if (!require("Hmisc")) install.packages("Hmisc")
 library(Hmisc)   #for minor ticks in plot
 
 ## Old stuff
@@ -691,3 +696,46 @@ pdf(file="Orr_K1K2/cont_dpK1K2K_w14-l00-r93.pdf",  width=9.5, height=7.0)
 
 # Turn off device driver (to flush output to PDF)
  dev.off()
+
+ # =======
+# compare results of Waters et al. and Roy et al.
+# 95% of the salinity data range between 32.5 and 35.1
+# 95% of the temperature data range between -1.62 and 6.5
+at <- 2274e-6 #average of all calculated total alkalinity values
+pco2 <- 313 #average of all pCO2 values
+t <- seq(-1.6, 6.5, length.out = 30) # range of all in situ temperatures
+s <- seq(32, 35.5, length.out = 30) # range of all salinities (sal_mix)
+dat <- expand.grid(s = s,t = t)
+dat <- tibble(bind_rows(dat), at, pco2)
+c_roy <- as_tibble(
+  carb(flag=24, var1=dat$pco2, var2=dat$at, S=dat$s, T=dat$t, P=11/10, Patm=1.0, Pt=0, Sit=0,
+     pHscale="T", kf="dg", k1k2="r", ks="d", b="u74", warn = "n")
+)
+c_waters <- as_tibble(
+  carb(flag=24, var1=dat$pco2, var2=dat$at, S=dat$s, T=dat$t, P=11/10, Patm=1.0, Pt=0, Sit=0,
+       pHscale="T", kf="dg", k1k2="w14", ks="d", b="u74", warn = "n")
+)
+# Compare calculated CT
+ct_dat <- tibble(s=c_roy$S, t=c_roy$T, ct_roy = c_roy$DIC, ct_waters = c_waters$DIC, waters_roy = 1e6*(c_waters$DIC - c_roy$DIC))
+plot_ct <- ggplot(data = ct_dat, aes(x = s, y =t, z = waters_roy)) +
+  stat_contour(aes(colour=..level..)) +
+  labs(title = "CT Waters et al. minus Roy et al.", subtitle = "from average pCO2 and total alkalinity", x = "Salinity", y = "Temperature") +
+  theme(aspect.ratio = 1)
+plot_ct <- direct.label(plot_ct, "bottom.pieces")
+
+oa_dat <- tibble(s=c_roy$S, t=c_roy$T, oa_roy = c_roy$OmegaAragonite, ct_waters = c_waters$OmegaAragonite, waters_roy = c_waters$OmegaAragonite - c_roy$OmegaAragonite)
+plot_oa <- ggplot(data = oa_dat, aes(x = s, y =t, z = waters_roy)) +
+  stat_contour(aes(colour=..level..)) +
+  labs(title = "Omega aragonite Waters et al. minus Roy et al.", subtitle = "from average pCO2 and total alkalinity", x = "Salinity", y = "Temperature") +
+  theme(aspect.ratio = 1)
+
+plot_oa <- direct.label(plot_oa, "bottom.pieces")
+
+cp <- cowplot::plot_grid(plot_ct, plot_oa,
+                         align = "v",
+                         #labels = "AUTO",
+                         ncol = 1
+                         #width = 18,
+                         #units = "cm"
+)
+cowplot::ggsave2(filename = "figures/waters-roy.pdf", plot = cp, height = 25, units = "cm")
