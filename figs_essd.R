@@ -6,8 +6,8 @@ Sys.setenv(TZ='UTC') # on utilise UTC
 rm(list = ls())
 if (!require("tidyverse")) install.packages("tidyverse")
 library(tidyverse)
-if (!require("robfilter")) install.packages("robfilter")
-library("robfilter")
+# if (!require("robfilter")) install.packages("robfilter")
+# library("robfilter")
 if (!require("seacarb")) install.packages("seacarb")
 library("seacarb")
 if (!require("gridExtra")) install.packages("gridExtra")
@@ -22,18 +22,18 @@ if (!require("grid")) install.packages("grid")
 library(grid)
 if (!require("viridis")) install.packages("viridis")
 library("viridis")
-if (!require("dygraphs")) install.packages("dygraphs")
-library("dygraphs")
-if (!require("knitr")) install.packages("knitr")
-require("knitr")
+# if (!require("dygraphs")) install.packages("dygraphs")
+# library("dygraphs")
+# if (!require("knitr")) install.packages("knitr")
+# require("knitr")
 if (!require("lmodel2")) install.packages("lmodel2")
 library("lmodel2")
-if (!require("captioner")) install.packages("captioner")
-library("captioner")
+# if (!require("captioner")) install.packages("captioner")
+# library("captioner")
 if (!require("xts")) install.packages("xts")
 library("xts")
-if (!require("seismicRoll")) install.packages("seismicRoll")
-library("seismicRoll")
+# if (!require("seismicRoll")) install.packages("seismicRoll")
+# library("seismicRoll")
 if (!require("scales")) install.packages("scales")
 library("scales")
 if (!require("cowplot")) install.packages("cowplot")
@@ -60,7 +60,7 @@ mytheme <- function(size_labs = 6, face_font="plain", ...) {
           panel.grid.major = element_line(size = 0.25, color="grey50", linetype="dashed"),
           panel.grid.minor = element_line(size = rel(0.5), color = "grey50", linetype="dotted"),
           aspect.ratio = 1 / 3,
-          plot.margin = margin(t = 0, r = 1, b = 0, l = 0, unit = "lines")
+          plot.margin = margin(t = 0, r = 1, b = 0, l = 1, unit = "lines")
     )
 }
 
@@ -152,7 +152,7 @@ ts_at <- d %>%
   ggplot() +
   geom_point(aes(x = datetime, y = at_calc), col = "blue", size = 0.15, na.rm = TRUE) +
   scale_x_datetime(limits = xlim) +
-  labs(title = "", x = "Time", y = expression(paste(italic(A)[T]," ","(",mu, mol.kg^-1,")"))) +
+  labs(title = "", x = "", y = expression(paste(italic(A)[T]," ","(",mu, mol.kg^-1,")"))) +
   mytheme(size_labs = 8) +
   theme(axis.title.x = element_text(face="plain", size=8))
 # time series Omega
@@ -161,19 +161,18 @@ ts_oa <- d %>%
   ggplot() +
   geom_point(aes(x = datetime, y = oa), col = "blue", size = 0.15, na.rm = TRUE) +
   scale_x_datetime(limits = xlim) +
-  labs(title = "", x = "Time", y = expression(paste(Omega[a]))) +
+  labs(title = "", x = "", y = expression(paste(Omega[a]))) +
   mytheme(size_labs = 8) +
   theme(axis.title.x = element_text(face="plain", size=8))
 #assemble time-series figure
 cp <- cowplot::plot_grid(ts_sal, ts_temp, ts_pco2, ts_ph, ts_at, ts_oa,
                          align = "v",
-                         #labels = "AUTO",
                          ncol = 1
                          #width = 18,
                          #units = "cm"
-)
+                         )
 cowplot::ggsave2(filename = "figures/essd/ts_gg.png", plot = cp, height = 20, units = "cm")
-
+grid.arrange(ts_sal, ts_temp, ts_pco2, ts_ph, ts_at, ts_oa, ncol = 1)
 # ts_sal / ts_temp / ts_at
 # grid.arrange(ts_sal, ts_temp, ts_pco2, ts_ph, ts_at, ncol = 1)
 # cowplot::save_plot(filename = "figures/ts_sp.pdf", plot = cp)
