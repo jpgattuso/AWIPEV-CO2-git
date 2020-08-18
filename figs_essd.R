@@ -182,43 +182,49 @@ grid.arrange(ts_sal, ts_temp, ts_pco2, ts_ph, ts_at, ts_oa, ncol = 1)
 mytheme_bp <- function(size_labs = 9, face_font="plain", ...) {
   mytheme() +
     theme(aspect.ratio = 1/2,
-          plot.margin = margin(t = -2, r = 0.2, b = -2, l = 0, unit = "cm"),
-          axis.text.x=element_blank())
+          plot.margin = margin(t = -2, r = 0.2, b = -2, l = 0, unit = "cm")
+#          axis.text.x=element_blank()
+)
 }
 
 d_long <- d %>% 
-  dplyr::mutate(month = as.factor(lubridate::month(x = datetime, abbr = TRUE))) %>% 
-  tidyr::pivot_longer(-c(datetime, month), names_to = "variable", values_to = "value")
+  dplyr::mutate(month = as.factor(lubridate::month(x = datetime, label = TRUE, abbr = TRUE))) %>% 
+  tidyr::pivot_longer(-c(datetime, month), names_to = "variable", values_to = "value") %>%
+  dplyr::filter(!is.na(value)) # remove NAs to avoid warnings
 
 s_mix_bp <- ggplot(filter(d_long, variable=="s_mix"), aes(x = month, y = value, group=month)) +
   geom_violin(fill='lightblue', alpha=0.5, size=0.2, trim = TRUE) +
   geom_boxplot(notch=TRUE, size=0.2, fill="grey50", outlier.color = "blue", outlier.size = 0.3) +
   scale_x_discrete(breaks=c("Jan", "", "Mar", "", "May", "", "Jul", "", "Sep", "", "Nov", "")) +
   labs(title=NULL,x=NULL,y = "Salinity") +
-  mytheme_bp()
+  mytheme_bp() + 
+  theme(axis.text.x=element_blank())
 temp_11m_bp <- ggplot(filter(d_long, variable=="t_11m"), aes(x = month, y = value, group=month)) +
   geom_violin(fill='lightblue', alpha=0.5, size=0.2, trim = TRUE) +
   geom_boxplot(notch=TRUE, size=0.2, fill="grey50", outlier.color = "blue", outlier.size = 0.3) +
   scale_x_discrete(breaks=c("Jan", "", "Mar", "", "May", "", "Jul", "", "Sep", "", "Nov", "")) +
   labs(title=NULL,x=NULL,y = "Temp. 11 m (°C)") +
-  mytheme_bp()
+  mytheme_bp() + 
+  theme(axis.text.x=element_blank())
 pco2_bp <- ggplot(filter(d_long, variable=="pco2"), aes(x = month, y = value, group=month)) +
   geom_violin(fill='lightblue', alpha=0.5, size=0.2, trim = TRUE) +
   geom_boxplot(notch=TRUE, size=0.2, fill="grey50", outlier.color = "blue", outlier.size = 0.3) +
   scale_x_discrete(breaks=c("Jan", "", "Mar", "", "May", "", "Jul", "", "Sep", "", "Nov", "")) +
   labs(title=NULL,x=NULL,y = expression(paste("pC", O[2], " (", mu, "atm)"))) +
-  mytheme_bp()
+  mytheme_bp() + 
+  theme(axis.text.x=element_blank())
 ph_bp <- ggplot(filter(d_long, variable=="pH_sf"), aes(x = month, y = value, group=month)) +
   geom_violin(fill='lightblue', alpha=0.5, size=0.2, trim = TRUE) +
   geom_boxplot(notch=TRUE, size=0.2, fill="grey50", outlier.color = "blue", outlier.size = 0.3) +
   scale_x_discrete(breaks=c("Jan", "", "Mar", "", "May", "", "Jul", "", "Sep", "", "Nov", "")) +
   labs(title=NULL,x=NULL,y = expression(paste("p", H[T]))) +
-  mytheme_bp()
+  mytheme_bp() + 
+  theme(axis.text.x=element_blank())
 at_bp <- ggplot(filter(d_long, variable=="at_calc"), aes(x = month, y = value, group=month)) +
   geom_violin(fill='lightblue', alpha=0.5, size=0.2, trim = TRUE) +
   geom_boxplot(notch=TRUE, size=0.2, fill="grey50", outlier.color = "blue", outlier.size = 0.3) +
   scale_x_discrete(breaks=c("Jan", "", "Mar", "", "May", "", "Jul", "", "Sep", "", "Nov", "")) +
-  labs(title=NULL,x=NULL,y = expression(paste(italic(A)[T]," ","(",mu, mol.kg^-1,")"))) +
+  labs(title=NULL,x=NULL,y = expression(paste(italic(A)[T]," ","(",mu, mol, " ", kg^-1,")"))) +
   mytheme_bp() +
   theme(axis.text.x = element_text(vjust = 1))
 oa_bp <- ggplot(filter(d_long, variable=="oa"), aes(x = month, y = value, group=month)) +
@@ -229,7 +235,8 @@ oa_bp <- ggplot(filter(d_long, variable=="oa"), aes(x = month, y = value, group=
   mytheme_bp() +
   theme(axis.text.x = element_text(vjust = 1))
 g <- cowplot::plot_grid(s_mix_bp, temp_11m_bp, pco2_bp, ph_bp, at_bp, oa_bp, ncol=2,
-                        align="v")
+                        align="v",
+                        labels="AUTO")
 ggsave(file="figures/essd/boxplots.png", g,  width = 18, height = 14, units = "cm")
 
 # pCO2 ####
