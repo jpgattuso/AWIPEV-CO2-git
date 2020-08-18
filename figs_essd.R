@@ -43,9 +43,23 @@ library("htmlwidgets")
 if (!require("hms")) install.packages("hms")
 library("hms")
 
-#define who is the user and define path
+#################### define who is the user and define path
 if (Sys.getenv("LOGNAME") == "gattuso") path = "../../pCloud\ Sync/Documents/experiments/exp168_awipev-CO2/"
 if (Sys.getenv("LOGNAME") == "samir") path = "../../pCloud\ Sync/exp168_awipev-CO2/"
+
+#################### Function RMSE root mean square error
+rmse <- function(error) { sqrt(mean(error^2, na.rm=TRUE)) }
+#rmse(fit$residuals)
+
+#################### Function RMSE for model 2 regression root mean square error
+rmse2 <- function(x, y) { 
+  fit <- lmodel2(y  ~ x , nperm = 99)
+  intercept <- fit$regression.results[2,2]
+  slope <- fit$regression.results[2,3]
+  predicted <- intercept + x * slope
+  error <- predicted - x
+  sqrt(mean(error^2, na.rm=TRUE))
+  }
 
 mytheme <- function(size_labs = 6, face_font="plain", ...) {
   theme_bw() +
@@ -245,7 +259,7 @@ p <-  ggplot(d, aes(x=pco2_calc, y= pco2), na.rm = TRUE) +
   geom_point(color = "blue") +
   geom_abline(slope = 1, intercept = 0, linetype = "dashed") +
   geom_abline(aes(intercept = fit$regression.results[2,2], slope = fit$regression.results[2,3]), colour = "blue") +
-  labs(title = paste("\n Adj R2 = ", signif(fit$rsquare, 3),
+  labs(title = paste("Adj R2 = ", signif(fit$rsquare, 3),
                      "; Intercept =", signif(fit$regression.results[2,2], 3),
                      "; Slope =", signif( fit$regression.results[2,3], 3),
                      "; P =", signif(fit$P.param, 3))) +
@@ -256,23 +270,27 @@ p <-  ggplot(d, aes(x=pco2_calc, y= pco2), na.rm = TRUE) +
   theme(aspect.ratio=1, plot.title = element_text(size=7))
 ggsave(file="figures/essd/pco2.png", p,  width = 14, height = 14, units = "cm")
 
-# pH: spectro vs Durafet ####
-fit <- lmodel2(data = d,  ph_s_dur_t_fb ~ ph_dur , nperm = 99)
-p <-  ggplot(d, aes(x = ph_dur, y = ph_s_dur_t_fb)) +
+
+# pH: durafet vs spectro ####
+da <- dplyr::filter(d, !is.na(ph_dur), !is.na(ph_s_dur_t_fb))
+rmse <- rmse2(x = da$ph_s_dur_t_fb, y = da$ph_dur)
+p <-  ggplot(da, aes(x = ph_s_dur_t_fb, y = ph_dur)) +
   geom_point(color = "blue", na.rm = TRUE) + 
   scale_color_discrete(guide = "none")+
   geom_abline(slope=1, intercept = 0, linetype = "dashed") +
   geom_abline(aes(intercept = fit$regression.results[2,2], 
                   slope = fit$regression.results[2,3]), 
               colour = "blue") +
-  labs(x="Durafet pH", y="Spectrophotometric pH",
-       title = paste("Spec pH vs Durafet pH\nAdj R2 = ", signif(fit$rsquare, 3),
-                     "\nIntercept =", signif(fit$regression.results[2,2], 3),
-                     "\nSlope =", signif( fit$regression.results[2,3], 3),
-                     "\nP =", signif(fit$P.param, 3))) +
+  labs(x="Spectrophotometric pH", y="Durafet pH",
+       title = paste("Adj R2 = ", signif(fit$rsquare, 3),
+                     "; Intercept =", signif(fit$regression.results[2,2], 3),
+                     "; Slope =", signif( fit$regression.results[2,3], 3),
+                     "; P =", signif(fit$P.param, 3),
+                     "; RMSE = ", signif(rmse, 3))) +
   coord_fixed(ratio = 1) +
   mytheme(size_labs = 6) +
   theme(aspect.ratio = 1)
+p
 ggsave(file="figures/essd/dur_spec.png", p,  width = 9, height = 9, units = "cm")
 
 
