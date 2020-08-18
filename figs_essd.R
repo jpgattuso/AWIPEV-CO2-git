@@ -52,13 +52,14 @@ rmse <- function(error) { sqrt(mean(error^2, na.rm=TRUE)) }
 #rmse(fit$residuals)
 
 #################### Function RMSE for model 2 regression root mean square error
-rmse2 <- function(x, y) { 
+lm2 <- function(x, y) { 
   fit <- lmodel2(y  ~ x , nperm = 99)
   intercept <- fit$regression.results[2,2]
   slope <- fit$regression.results[2,3]
   predicted <- intercept + x * slope
   error <- predicted - x
-  sqrt(mean(error^2, na.rm=TRUE))
+  my_list <- list(fit = fit, rmse = sqrt(mean(error^2, na.rm=TRUE)))
+  return(my_list)
   }
 
 mytheme <- function(size_labs = 6, face_font="plain", ...) {
@@ -254,20 +255,26 @@ g <- cowplot::plot_grid(s_mix_bp, temp_11m_bp, pco2_bp, ph_bp, at_bp, oa_bp, nco
 ggsave(file="figures/essd/boxplots.png", g,  width = 18, height = 14, units = "cm")
 
 # pCO2 ####
-fit <- lmodel2(data = d,  pco2 ~ pco2_calc , nperm = 99)
+da <- dplyr::filter(d, !is.na(pco2_calc), !is.na(pco2))
+lm2 <- lm2(x = da$pco2_calc, y = da$pco2)
+#fit <- lmodel2(data = d,  pco2 ~ pco2_calc , nperm = 99)
 p <-  ggplot(d, aes(x=pco2_calc, y= pco2), na.rm = TRUE) +
   geom_point(color = "blue") +
   geom_abline(slope = 1, intercept = 0, linetype = "dashed") +
   geom_abline(aes(intercept = fit$regression.results[2,2], slope = fit$regression.results[2,3]), colour = "blue") +
-  labs(title = paste("Adj R2 = ", signif(fit$rsquare, 3),
+  labs(x = expression(paste("Calculated pC", O[2], " (", mu, "atm)")), 
+       y = expression(paste("In situ pC", O[2], " (", mu, "atm)")),
+       title = paste("Adj R2 = ", signif(fit$rsquare, 3),
                      "; Intercept =", signif(fit$regression.results[2,2], 3),
                      "; Slope =", signif( fit$regression.results[2,3], 3),
-                     "; P =", signif(fit$P.param, 3))) +
+                     "; P =", signif(fit$P.param, 3),
+                     "; RMSE = ", signif(rmse, 3))) +
   coord_fixed(ratio = 1 ,xlim=c(200, 400) , ylim=c(200, 400))+
-  labs(x = expression(paste("Calculated pC", O[2], " (", mu, "atm)")), 
-       y = expression(paste("In situ pC", O[2], " (", mu, "atm)"))) + 
+#  labs(x = expression(paste("Calculated pC", O[2], " (", mu, "atm)")), 
+#       y = expression(paste("In situ pC", O[2], " (", mu, "atm)"))) + 
   mytheme(size_labs = 10) +
   theme(aspect.ratio=1, plot.title = element_text(size=7))
+p
 ggsave(file="figures/essd/pco2.png", p,  width = 14, height = 14, units = "cm")
 
 
@@ -277,7 +284,7 @@ rmse <- rmse2(x = da$ph_s_dur_t_fb, y = da$ph_dur)
 p <-  ggplot(da, aes(x = ph_s_dur_t_fb, y = ph_dur)) +
   geom_point(color = "blue", na.rm = TRUE) + 
   scale_color_discrete(guide = "none")+
-  geom_abline(slope=1, intercept = 0, linetype = "dashed") +
+  geom_abline(slope = 1, intercept = 0, linetype = "dashed") +
   geom_abline(aes(intercept = fit$regression.results[2,2], 
                   slope = fit$regression.results[2,3]), 
               colour = "blue") +
