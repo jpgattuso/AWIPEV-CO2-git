@@ -245,7 +245,7 @@ p <-  ggplot(d, aes(x=pco2_calc, y= pco2), na.rm = TRUE) +
   geom_point(color = "blue") +
   geom_abline(slope = 1, intercept = 0, linetype = "dashed") +
   geom_abline(aes(intercept = fit$regression.results[2,2], slope = fit$regression.results[2,3]), colour = "blue") +
-  labs(title = paste(title,"\n Adj R2 = ", signif(fit$rsquare, 3),
+  labs(title = paste("\n Adj R2 = ", signif(fit$rsquare, 3),
                      "; Intercept =", signif(fit$regression.results[2,2], 3),
                      "; Slope =", signif( fit$regression.results[2,3], 3),
                      "; P =", signif(fit$P.param, 3))) +
