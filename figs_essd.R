@@ -85,7 +85,24 @@ d <-
     path = path,
     file = "fb_data/pangaea.rds"
   ))
+# Read Zeppelin atmospheric CO2 data ####
+# Atmospheric CO2 Zeppelin
+# downloaded 2020-08-19 from https://gaw.kishou.go.jp/search/file/0054-6001-1001-01-01-9999
+# value:units : ppm
+# value:long_name : measured_mole_fraction_of_trace_gas_in_dry_air
+atm_co2 <-
+  read_delim(file = paste0(path, "atmospheric_co2_zeppelin/co2_zep_surface-insitu_54_9999-9999_hourly.txt"),
+             delim = " ",
+             skip = 181,
+             col_names = TRUE,
+             na = "-999.999",
+  ) %>%
+  dplyr::mutate(co2 = value,
+                datetime = as_datetime(paste(paste(year, month, day, sep="-"), paste(hour, minute, second, sep="-"), sep = " "))
+  ) %>%
+  dplyr::select(datetime, co2)
 
+d <- dplyr::left_join(d, atm_co2, by = "datetime")
 
 # time series ####
 xlim <- c(as.POSIXct("2015-07-01 00:00:00"), as.POSIXct("2020-07-01 00:00:00"))
@@ -122,9 +139,10 @@ ts_sal <- d %>%
   mytheme(size_labs = 8)
 # time series pco2
 ts_pco2 <- d %>%
-  dplyr::filter(!is.na(pco2)) %>% 
+  #dplyr::filter(!is.na(pco2)) %>% 
   ggplot() +
   geom_point(aes(x = datetime, y = pco2), col = "blue", size = 0.15, na.rm = TRUE) +
+  geom_point(aes(x = datetime, y = co2), col = "red", size = 0.15, na.rm = TRUE) +
   scale_x_datetime(limits = xlim) +
   labs(title = "", x = "", y = expression(paste("pC", O[2], " (", mu, "atm)"))) +
   mytheme(size_labs = 8)
