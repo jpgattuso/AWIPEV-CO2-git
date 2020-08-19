@@ -75,7 +75,7 @@ mytheme <- function(size_labs = 6, face_font="plain", ...) {
           panel.grid.major = element_line(size = 0.25, color="grey50", linetype="dashed"),
           panel.grid.minor = element_line(size = rel(0.5), color = "grey50", linetype="dotted"),
           aspect.ratio = 1 / 3,
-          plot.margin = margin(t = -2, r = 1, b = -2, l = 1, unit = "cm")
+          plot.margin = margin(t = -5, r = 1, b = -5, l = 1, unit = "cm")
     )
 }
 
