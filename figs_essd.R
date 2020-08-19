@@ -138,7 +138,7 @@ ts_sal <- d %>%
   labs(title = "", x = "", y = "Salinity") +
   mytheme(size_labs = 8)
 # time series pco2
-ts_pco2 <- d %>%
+ts_co2 <- d %>%
   #dplyr::filter(!is.na(pco2)) %>% 
   ggplot() +
   geom_point(aes(x = datetime, y = pco2), col = "blue", size = 0.15, na.rm = TRUE) +
@@ -198,7 +198,7 @@ ts_oa <- d %>%
   mytheme(size_labs = 8) +
   theme(axis.title.x = element_text(face="plain", size=8))
 #assemble time-series figure
-cp <- cowplot::plot_grid(ts_sal, ts_temp, ts_pco2, ts_ph, ts_at, ts_oa,
+cp <- cowplot::plot_grid(ts_sal, ts_temp, ts_co2, ts_ph, ts_at, ts_oa,
                          align = "v",
                          ncol = 1
                          #width = 18,
