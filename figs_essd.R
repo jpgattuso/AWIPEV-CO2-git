@@ -75,7 +75,7 @@ mytheme <- function(size_labs = 6, face_font="plain", ...) {
           panel.grid.major = element_line(size = 0.25, color="grey50", linetype="dashed"),
           panel.grid.minor = element_line(size = rel(0.5), color = "grey50", linetype="dotted"),
           aspect.ratio = 1 / 3,
-          plot.margin = margin(t = 0, r = 1, b = 0, l = 1, unit = "lines")
+          plot.margin = margin(t = -2, r = 1, b = -2, l = 1, unit = "cm")
     )
 }
 
@@ -85,6 +85,7 @@ d <-
     path = path,
     file = "fb_data/pangaea.rds"
   ))
+
 # Read Zeppelin atmospheric CO2 data ####
 # Atmospheric CO2 Zeppelin
 # downloaded 2020-08-19 from https://gaw.kishou.go.jp/search/file/0054-6001-1001-01-01-9999
@@ -200,16 +201,12 @@ ts_oa <- d %>%
 #assemble time-series figure
 cp <- cowplot::plot_grid(ts_sal, ts_temp, ts_co2, ts_ph, ts_at, ts_oa,
                          align = "v",
-                         ncol = 1
+                         ncol = 1#,
+                         #labels = "auto"
                          #width = 18,
                          #units = "cm"
                          )
-cowplot::ggsave2(filename = "figures/essd/ts_gg.png", plot = cp, height = 20, units = "cm")
-grid.arrange(ts_sal, ts_temp, ts_pco2, ts_ph, ts_at, ts_oa, ncol = 1)
-# ts_sal / ts_temp / ts_at
-# grid.arrange(ts_sal, ts_temp, ts_pco2, ts_ph, ts_at, ncol = 1)
-# cowplot::save_plot(filename = "figures/ts_sp.pdf", plot = cp)
-# multiplot(ts_sal, ts_temp, ts_pco2, ts_ph, ts_at, cols = 1)
+cowplot::ggsave2(filename = "figures/essd/ts_gg.png", plot = cp, width = 10, height = 25, unit = "cm")
 
 # Boxplots ####
 mytheme_bp <- function(size_labs = 9, face_font="plain", ...) {
