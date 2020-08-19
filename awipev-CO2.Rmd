@@ -2243,6 +2243,28 @@ write_csv(pangaea, path = paste0(path, "fb_data/pangaea.csv"))
 # pH_sf = pH SeaFET at in situ temperature (profiler)
 # ph_dur = pH Durafet at FerryBox temperature (FerryBox)
 ```
+```{r atmospheric CO2 Zeppelin, echo=FALSE, message= FALSE, warning=FALSE}
+## Atmospheric CO2 Zeppelin
+# downloaded 2020-08-19 from https://gaw.kishou.go.jp/search/file/0054-6001-1001-01-01-9999
+# value:units : ppm
+# value:long_name : measured_mole_fraction_of_trace_gas_in_dry_air
+atm_co2 <-
+  read_delim(file = paste0(path, "atmospheric_co2_zeppelin/co2_zep_surface-insitu_54_9999-9999_hourly.txt"),
+  delim = " ",
+  skip = 181,
+  col_names = TRUE,
+  na = "-999.999",
+  ) %>%
+  dplyr::mutate(co2 = value,
+  datetime = as_datetime(paste(paste(year, month, day, sep="-"), paste(hour, minute, second, sep="-"), sep = " "))
+  ) %>%
+  dplyr::select(datetime, co2)
+p_atm_co2 <- ggplot(data=atm_co2) +
+  geom_point(aes(x = datetime, y = co2), col = "blue", size = 0.15, na.rm = TRUE) +
+  labs(title = "Atmospheric CO2 at Zeppelin", x = "Time", y = "CO2 (ppm)") +
+  Mytheme(size_labs = 8)
+ggsave(filename = "figures/atm_co2.png", plot = p_atm_co2, width = 20, units = "cm")
+```
 
 ## Maintenance
 <div style="text-align: justify"> 
