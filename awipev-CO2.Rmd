@@ -1019,14 +1019,15 @@ at_s <- ggplot(d_all_at_discrete,aes(x=sal_mix, y= at, label = month))+
     labs(title = paste("", "\nAdj R2 = ",signif(summary(fit)$adj.r.squared, 5),
                        ";\nIntercept =",signif(fit$coef[[1]],5 ),
                        ";\nSlope =",signif(fit$coef[[2]], 5),
-                       ";\nP =",signif(summary(fit)$coef[2,4], 5))) +
+                       ";\nP =", signif(summary(fit)$coef[2,4], 5),
+                       ";\nRMSE =", signif(sqrt(mean(fit$residuals^2)), 5))) +
   theme_bw() +
   theme(aspect.ratio=1,
-        axis.text=element_text(size=15),
-        axis.title.y= element_text(size =15),
-        axis.title.x= element_text(size =15),
+        axis.text=element_text(size=7),
+        axis.title.y= element_text(size =7),
+        axis.title.x= element_text(size =7),
         plot.margin = unit(c(0.5,1,1,1), "cm"),
-        plot.title = element_text(size=15, hjust=0.05,margin = margin(l = 10, b = -70)))
+        plot.title = element_text(size=7, hjust=0.05,margin = margin(l = 10, b = -70)))
 
 # Salinity is a predictor of AT -> using the regression defined above
 d_all$at_calc <- slope_s_at * d_all$sal_mix + intercept_s_at
@@ -1230,7 +1231,7 @@ d_all <- d_all %>%
 
 ## pH seaFET
 
-pH is measured continuously by an autonomous seaFET pH sensor. Because of issue, measurement periodicity was set to 1 hour from 2018-02-02 to 2018-04-17. *Note that pH sensor is mounted on a profiling structure. Here, only seaFET data recorded with a depth > 8 m are taken in consideration.* pH calibration is based on monthly discrete samples that are analysed with spectrophotometric method in Villefranche by Samir Alliouane. When it is not possible to sample at the vicinity of the sensor for practice reasons (in winter), sampling is done in the harbour and is not taken in consideration for calibration for spatial reasons. 
+pH is measured continuously by an autonomous seaFET pH sensor. Because of issue, measurement periodicity was set to 1 hour from 2018-02-02 to 2018-04-17. *Note that the pH sensor is mounted on a profiling structure. Here, only seaFET data recorded with a depth > 8 m are taken in consideration.* pH calibration is based on monthly discrete samples that are analysed with spectrophotometric method in Villefranche by Samir Alliouane. When it is not possible to sample at the vicinity of the sensor for practice reasons (in winter), sampling is done in the harbour and is not taken in consideration for calibration for spatial reasons. 
 
 Calibration was done following the methods and code described in Bresnahan et al. (2014) and adapted to use in R (seacarb package). Deployment periods are difined so that one spectrophotometric measurement is in the middle of a defined period of calibration (shaded colors in the plot). 
 
