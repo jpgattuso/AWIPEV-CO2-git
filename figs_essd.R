@@ -64,18 +64,20 @@ lm2 <- function(x, y) {
 
 mytheme <- function(size_labs = 6, face_font="plain", ...) {
   theme_bw() +
-    theme(axis.text.x = element_text(face=face_font, size=size_labs, color="black"),
+    theme(axis.text.x = element_blank(),
+          #axis.text.x = element_text(face=face_font, size=size_labs, color="black"),
           axis.title.x = element_text(face=face_font, size=size_labs, margin = margin(0,0,0,0,"pt")),
           axis.text.y = element_text(face=face_font, color="black", size=size_labs),
           axis.title.y = element_text(face=face_font, size=size_labs),
-          axis.ticks.x = element_line(size=0.1),
+          axis.ticks.x = element_blank(),
           axis.ticks.y = element_line(size=0.1),
           title = element_text(face=face_font, size=size_labs),
           axis.ticks.length = unit(1.1, "mm"),
-          panel.grid.major = element_line(size = 0.25, color="grey50", linetype="dashed"),
-          panel.grid.minor = element_line(size = rel(0.5), color = "grey50", linetype="dotted"),
+          panel.grid.major = element_line(size = 0.05, color="grey50", linetype="dashed"),
+          panel.grid.minor = element_blank(),
+          #panel.grid.minor = element_line(size = rel(0.5), color = "grey50", linetype="dotted"),
           aspect.ratio = 1 / 3,
-          plot.margin = margin(t = -5, r = 1, b = -5, l = 1, unit = "cm")
+          plot.margin = margin(t = -0.3, r = -0.3, b = 0, l = -0.3, unit = "cm")
     )
 }
 
@@ -128,85 +130,83 @@ d <- left_join(d, oa_tbf, by = 'datetime')
 ts_temp <- d %>%
   dplyr::filter(!is.na(t_11m)) %>% 
   ggplot() +
-  geom_point(aes(x = datetime, y = t_11m), col = "blue", size = 0.15, na.rm = TRUE) +
+  geom_point(aes(x = datetime, y = t_11m), col = "blue", size = 0.05, na.rm = TRUE) +
   labs(title = "", x = "", y = "Temp. 11 m (°C)") +
-  mytheme(size_labs = 8)
+  mytheme()
 # time series sal
 ts_sal <- d %>%
   dplyr::filter(!is.na(s_mix)) %>% 
   ggplot() +
-  geom_point(aes(x = datetime, y = s_mix), col = "blue", size = 0.15, na.rm = TRUE) + 
+  geom_point(aes(x = datetime, y = s_mix), col = "blue", size = 0.05, na.rm = TRUE) + 
   labs(title = "", x = "", y = "Salinity") +
-  mytheme(size_labs = 8)
+  mytheme()
 # time series pco2
 ts_co2 <- d %>%
   #dplyr::filter(!is.na(pco2)) %>% 
   ggplot() +
-  geom_point(aes(x = datetime, y = pco2), col = "blue", size = 0.15, na.rm = TRUE) +
-  geom_point(aes(x = datetime, y = co2), col = "red", size = 0.15, na.rm = TRUE) +
+  geom_point(aes(x = datetime, y = pco2), col = "blue", size = 0.05, na.rm = TRUE) +
+  geom_point(aes(x = datetime, y = co2), col = "red", size = 0.05, na.rm = TRUE) +
   scale_x_datetime(limits = xlim) +
   labs(title = "", x = "", y = expression(paste("pC", O[2], " (", mu, "atm)"))) +
-  mytheme(size_labs = 8)
+  mytheme()
 # time series pH
 ts_ph <- d %>%
   dplyr::select(datetime, pH_sf, ph_dur) %>%
   dplyr::filter(!is.na(pH_sf)) %>%
   pivot_longer(-datetime, names_to = "pH", values_to = "value") %>%
   ggplot() +
-  geom_point(aes(x = datetime, y = value, colour = pH), size = 0.15, na.rm = TRUE) +
+    geom_point(aes(x = datetime, y = value, colour = pH), size = 0.05, na.rm = TRUE) +
   scale_x_datetime(limits = xlim) +
   labs(title = "",
        x = "",
        y = expression(paste("p", H[T]))) +
-  # scale_color_manual(
-  #   values = c("blue", "red"),
-  #   name = "",
-  #   breaks = c("pHint_tot_sf", "ph_dur_corr"),
-  #   labels = c("SeaFET", "Durafet")
+  # annotate(
+  #   geom = "text",
+  #   x = as.POSIXct("2018-06-01"),
+  #   y = 8.35,
+  #   label = "seaFET",
+  #   color = "blue", size = 2
   # ) +
-  annotate(
-    geom = "text",
-    x = as.POSIXct("2018-06-01"),
-    y = 8.35,
-    label = "seaFET",
-    color = "blue", size = 2
-  ) +
-  annotate(
-    geom = "text",
-    x = as.POSIXct("2018-06-01"),
-    y = 8.25,
-    label = "Durafet",
-    color = "red", size = 2
-  ) +
-  mytheme(size_labs = 8) +
+  # annotate(
+  #   geom = "text",
+  #   x = as.POSIXct("2018-06-01"),
+  #   y = 8.25,
+  #   label = "Durafet",
+  #   color = "red", size = 2
+  # ) +
+  mytheme() +
   theme(legend.position = "none")
 # time series AT
 ts_at <- d %>%
   dplyr::filter(!is.na(at_calc)) %>% 
   ggplot() +
-  geom_point(aes(x = datetime, y = at_calc), col = "blue", size = 0.15, na.rm = TRUE) +
+  geom_point(aes(x = datetime, y = at_calc), col = "blue", size = 0.05, na.rm = TRUE) +
   scale_x_datetime(limits = xlim) +
-  labs(title = "", x = "", y = expression(paste(italic(A)[T]," ","(",mu, mol.kg^-1,")"))) +
-  mytheme(size_labs = 8) +
-  theme(axis.title.x = element_text(face="plain", size=8))
+  labs(title = "", x = "", y = expression(paste(italic(A)[T]," ","(",mu, mol, " ", kg^-1,")"))) +
+  mytheme()
 # time series Omega
 ts_oa <- d %>%
   dplyr::filter(!is.na(oa)) %>% 
   ggplot() +
-  geom_point(aes(x = datetime, y = oa), col = "blue", size = 0.15, na.rm = TRUE) +
+  geom_point(aes(x = datetime, y = oa), col = "blue", size = 0.05, na.rm = TRUE) +
   scale_x_datetime(limits = xlim) +
-  labs(title = "", x = "", y = expression(paste(Omega[a]))) +
-  mytheme(size_labs = 8) +
-  theme(axis.title.x = element_text(face="plain", size=8))
+  labs(title = "", x = "Time", y = expression(paste(Omega[a]))) +
+  mytheme() +
+  theme(axis.title.x = element_text(face=face_font, size=size_labs, color="black"),
+        axis.text.x = element_text(face=face_font, size=size_labs, color="black"))
 #assemble time-series figure
 cp <- cowplot::plot_grid(ts_sal, ts_temp, ts_co2, ts_ph, ts_at, ts_oa,
                          align = "v",
-                         ncol = 1#,
-                         #labels = "auto"
+                         ncol = 1,
+                         axis = "tblr",
+                         labels = "auto",
+                         label_size = 7,
+                         label_x = 0.9,
+                         label_y = 0.95
                          #width = 18,
                          #units = "cm"
                          )
-cowplot::ggsave2(filename = "figures/essd/ts_gg.png", plot = cp, width = 10, height = 25, unit = "cm")
+cowplot::ggsave2(filename = "figures/essd/ts_gg.png", plot = cp, width = 6, height = 12, unit = "cm")
 
 # Boxplots ####
 mytheme_bp <- function(size_labs = 9, face_font="plain", ...) {
