@@ -580,22 +580,18 @@ There are `r sum(!is.na(df$range))` days with salinity values at both 1 m (0-2 m
 
 ### **Sal FB / Sal CTD 9 m **
 
-Property-property salinity plot using:
-
-lm2 <- lm2(x = d_all$sal_insitu_ctd_9m, y = d_all$sal_fb)
-
-
 ```{r Sal comparaison, echo=FALSE, message= FALSE, warning=FALSE, out.width="80%",fig.show='hold', fig.align="center"}
+lm <- lm2(x = d_all$sal_insitu_ctd_9m, y = d_all$sal_fb)
 p <-  ggplot(d_all,aes(x=sal_insitu_ctd_9m, y= sal_fb))+
   geom_point( aes(color=factor(month))) + 
   geom_abline(slope=1, intercept=0, linetype = "dashed")+
-  geom_abline(aes(intercept = lm2$fit$regression.results[2,2], slope = lm2$fit$regression.results[2,3]),colour = "blue") +
+  geom_abline(aes(intercept = lm$fit$regression.results[2,2], slope = lm$fit$regression.results[2,3]),colour = "blue") +
   ylim(c(30.5,35.5)) +xlim(c(28,35.5)) +
-  labs(title = paste("","\n Adj R2 = ", signif(lm2$fit$rsquare, 3),
-                     "; Intercept =", signif(lm2$fit$regression.results[2,2], 3),
-                     "; Slope =", signif(lm2$fit$regression.results[2,3], 3),
-                     "; P =", signif(lm2$fit$P.param, 3),
-                     "; RMSE = ", signif(lm2$rmse, 3))) +
+  labs(title = paste("","\n Adj R2 = ", signif(lm$fit$rsquare, 3),
+                     "; Intercept =", signif(lm$fit$regression.results[2,2], 3),
+                     "; Slope =", signif(lm$fit$regression.results[2,3], 3),
+                     "; P =", signif(lm$fit$P.param, 3),
+                     "; RMSE = ", signif(lm$rmse, 3))) +
   theme(aspect.ratio = 1, plot.title = element_text(size = 7)) + #
   coord_fixed(ratio = 1 )+
   labs( x="Salinity CTD 9 m", y="Salinity FB ", color = "Months") + theme_bw()
@@ -681,19 +677,19 @@ d_all <- d_all %>%
     ),
     temp_fb = ifelse(temp_fb > 15, NA, temp_fb)
   )
-lm2 <- lm2(x = d_all$temp_insitu_11m, y = d_all$temp_fb)
+lm <- lm2(x = d_all$temp_insitu_11m, y = d_all$temp_fb)
 
 p <-  ggplot(d_all,aes(x=temp_insitu_11m, y= temp_fb, label = month))+
   geom_text( aes(color=factor(month))) + 
  # scale_color_viridis_d(option = "C", guide="none")+
   geom_abline(slope = 1, intercept = 0, linetype = "dashed") +
-  geom_abline(aes(intercept = lm2$fit$regression.results[2,2], slope = lm2$fit$regression.results[2,3]),
+  geom_abline(aes(intercept = lm$fit$regression.results[2,2], slope = lm$fit$regression.results[2,3]),
               colour = "blue") +
-  labs(title = paste("T FB vs T 11 m","\n Adj R2 = ", signif(lm2$fit$rsquare, 3),
-                     "; Intercept =", signif(lm2$fit$regression.results[2,2], 3),
-                     "; Slope =", signif(lm2$fit$regression.results[2,3], 3),
-                     "; P =", signif(lm2$fit$P.param, 3),
-                     "; RMSE = ", signif(lm2$rmse, 3))) +
+  labs(title = paste("T FB vs T 11 m","\n Adj R2 = ", signif(lm$fit$rsquare, 3),
+                     "; Intercept =", signif(lm$fit$regression.results[2,2], 3),
+                     "; Slope =", signif(lm$fit$regression.results[2,3], 3),
+                     "; P =", signif(lm$fit$P.param, 3),
+                     "; RMSE = ", signif(lm$rmse, 3))) +
   theme_bw() +
   theme(aspect.ratio = 1, plot.title = element_text(size = 7)) + 
   coord_fixed(ratio = 1 ) + scale_colour_discrete(guide="none") +
@@ -710,21 +706,22 @@ The mean difference between temperature Ferrybox and in situ at 11 m is: `r mean
 ### **T 11 m / T CTD > 8 m **
 
 ```{r Temp 11m and ctd comparaison, echo=FALSE, message= FALSE, warning=FALSE}
-
-fit <- lmodel2(data = d_all,  temp_insitu_11m ~ temp_insitu_ctd_9m , nperm = 99)
-
-p<-  ggplot(d_all,aes(x=temp_insitu_ctd_9m, y= temp_insitu_11m, label = month))+
+lm <- lm2(x = d_all$temp_insitu_ctd_9m, y = d_all$temp_insitu_11m)
+p <-  ggplot(d_all, aes(x=temp_insitu_ctd_9m, y= temp_insitu_11m, label = month))+
   geom_text( aes(color=factor(month))) + 
  # scale_color_viridis_d(option = "C", guide="none")+
   geom_abline(slope = 1, intercept = 0, linetype = "dashed") +
-  geom_abline(aes(intercept = fit$regression.results[2,2], slope = fit$regression.results[2,3]),colour = "blue") +
-  labs(title = paste("T CTD 9 m vs T 11 m","\n Adj R2 = ", signif(fit$rsquare, 3),
-                     "; Intercept =", signif(fit$regression.results[2,2], 3),
-                     "; Slope =", signif( fit$regression.results[2,3], 3),
-                     "; P =", signif(fit$P.param, 3))) +
-  theme(aspect.ratio=1,plot.title = element_text(size=7)) + 
-  coord_fixed(ratio = 1 )+ scale_colour_discrete(guide="none") +
-  labs( x="T CTD 9 m", y="T 11 m ", color = "Months")  +theme_bw()
+  geom_abline(aes(intercept = lm$fit$regression.results[2,2], slope = lm$fit$regression.results[2,3]),
+              colour = "blue") +
+  labs(title = paste("T CTD 9 m vs T 11 m","\n Adj R2 = ", signif(lm$fit$rsquare, 3),
+                     "; Intercept =", signif(lm$fit$regression.results[2,2], 3),
+                     "; Slope =", signif(lm$fit$regression.results[2,3], 3),
+                     "; P =", signif(lm$fit$P.param, 3),
+                     "; RMSE = ", signif(lm$rmse, 3))) +
+  theme_bw() +
+  theme(aspect.ratio = 1,plot.title = element_text(size = 7)) + 
+  coord_fixed(ratio = 1 ) + scale_colour_discrete(guide="none") +
+  labs( x="T CTD 9 m", y="T 11 m ", color = "Months")
 print(p)
 
 d_all$diff_T_ctd_11m <- d_all$temp_sf - d_all$temp_insitu_ctd_9m
