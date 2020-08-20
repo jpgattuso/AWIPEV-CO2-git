@@ -266,19 +266,20 @@ lm2 <- lm2(x = da$pco2_calc, y = da$pco2)
 p <-  ggplot(d, aes(x=pco2_calc, y= pco2), na.rm = TRUE) +
   geom_point(color = "blue") +
   geom_abline(slope = 1, intercept = 0, linetype = "dashed") +
-  geom_abline(aes(intercept = fit$regression.results[2,2], slope = fit$regression.results[2,3]), colour = "blue") +
+  geom_abline(aes(intercept = lm2$fit$regression.results[2,2], slope = lm2$fit$regression.results[2,3]), colour = "blue") +
   labs(x = expression(paste("Calculated pC", O[2], " (", mu, "atm)")), 
        y = expression(paste("In situ pC", O[2], " (", mu, "atm)")),
-       title = paste("Adj R2 = ", signif(fit$rsquare, 3),
-                     "; Intercept =", signif(fit$regression.results[2,2], 3),
-                     "; Slope =", signif( fit$regression.results[2,3], 3),
-                     "; P =", signif(fit$P.param, 3),
-                     "; RMSE = ", signif(rmse, 3))) +
+       title = paste("Adj R2 = ", signif(lm2$fit$rsquare, 3),
+                     "; Intercept =", signif(lm2$fit$regression.results[2,2], 3),
+                     "; Slope =", signif(lm2$fit$regression.results[2,3], 3),
+                     "; P =", signif(lm2$fit$P.param, 3),
+                     "; RMSE = ", signif(lm2$rmse, 3))) +
   coord_fixed(ratio = 1 ,xlim=c(200, 400) , ylim=c(200, 400))+
 #  labs(x = expression(paste("Calculated pC", O[2], " (", mu, "atm)")), 
 #       y = expression(paste("In situ pC", O[2], " (", mu, "atm)"))) + 
-  mytheme(size_labs = 10) +
-  theme(aspect.ratio=1, plot.title = element_text(size=7))
+  mytheme(size_labs = 10, plot.title = element_text(face=face_font, size=size_labs, color="black")) +
+  theme(aspect.ratio = 1,
+        plot.margin = margin(t = 0.5, unit = "cm"))
 p
 ggsave(file="figures/essd/pco2.png", p,  width = 14, height = 14, units = "cm")
 
