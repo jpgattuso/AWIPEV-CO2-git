@@ -2030,42 +2030,46 @@ dyOptions(drawGrid = TRUE, drawPoints = TRUE, pointSize = c(1,8,1),useDataTimezo
 
 ```{r pHs comparaison durafet spectro, echo=FALSE, message= FALSE, warning=FALSE}
 # Spectro / durafet
-fit <- lmodel2(data = d_all,  ph_s_dur_temp_fb ~ ph_dur_corr , nperm = 99)
+lm <- lm2(x = d_all$ph_s_dur_temp_fb, y = d_all$ph_dur_corr)
 
-p_dura_spectro <-  ggplot(d_all,aes(x=ph_dur_corr, y= ph_s_dur_temp_fb, label = month))+
+p <-  ggplot(d_all, aes(x=ph_s_dur_temp_fb, y= ph_dur_corr, label = month)) +
   geom_text( aes(color=factor(month))) + 
   scale_color_discrete(guide = "none")+
   geom_abline(slope=1, intercept =0, linetype = "dashed") +
-  geom_abline(aes(intercept = fit$regression.results[2,2], slope = fit$regression.results[2,3]),colour = "blue") +
-  labs(title = paste("pH spectro vs pH durafet","\n Adj R2 = ", signif(fit$rsquare, 3),
-                     "; Intercept =", signif(fit$regression.results[2,2], 3),
-                     "; Slope =", signif( fit$regression.results[2,3], 3),
-                     "; P =", signif(fit$P.param, 3))) +
-  theme(aspect.ratio=1,plot.title = element_text(size=7)) + 
-    coord_fixed(ratio = 1 , xlim=c(8,8.4), ylim=c(8,8.4))+
-  labs(x="pH durafet", y="pH spectro, 4°C ", color = "Months") + theme_bw() 
-p_dura_spectro
+  geom_abline(aes(intercept = lm$fit$regression.results[2,2], slope = lm$fit$regression.results[2,3]),
+              colour = "blue") +
+  labs(title = paste("pH spectro vs pH durafet","\n Adj R2 = ", signif(lm$fit$rsquare, 3),
+                     "; Intercept =", signif(lm$fit$regression.results[2,2], 3),
+                     "; Slope =", signif(lm$fit$regression.results[2,3], 3),
+                     "; P =", signif(lm$fit$P.param, 3),
+                     "; RMSE = ", signif(lm$rmse, 3))) +
+  theme_bw() +
+  theme(aspect.ratio = 1, plot.title = element_text(size=7)) + 
+  coord_fixed(ratio = 1 , xlim=c(8,8.4), ylim=c(8,8.4))+
+  labs(x="pH durafet", y="pH spectro", color = "Months")
+p
 ```
-
-<!-- ### **Spectro / seaFET** -->
 
 ```{r pHs comparaison sf spectro, echo=FALSE, message= FALSE, warning=FALSE}
 # Spectro / seafet
-# fit <- lmodel2(data = d_all,  ph_s_sf_temp_insi ~ pHint_tot_sf , nperm = 99)
-#
-# p_sf_spectro <-  ggplot(d_all,aes(x=pHint_tot_sf, y= ph_s_sf_temp_insi, label = month))+
-#   geom_text( aes(color=factor(month))) +
-#   scale_color_discrete(guide = "none")+
-#  geom_abline(slope=1, intercept =0, linetype = "dashed") +
-#   geom_abline(aes(intercept = fit$regression.results[2,2], slope = fit$regression.results[2,3]),colour = "blue") +
-#   labs(title = paste("pH spectro vs pH seaFET","\n Adj R2 = ", signif(fit$rsquare, 3),
-#                      "; Intercept =", signif(fit$regression.results[2,2], 3),
-#                      "; Slope =", signif( fit$regression.results[2,3], 3),
-#                      "; P =", signif(fit$P.param, 3))) +
-#   theme(aspect.ratio=1,plot.title = element_text(size=7)) +
-#     coord_fixed(ratio = 1 , xlim=c(8,8.2), ylim=c(8,8.2))+
-#   labs(x="pH seaFET", y="pH spectro, 4°C ", color = "Months") + theme_bw()
-# p_sf_spectro
+lm <- lm2(x = d_all$ph_s_sf_temp_insi, y = d_all$pHint_tot_sf)
+
+p <-  ggplot(d_all, aes(x=ph_s_sf_temp_insi, y= pHint_tot_sf, label = month)) +
+  geom_text( aes(color=factor(month))) + 
+  scale_color_discrete(guide = "none")+
+  geom_abline(slope=1, intercept =0, linetype = "dashed") +
+  geom_abline(aes(intercept = lm$fit$regression.results[2,2], slope = lm$fit$regression.results[2,3]),
+              colour = "blue") +
+  labs(title = paste("pH spectro vs pH seafet","\n Adj R2 = ", signif(lm$fit$rsquare, 3),
+                     "; Intercept =", signif(lm$fit$regression.results[2,2], 3),
+                     "; Slope =", signif(lm$fit$regression.results[2,3], 3),
+                     "; P =", signif(lm$fit$P.param, 3),
+                     "; RMSE = ", signif(lm$rmse, 1))) +
+  theme_bw() +
+  theme(aspect.ratio = 1, plot.title = element_text(size=7)) + 
+  coord_fixed(ratio = 1 , xlim=c(8,8.4), ylim=c(8,8.4))+
+  labs(x="pH spectro", y="pH seafet", color = "Months")
+p
 ```
 
 ## SNAPO-CO2
