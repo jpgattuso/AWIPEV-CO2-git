@@ -32,6 +32,8 @@ if (!require("htmlwidgets")) install.packages("htmlwidgets")
 library("htmlwidgets")
 if (!require("hms")) install.packages("hms")
 library("hms")
+if (!require("ragg")) install.packages("ragg")
+library("ragg")
 
 #################### define who is the user and define path
 if (Sys.getenv("LOGNAME") == "gattuso") path = "../../pCloud\ Sync/Documents/experiments/exp168_awipev-CO2/"
@@ -261,7 +263,7 @@ ggsave(file="figures/essd/boxplots.png", g,  width = 18, height = 14, units = "c
 
 # pCO2 ####
 da <- dplyr::filter(d, !is.na(pco2_calc), !is.na(pco2))
-lm2 <- lm2(x = da$pco2_calc, y = da$pco2)
+lm2 <- lm2(x = da$pco2, y = da$pco2_calc)
 #fit <- lmodel2(data = d,  pco2 ~ pco2_calc , nperm = 99)
 p <-  ggplot(d, aes(x=pco2_calc, y= pco2), na.rm = TRUE) +
   geom_point(color = "blue") +
@@ -275,8 +277,6 @@ p <-  ggplot(d, aes(x=pco2_calc, y= pco2), na.rm = TRUE) +
                      "; P =", signif(lm2$fit$P.param, 3),
                      "; RMSE = ", signif(lm2$rmse, 3))) +
   coord_fixed(ratio = 1 ,xlim=c(200, 400) , ylim=c(200, 400))+
-#  labs(x = expression(paste("Calculated pC", O[2], " (", mu, "atm)")), 
-#       y = expression(paste("In situ pC", O[2], " (", mu, "atm)"))) + 
   mytheme(size_labs = 10, plot.title = element_text(face=face_font, size=size_labs, color="black")) +
   theme(aspect.ratio = 1,
         plot.margin = margin(t = 0.5, unit = "cm"))
@@ -284,53 +284,25 @@ p
 ggsave(file="figures/essd/pco2.png", p,  width = 14, height = 14, units = "cm")
 
 
-# pH: durafet vs spectro ####
-da <- dplyr::filter(d, !is.na(ph_dur), !is.na(ph_s_dur_t_fb))
-rmse <- rmse2(x = da$ph_s_dur_t_fb, y = da$ph_dur)
-p <-  ggplot(da, aes(x = ph_s_dur_t_fb, y = ph_dur)) +
-  geom_point(color = "blue", na.rm = TRUE) + 
-  scale_color_discrete(guide = "none")+
+# pH: seafet vs spectro ####
+da <- dplyr::mutate(ph_calc = 
+                      dplyr::filter(d, !is.na(ph_sf), !is.na(ph_s_sf_t_insi))
+lm2 <- lm2(x = da$pco2_calc, y = da$pco2)
+geom_point(color = "blue") +
   geom_abline(slope = 1, intercept = 0, linetype = "dashed") +
-  geom_abline(aes(intercept = fit$regression.results[2,2], 
-                  slope = fit$regression.results[2,3]), 
-              colour = "blue") +
-  labs(x="Spectrophotometric pH", y="Durafet pH",
-       title = paste("Adj R2 = ", signif(fit$rsquare, 3),
-                     "; Intercept =", signif(fit$regression.results[2,2], 3),
-                     "; Slope =", signif( fit$regression.results[2,3], 3),
-                     "; P =", signif(fit$P.param, 3),
-                     "; RMSE = ", signif(rmse, 3))) +
-  coord_fixed(ratio = 1) +
-  mytheme(size_labs = 6) +
-  theme(aspect.ratio = 1)
+  geom_abline(aes(intercept = lm2$fit$regression.results[2,2], slope = lm2$fit$regression.results[2,3]), colour = "blue") +
+  labs(x = expression(paste("Calculated pC", O[2], " (", mu, "atm)")), 
+       y = expression(paste("In situ pC", O[2], " (", mu, "atm)")),
+       title = paste("Adj R2 = ", signif(lm2$fit$rsquare, 3),
+                     "; Intercept =", signif(lm2$fit$regression.results[2,2], 3),
+                     "; Slope =", signif(lm2$fit$regression.results[2,3], 3),
+                     "; P =", signif(lm2$fit$P.param, 3),
+                     "; RMSE = ", signif(lm2$rmse, 3))) +
+  coord_fixed(ratio = 1 ,xlim=c(200, 400) , ylim=c(200, 400))+
+  mytheme(size_labs = 10, plot.title = element_text(face=face_font, size=size_labs, color="black")) +
+  theme(aspect.ratio = 1,
+        plot.margin = margin(t = 0.5, unit = "cm"))
 p
 ggsave(file="figures/essd/dur_spec.png", p,  width = 9, height = 9, units = "cm")
-
-
-# pH: SeaFET vs Durafet ####
-d_no_na <- dplyr::filter(!is.na())
-ph_sf_4 <- pHinsi(pH=d$ph_sf, ALK=d$at_calc, Tinsi=4, Tlab=d$t_11m, Pinsi=11/10, S=d$s_insi, Pt=0, Sit=0, 
-                  k1k2 = "l", kf = "dg", ks = "d", pHscale = "T", b = "u74")
-  d <- d %>%
-  dplyr::mutate(ph_sf_4 = )
-fit <- lmodel2(data = d,  ph_sf_4 ~ ph_dur_4, nperm = 99)
-p <-  ggplot(d, aes(x = ph_dur, y = ph_s_dur_t_fb)) +
-  geom_point(color = "blue", na.rm = TRUE) + 
-  scale_color_discrete(guide = "none")+
-  geom_abline(slope=1, intercept = 0, linetype = "dashed") +
-  geom_abline(aes(intercept = fit$regression.results[2,2], 
-                  slope = fit$regression.results[2,3]), 
-              colour = "blue") +
-  labs(x="Durafet pH", y="Spectrophotometric pH",
-       title = paste("Spec pH vs Durafet pH\nAdj R2 = ", signif(fit$rsquare, 3),
-                     "\nIntercept =", signif(fit$regression.results[2,2], 3),
-                     "\nSlope =", signif( fit$regression.results[2,3], 3),
-                     "\nP =", signif(fit$P.param, 3))) +
-  coord_fixed(ratio = 1) +
-  mytheme(size_labs = 6) +
-  theme(aspect.ratio = 1)
-ggsave(file="figures/essd/dur_spec.png", p,  width = 9, height = 9, units = "cm")
-p
-
 
 
