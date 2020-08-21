@@ -2196,12 +2196,62 @@ pdelta_ct_snapo_dygraph
 p_ct_ts
 ```
 
+```{r atmospheric CO2 Zeppelin, echo=FALSE, message= FALSE, warning=FALSE}
+## Atmospheric CO2 Zeppelin
+# downloaded 2020-08-19 from https://gaw.kishou.go.jp/search/file/0054-6001-1001-01-01-9999
+# value:units : ppm
+# value:long_name : measured_mole_fraction_of_trace_gas_in_dry_air
+atm_co2 <-
+  read_delim(file = paste0(path, "atmospheric_co2_zeppelin/co2_zep_surface-insitu_54_9999-9999_hourly.txt"),
+  delim = " ",
+  skip = 181,
+  col_names = TRUE,
+  na = "-999.999",
+  ) %>%
+  dplyr::mutate(co2_air = value,
+  datetime = as_datetime(paste(paste(year, month, day, sep="-"), paste(hour, minute, second, sep="-"), sep = " "))) %>%
+  dplyr::select(datetime, co2_air)
+d_all <- dplyr::left_join(d_all, atm_co2, by = "datetime")
+p_atm_co2 <- ggplot(data=atm_co2) +
+  geom_point(aes(x = datetime, y = co2_air), col = "blue", size = 0.15, na.rm = TRUE) +
+  labs(title = "Atmospheric CO2 at Zeppelin", x = "Time", y = "CO2 (ppm)") +
+  Mytheme(size_labs = 8)
+ggsave(filename = "figures/atm_co2.png", plot = p_atm_co2, width = 20, units = "cm")
+```
+
+```{r meteo data, echo=FALSE, message= FALSE, warning=FALSE}
+#[1] "Year"               "Month"              "Day"                "Hour"              
+#[5] "Temperature[degC]"  "Pressure[hPa]"      "WindSpeed[m/s]"     "WindDirection[deg]"
+
+load(file = paste0(path, "meteo_awi/wind_nyalesund.RData")) 
+meteo <- tibble(windnyalesund) %>%
+  dplyr::mutate(datetime = as_datetime(paste(paste(Year, Month, Day, sep="-"), paste(Hour, "00", "00", sep="-"), sep = " ")),
+         temp_air = `Temperature[degC]`,
+         p_air = `Pressure[hPa]`,
+         ws = `WindSpeed[m/s]`,
+         wd = `WindDirection[deg]`
+        ) %>%
+  dplyr::select(datetime, temp_air, p_air, ws, wd)
+d_all <- dplyr::left_join(d_all, meteo, by = "datetime")
+```
+```{r air-sea CO2, echo=FALSE, message= FALSE, warning=FALSE}
+# calculations as described by de Carlo et al. (2013)
+# we consider that mole fraction in air = ppm TO CHECK
+d_all <- d_all %>%
+  dplyr::mutate(delta_pco2 = co2_air - pco2, # ppm
+                k600 = 0.266 * ws^2, #cm/hr Ho et al. (2006)
+                Sc = 2073.1 - (125.62*temp_insitu_ctd) + (3.6276*temp_insitu_ctd^2) - (0.043219*temp_insitu_ctd^3), #dimensionless
+                k = k600 * (Sc/600)^-0.5,
+                alp = seacarb::K0(S=sal_mix,T=temp_insitu_ctd,P=0,Patm=p_air/1013.25), #mol/(kg/atm)
+                f_air-sea = k * alp * delta_pco2)
+```
+
 ```{r save all, echo=FALSE, message= FALSE, warning=FALSE}
 # d_hour is the real data set that is read at the beginning of the script
 # d_all comprises additional columns calculated in this script
 d_all$at <- ifelse(is.nan(d_all$at), NA, d_all$at) # replace all NaN by NA
 d_all$ct <- ifelse(is.nan(d_all$at), NA, d_all$ct) # replace all NaN by NA
-dplyr::mutate(d_all, month = as.factor(month(x = datetime, label = TRUE)))
+d_all <- dplyr::mutate(d_all, month = as.factor(month(x = datetime, label = TRUE)))
 saveRDS(file= paste0(path, "fb_data/d_all.rds"), d_all)
 
 pangaea <- as_tibble(d_all) %>% 
@@ -2223,7 +2273,8 @@ pangaea <- as_tibble(d_all) %>%
                 pco2 = pco2_corr,
                 pco2_calc = pco2_calc_fb,
                 pH_sf = pHint_tot_sf,
-                ph_dur = ph_dur_corr
+                ph_dur = ph_dur_corr,
+                ph_calc = phcalc_fb
                 )
 saveRDS(file= paste0(path, "fb_data/pangaea.rds"), pangaea)
 write_csv(pangaea, path = paste0(path, "fb_data/pangaea.csv"))
@@ -2246,30 +2297,8 @@ write_csv(pangaea, path = paste0(path, "fb_data/pangaea.csv"))
 # pco2_calc = pCO2 calculated in the FerryBox calculated from discrete measurments of AT and CT
 # pH_sf = pH SeaFET at in situ temperature (profiler)
 # ph_dur = pH Durafet at FerryBox temperature (FerryBox)
+# ph_calc = pH at fb temp calculated from CT and AT samples collected at the FerryBox
 ```
-```{r atmospheric CO2 Zeppelin, echo=FALSE, message= FALSE, warning=FALSE}
-## Atmospheric CO2 Zeppelin
-# downloaded 2020-08-19 from https://gaw.kishou.go.jp/search/file/0054-6001-1001-01-01-9999
-# value:units : ppm
-# value:long_name : measured_mole_fraction_of_trace_gas_in_dry_air
-atm_co2 <-
-  read_delim(file = paste0(path, "atmospheric_co2_zeppelin/co2_zep_surface-insitu_54_9999-9999_hourly.txt"),
-  delim = " ",
-  skip = 181,
-  col_names = TRUE,
-  na = "-999.999",
-  ) %>%
-  dplyr::mutate(co2 = value,
-  datetime = as_datetime(paste(paste(year, month, day, sep="-"), paste(hour, minute, second, sep="-"), sep = " "))
-  ) %>%
-  dplyr::select(datetime, co2)
-p_atm_co2 <- ggplot(data=atm_co2) +
-  geom_point(aes(x = datetime, y = co2), col = "blue", size = 0.15, na.rm = TRUE) +
-  labs(title = "Atmospheric CO2 at Zeppelin", x = "Time", y = "CO2 (ppm)") +
-  Mytheme(size_labs = 8)
-ggsave(filename = "figures/atm_co2.png", plot = p_atm_co2, width = 20, units = "cm")
-```
-
 ## Maintenance
 <div style="text-align: justify"> 
 
