@@ -2196,6 +2196,8 @@ pdelta_ct_snapo_dygraph
 p_ct_ts
 ```
 
+## Air-sea CO2 flux
+
 ```{r atmospheric CO2 Zeppelin, echo=FALSE, message= FALSE, warning=FALSE}
 ## Atmospheric CO2 Zeppelin
 # downloaded 2020-08-19 from https://gaw.kishou.go.jp/search/file/0054-6001-1001-01-01-9999
@@ -2208,12 +2210,12 @@ atm_co2 <-
   col_names = TRUE,
   na = "-999.999",
   ) %>%
-  dplyr::mutate(co2_air = value,
+  dplyr::mutate(pco2_air = value,
   datetime = as_datetime(paste(paste(year, month, day, sep="-"), paste(hour, minute, second, sep="-"), sep = " "))) %>%
-  dplyr::select(datetime, co2_air)
+  dplyr::select(datetime, pco2_air)
 d_all <- dplyr::left_join(d_all, atm_co2, by = "datetime")
 p_atm_co2 <- ggplot(data=atm_co2) +
-  geom_point(aes(x = datetime, y = co2_air), col = "blue", size = 0.15, na.rm = TRUE) +
+  geom_point(aes(x = datetime, y = pco2_air), col = "blue", size = 0.15, na.rm = TRUE) +
   labs(title = "Atmospheric CO2 at Zeppelin", x = "Time", y = "CO2 (ppm)") +
   Mytheme(size_labs = 8)
 ggsave(filename = "figures/atm_co2.png", plot = p_atm_co2, width = 20, units = "cm")
@@ -2234,17 +2236,21 @@ meteo <- tibble(windnyalesund) %>%
   dplyr::select(datetime, temp_air, p_air, ws, wd)
 d_all <- dplyr::left_join(d_all, meteo, by = "datetime")
 ```
+
 ```{r air-sea CO2, echo=FALSE, message= FALSE, warning=FALSE}
 # calculations as described by de Carlo et al. (2013)
 # we consider that mole fraction in air = ppm TO CHECK
 d_all <- d_all %>%
-  dplyr::mutate(delta_pco2 = co2_air - pco2, # ppm
+  dplyr::mutate(delta_pco2 = pco2_air - pco2_corr, # ppm
                 k600 = 0.266 * ws^2, #cm/hr Ho et al. (2006)
-                Sc = 2073.1 - (125.62*temp_insitu_ctd) + (3.6276*temp_insitu_ctd^2) - (0.043219*temp_insitu_ctd^3), #dimensionless
-                k = k600 * (Sc/600)^-0.5,
-                alp = seacarb::K0(S=sal_mix,T=temp_insitu_ctd,P=0,Patm=p_air/1013.25), #mol/(kg/atm)
-                f_air-sea = k * alp * delta_pco2)
+                Sc = 2073.1 - (125.62*temp_insitu_11m) + (3.6276*temp_insitu_11m^2) - (0.043219*temp_insitu_ctd^3), #dimensionless
+                k = k600 * (Sc/600)^-0.5, #cm/h
+                alp = seacarb::K0(S=sal_mix,T=temp_insitu_11m,P=0,Patm=p_air/1013.25), #mol/(kg/atm)
+                alp = alp * (seacarb::rho(S = sal_mix, T = temp_insitu_11m, P = 0)/1000), #mol/(l/atm)
+                f_air_sea = k * alp * delta_pco2)
 ```
+
+## Save files
 
 ```{r save all, echo=FALSE, message= FALSE, warning=FALSE}
 # d_hour is the real data set that is read at the beginning of the script
