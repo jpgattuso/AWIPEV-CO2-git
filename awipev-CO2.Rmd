@@ -2240,14 +2240,53 @@ d_all <- dplyr::left_join(d_all, meteo, by = "datetime")
 ```{r air-sea CO2, echo=FALSE, message= FALSE, warning=FALSE}
 # calculations as described by de Carlo et al. (2013)
 # we consider that mole fraction in air = ppm TO CHECK
+# By convention, a negative flux indicates fluxes directed from the atmosphere to the ocean, and a positive flux indicates fluxes directed from the ocean to the atmosphere.
 d_all <- d_all %>%
-  dplyr::mutate(delta_pco2 = pco2_air - pco2_corr, # ppm
+  dplyr::mutate(delta_pco2 = pco2_corr - pco2_air, # ppm
                 k600 = 0.266 * ws^2, #cm/hr Ho et al. (2006)
                 Sc = 2073.1 - (125.62*temp_insitu_11m) + (3.6276*temp_insitu_11m^2) - (0.043219*temp_insitu_ctd^3), #dimensionless
                 k = k600 * (Sc/600)^-0.5, #cm/h
                 alp = seacarb::K0(S=sal_mix,T=temp_insitu_11m,P=0,Patm=p_air/1013.25), #mol/(kg/atm)
                 alp = alp * (seacarb::rho(S = sal_mix, T = temp_insitu_11m, P = 0)/1000), #mol/(l/atm)
-                f_air_sea = k * alp * delta_pco2)
+                f_air_sea = k * alp * delta_pco2 # mmol/(m2 h)
+                )
+
+p_f_air_sea <- ggplot(data=d_all) +
+  geom_point(aes(x = datetime, y = f_air_sea), col = "blue", size = 0.15, na.rm = TRUE) +
+  labs(title = "Air-sea CO2 flux", x = "Time", y = "CO2 (mmol/(m2 h))") +
+  Mytheme(size_labs = 8)
+p_f_air_sea
+ggsave(filename = "figures/f_air_sea.png", plot = f_air_sea, width = 20, units = "cm")
+
+air_sea_day <- d_all %>%
+  dplyr::select(datetime, f_air_sea) %>%
+  dplyr::group_by(lubridate::yday(datetime)) %>%
+  dplyr::summarise(f_air_sea = 24 * mean(f_air_sea, na.rm=TRUE)/1000) %>% #mol/(m2 d)
+  ungroup() %>%
+  dplyr::rename(day = 1)
+  
+p_f_air_sea_d <- ggplot(data = air_sea_day) +
+  geom_point(aes(x = day, y = f_air_sea), col = "blue", size = 0.15, na.rm = TRUE) +
+  labs(title = "Air-sea CO2 flux", x = "Time", y = "CO2 (mmol/(m2 d))") +
+  Mytheme(size_labs = 8)
+p_f_air_sea_d
+ggsave(filename = "figures/f_air_sea_d.png", plot = p_f_air_sea_d, width = 20, units = "cm")
+
+air_sea_month <- d_all %>%
+  dplyr::select(month, f_air_sea) %>%
+  dplyr::group_by(month) %>%
+  dplyr::summarise(f_air_sea = 24 * mean(f_air_sea, na.rm=TRUE)/1000) %>% #mol/(m2 d)
+  ungroup() %>%
+  dplyr::mutate(f_air_sea = days_in_month(month) * f_air_sea)
+#air_sea_month
+p_f_air_sea_m <- ggplot(data = air_sea_month) +
+  geom_point(aes(x = month, y = f_air_sea), col = "blue", size = 0.15, na.rm = TRUE) +
+  scale_x_discrete(breaks=c("Jan", "", "Mar", "", "May", "", "Jul", "", "Sep", "", "Nov", "")) +
+  labs(title = "Air-sea CO2 flux", x = "Time", y = "CO2 (mmol/(m2 month))") +
+  Mytheme(size_labs = 8)
+p_f_air_sea_m
+ggsave(filename = "figures/f_air_sea_m.png", plot = p_f_air_sea_m, width = 20, units = "cm")
+
 ```
 
 ## Save files
