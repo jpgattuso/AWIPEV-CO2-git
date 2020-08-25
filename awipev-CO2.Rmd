@@ -2314,8 +2314,6 @@ knitr::include_graphics(pngfile)
 The annual air-sea CO2 flux is `r round(sum(air_sea_month), digits = 0)` mol/(m2 year).
 
 
-## Save files
-
 ```{r save all, echo=FALSE, message= FALSE, warning=FALSE}
 # d_hour is the real data set that is read at the beginning of the script
 # d_all comprises additional columns calculated in this script
