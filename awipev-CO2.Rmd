@@ -53,6 +53,8 @@ if (!require("htmlwidgets")) install.packages("htmlwidgets")
 library("htmlwidgets")
 if (!require("hms")) install.packages("hms")
 library("hms")
+if (!require("ragg")) install.packages("hms")
+library("ragg")
 knitr::opts_chunk$set(echo = TRUE)
 
 fig_nums <- captioner()
@@ -2198,6 +2200,15 @@ p_ct_ts
 
 ## Air-sea CO2 flux
 
+To calculate the air-sea CO2 flux, we use:
++ seawater pCO2
++ atmospheric CO2 measured at the Zeppelin station and downloaded 2020-08-19 from https://gaw.kishou.go.jp/search/file/0054-6001-1001-01-01-9999 
++ wind spreed data collected by the AWI at 10 m height (sent to JPG by P. Fischer, Aug. 2020)
+
+Since there are many gaps, a climatological year is used: air-sea flux calculated by day, then by month, then by year.
+
+
+
 ```{r atmospheric CO2 Zeppelin, echo=FALSE, message= FALSE, warning=FALSE}
 ## Atmospheric CO2 Zeppelin
 # downloaded 2020-08-19 from https://gaw.kishou.go.jp/search/file/0054-6001-1001-01-01-9999
@@ -2253,10 +2264,10 @@ d_all <- d_all %>%
 
 p_f_air_sea <- ggplot(data=d_all) +
   geom_point(aes(x = datetime, y = f_air_sea), col = "blue", size = 0.15, na.rm = TRUE) +
-  labs(title = "Air-sea CO2 flux", x = "Time", y = "CO2 (mmol/(m2 h))") +
+  labs(title = "Air-sea CO2 flux (all data)", x = "Time", y = "CO2 (mmol/(m2 h))") +
   Mytheme(size_labs = 8)
-p_f_air_sea
-ggsave(filename = "figures/f_air_sea.png", plot = f_air_sea, width = 20, units = "cm")
+#p_f_air_sea
+#ggsave(filename = "figures/f_air_sea.png", plot = f_air_sea, width = 20, units = "cm")
 
 air_sea_day <- d_all %>%
   dplyr::select(datetime, f_air_sea) %>%
@@ -2267,10 +2278,10 @@ air_sea_day <- d_all %>%
   
 p_f_air_sea_d <- ggplot(data = air_sea_day) +
   geom_point(aes(x = day, y = f_air_sea), col = "blue", size = 0.15, na.rm = TRUE) +
-  labs(title = "Air-sea CO2 flux", x = "Time", y = "CO2 (mmol/(m2 d))") +
+  labs(title = "Air-sea CO2 flux (per day)", x = "Time", y = "CO2 (mmol/(m2 d))") +
   Mytheme(size_labs = 8)
-p_f_air_sea_d
-ggsave(filename = "figures/f_air_sea_d.png", plot = p_f_air_sea_d, width = 20, units = "cm")
+#p_f_air_sea_d
+#ggsave(filename = "figures/f_air_sea_d.png", plot = p_f_air_sea_d, width = 20, units = "cm")
 
 air_sea_month <- d_all %>%
   dplyr::select(month, f_air_sea) %>%
@@ -2280,14 +2291,28 @@ air_sea_month <- d_all %>%
   dplyr::mutate(f_air_sea = days_in_month(month) * f_air_sea)
 #air_sea_month
 p_f_air_sea_m <- ggplot(data = air_sea_month) +
-  geom_point(aes(x = month, y = f_air_sea), col = "blue", size = 0.15, na.rm = TRUE) +
+  geom_point(aes(x = month(month, label = TRUE, abbr = TRUE), y = f_air_sea), col = "blue", size = 2, na.rm = TRUE) +
   scale_x_discrete(breaks=c("Jan", "", "Mar", "", "May", "", "Jul", "", "Sep", "", "Nov", "")) +
-  labs(title = "Air-sea CO2 flux", x = "Time", y = "CO2 (mmol/(m2 month))") +
+  lims(y = c(-30, 0)) +
+  labs(title = "Air-sea CO2 flux (per month)", x = "Julian day", y = "CO2 (mmol/(m2 month))") +
   Mytheme(size_labs = 8)
-p_f_air_sea_m
-ggsave(filename = "figures/f_air_sea_m.png", plot = p_f_air_sea_m, width = 20, units = "cm")
+#p_f_air_sea_m
+#ggsave(filename = "figures/f_air_sea_m.png", plot = p_f_air_sea_m, width = 20, units = "cm")
 
+p <- cowplot::plot_grid(p_f_air_sea, p_f_air_sea_d, p_f_air_sea_m, ncol = 1)
+pngfile <- "figures/air-sea_CO2_flux.png"
+ggsave(
+  pngfile, 
+  p, 
+  device = agg_png, 
+  width = 6.6, height = 10, units = "cm", res = 300,
+  scaling = 0.4
+)
+knitr::include_graphics(pngfile)
 ```
+
+The annual air-sea CO2 flux is `r round(sum(air_sea_month), digits = 0)` mol/(m2 year).
+
 
 ## Save files
 
@@ -2300,7 +2325,7 @@ d_all <- dplyr::mutate(d_all, month = as.factor(month(x = datetime, label = TRUE
 saveRDS(file= paste0(path, "fb_data/d_all.rds"), d_all)
 
 pangaea <- as_tibble(d_all) %>% 
-  dplyr::select(datetime, pressure_insitu_ctd, sal_insitu_ctd, sal_fb, sal_mix, temp_insitu_11m, temp_insitu_ctd, temp_fb, temp_sf, temp_dur, at, ct, ph_s_sf_temp_insi, ph_s_dur_temp_fb, pco2_corr, pco2_calc_fb, at_calc, ph_dur_corr, pHint_tot_sf) %>%
+  dplyr::select(datetime, pressure_insitu_ctd, sal_insitu_ctd, sal_fb, sal_mix, temp_insitu_11m, temp_insitu_ctd, temp_fb, temp_sf, temp_dur, at, ct, ph_s_sf_temp_insi, ph_s_dur_temp_fb, phcalc_fb, pco2_corr, pco2_calc_fb, at_calc, ph_dur_corr, pHint_tot_sf) %>%
   dplyr::rename(pressure = pressure_insitu_ctd,
                 s_insitu = sal_insitu_ctd,
                 s_fb = sal_fb, 
