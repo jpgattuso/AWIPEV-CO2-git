@@ -157,7 +157,7 @@ d_hour <- d_hour %>%
     ph_dur = ph_dur_filtered
   ) %>% 
   arrange(datetime)
-d_all <- d_hour #d_all will be the merger
+d_all <- as_tibble(d_hour) #d_all will be the merger
 d_all <- d_all %>%
   dplyr::mutate_all(function(x) ifelse(is.nan(x), NA, x)) %>% # replace all NaN by NA
   dplyr::rowwise() %>% 
@@ -381,10 +381,10 @@ discrete2merge <- discrete %>%
   rename(datetime=closest_datetime)
 d_all <- full_join(d_all, discrete2merge, by="datetime")
 d_all <- d_all %>% 
-  dplyr::mutate(ph_s_sf_temp_insi = ifelse(n_depth_ctd == 4, ph_s_sf_temp_insi, NA)) %>% # eliminate ph spec data when the profiler was at several depth during the same hour
-  dplyr::mutate(ph_s_sf_temp_insi = ifelse(!is.na(temp_insitu_ctd_7m) |
-                                             !is.na(temp_insitu_ctd_9m), 
-                                           ph_s_sf_temp_insi, NA)) # only use ph spec data when profiler was below 6 m
+  dplyr::mutate(ph_s_sf_temp_insi = ifelse(n_depth_ctd == 4, ph_s_sf_temp_insi, NA)) # eliminate ph spec data when the profiler was at several depth during the same hour
+  #dplyr::mutate(ph_s_sf_temp_insi = ifelse(!is.na(temp_insitu_ctd_7m) |
+  #                                           !is.na(temp_insitu_ctd_9m), 
+   #                                        ph_s_sf_temp_insi, NA)) # only use ph spec data when profiler was below 6 m
 
 # durafet pH 
 discrete2merge <- discrete %>%
@@ -1623,15 +1623,17 @@ seafet_calib <- sf_calc(calEint = d_all$voltINT, calEext = d_all$voltEXT, E0int2
 
 # bind new calibrated pH data to the seafet data set.
 names(seafet_calib) <- c("pHint_tot_sf", "pHext_tot_sf")
-d_all <- cbind(d_all, seafet_calib )
+d_all <- dplyr::bind_cols(d_all, seafet_calib )
 
 # pH seaFET Final
 # add despike with n=2 k = 5762 to the final ph corrected data
 # despike me semble inutile, faire plutôt un simple des outliers qui, vérification faite, n'est même pas nécessaire
 # Il faut par contre créér une nouvelle variable avec pH deeper than 8 m, called *_9m for consistency with salinity and temp
-d_all <- d_all %>%     
-  #dplyr::mutate(pHint_tot_sf = despike(d_all$pHint_tot_sf, reference= "median", n=2, k=5761, replace="NA"))
-  tt <- dplyr::mutate(tmp, pHint_tot_sf_9m = ifelse(pressure_insitu_ctd > 8, pHint_tot_sf, NA))
+d_all <- d_all %>%
+  #dplyr::mutate(pHint_tot_sf = despike(d_all$pHint_tot_sf, reference= "median", n=2, k=5761, replace="NA")) %>%
+  dplyr::mutate(pHint_tot_sf = seafet_calib$pHint_tot_sf) %>%
+  dplyr::mutate(pHint_tot_sf_9m = ifelse(pressure_insitu_ctd > 8, pHint_tot_sf, NA),
+                pHint_tot_sf_6m = ifelse(pressure_insitu_ctd > 6, pHint_tot_sf, NA))
                  
 # add spectro points that cannot be taken into consideration (some ancillary data T and/or S not available)
 # shown as white triangles on the plot
@@ -1646,15 +1648,16 @@ d_all <- d_all %>%
     )
   )
 
-p <- ggplot(d_all, aes(x=datetime, y= pHint_tot_sf))+
+p <- ggplot(d_all, aes(x=datetime, y= pHint_tot_sf_9m))+
   geom_point(size=1, alpha=0.5, na.rm=TRUE)
+p
 
-seafet_depth_xts <- dplyr::select(d_all, datetime, ph_s_sf_temp_insi, pHint_tot_sf, pH_s_sf_no_calb)
+seafet_depth_xts <- dplyr::select(d_all, datetime, ph_s_sf_temp_insi, pHint_tot_sf_6m, pHint_tot_sf_9m)
 seafet_depth_xts <- as.xts(seafet_depth_xts, order.by = d_all$datetime)
-dygraph(seafet_depth_xts, group = "depth", main="pH seaFET (ref + corrected + raw)", ylab="pHT") %>%
-dySeries("pHint_tot_sf", label = "pHT corrected", color =  RColorBrewer::brewer.pal(3, "Dark2")[1], strokeWidth = 0, pointSize = 3) %>%
-dySeries("ph_s_sf_temp_insi", label = "pH spectro for calibration", color =  "red", strokeWidth = 0, pointSize = 4 ) %>%
-dySeries("pH_s_sf_no_calb", label = "pH spectro no calibration", color =  "black", pointShape = "triangle", strokeWidth = 0, pointSize = 6 ) %>%
+dygraph(seafet_depth_xts, group = "depth", main="pH seaFET", ylab="pHT") %>%
+dySeries("ph_s_sf_temp_insi", label = "pH spectro", color =  "red", strokeWidth = 0, pointSize = 4 ) %>%
+dySeries("pHint_tot_sf_9m", label = "pHT 9m", color =  RColorBrewer::brewer.pal(3, "Dark2")[1], strokeWidth = 0, pointSize = 1) %>%
+dySeries("pHint_tot_sf_6m", label = "pHT 6m", color =  RColorBrewer::brewer.pal(3, "Dark2")[2], strokeWidth = 0, pointSize = 1) %>%
 dyEvent(as.POSIXct("2017-08-24 12:00:00", tz="UTC"), "seaFET #1005 installed", labelLoc = "bottom", color="red") %>%
   dyEvent(as.POSIXct("2018-02-02 09:00:00", tz="UTC"), "seaFET settings changed to every 1H", labelLoc = "bottom", color="red") %>% 
   dyEvent(as.POSIXct("2018-04-17 12:00:00", tz="UTC"), "seaFET #0007 installed + continuous mode set", labelLoc = "bottom", color="red") %>%
@@ -1671,25 +1674,32 @@ dyEvent(as.POSIXct("2017-08-24 12:00:00", tz="UTC"), "seaFET #1005 installed", l
 #RANGE of pH
 d_all<- d_all%>%
   dplyr::mutate(year = year(datetime))
-range <- tbl_df(
-  d_all %>%
+range <- d_all %>%
   group_by(date=as.Date(datetime), 
            month=month(datetime, label=TRUE), 
            year=year(datetime)) %>%
-  summarize(pH_range = max(pHint_tot_sf) - min(pHint_tot_sf))
-)
-quant <- quantile(range$pH_range, probs =c(2.5/100, 97.5/100), na.rm =TRUE)
+  summarize(pH_range_9m = max(pHint_tot_sf_9m) - min(pHint_tot_sf_9m),
+            pH_range_6m = max(pHint_tot_sf_6m) - min(pHint_tot_sf_6m))
+
+quant <- quantile(range$pH_range_9m, probs =c(2.5/100, 97.5/100), na.rm =TRUE)
+print(quant)
+quant <- quantile(range$pH_range_6m, probs =c(2.5/100, 97.5/100), na.rm =TRUE)
+print(quant)
+
 
 #Per month
 range_month <-
   range %>%
   group_by(Month = month(date, label=TRUE, abbr=FALSE)) %>%
-  summarize(pH_range_month = mean(pH_range, na.rm=TRUE))
+  summarize(pH_range_month6m = mean(pH_range_6m, na.rm=TRUE),
+            pH_range_month_9m = mean(pH_range_9m, na.rm=TRUE)) %>%
+  ungroup()
 
 size_point <- 0.4 #size of data points
-p <-  
-  ggplot(data=range, aes(x = as.factor(month), y = pH_range)) +
-  geom_violin(fill='lightblue', alpha=0.5, size=0.2, trim = TRUE) +
+p <- range_month %>%
+  pivot_longer(-Month, names_to = "depth", values_to = "pH_range") %>%
+  ggplot() +
+  geom_violin(aes(x = as.factor(Month), y = pH_range), fill='lightblue', alpha=0.5, size=0.2, trim = TRUE) +
   geom_boxplot(notch=TRUE, size=0.2, fill="grey50", outlier.color = "blue", outlier.size = 0.3) +
   labs(y =expression(paste(pH[T], " range seaFET")), x=NULL, title=NULL) +
   Mytheme() +
@@ -1698,7 +1708,7 @@ print(p) # plot_range_sf
 #ggsave(paste0("figures/plot_range_sf.png"), width= 30, height=10, plot_range_sf, units="cm")
 ```
 
-### **Depth profile**
+### **seaFET pH profiles**
 
 ```{r seafet profile, echo=FALSE, message= FALSE, warning=FALSE, out.width="80%",fig.show='hold', fig.align="center"}
 
