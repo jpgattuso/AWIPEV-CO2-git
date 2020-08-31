@@ -1699,8 +1699,8 @@ size_point <- 0.4 #size of data points
 p <- range_month %>%
   pivot_longer(-Month, names_to = "depth", values_to = "pH_range") %>%
   ggplot() +
-  geom_violin(aes(x = as.factor(Month), y = pH_range), fill='lightblue', alpha=0.5, size=0.2, trim = TRUE) +
-  geom_boxplot(notch=TRUE, size=0.2, fill="grey50", outlier.color = "blue", outlier.size = 0.3) +
+  #geom_violin(aes(x = as.factor(Month), y = pH_range), group = depth, fill='lightblue', alpha=0.5, size=0.2, trim = TRUE) +
+  geom_boxplot(aes(x = as.factor(Month), y = pH_range), , group = depth, notch=TRUE, size=0.2, fill="grey50", outlier.color = "blue", outlier.size = 0.3) +
   labs(y =expression(paste(pH[T], " range seaFET")), x=NULL, title=NULL) +
   Mytheme() +
   theme(panel.grid.major.x = element_blank())
