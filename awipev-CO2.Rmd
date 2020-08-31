@@ -55,6 +55,9 @@ if (!require("hms")) install.packages("hms")
 library("hms")
 if (!require("ragg")) install.packages("hms")
 library("ragg")
+if (!require("skimr")) install.packages("skimr")
+library("skimr")
+
 knitr::opts_chunk$set(echo = TRUE)
 
 fig_nums <- captioner()
@@ -138,6 +141,10 @@ ggplot(fit$model, aes_string(x = names(fit$model)[2], y = names(fit$model)[1])) 
                      " Slope =",signif(fit$coef[[2]], 5),
                      " P =",signif(summary(fit)$coef[2,4], 5)))
 }
+
+#################### MySkim
+# myskim <- skim_with(numeric = sfl(min = ~min(., na.rm = TRUE),
+#                                   max = ~max(., na.rm = TRUE)))
 ```
 
 ```{r Read, cleanup and prepare ferrybox data, echo=FALSE, warning=FALSE, message=FALSE}
@@ -160,6 +167,24 @@ d_hour <- d_hour %>%
 d_all <- as_tibble(d_hour) #d_all will be the merger
 d_all <- d_all %>%
   dplyr::mutate_all(function(x) ifelse(is.nan(x), NA, x)) %>% # replace all NaN by NA
+  dplyr::mutate( # create new variable depth
+    depth = ifelse(
+      pressure_insitu_ctd <= 2,
+      1,
+      ifelse(
+        pressure_insitu_ctd > 2 & pressure_insitu_ctd <= 4,
+        3,
+        ifelse(
+          pressure_insitu_ctd > 4 & pressure_insitu_ctd <= 6,
+          5,
+          ifelse(
+            pressure_insitu_ctd > 6 & pressure_insitu_ctd <= 8,
+            7,
+            ifelse(pressure_insitu_ctd > 8, 9, NA)
+          )
+        )
+      )
+    )) %>%
   dplyr::rowwise() %>% 
   dplyr::mutate(n_depth_ctd = sum(is.na( # create new variable to identify the hours for which there are CTD data at more than 1 depth 
   c(
@@ -1632,8 +1657,12 @@ d_all <- dplyr::bind_cols(d_all, seafet_calib )
 d_all <- d_all %>%
   #dplyr::mutate(pHint_tot_sf = despike(d_all$pHint_tot_sf, reference= "median", n=2, k=5761, replace="NA")) %>%
   dplyr::mutate(pHint_tot_sf = seafet_calib$pHint_tot_sf) %>%
-  dplyr::mutate(pHint_tot_sf_9m = ifelse(pressure_insitu_ctd > 8, pHint_tot_sf, NA),
-                pHint_tot_sf_6m = ifelse(pressure_insitu_ctd > 6, pHint_tot_sf, NA))
+  dplyr::mutate(pHint_tot_sf_1m = ifelse(pressure_insitu_ctd > 0 & pressure_insitu_ctd < 2, pHint_tot_sf, NA),
+                pHint_tot_sf_3m = ifelse(pressure_insitu_ctd >= 2 & pressure_insitu_ctd < 4, pHint_tot_sf, NA),
+                pHint_tot_sf_5m = ifelse(pressure_insitu_ctd >= 4 & pressure_insitu_ctd < 6, pHint_tot_sf, NA),
+                pHint_tot_sf_7m = ifelse(pressure_insitu_ctd >= 6 & pressure_insitu_ctd < 8, pHint_tot_sf, NA),
+                pHint_tot_sf_9m = ifelse(pressure_insitu_ctd >= 8 , pHint_tot_sf, NA)
+  )
                  
 # add spectro points that cannot be taken into consideration (some ancillary data T and/or S not available)
 # shown as white triangles on the plot
@@ -1648,16 +1677,12 @@ d_all <- d_all %>%
     )
   )
 
-p <- ggplot(d_all, aes(x=datetime, y= pHint_tot_sf_9m))+
-  geom_point(size=1, alpha=0.5, na.rm=TRUE)
-p
-
-seafet_depth_xts <- dplyr::select(d_all, datetime, ph_s_sf_temp_insi, pHint_tot_sf_6m, pHint_tot_sf_9m)
+seafet_depth_xts <- dplyr::select(d_all, datetime, ph_s_sf_temp_insi, pHint_tot_sf_7m, pHint_tot_sf_9m)
 seafet_depth_xts <- as.xts(seafet_depth_xts, order.by = d_all$datetime)
 dygraph(seafet_depth_xts, group = "depth", main="pH seaFET", ylab="pHT") %>%
 dySeries("ph_s_sf_temp_insi", label = "pH spectro", color =  "red", strokeWidth = 0, pointSize = 4 ) %>%
 dySeries("pHint_tot_sf_9m", label = "pHT 9m", color =  RColorBrewer::brewer.pal(3, "Dark2")[1], strokeWidth = 0, pointSize = 1) %>%
-dySeries("pHint_tot_sf_6m", label = "pHT 6m", color =  RColorBrewer::brewer.pal(3, "Dark2")[2], strokeWidth = 0, pointSize = 1) %>%
+dySeries("pHint_tot_sf_7m", label = "pHT 7m", color =  RColorBrewer::brewer.pal(3, "Dark2")[2], strokeWidth = 0, pointSize = 1) %>%
 dyEvent(as.POSIXct("2017-08-24 12:00:00", tz="UTC"), "seaFET #1005 installed", labelLoc = "bottom", color="red") %>%
   dyEvent(as.POSIXct("2018-02-02 09:00:00", tz="UTC"), "seaFET settings changed to every 1H", labelLoc = "bottom", color="red") %>% 
   dyEvent(as.POSIXct("2018-04-17 12:00:00", tz="UTC"), "seaFET #0007 installed + continuous mode set", labelLoc = "bottom", color="red") %>%
@@ -1670,50 +1695,26 @@ dyEvent(as.POSIXct("2017-08-24 12:00:00", tz="UTC"), "seaFET #1005 installed", l
   dyHighlight(highlightCircleSize = 8,highlightSeriesBackgroundAlpha = 0.5,hideOnMouseOut = TRUE) %>%
   dyOptions(drawGrid = TRUE, drawPoints = TRUE, pointSize = c(1,8,1),useDataTimezone = TRUE, digitsAfterDecimal=4) %>%
   dyRangeSelector(height = 30, dateWindow= NULL)
-
-#RANGE of pH
-d_all<- d_all%>%
-  dplyr::mutate(year = year(datetime))
-range <- d_all %>%
-  group_by(date=as.Date(datetime), 
-           month=month(datetime, label=TRUE), 
-           year=year(datetime)) %>%
-  summarize(pH_range_9m = max(pHint_tot_sf_9m) - min(pHint_tot_sf_9m),
-            pH_range_6m = max(pHint_tot_sf_6m) - min(pHint_tot_sf_6m))
-
-quant <- quantile(range$pH_range_9m, probs =c(2.5/100, 97.5/100), na.rm =TRUE)
-print(quant)
-quant <- quantile(range$pH_range_6m, probs =c(2.5/100, 97.5/100), na.rm =TRUE)
-print(quant)
-
-
-#Per month
-range_month <-
-  range %>%
-  group_by(Month = month(date, label=TRUE, abbr=FALSE)) %>%
-  summarize(pH_range_month6m = mean(pH_range_6m, na.rm=TRUE),
-            pH_range_month_9m = mean(pH_range_9m, na.rm=TRUE)) %>%
-  ungroup()
-
-size_point <- 0.4 #size of data points
-p <- range_month %>%
-  pivot_longer(-Month, names_to = "depth", values_to = "pH_range") %>%
-  ggplot() +
-  #geom_violin(aes(x = as.factor(Month), y = pH_range), group = depth, fill='lightblue', alpha=0.5, size=0.2, trim = TRUE) +
-  geom_boxplot(aes(x = as.factor(Month), y = pH_range), , group = depth, notch=TRUE, size=0.2, fill="grey50", outlier.color = "blue", outlier.size = 0.3) +
-  labs(y =expression(paste(pH[T], " range seaFET")), x=NULL, title=NULL) +
-  Mytheme() +
-  theme(panel.grid.major.x = element_blank())
-print(p) # plot_range_sf
-#ggsave(paste0("figures/plot_range_sf.png"), width= 30, height=10, plot_range_sf, units="cm")
 ```
 
 ### **seaFET pH profiles**
 
 ```{r seafet profile, echo=FALSE, message= FALSE, warning=FALSE, out.width="80%",fig.show='hold', fig.align="center"}
+# pH by depth
+# d_all<- d_all%>%
+#   dplyr::mutate(year = year(datetime))
 
-
+#Per month
+range <- d_all %>%
+  dplyr::mutate(pH_range_more_6m = ifelse(pressure_insitu_ctd > 6, pHint_tot_sf, NA)) %>%
+  group_by(Month = month(datetime, label=TRUE, abbr=FALSE)) %>%
+  summarize(pH_range = max(pHint_tot_sf, na.rm = TRUE) - min(pHint_tot_sf, na.rm = TRUE),
+            pH_range_more_6m = max(pH_range_more_6m, na.rm = TRUE) - min(pH_range_more_6m, na.rm = TRUE),
+            pH_range_more_9m = max(pHint_tot_sf_9m, na.rm = TRUE) - min(pHint_tot_sf_9m, na.rm = TRUE)) %>%
+  ungroup()
+print(kable(range, digits = 2))
 ```
+The range is significantly larger during some months when the data deeper than 9 m are considered. It seems therefore better to stick pH_çm, that is pH deeper than 8 m.
 
 ## pH durafet
 
@@ -1939,39 +1940,39 @@ range_month <-
   d_all %>%
   group_by(Month = month(datetime, label=TRUE, abbr=FALSE)) %>%
   #summarize(pH_range_month = mean(pH_range, na.rm=TRUE))%>%
-  summarize(temp_mix_max =round( max(temp_mix, na.rm=TRUE), digits = 2),
+  summarize(temp_mix_max = round( max(temp_mix, na.rm=TRUE), digits = 2),
             temp_mix_min = round(min(temp_mix, na.rm=TRUE), digits = 2),
-            temp_ctd_1m_max =round( max(temp_insitu_ctd_1m, na.rm=TRUE), digits = 2),
+            temp_ctd_1m_max = round( max(temp_insitu_ctd_1m, na.rm=TRUE), digits = 2),
             temp_ctd_1m_min = round(min(temp_insitu_ctd_1m, na.rm=TRUE), digits = 2),
-            temp_ctd_3m_max =round( max(temp_insitu_ctd_3m, na.rm=TRUE), digits = 2),
+            temp_ctd_3m_max = round( max(temp_insitu_ctd_3m, na.rm=TRUE), digits = 2),
             temp_ctd_3m_min = round(min(temp_insitu_ctd_3m, na.rm=TRUE), digits = 2),
-            temp_ctd_5m_max =round( max(temp_insitu_ctd_5m, na.rm=TRUE), digits = 2),
+            temp_ctd_5m_max = round( max(temp_insitu_ctd_5m, na.rm=TRUE), digits = 2),
             temp_ctd_5m_min = round(min(temp_insitu_ctd_5m, na.rm=TRUE), digits = 2),
-            temp_ctd_7m_max =round( max(temp_insitu_ctd_7m, na.rm=TRUE), digits = 2),
+            temp_ctd_7m_max = round( max(temp_insitu_ctd_7m, na.rm=TRUE), digits = 2),
             temp_ctd_7m_min = round(min(temp_insitu_ctd_7m, na.rm=TRUE), digits = 2),
-            temp_ctd_9m_max =round( max(temp_insitu_ctd_9m, na.rm=TRUE), digits = 2),
+            temp_ctd_9m_max = round( max(temp_insitu_ctd_9m, na.rm=TRUE), digits = 2),
             temp_ctd_9m_min = round(min(temp_insitu_ctd_9m, na.rm=TRUE), digits = 2),
-            temp_11m_max =round( max(temp_insitu_11m, na.rm=TRUE), digits = 2),
+            temp_11m_max = round( max(temp_insitu_11m, na.rm=TRUE), digits = 2),
             temp_11m_min = round(min(temp_insitu_11m, na.rm=TRUE), digits = 2),
             temp_fb_max = round(max(temp_fb, na.rm=TRUE), digits = 2),
-            temp_fb_min =round( min(temp_fb, na.rm=TRUE), digits = 2),
+            temp_fb_min = round( min(temp_fb, na.rm=TRUE), digits = 2),
             sal_mix_max = round(max(sal_mix, na.rm=TRUE), digits = 2),
             sal_mix_min = round(min(sal_mix, na.rm=TRUE), digits = 2),
-            sal_ctd_1m_max =round( max(sal_insitu_ctd_1m, na.rm=TRUE), digits = 2),
+            sal_ctd_1m_max = round( max(sal_insitu_ctd_1m, na.rm=TRUE), digits = 2),
             sal_ctd_1m_min = round(min(sal_insitu_ctd_1m, na.rm=TRUE), digits = 2),
-            sal_ctd_3m_max =round( max(sal_insitu_ctd_3m, na.rm=TRUE), digits = 2),
+            sal_ctd_3m_max = round( max(sal_insitu_ctd_3m, na.rm=TRUE), digits = 2),
             sal_ctd_3m_min = round(min(sal_insitu_ctd_3m, na.rm=TRUE), digits = 2),
-            sal_ctd_5m_max =round( max(sal_insitu_ctd_5m, na.rm=TRUE), digits = 2),
+            sal_ctd_5m_max = round( max(sal_insitu_ctd_5m, na.rm=TRUE), digits = 2),
             sal_ctd_5m_min = round(min(sal_insitu_ctd_5m, na.rm=TRUE), digits = 2),
-            sal_ctd_7m_max =round( max(sal_insitu_ctd_7m, na.rm=TRUE), digits = 2),
+            sal_ctd_7m_max = round( max(sal_insitu_ctd_7m, na.rm=TRUE), digits = 2),
             sal_ctd_7m_min = round(min(sal_insitu_ctd_7m, na.rm=TRUE), digits = 2),
-            sal_ctd_9m_max =round( max(sal_insitu_ctd_9m, na.rm=TRUE), digits = 2),
+            sal_ctd_9m_max = round( max(sal_insitu_ctd_9m, na.rm=TRUE), digits = 2),
             sal_ctd_9m_min = round(min(sal_insitu_ctd_9m, na.rm=TRUE), digits = 2),
             sal_fb_max = round(max(sal_fb, na.rm=TRUE), digits = 2),
             sal_fb_min = round(min(sal_fb, na.rm=TRUE), digits = 2),
-            pH_sf_max = round(max(pHint_tot_sf, na.rm=TRUE), digits = 4),
-            pH_sf_min = round(min(pHint_tot_sf, na.rm=TRUE), digits = 4))
-kable(range_month, caption ="")
+            pH_sf_max = round(max(pHint_tot_sf_9m, na.rm=TRUE), digits = 4),
+            pH_sf_min = round(min(pHint_tot_sf_9m, na.rm=TRUE), digits = 4))
+kable(range_month, caption = "")
 ```
 
 ## pHs 
