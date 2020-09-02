@@ -167,8 +167,7 @@ d_hour <- d_hour %>%
 d_all <- as_tibble(d_hour) #d_all will be the merger
 d_all <- d_all %>%
   dplyr::mutate_all(function(x) ifelse(is.nan(x), NA, x)) %>% # replace all NaN by NA
-  dplyr::mutate( # create new variable depth
-    depth = ifelse(
+  dplyr::mutate(depth = ifelse( # create new variable depth
       pressure_insitu_ctd <= 2,
       1,
       ifelse(
@@ -199,8 +198,10 @@ d_all <- d_all %>%
 #restore datetime, date which are mangled by the mutates above, arrange ascending
 d_all <- d_all %>% 
   dplyr::mutate(datetime = d_hour$datetime, 
-                       date = d_hour$date,
-                       month = month(d_hour$datetime))
+                date = d_hour$date,
+                monthd = lubridate::month(d_hour$datetime), # month as a number
+                montht = lubridate::month(d_hour$datetime, label = TRUE, abbr = TRUE) # abbreviated months
+  )
 ```
 
 ```{r Sal filter, fig.width=10, fig.height=4, echo=FALSE, message= FALSE}
@@ -619,7 +620,7 @@ There are `r sum(!is.na(df$range))` days with salinity values at both 1 m (0-2 m
 ```{r Sal comparaison, echo=FALSE, message= FALSE, warning=FALSE, out.width="80%",fig.show='hold', fig.align="center"}
 lm <- lm2(x = d_all$sal_insitu_ctd_9m, y = d_all$sal_fb)
 p <-  ggplot(d_all,aes(x=sal_insitu_ctd_9m, y= sal_fb))+
-  geom_point( aes(color=factor(month))) + 
+  geom_point( aes(color=factor(monthd))) + 
   geom_abline(slope=1, intercept=0, linetype = "dashed")+
   geom_abline(aes(intercept = lm$fit$regression.results[2,2], slope = lm$fit$regression.results[2,3]),colour = "blue") +
   ylim(c(30.5,35.5)) +xlim(c(28,35.5)) +
@@ -715,8 +716,8 @@ d_all <- d_all %>%
   )
 lm <- lm2(x = d_all$temp_insitu_11m, y = d_all$temp_fb)
 
-p <-  ggplot(d_all,aes(x=temp_insitu_11m, y= temp_fb, label = month))+
-  geom_text( aes(color=factor(month))) + 
+p <-  ggplot(d_all,aes(x=temp_insitu_11m, y= temp_fb, label = monthd))+
+  geom_text( aes(color=factor(monthd))) + 
  # scale_color_viridis_d(option = "C", guide="none")+
   geom_abline(slope = 1, intercept = 0, linetype = "dashed") +
   geom_abline(aes(intercept = lm$fit$regression.results[2,2], slope = lm$fit$regression.results[2,3]),
@@ -743,8 +744,8 @@ The mean difference between temperature Ferrybox and in situ at 11 m is: `r mean
 
 ```{r Temp 11m and ctd comparaison, echo=FALSE, message= FALSE, warning=FALSE}
 lm <- lm2(x = d_all$temp_insitu_ctd_9m, y = d_all$temp_insitu_11m)
-p <-  ggplot(d_all, aes(x=temp_insitu_ctd_9m, y= temp_insitu_11m, label = month))+
-  geom_text( aes(color=factor(month))) + 
+p <-  ggplot(d_all, aes(x=temp_insitu_ctd_9m, y= temp_insitu_11m, label = monthd))+
+  geom_text( aes(color=factor(monthd))) + 
  # scale_color_viridis_d(option = "C", guide="none")+
   geom_abline(slope = 1, intercept = 0, linetype = "dashed") +
   geom_abline(aes(intercept = lm$fit$regression.results[2,2], slope = lm$fit$regression.results[2,3]),
@@ -1042,13 +1043,13 @@ In the previous part, missing TA were interpolated with a linear model. This doe
 
 ```{r Discrete salinity vs TA, echo=FALSE, fig.align="center", message=FALSE, warning=FALSE, out.width="100%"}
 d_all_at_discrete <- d_all %>% #  To remove an outlier in red
-  dplyr::select(datetime, month,closest_datetime, at, sal_mix)
+  dplyr::select(datetime, monthd,closest_datetime, at, sal_mix)
 
 fit <- lm(data = d_all_at_discrete, at ~ sal_mix)
 slope_s_at <- fit$coefficients[[2]]
 intercept_s_at <- fit$coefficients[[1]]
-at_s <- ggplot(d_all_at_discrete,aes(x=sal_mix, y= at, label = month))+
-  geom_text( aes(color=factor(month))) +
+at_s <- ggplot(d_all_at_discrete,aes(x=sal_mix, y= at, label = monthd))+
+  geom_text( aes(color=factor(monthd))) +
   scale_color_discrete(guide="none")+
     labs(x="Salinity", y="Discrete AT", color = "Months")  +
     stat_smooth(method = "lm", col = "black") +
@@ -1163,8 +1164,8 @@ During those steps (except zeroing) the sensor runs normally. Equilibration betw
 title <- "Contros vs calculated pCO2"
 fit <- lmodel2(data = d_all,  pco2_corr ~ pco2_calc_fb , nperm = 99)
 
-p <-  ggplot(d_all,aes(x=pco2_calc_fb, y= pco2_corr, label = month))+
-   geom_text(aes(color = factor(month)))+
+p <-  ggplot(d_all,aes(x=pco2_calc_fb, y= pco2_corr, label = monthd))+
+   geom_text(aes(color = factor(monthd)))+
   scale_color_discrete(guide="none")+
   geom_abline(slope = 1, intercept = 0, linetype = "dashed") +
   geom_abline(aes(intercept = fit$regression.results[2,2], slope = fit$regression.results[2,3]),colour = "blue") +
@@ -1697,6 +1698,7 @@ dyEvent(as.POSIXct("2017-08-24 12:00:00", tz="UTC"), "seaFET #1005 installed", l
   dyRangeSelector(height = 30, dateWindow= NULL)
 ```
 
+
 ### **seaFET pH profiles**
 
 ```{r seafet profile, echo=FALSE, message= FALSE, warning=FALSE, out.width="80%",fig.show='hold', fig.align="center"}
@@ -1707,14 +1709,29 @@ dyEvent(as.POSIXct("2017-08-24 12:00:00", tz="UTC"), "seaFET #1005 installed", l
 #Per month
 range <- d_all %>%
   dplyr::mutate(pH_range_more_6m = ifelse(pressure_insitu_ctd > 6, pHint_tot_sf, NA)) %>%
-  group_by(Month = month(datetime, label=TRUE, abbr=FALSE)) %>%
+  group_by(montht) %>%
   summarize(pH_range = max(pHint_tot_sf, na.rm = TRUE) - min(pHint_tot_sf, na.rm = TRUE),
             pH_range_more_6m = max(pH_range_more_6m, na.rm = TRUE) - min(pH_range_more_6m, na.rm = TRUE),
             pH_range_more_9m = max(pHint_tot_sf_9m, na.rm = TRUE) - min(pHint_tot_sf_9m, na.rm = TRUE)) %>%
   ungroup()
 print(kable(range, digits = 2))
+
+tmp <- d_all %>% 
+  dplyr::select(montht, pHint_tot_sf, depth) %>%
+  group_by(depth, montht) %>%
+  ungroup()
+p <- tmp %>% 
+  ggplot(aes(x=as.factor(depth), y = pHint_tot_sf)) +
+  geom_boxplot(notch=FALSE, size=0.2, fill="grey50", outlier.color = "blue", outlier.size = 0.3) +
+  labs(title = "pHT", x = "Depth (m)", y= "pHT") +
+  facet_wrap(vars(montht), scale = "free_y")
+print(p)
+
 ```
-The range is significantly larger during some months when the data deeper than 9 m are considered. It seems therefore better to stick pH_çm, that is pH deeper than 8 m.
+**Conclusion**:
+The range is significantly larger during some months when the data deeper than 9 m are considered. Also, pH is sometimes higher at the surface, at other tilmes it is higher on the bottom (June). 
+  + To compare with pCO2/pCO2 measured in the Ferryboxt seems therefore better to stick with pH_9m, that is at depths deeper than 8 m.
+  + For air-sea CO2 fluxes
 
 ## pH durafet
 
@@ -1909,7 +1926,7 @@ d_all <- d_all %>%
 # RANGE of pH
 range_dur <- tbl_df(
   d_all %>%
-  group_by(date=as.Date(datetime), month=month(datetime, label=TRUE), year=year(datetime)) %>%
+  group_by(date, montht, year=year(datetime)) %>%
   summarize(pH_range = max(ph_dur_corr) - min(ph_dur_corr))
 )
 quant <- quantile(range_dur$pH_range, probs =c(2.5/100, 97.5/100), na.rm =TRUE)
@@ -1917,12 +1934,12 @@ quant <- quantile(range_dur$pH_range, probs =c(2.5/100, 97.5/100), na.rm =TRUE)
 # Per month
 range_month <-
   range_dur %>%
-  group_by(Month = month(date, label=TRUE, abbr=FALSE)) %>%
+  group_by(montht) %>%
   summarize(pH_range_month = mean(pH_range, na.rm=TRUE))
 
 size_point <- 0.4 # size of data points
 p <-
-  ggplot(data=range_dur, aes(x = as.factor(month), y = pH_range)) +
+  ggplot(data=range_dur, aes(x = as.factor(montht), y = pH_range)) +
   geom_violin(fill='lightblue', alpha=0.5, size=0.2, trim = TRUE) +
   geom_boxplot(notch=TRUE, size=0.2, fill="grey50", outlier.color = "blue", outlier.size = 0.3) +
   labs(y =expression(paste(pH[T], " range durafet")), x=NULL, title=NULL) +
@@ -1938,7 +1955,7 @@ The average offset between durafet and references (spectro) data is `r average_o
 ```{r Range per month, echo=FALSE, message= FALSE, warning=FALSE}
 range_month <-
   d_all %>%
-  group_by(Month = month(datetime, label=TRUE, abbr=FALSE)) %>%
+  group_by(montht) %>%
   #summarize(pH_range_month = mean(pH_range, na.rm=TRUE))%>%
   summarize(temp_mix_max = round( max(temp_mix, na.rm=TRUE), digits = 2),
             temp_mix_min = round(min(temp_mix, na.rm=TRUE), digits = 2),
@@ -1999,9 +2016,9 @@ d_all <- left_join(d_all, pH_sf%>%dplyr::select(datetime, pHint_tot_sf_norm4 ), 
 d_all <- left_join(d_all, pH_dur%>%dplyr::select(datetime, pH_durafet_norm4 ), by="datetime")
 
 fit <- lmodel2(data = d_all,  pHint_tot_sf_norm4 ~ pH_durafet_norm4 , nperm = 99)
-pdur_sf_norm_text <-  ggplot(d_all,aes(x=pH_durafet_norm4, y= pHint_tot_sf_norm4, label = month))+
-  geom_point( aes(color=factor(month)), size =1, alpha=0.5) + 
-  facet_wrap( ~ factor(month), ncol = 3) +
+pdur_sf_norm_text <-  ggplot(d_all,aes(x=pH_durafet_norm4, y= pHint_tot_sf_norm4, label = monthd))+
+  geom_point( aes(color=factor(monthd)), size =1, alpha=0.5) + 
+  facet_wrap( ~ factor(monthd), ncol = 3) +
   geom_abline(slope = 1, intercept = 0, linetype = "dashed") +
   theme(aspect.ratio=1,plot.title = element_text(size=7)) + 
   coord_fixed(ratio = 1 , xlim=c(7.8,8.35), ylim=c(7.8,8.35))+ #scale_colour_discrete(guide="none") +
@@ -2064,8 +2081,8 @@ dyOptions(drawGrid = TRUE, drawPoints = TRUE, pointSize = c(1,8,1),useDataTimezo
 # Spectro / durafet
 lm <- lm2(x = d_all$ph_s_dur_temp_fb, y = d_all$ph_dur_corr)
 
-p <-  ggplot(d_all, aes(x=ph_s_dur_temp_fb, y= ph_dur_corr, label = month)) +
-  geom_text( aes(color=factor(month))) + 
+p <-  ggplot(d_all, aes(x=ph_s_dur_temp_fb, y= ph_dur_corr, label = monthd)) +
+  geom_text( aes(color=factor(monthd))) + 
   scale_color_discrete(guide = "none")+
   geom_abline(slope=1, intercept =0, linetype = "dashed") +
   geom_abline(aes(intercept = lm$fit$regression.results[2,2], slope = lm$fit$regression.results[2,3]),
@@ -2086,8 +2103,8 @@ p
 # Spectro / seafet
 lm <- lm2(x = d_all$ph_s_sf_temp_insi, y = d_all$pHint_tot_sf)
 
-p <-  ggplot(d_all, aes(x=ph_s_sf_temp_insi, y= pHint_tot_sf, label = month)) +
-  geom_text( aes(color=factor(month))) + 
+p <-  ggplot(d_all, aes(x=ph_s_sf_temp_insi, y= pHint_tot_sf, label = monthd)) +
+  geom_text( aes(color=factor(monthd))) + 
   scale_color_discrete(guide = "none")+
   geom_abline(slope=1, intercept =0, linetype = "dashed") +
   geom_abline(aes(intercept = lm$fit$regression.results[2,2], slope = lm$fit$regression.results[2,3]),
@@ -2314,14 +2331,14 @@ p_f_air_sea_d <- ggplot(data = air_sea_day) +
 #ggsave(filename = "figures/f_air_sea_d.png", plot = p_f_air_sea_d, width = 20, units = "cm")
 
 air_sea_month <- d_all %>%
-  dplyr::select(month, f_air_sea) %>%
-  dplyr::group_by(month) %>%
+  dplyr::select(monthd, f_air_sea) %>%
+  dplyr::group_by(monthd) %>%
   dplyr::summarise(f_air_sea = 24 * mean(f_air_sea, na.rm=TRUE)/1000) %>% #mol/(m2 d)
   ungroup() %>%
-  dplyr::mutate(f_air_sea = days_in_month(month) * f_air_sea)
+  dplyr::mutate(f_air_sea = days_in_month(monthd) * f_air_sea)
 #air_sea_month
 p_f_air_sea_m <- ggplot(data = air_sea_month) +
-  geom_point(aes(x = month(month, label = TRUE, abbr = TRUE), y = f_air_sea), col = "blue", size = 2, na.rm = TRUE) +
+  geom_point(aes(x = monthd, y = f_air_sea), col = "blue", size = 2, na.rm = TRUE) +
   scale_x_discrete(breaks=c("Jan", "", "Mar", "", "May", "", "Jul", "", "Sep", "", "Nov", "")) +
   lims(y = c(-30, 0)) +
   labs(title = "Air-sea CO2 flux (per month)", x = "Julian day", y = "CO2 (mmol/(m2 month))") +
