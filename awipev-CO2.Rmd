@@ -1702,24 +1702,26 @@ dyEvent(as.POSIXct("2017-08-24 12:00:00", tz="UTC"), "seaFET #1005 installed", l
 ### **seaFET pH profiles**
 
 ```{r seafet profile, echo=FALSE, message= FALSE, warning=FALSE, out.width="80%",fig.show='hold', fig.align="center"}
-# pH by depth
-# d_all<- d_all%>%
-#   dplyr::mutate(year = year(datetime))
+# range <- d_all %>%
+#   dplyr::mutate(pH_range_more_6m = ifelse(pressure_insitu_ctd > 6, pHint_tot_sf, NA)) %>%
+#   group_by(montht) %>%
+#   summarize(pH_range = max(pHint_tot_sf, na.rm = TRUE) - min(pHint_tot_sf, na.rm = TRUE),
+#             pH_range_more_6m = max(pH_range_more_6m, na.rm = TRUE) - min(pH_range_more_6m, na.rm = TRUE),
+#             pH_range_more_9m = max(pHint_tot_sf_9m, na.rm = TRUE) - min(pHint_tot_sf_9m, na.rm = TRUE)) %>%
+#   ungroup()
+# print(kable(range, digits = 2))
 
-#Per month
-range <- d_all %>%
-  dplyr::mutate(pH_range_more_6m = ifelse(pressure_insitu_ctd > 6, pHint_tot_sf, NA)) %>%
-  group_by(montht) %>%
-  summarize(pH_range = max(pHint_tot_sf, na.rm = TRUE) - min(pHint_tot_sf, na.rm = TRUE),
-            pH_range_more_6m = max(pH_range_more_6m, na.rm = TRUE) - min(pH_range_more_6m, na.rm = TRUE),
-            pH_range_more_9m = max(pHint_tot_sf_9m, na.rm = TRUE) - min(pHint_tot_sf_9m, na.rm = TRUE)) %>%
-  ungroup()
-print(kable(range, digits = 2))
+# # datetime when pH values are in but no pressure data. File sent to send to Philipp
+# no_pressure <- d_all %>% 
+#   dplyr::select(datetime, pressure_insitu_ctd, pHint_tot_sf) %>% 
+#   dplyr::filter(is.na(pressure_insitu_ctd) & !is.na(pHint_tot_sf))
+# readr::write_csv(x = no_pressure, path=paste0(path,"/fb_awipev-co2_server/ny-alesund/data//no_pressure.csv"))
 
+
+# we look at all depths
 tmp <- d_all %>% 
   dplyr::select(montht, pHint_tot_sf, depth) %>%
-  group_by(depth, montht) %>%
-  ungroup()
+  group_by(depth, montht)
 p <- tmp %>% 
   ggplot(aes(x=as.factor(depth), y = pHint_tot_sf)) +
   geom_boxplot(notch=FALSE, size=0.2, fill="grey50", outlier.color = "blue", outlier.size = 0.3) +
@@ -1727,11 +1729,28 @@ p <- tmp %>%
   facet_wrap(vars(montht), scale = "free_y")
 print(p)
 
+# we look at 0 to 4 m vs more than 8 m
+tmp <- d_all %>% 
+  dplyr::select(montht, pHint_tot_sf, depth) %>%
+  dplyr::mutate(depth = as.factor(ifelse(depth == 1 | depth == 3, 2, depth))) %>% 
+  dplyr::filter(depth == 2 | depth == 9) %>% 
+  group_by(depth, montht)
+summary(aov(tmp$pHint_tot_sf ~ tmp$depth * tmp$montht))
+
+p <- tmp %>% 
+  ggplot(aes(x=as.factor(depth), y = pHint_tot_sf)) +
+  geom_boxplot(notch=FALSE, size=0.2, fill="grey50", outlier.color = "blue", outlier.size = 0.3) +
+  labs(title = "pHT", x = "Depth (m)", y= "pHT") +
+  facet_wrap(vars(montht), scale = "free_y")
+print(p)
 ```
 **Conclusion**:
-The range is significantly larger during some months when the data deeper than 9 m are considered. Also, pH is sometimes higher at the surface, at other tilmes it is higher on the bottom (June). 
-  + To compare with pCO2/pCO2 measured in the Ferryboxt seems therefore better to stick with pH_9m, that is at depths deeper than 8 m.
-  + For air-sea CO2 fluxes
+The range is significantly larger during some months when the data deeper than 8 m are considered. Also, pH is sometimes higher at the surface, at other times it is higher on the bottom (June). No data are available at 1 m (actually 0 to 2 m). So, to compare surface and bottom, I combine 1 and 3 m (0 to 4 m) and 9 m (below 8 m).
+
+Depth and month of the year have a statistically significant effet on pH. The interaxction is also significant, indicating that the effect of depth differs depending on the month.
+
+ + To compare with pCO2/pCO2 measured in the Ferrybox seems therefore better to stick with pH_9m, that is at depths deeper than 8 m.
+  + pCO2 would have the same behaviour as pH. For air-sea CO2 fluxes, one should use data from 0 to 4 m.
 
 ## pH durafet
 
@@ -2248,13 +2267,86 @@ p_ct_ts
 ## Air-sea CO2 flux
 
 To calculate the air-sea CO2 flux, we use:
-+ seawater pCO2
-+ atmospheric CO2 measured at the Zeppelin station and downloaded 2020-08-19 from https://gaw.kishou.go.jp/search/file/0054-6001-1001-01-01-9999 
+
++ seawater pCO2 measured in the FerryBox on water pumped from 11 m depth.
++ atmospheric CO2 measured at the Zeppelin station and downloaded on 2020-08-19 from https://gaw.kishou.go.jp/search/file/0054-6001-1001-01-01-9999 
 + wind spreed data collected by the AWI at 10 m height (sent to JPG by P. Fischer, Aug. 2020)
 
 Since there are many gaps, a climatological year is used: air-sea flux calculated by day, then by month, then by year.
 
+seaFET pH is significantly different at the surface and depth. It should therefore be the same for pCO2.
 
+Let's look first at the stratification (salinity, temperature and density).
+
+```{r stratification, echo=FALSE, message= FALSE, warning=FALSE}
+# we look at salinity all depths
+tmp <- d_all %>% 
+  dplyr::select(montht, sal_insitu_ctd, depth) %>%
+  group_by(depth, montht)
+p <- tmp %>% 
+  ggplot(aes(x=as.factor(depth), y = sal_insitu_ctd)) +
+  geom_boxplot(notch=FALSE, size=0.2, fill="grey50", outlier.color = "blue", outlier.size = 0.3) +
+  labs(title = "Salinity vs depth", x = "Depth (m)", y= "Salinity") +
+  facet_wrap(vars(montht), scale = "free_y")
+print(p)
+
+# we look at salinity 0 to 4 m vs more than 8 m
+tmp <- d_all %>% 
+  dplyr::select(montht, temp_insitu_ctd, depth) %>%
+  dplyr::mutate(depth = as.factor(ifelse(depth == 1 | depth == 3, 2, depth))) %>% 
+  dplyr::filter(depth == 2 | depth == 9) %>% 
+  group_by(depth, montht)
+summary(aov(tmp$temp_insitu_ctd ~ tmp$depth * tmp$montht))
+
+p <- tmp %>% 
+  ggplot(aes(x=as.factor(depth), y = temp_insitu_ctd)) +
+  geom_boxplot(notch=FALSE, size=0.2, fill="grey50", outlier.color = "blue", outlier.size = 0.3) +
+  labs(title = "Salinity vs depth", x = "Depth (m)", y= "Salinity") +
+  facet_wrap(vars(montht), scale = "free_y")
+print(p)
+
+# we look at temperature all depths
+tmp <- d_all %>% 
+  dplyr::select(montht, temp_insitu_ctd, depth) %>%
+  group_by(depth, montht)
+p <- tmp %>% 
+  ggplot(aes(x=as.factor(depth), y = temp_insitu_ctd)) +
+  geom_boxplot(notch=FALSE, size=0.2, fill="grey50", outlier.color = "blue", outlier.size = 0.3) +
+  labs(title = "Temperature vs depth", x = "Depth (m)", y= "Salinity") +
+  facet_wrap(vars(montht), scale = "free_y")
+print(p)
+
+# we look at temperature 0 to 4 m vs more than 8 m
+tmp <- d_all %>% 
+  dplyr::select(montht, temp_insitu_ctd, depth) %>%
+  dplyr::mutate(depth = as.factor(ifelse(depth == 1 | depth == 3, 2, depth))) %>% 
+  dplyr::filter(depth == 2 | depth == 9) %>% 
+  group_by(depth, montht)
+summary(aov(tmp$temp_insitu_ctd ~ tmp$depth * tmp$montht))
+
+p <- tmp %>% 
+  ggplot(aes(x=as.factor(depth), y = temp_insitu_ctd)) +
+  geom_boxplot(notch=FALSE, size=0.2, fill="grey50", outlier.color = "blue", outlier.size = 0.3) +
+  labs(title = "Temperature vs depth", x = "Depth (m)", y= "Salinity") +
+  facet_wrap(vars(montht), scale = "free_y")
+print(p)
+
+# we look at density 0 to 4 m vs more than 8 m
+tmp <- d_all %>% 
+  dplyr::select(montht, sal_insitu_ctd, temp_insitu_ctd, depth) %>%
+  dplyr::mutate(density = seacarb::rho(S = sal_insitu_ctd, T = temp_insitu_ctd, P = 0),
+                depth = as.factor(ifelse(depth == 1 | depth == 3, 2, depth))) %>% 
+  dplyr::filter(depth == 2 | depth == 9) %>% 
+  group_by(depth, montht)
+summary(aov(tmp$density ~ tmp$depth * tmp$montht))
+
+p <- tmp %>% 
+  ggplot(aes(x=as.factor(depth), y = density)) +
+  geom_boxplot(notch=FALSE, size=0.2, fill="grey50", outlier.color = "blue", outlier.size = 0.3) +
+  labs(title = "Density vs depth", x = "Depth (m)", y= "Salinity") +
+  facet_wrap(vars(montht), scale = "free_y")
+print(p)
+```
 
 ```{r atmospheric CO2 Zeppelin, echo=FALSE, message= FALSE, warning=FALSE}
 ## Atmospheric CO2 Zeppelin
