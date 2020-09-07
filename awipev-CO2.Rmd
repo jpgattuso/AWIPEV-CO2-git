@@ -15,6 +15,7 @@ Sys.setlocale("LC_ALL", "en_US.UTF-8")
 Sys.setenv(TZ='UTC') # on utilise UTC
 rm(list = ls())
 if (!require("tidyverse")) install.packages("tidyverse")
+library(dplyr)
 library(tidyverse)
 if (!require("robfilter")) install.packages("robfilter")
 if (!require("robfilter")) install.packages("robfilter")
@@ -2321,7 +2322,7 @@ plt <- sal_median %>%
         #legend.key.size = unit(1.5, "cm"),
         legend.key.height = unit(0.8, "cm"),
         legend.key.width  = unit(2, "cm"))
-plt
+#plt
 
 # we look at salinity 0 to 4 m vs more than 8 m
 tmp <- d_all %>% 
