@@ -2166,12 +2166,7 @@ For TA and CT, samples's flags that have been changed from 3 to 2 are: 2019-12-2
 ```{r SNAPO, echo=FALSE, message= FALSE, warning=FALSE}
 # use the df at_ct for mean and sd
 # creat a new df to calculate the diff between replicate
- diff <- d_all %>%
-    group_by(datetime) %>%
-   dplyr::select(datetime, at, ct)%>%   
-   dplyr::mutate(at_diff = abs(at - lag(at)),
-                 ct_diff = abs(ct - lag(ct)))
- diff <- d_all %>%
+ diff <- d %>%
     group_by(datetime) %>%
    dplyr::select(datetime, at, ct)%>%   
    dplyr::mutate(at_diff = abs(at - lag(at)),
