@@ -2157,6 +2157,11 @@ For CT, duplicates's flags that have been changed to 1 are:
 
 2015-08-06, 2015-08-13, 2016-05-12, 2016-05-19, 2016-06-16, 2016-07-28, 2016-09-08, 2016-10-27, 2016-11-17, 2017-01-19, 2017-03-02, 2017-04-27, 2017-09-14, 2018-04-26, 2018-05-04, 2018-05-12, 2018-05-25, 2018-06-30, 2018-07-20, 2018-08-03, 2018-08-31, 2018-09-07, 2018-09-14, 2018-09-28, 2018-10-05, 2018-10-12, 2018-10-19, 2018-10-26, 2018-11-02, 2018-11-09, 2018-11-16, 2018-11-23, 2019-05-03, 2019-05-10, 2019-08-23.
 
+Also in the Discrete_sampling_AWIPEV.csv, some analysed samples have been flaged "3" by the SNAPO. After a close look, these samples are not differents from their duplicates. Then we put the flag to "2" (good result).
+
+For TA and CT, samples's flags that have been changed from 3 to 2 are: 2019-12-27 (2264 and 2130), 2019-10-25 (2332 and 2152), 2019-09-06 (2268 and 2116).
+
+
 
 ```{r SNAPO, echo=FALSE, message= FALSE, warning=FALSE}
 # use the df at_ct for mean and sd
