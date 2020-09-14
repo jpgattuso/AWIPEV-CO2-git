@@ -88,7 +88,8 @@ d <-
 atm_co2 <-
   read_delim(file = paste0(path, "atmospheric_co2_zeppelin/co2_zep_surface-insitu_54_9999-9999_hourly.txt"),
              delim = " ",
-             skip = 181,
+             comment = "#",
+             #skip = 182,
              col_names = TRUE,
              na = "-999.999",
   ) %>%
@@ -183,22 +184,24 @@ ts_oa <- d %>%
   geom_point(aes(x = datetime, y = oa), col = "blue", size = 0.05, na.rm = TRUE) +
   scale_x_datetime(limits = xlim) +
   labs(title = "", x = "Time", y = expression(paste(Omega[a]))) +
-  mytheme() +
-  theme(axis.title.x = element_text(face=face_font, size=size_labs, color="black"),
-        axis.text.x = element_text(face=face_font, size=size_labs, color="black"))
+  mytheme()
+  # theme(axis.title.x = element_text(face=face_font, size=size_labs, color="black"),
+  #       axis.text.x = element_text(face=face_font, size=size_labs, color="black"))
+
 #assemble time-series figure
 cp <- cowplot::plot_grid(ts_sal, ts_temp, ts_co2, ts_ph, ts_at, ts_oa,
                          align = "v",
                          ncol = 1,
-                         axis = "tblr",
-                         labels = "auto",
-                         label_size = 7,
-                         label_x = 0.9,
-                         label_y = 0.95
+                         axis = "tblr"
+                         #labels = "auto",
+                         #label_size = 7,
+                         #label_x = 0.9,
+                         #label_y = 0.95
                          #width = 18,
                          #units = "cm"
                          )
-cowplot::ggsave2(filename = "figures/essd/ts_gg.png", plot = cp, width = 6, height = 12, unit = "cm")
+cowplot::ggsave2(filename = "figures/essd/ts_gg.png", plot = cp, width = 3, height = 6, unit = "cm")
+cowplot::save_plot(filename = "figures/essd/ts_gg2.png", plot = cp, base_width = 3, base_height = 6)
 
 # Boxplots ####
 mytheme_bp <- function(size_labs = 9, face_font="plain", ...) {

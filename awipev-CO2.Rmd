@@ -2418,7 +2418,8 @@ Using the medians because data are missing.
 atm_co2 <-
   read_delim(file = paste0(path, "atmospheric_co2_zeppelin/co2_zep_surface-insitu_54_9999-9999_hourly.txt"),
   delim = " ",
-  skip = 181,
+  comment = "#",
+  #skip = 182,
   col_names = TRUE,
   na = "-999.999",
   ) %>%
