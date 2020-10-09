@@ -2577,11 +2577,26 @@ write_csv(pangaea, path = paste0(path, "fb_data/pangaea.csv"))
 <div style="text-align: justify"> 
 
 ### **REMOS**
+- **2020-09-23**: REMOS started at 20:00 UTC.
+- **2020-09-22**: REMOS stopped at 19:00 UTC because of a power shutdown.
+- **2019-03-12**: REMOS on.
+- **2020-02-24**: REMOS off.
 - **2019-09-07**: REMOS back in the water.
 - **2019-09-02**: REMOS removed from the water for maintenance with Philipp and Samir.
 - **2018-11-24**: REMOS stopped because of an iceberg. At the moment we dont know if instruments are still there/broken.
 
 ### **FerryBox**
+- **2020-09-30**: FB started at 19:00 UTC.
+- **2020-09-29**: FB stopped at in the morning for few hours.
+- **2020-09-26**: FB stopped at in the morning for few hours.
+- **2020-09-25**: FB stopped at in the morning for few hours.
+- **2020-09-23**: FB started at 20:00 UTC.
+- **2020-09-22**: FB stopped at 19:00 UTC because of a power shutdown.
+- **2020-09-22**: FB started again at 08:00 UTC after several months of locked down. Lisa repaired it in few minutes only. 
+- **2020-09-22**: FB started again after several months of locked down. Lisa repaired it in few minutes only. 
+- **2020-07-25**: FB stopped. Not possible to go inside to repair because the FB is locked after the "mercurygate". IPEV locked the FB with suspicion of mercury contamination rose up by Bettina (Stationleader)
+- **2020-05-24**: FB started again after several months of on activity due to very cold T and frozen pipes.
+- **2020-02-18**: FB stopped because of frozen pipes.
 - **2020-01-24**: heater issues in the contenair (power shutdown maybe) caused some samples to freeze. See part "SNAPO" for details on samples.
 - **2019-09-01**: Some interruptions for the FB during 2 weeks of maintenance.
 - **2019-06-12**: Markus came to do maintenace. 
