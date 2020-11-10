@@ -211,27 +211,36 @@ d_all <- d_all %>%
 d_all <- d_all %>%
   dplyr::mutate(sal_mix = ifelse(!is.na(sal_fb), sal_fb, sal_insitu_ctd_9m))
 ```
+## Plot   
    
-```{r PAR / SAL relationship, fig.width=10, fig.height=4, echo=FALSE, message= FALSE}
+```{r PAR / SAL Dygraph, fig.width=10, fig.height=4, echo=FALSE, message= FALSE}
 #xts + dygraph
-sal_xts <- dplyr::select(d_all, datetime,sal_insitu_ctd_1m)
-#, sal_insitu_ctd_3m, sal_insitu_ctd_5m, sal_insitu_ctd_7m, sal_insitu_ctd_9m, par_insitu_profile_1m, par_insitu_profile_3m, par_insitu_profile_5m, par_insitu_profile_7m, par_insitu_profile_9m)
-
- # sal_xts<- sal_xts %>% 
- #  dplyr::mutate(sal_insitu_ctd_1m = case_when(
- #    is.na(sal_insitu_ctd_1m) ~ 0,
- #    TRUE~ sal_insitu_ctd_1m))
-    
+sal_xts <- dplyr::select(d_all, datetime,sal_insitu_ctd_1m, sal_insitu_ctd_3m, sal_insitu_ctd_5m, sal_insitu_ctd_7m, sal_insitu_ctd_9m, par_insitu_profile_1m, par_insitu_profile_3m, par_insitu_profile_5m, par_insitu_profile_7m, par_insitu_profile_9m)%>%
+   dplyr::filter(!is.na(datetime))
     
 sal_xts <- as.xts(sal_xts, order.by = sal_xts$datetime)
 dygraph(sal_xts, group = "awipev", main="Salinity (in FerryBox)", ylab="Salinity") %>%
-            dySeries("sal_insitu_ctd_1m", color = "blue", strokeWidth = 0, label = "sal_fb") %>%
+   dySeries("sal_insitu_ctd_1m", color = "blue", strokeWidth = 0, label = "SAL 1 m") %>%
+   dySeries("sal_insitu_ctd_3m", color = "blue", strokeWidth = 0, label = "SAL 3 m") %>%
+   dySeries("sal_insitu_ctd_5m", color = "blue", strokeWidth = 0, label = "SAL 5 m") %>%
+   dySeries("sal_insitu_ctd_7m", color = "blue", strokeWidth = 0, label = "SAL 7 m") %>%
+   dySeries("sal_insitu_ctd_9m", color = "blue", strokeWidth = 0, label = "SAL 9 m") %>%
+   dySeries("par_insitu_profile_1m", color = "red", strokeWidth = 0, label = "PAR 1 m",axis = "y2") %>%
+   dySeries("par_insitu_profile_3m", color = "red", strokeWidth = 0, label = "PAR 3 m",axis = "y2") %>%
+   dySeries("par_insitu_profile_5m", color = "red", strokeWidth = 0, label = "PAR 5 m",axis = "y2") %>%
+   dySeries("par_insitu_profile_7m", color = "red", strokeWidth = 0, label = "PAR 7 m",axis = "y2") %>%
+   dySeries("par_insitu_profile_9m", color = "red", strokeWidth = 0, label = "PAR 9 m",axis = "y2") %>%
+
 dyHighlight(highlightCircleSize = 8,highlightSeriesBackgroundAlpha =0.2,hideOnMouseOut =TRUE) %>%
       dyOptions( drawGrid = TRUE, drawPoints = TRUE, pointSize = 2,useDataTimezone = TRUE) %>%
     dyLegend(show = "follow")   %>%
-    dyAxis("y",valueRange = c(30, 37)) %>%
+   dyAxis("y2",valueRange = c(0, 1350), label = "PAR") %>%
       dyRangeSelector(height = 30, dateWindow= NULL)
+```
 
+## Relationships  
+
+```{r PAR / SAL relationship, echo=FALSE, fig.asp=0.5, out.width = "100%", message=FALSE, warning=FALSE}
 #1m
 fit <- lm(data = d_all, par_insitu_profile_1m ~ sal_insitu_ctd_1m)
 p1 <- ggplot(d_all,aes(x=sal_insitu_ctd_1m, y= par_insitu_profile_1m, label = monthd))+
