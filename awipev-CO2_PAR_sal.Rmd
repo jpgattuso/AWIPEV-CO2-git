@@ -212,15 +212,84 @@ d_all <- d_all %>%
 d_all <- d_all %>%
   dplyr::mutate(sal_mix = ifelse(!is.na(sal_fb), sal_fb, sal_insitu_ctd_9m))
 ```
-## Plot   
+
+
+```{r data filter, echo=FALSE, fig.height=4, fig.width=10, message=FALSE, warning=FALSE}
+#select mummer months
+june2018 <- d_all %>%
+  dplyr::select(datetime, par_insitu_profile_1m, par_insitu_profile_3m, par_insitu_profile_5m, par_insitu_profile_7m, par_insitu_profile_9m, par_air, turb_fb, sal_fb, sal_insitu_ctd_1m, sal_insitu_ctd_3m, sal_insitu_ctd_5m, sal_insitu_ctd_7m, sal_insitu_ctd_9m) %>% 
+  dplyr::filter(datetime >= "2018-06-01 00:00:00" & datetime <= "2018-06-30 23:59:59")%>% 
+  dplyr::mutate(day = day(datetime)) 
+
+july2018 <- d_all %>%
+  dplyr::select(datetime, par_insitu_profile_1m, par_insitu_profile_3m, par_insitu_profile_5m, par_insitu_profile_7m, par_insitu_profile_9m, par_air, turb_fb, sal_fb, sal_insitu_ctd_1m, sal_insitu_ctd_3m, sal_insitu_ctd_5m, sal_insitu_ctd_7m, sal_insitu_ctd_9m) %>% 
+  dplyr::filter(datetime >= "2018-07-01 00:00:00" & datetime <= "2018-07-31 23:59:59")%>% 
+  dplyr::mutate(day = day(datetime))
+
+august2018 <- d_all %>%
+  dplyr::select(datetime, par_insitu_profile_1m, par_insitu_profile_3m, par_insitu_profile_5m, par_insitu_profile_7m, par_insitu_profile_9m, par_air, turb_fb, sal_fb, sal_insitu_ctd_1m, sal_insitu_ctd_3m, sal_insitu_ctd_5m, sal_insitu_ctd_7m, sal_insitu_ctd_9m) %>% 
+  dplyr::filter(datetime >= "2018-08-01 00:00:00" & datetime <= "2018-08-31 23:59:59") %>% 
+  dplyr::mutate(day = day(datetime))
+
+# summarise the max PAR/sal by day
+sumjune2018 <- june2018 %>% 
+  dplyr::group_by(day) %>% 
+  dplyr:: summarise(maxPAR1m = max(par_insitu_profile_1m, na.rm=TRUE),
+                  maxPAR3m = max(par_insitu_profile_3m, na.rm=TRUE),
+                  maxPAR5m = max(par_insitu_profile_5m, na.rm=TRUE),
+                  maxPAR7m = max(par_insitu_profile_7m, na.rm=TRUE),
+                  maxPAR9m = max(par_insitu_profile_9m, na.rm=TRUE),
+                  maxSAL1m = max(sal_insitu_ctd_1m, na.rm=TRUE),
+                  maxSAL3m = max(sal_insitu_ctd_3m, na.rm=TRUE),
+                  maxSAL5m = max(sal_insitu_ctd_5m, na.rm=TRUE),
+                  maxSAL7m = max(sal_insitu_ctd_7m, na.rm=TRUE),
+                  maxSAL9m = max(sal_insitu_ctd_9m, na.rm=TRUE),
+                  maxPARair = max(par_air, na.rm=TRUE),
+                  nb =n())
+
+sumjuly2018 <- july2018 %>% 
+  dplyr::group_by(day) %>% 
+  dplyr:: summarise(maxPAR1m = max(par_insitu_profile_1m, na.rm=TRUE),
+                  maxPAR3m = max(par_insitu_profile_3m, na.rm=TRUE),
+                  maxPAR5m = max(par_insitu_profile_5m, na.rm=TRUE),
+                  maxPAR7m = max(par_insitu_profile_7m, na.rm=TRUE),
+                  maxPAR9m = max(par_insitu_profile_9m, na.rm=TRUE),
+                  maxSAL1m = max(sal_insitu_ctd_1m, na.rm=TRUE),
+                  maxSAL3m = max(sal_insitu_ctd_3m, na.rm=TRUE),
+                  maxSAL5m = max(sal_insitu_ctd_5m, na.rm=TRUE),
+                  maxSAL7m = max(sal_insitu_ctd_7m, na.rm=TRUE),
+                  maxSAL9m = max(sal_insitu_ctd_9m, na.rm=TRUE),
+                  maxPARair = max(par_air, na.rm=TRUE),
+                  nb =n())
+
+sumaugust2018 <- august2018 %>% 
+  dplyr::group_by(day) %>% 
+  dplyr:: summarise(maxPAR1m = max(par_insitu_profile_1m, na.rm=TRUE),
+                  maxPAR3m = max(par_insitu_profile_3m, na.rm=TRUE),
+                  maxPAR5m = max(par_insitu_profile_5m, na.rm=TRUE),
+                  maxPAR7m = max(par_insitu_profile_7m, na.rm=TRUE),
+                  maxPAR9m = max(par_insitu_profile_9m, na.rm=TRUE),
+                  maxSAL1m = max(sal_insitu_ctd_1m, na.rm=TRUE),
+                  maxSAL3m = max(sal_insitu_ctd_3m, na.rm=TRUE),
+                  maxSAL5m = max(sal_insitu_ctd_5m, na.rm=TRUE),
+                  maxSAL7m = max(sal_insitu_ctd_7m, na.rm=TRUE),
+                  maxSAL9m = max(sal_insitu_ctd_9m, na.rm=TRUE),
+                  maxPARair = max(par_air, na.rm=TRUE),
+                  nb =n())
+# tables
+kable(sumjune2018, caption ="June 2018")
+kable(sumjuly2018, caption ="July 2018")
+kable(sumaugust2018, caption ="August 2018")
+```
+### Plot   
    
 ```{r PAR / SAL Dygraph, fig.width=10, fig.height=4, echo=FALSE, message= FALSE}
 #xts + dygraph
-sal_xts <- dplyr::select(d_all, datetime,sal_insitu_ctd_1m, sal_insitu_ctd_3m, sal_insitu_ctd_5m, sal_insitu_ctd_7m, sal_insitu_ctd_9m, par_insitu_profile_1m, par_insitu_profile_3m, par_insitu_profile_5m, par_insitu_profile_7m, par_insitu_profile_9m)%>%
+sal_xts <- dplyr::select(d_all, datetime,sal_insitu_ctd_1m, sal_insitu_ctd_3m, sal_insitu_ctd_5m, sal_insitu_ctd_7m, sal_insitu_ctd_9m, par_insitu_profile_1m, par_insitu_profile_3m, par_insitu_profile_5m, par_insitu_profile_7m, par_insitu_profile_9m, par_air)%>%
    dplyr::filter(!is.na(datetime))
     
 sal_xts <- as.xts(sal_xts, order.by = sal_xts$datetime)
-dygraph(sal_xts, group = "awipev", main="Salinity (in FerryBox)", ylab="Salinity") %>%
+dygraph(sal_xts, group = "awipev", main="Salinity and PAR (in field)", ylab="") %>%
    dySeries("sal_insitu_ctd_1m", color = "blue", strokeWidth = 0, label = "SAL 1 m") %>%
    dySeries("sal_insitu_ctd_3m", color = "blue", strokeWidth = 0, label = "SAL 3 m") %>%
    dySeries("sal_insitu_ctd_5m", color = "blue", strokeWidth = 0, label = "SAL 5 m") %>%
@@ -231,15 +300,29 @@ dygraph(sal_xts, group = "awipev", main="Salinity (in FerryBox)", ylab="Salinity
    dySeries("par_insitu_profile_5m", color = "red", strokeWidth = 0, label = "PAR 5 m",axis = "y2") %>%
    dySeries("par_insitu_profile_7m", color = "red", strokeWidth = 0, label = "PAR 7 m",axis = "y2") %>%
    dySeries("par_insitu_profile_9m", color = "red", strokeWidth = 0, label = "PAR 9 m",axis = "y2") %>%
-
+     dySeries("par_air", color = "orange", strokeWidth = 0, label = "PAR AIR",axis = "y2") %>%
 dyHighlight(highlightCircleSize = 8,highlightSeriesBackgroundAlpha =0.2,hideOnMouseOut =TRUE) %>%
       dyOptions( drawGrid = TRUE, drawPoints = TRUE, pointSize = 2,useDataTimezone = TRUE) %>%
     dyLegend(show = "follow")   %>%
    dyAxis("y2",valueRange = c(0, 1350), label = "PAR") %>%
       dyRangeSelector(height = 30, dateWindow= NULL)
+
+#plot 2
+#Delete the NA line with datetime
+fb_xts <- dplyr::select(d_all, datetime,sal_fb, turb_fb)
+fb_xts <- fb_xts[-which(is.na(fb_xts$datetime)),]
+fb_xts <- as.xts(fb_xts, order.by = fb_xts$datetime)
+dygraph(fb_xts, group = "awipev", main="Salinity and Turbidity (in FerryBox)", ylab="") %>%
+   dySeries("sal_fb", color = "blue", strokeWidth = 0, label = "SAL FB") %>%
+   dySeries("turb_fb", color = "brown", strokeWidth = 0, pointSize = 4,label = "Turb FB",axis = "y2") %>%
+dyHighlight(highlightCircleSize = 8,highlightSeriesBackgroundAlpha =0.2,hideOnMouseOut =TRUE) %>%
+      dyOptions( drawGrid = TRUE, drawPoints = TRUE, pointSize = 2,useDataTimezone = TRUE) %>%
+    dyLegend(show = "follow")   %>%
+  dyAxis("y2",valueRange = c(0, 1000), label = "PAR") %>%
+      dyRangeSelector(height = 30, dateWindow= NULL)
 ```
 
-## Relationships  
+## Relationships by depths (first test) 
 
 ```{r PAR / SAL relationship, echo=FALSE, fig.asp=0.5, out.width = "100%", message=FALSE, warning=FALSE}
 #1m
@@ -340,5 +423,70 @@ print(p5)
 print(p7)
 print(p9) 
 ``` 
-   
-  
+
+## Relationships by summer months (second test)   
+
+```{r PAR / SAL relationship summer months, echo=FALSE, fig.asp=0.5, out.width = "100%", message=FALSE, warning=FALSE}
+#june
+fit <- lm(data = sumjune2018, maxPAR7m ~ maxSAL7m)
+p_june <- ggplot(sumjune2018,aes(x=maxSAL7m, y= maxPAR7m, label = day))+
+  geom_text( aes(color=factor(day))) +
+  scale_color_discrete(guide="none")+
+    labs(x="Salinity June 7 m", y="PAR June 7 m", color = "Days")  +
+    stat_smooth(method = "lm", col = "black") +
+    labs(title = paste("", "\nAdj R2 = ",signif(summary(fit)$adj.r.squared, 5),
+                       ";\nIntercept =",signif(fit$coef[[1]],5 ),
+                       ";\nSlope =",signif(fit$coef[[2]], 5),
+                       ";\nP =", signif(summary(fit)$coef[2,4], 5),
+                       ";\nRMSE =", signif(sqrt(mean(fit$residuals^2)), 5))) +
+  ylim(0,1500) +
+  theme_bw() + theme(aspect.ratio=1,
+        axis.text=element_text(size=7),
+        axis.title.y= element_text(size =7),
+        axis.title.x= element_text(size =7),
+        plot.margin = unit(c(0.5,1,1,1), "cm"),
+        plot.title = element_text(size=7, hjust=0.05,margin = margin(l = 10, b = -70)))
+#july
+fit <- lm(data = sumjuly2018, maxPAR7m ~ maxSAL7m)
+p_july <- ggplot(sumjuly2018,aes(x=maxSAL7m, y= maxPAR7m, label = day))+
+  geom_text( aes(color=factor(day))) +
+  scale_color_discrete(guide="none")+
+    labs(x="Salinity July 7 m", y="PAR July 7 m", color = "Days")  +
+    stat_smooth(method = "lm", col = "black") +
+    labs(title = paste("", "\nAdj R2 = ",signif(summary(fit)$adj.r.squared, 5),
+                       ";\nIntercept =",signif(fit$coef[[1]],5 ),
+                       ";\nSlope =",signif(fit$coef[[2]], 5),
+                       ";\nP =", signif(summary(fit)$coef[2,4], 5),
+                       ";\nRMSE =", signif(sqrt(mean(fit$residuals^2)), 5))) +
+  ylim(0,1500) +
+  theme_bw() + theme(aspect.ratio=1,
+        axis.text=element_text(size=7),
+        axis.title.y= element_text(size =7),
+        axis.title.x= element_text(size =7),
+        plot.margin = unit(c(0.5,1,1,1), "cm"),
+        plot.title = element_text(size=7, hjust=0.05,margin = margin(l = 10, b = -70)))
+
+#august
+fit <- lm(data = sumaugust2018, maxPAR7m ~ maxSAL7m)
+p_august <- ggplot(sumaugust2018,aes(x=maxSAL7m, y= maxPAR7m, label = day))+
+  geom_text( aes(color=factor(day))) +
+  scale_color_discrete(guide="none")+
+    labs(x="Salinity August 7 m", y="PAR August 7 m", color = "Days")  +
+    stat_smooth(method = "lm", col = "black") +
+    labs(main ="August 2018", title = paste("", "\nAdj R2 = ",signif(summary(fit)$adj.r.squared, 5),
+                       ";\nIntercept =",signif(fit$coef[[1]],5 ),
+                       ";\nSlope =",signif(fit$coef[[2]], 5),
+                       ";\nP =", signif(summary(fit)$coef[2,4], 5),
+                       ";\nRMSE =", signif(sqrt(mean(fit$residuals^2)), 5))) +
+  ylim(0,1500) +
+  theme_bw() + theme(aspect.ratio=1,
+        axis.text=element_text(size=7),
+        axis.title.y= element_text(size =7),
+        axis.title.x= element_text(size =7),
+        plot.margin = unit(c(0.5,1,1,1), "cm"),
+        plot.title = element_text(size=7, hjust=0.05,margin = margin(l = 10, b = -70)))
+
+print(p_june)
+print(p_july)
+print(p_august)
+```
