@@ -170,7 +170,7 @@ ggplot(fit$model, aes_string(x = names(fit$model)[2], y = names(fit$model)[1])) 
 # count_gaps(d, .full = TRUE)
 
 
-d_all <- readRDS(file = paste0(path_data, "fb_data/d_all_copy.rds"))
+d_all <- readRDS(file = paste0(path_data, "fb_data/d_all.rds"))
 d <- d_all %>% 
   as_tsibble(index = datetime) %>% 
   dplyr::arrange(datetime) %>%
@@ -196,9 +196,8 @@ zz <- d %>%
     sal_fb_na = sum(!is.na(sal_fb))/n())
 zz
 
-
-tmp visdat::vis_miss(tmp)
-gg_miss_var(tmp, facet = quarter)
+visdat::vis_miss(zz)
+#gg_miss_var(zz, facet = quarter)
 
 ```
 # {.tabset .tabset-fade .tabset-pills}
