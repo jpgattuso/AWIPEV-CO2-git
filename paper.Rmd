@@ -186,7 +186,6 @@ zz <- d %>%
   index_by(quarter = ~ quarter(.)) %>% # monthly aggregates
   summarise(
     sal_fb_na = sum(!is.na(sal_fb))/n())
-zz
 
 
 zz <- d %>%
