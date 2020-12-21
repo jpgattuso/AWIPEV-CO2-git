@@ -54,7 +54,7 @@ if (!require("htmlwidgets")) install.packages("htmlwidgets")
 library("htmlwidgets")
 if (!require("hms")) install.packages("hms")
 library("hms")
-if (!require("ragg")) install.packages("hms")
+if (!require("ragg")) install.packages("ragg")
 library("ragg")
 if (!require("skimr")) install.packages("skimr")
 library("skimr")
@@ -314,7 +314,11 @@ d <- left_join(d, d_all %>%
 pH_seafet <- d %>%
   dplyr::filter(!is.na(ph_s_sf) & !is.na(temp_insitu_ctd))
 pH_seafet <- pH_seafet %>% 
-  dplyr::mutate(ph_s_sf_temp_insi = pHinsi(pH = pH_seafet$ph_s_sf, ALK = pH_seafet$at_mean_interp*1e-6, Tinsi = pH_seafet$temp_insitu_ctd, Tlab = pH_seafet$temp_s_lab, Pinsi = pH_seafet$pressure_insitu_ctd/10, S = pH_seafet$sal_mix, Pt = 0, Sit = 0))
+  dplyr::mutate(ph_s_sf_temp_insi = 
+                  pHinsi(pH = pH_seafet$ph_s_sf, 
+                         ALK = pH_seafet$at_mean_interp*1e-6, Tinsi = pH_seafet$temp_insitu_ctd, 
+                         Tlab = pH_seafet$temp_s_lab, Pinsi = pH_seafet$pressure_insitu_ctd/10, 
+                         S = pH_seafet$sal_mix, Pt = 0, Sit = 0))
 
 # Conversion of spec pH of FerryBox samples to FerryBox temp
 pH_durafet <- d %>%
