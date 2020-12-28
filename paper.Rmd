@@ -162,14 +162,6 @@ ggplot(fit$model, aes_string(x = names(fit$model)[2], y = names(fit$model)[1])) 
 ```
 
 ```{r read and clean data, echo=FALSE, warning=FALSE, message=FALSE}
-  # d_all <- readRDS(file = paste0(path_data, "fb_awipev-co2_server/ny-alesund/data/NRT_data/all_nydata_hour_copy.rds"))
-# d <- d_all %>% 
-#   as_tsibble(index = datetime) %>% 
-#   dplyr::rename(depth = pressure_insitu_ctd) %>% 
-#   dplyr::mutate(year_month = format(datetime, '%Y-%m'))
-# count_gaps(d, .full = TRUE)
-
-
 d_all <- readRDS(file = paste0(path_data, "fb_data/d_all.rds"))
 d <- d_all %>% 
   as_tsibble(index = datetime) %>% 
@@ -177,6 +169,7 @@ d <- d_all %>%
   fill_gaps() %>%
   dplyr::mutate(year_month = format(datetime, '%Y-%m'),
                 quarter = quarter(datetime)) %>%
+  dplyr::rename(pco2_contros = pco2_corr) %>% 
   replace(., is.na(.), NA) # replace NaN by NA everywhere
 ```
 
@@ -209,8 +202,7 @@ size_point <- 2 # size of data points
 alpha <- 1 #transparency
 
 d_ts <- d %>%
-  #dplyr::mutate(pHint_tot_sf = ifelse(depth >= 8, pHint_tot_sf, NA)) %>% # keep only seafet data below 8 m depth
-  dplyr::select(datetime, temp_insitu_11m, sal_fb, par_air, pco2_corr,
+  dplyr::select(datetime, temp_insitu_11m, sal_fb, par_air, pco2_contros,
                 pHint_tot_sf_9m, ph_s_sf_temp_insi, at_calc, at) #%>%
   #tidyr::pivot_longer(-datetime, values_to = "value")
   
@@ -245,7 +237,7 @@ ts_par_air <- d_all %>%
 ts_pCO2 <- d_all %>%
   ggplot() +
   scale_x_datetime(breaks = date_breaks("1 year"), labels = date_format("%Y")) +
-  geom_point(aes(x = datetime, y = pco2_corr), 
+  geom_point(aes(x = datetime, y = pco2_contros), 
              colour="blue", alpha=alpha, na.rm=TRUE, size=size_point) + 
   geom_point(aes(x = datetime, y = pco2_calc_fb), colour="red", alpha=alpha, na.rm=TRUE, size=size_point) + 
   labs(title="Mesured (blue) and calculated (CT+AT; red) pCO2",x="", y="pCO2 (uatm)") +
@@ -296,7 +288,7 @@ ts_temp_bp <- d_all %>%
   theme(panel.grid.major.x = element_blank())
 
 ts_pCO2_bp <- d_all %>%
-  ggplot(aes(x = month(x = datetime, label = TRUE, abbr = TRUE), y = pco2_contros)) +
+  ggplot(aes(x = month(x = datetime, label = TRUE, abbr = TRUE), y = pCO2_contros)) +
   geom_violin(fill='lightblue', alpha=0.5, size=0.2, trim = TRUE, na.rm=TRUE) +
   geom_boxplot(notch=TRUE, size=0.2, fill="grey50", outlier.color = "blue", 
                outlier.size = 0.3, na.rm=TRUE) +
@@ -327,7 +319,7 @@ print(g)
 
 Salinity <- qq(d_all$sal_fb, digits=1)
 Temperature <- qq(d_all$temp_fb, digits=1)
-pCO2 <- qq(d_all$pco2_contros, digits=1)
+pCO2 <- qq(d_all$pCO2_contros, digits=1)
 pH <- qq(d_all$pHint_tot_sf, digits=3)
 AT <- qq(d_all$at_calc, digits=1)
 tab_quartiles <- as_tibble(rbind(Salinity, Temperature, pCO2, pH, AT)) %>%

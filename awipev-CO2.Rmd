@@ -2463,7 +2463,7 @@ d_all <- dplyr::left_join(d_all, meteo, by = "datetime")
 # we consider that mole fraction in air = ppm TO CHECK
 # By convention, a negative flux indicates fluxes directed from the atmosphere to the ocean, and a positive flux indicates fluxes directed from the ocean to the atmosphere.
 
-##TO DO: check calculations by Miller et al. (2020)
+##TO DO: check calculations by Miller et al. (2020); use formulation of Wanninkhof 2014?
 d_all <- d_all %>%
   dplyr::mutate(delta_pco2 = pco2_corr - pco2_air, # ppm
                 k600 = 0.266 * ws^2, #cm/hr Ho et al. (2006)
