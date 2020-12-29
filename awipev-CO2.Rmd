@@ -58,6 +58,8 @@ if (!require("ragg")) install.packages("ragg")
 library("ragg")
 if (!require("skimr")) install.packages("skimr")
 library("skimr")
+if (!require("FNN")) install.packages("FNN")
+library("FNN")
 
 knitr::opts_chunk$set(echo = TRUE)
 
@@ -382,8 +384,25 @@ discrete <- bind_rows(discrete_no_na, discrete_is_na) %>%
 nuts <- readxl::read_excel(paste0(path, "fb_data/Ferrybox nutrients 2014-2018.xlsx"),
                            skip =1) %>% 
   drop_na(date) %>% 
-  dplyr::mutate(dt = as.POSIXct(paste0(date, " 12:00:00"))) # assuming sampling time 12:00
+  dplyr::mutate(datetime = as.POSIXct(paste0(date, " 12:00:00"))) %>% # assuming sampling time 12:00
+  dplyr::filter(datetime > as.POSIXct("2015-07-09"))
 nuts
+
+# The nearest times
+time_index <- unique(d_all$datetime)
+# nuts$closest <- time_index[
+#   FNN::knnx.index(time_index, # The values to be queried (big df)
+#                   as.vector(nuts$datetime), # The value to find the closest match to (small df)
+#                   k = 1)] # The number of closest values to return
+nuts <- nuts %>% 
+  dplyr::mutate(closest = time_index[
+  FNN::knnx.index(time_index, # The values to be queried (big df)
+                  as.vector(nuts$datetime), # The value to find the closest match to (small df)
+                  k = 1)]) %>%  # The number of closest values to return
+  dplyr::select(-date, -datetime) %>% 
+  dplyr::rename(NO3NO2 = `NO3+NO2`)
+tmp <- left_join(d_all, nuts, by = c("datetime" = "closest"))
+
 ```
 ```{r Combine discrete and continous data, echo=FALSE}
 # at
