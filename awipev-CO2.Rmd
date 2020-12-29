@@ -218,7 +218,7 @@ d_all <- d_all %>%
   dplyr::mutate(temp_mix = ifelse(!is.na(temp_insitu_11m), temp_insitu_11m, temp_insitu_ctd_9m))
 ```
 
-```{r read and prepare discrete data, echo=FALSE, warning=FALSE, message=FALSE}
+```{r read and prepare discrete AT+CT, echo=FALSE, warning=FALSE, message=FALSE}
 d <- tibble(
   read.table(paste0(path, "fb_data/Discrete_analyses_AT_CT/Discrete_sampling_AWIPEV.csv"), header = T, dec = ".", as.is = T, sep = ";", fill = TRUE)
 ) %>% 
@@ -376,7 +376,15 @@ discrete_is_na$pco2_calc_fb <- NA
 discrete <- bind_rows(discrete_no_na, discrete_is_na) %>% 
   dplyr::arrange(date)
 ```
-
+```{r read and prepare nutrients, echo=FALSE, warning=FALSE, message=FALSE}
+# File "Ferrybox nutrients 2014-2018.xlsx" provided by 
+# Willem van de Poll <w.h.van.de.poll@rug.nl> on 2020-01-16
+nuts <- readxl::read_excel(paste0(path, "fb_data/Ferrybox nutrients 2014-2018.xlsx"),
+                           skip =1) %>% 
+  drop_na(date) %>% 
+  dplyr::mutate(dt = as.POSIXct(paste0(date, " 12:00:00"))) # assuming sampling time 12:00
+nuts
+```
 ```{r Combine discrete and continous data, echo=FALSE}
 # at
 closest <- which.closest(discrete$datetime, d_all$datetime) # closest date and time
