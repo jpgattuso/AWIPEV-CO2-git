@@ -60,6 +60,8 @@ if (!require("skimr")) install.packages("skimr")
 library("skimr")
 if (!require("FNN")) install.packages("FNN")
 library("FNN")
+if (!require("patchwork")) install.packages("patchwork")
+library("patchwork")
 
 knitr::opts_chunk$set(echo = TRUE)
 
@@ -233,7 +235,7 @@ d <- tibble(
                 qflag_ph_s_dur = qflag_pH_s_durafet)
 
 # Add the flag location: some samples have been collected at the pier. Notes them here.
-# Flag 1 = collected on the peer by Niskin and flag 0 = collected in the FB (normal collect)
+# Flag 1 = collected on the pIer by Niskin and flag 0 = collected in the FB (normal collect)
  # And keep data with flag 0 for FB location
 d <- d%>%
   dplyr::mutate(location_flag = ifelse(datetime == as.POSIXct("2016-04-21 09:25:00") | 
@@ -310,7 +312,8 @@ d <- left_join(d, d_all %>%
                      temp_insitu_ctd,
                      pressure_insitu_ctd
                    )
-                 ), by = "closest_datetime") 
+                 ), by = "closest_datetime") %>% 
+  dplyr::select(-closest_datetime)
 
 # Conversion of spec pH of in situ samples to in situ temp
 pH_seafet <- d %>%
@@ -378,16 +381,15 @@ discrete_is_na$pco2_calc_fb <- NA
 discrete <- bind_rows(discrete_no_na, discrete_is_na) %>% 
   dplyr::arrange(date)
 ```
-```{r read and prepare nutrients, echo=FALSE, warning=FALSE, message=FALSE}
+```{r read and prepare nutrient data, echo=FALSE, warning=TRUE, message=FALSE}
 # File "Ferrybox nutrients 2014-2018.xlsx" provided by 
 # Willem van de Poll <w.h.van.de.poll@rug.nl> on 2020-01-16
+# nutrients in umol/l
 nuts <- readxl::read_excel(paste0(path, "fb_data/Ferrybox nutrients 2014-2018.xlsx"),
                            skip =1) %>% 
   drop_na(date) %>% 
   dplyr::mutate(datetime = as.POSIXct(paste0(date, " 12:00:00"))) %>% # assuming sampling time 12:00
   dplyr::filter(datetime > as.POSIXct("2015-07-09"))
-nuts
-
 # The nearest times
 time_index <- unique(d_all$datetime)
 # nuts$closest <- time_index[
@@ -401,8 +403,19 @@ nuts <- nuts %>%
                   k = 1)]) %>%  # The number of closest values to return
   dplyr::select(-date, -datetime) %>% 
   dplyr::rename(NO3NO2 = `NO3+NO2`)
-d_all <- left_join(d_all, nuts, by = c("datetime" = "closest"))
+# cleanup and convert in umol/kg
+d_all <- left_join(d_all, nuts, by = c("datetime" = "closest")) #%>% 
+  #dplyr::select(-closest_datetime)
+d_all <- d_all %>% 
+  dplyr::mutate(density_fb = seacarb::rho(S = sal_fb, T = temp_fb, P = 0),
+                PO4 = PO4 / (density_fb/1000),
+                NH4 = NH4 / (density_fb/1000),
+                NO3NO2 = NO3NO2 / (density_fb/1000),
+                NO3 = NO3 / (density_fb/1000),
+                Si = Si / (density_fb/1000)
+  )
 ```
+
 ```{r Combine discrete and continous data, echo=FALSE}
 # at
 closest <- which.closest(discrete$datetime, d_all$datetime) # closest date and time
@@ -498,7 +511,7 @@ The AWIPEV-CO2 project aims at starting the first time series for the carbonate 
 
 ### **AWIPEV Underwater Observatory**
 <div style="text-align: justify">  
-The AWIPEV Underwater Observatory has been deployed at Ny-Alesund (Spitsbergen, 78°55'18N, 11°56'31E) in June 2012. It is part of the German Project COSYNA (Coastal Observation Systems of the Northern- and Arctic Seas), which aims at increasing the availability of continuous real-time data from remote but climatically-sensitive ecosystems. The AWIPEV underwater observatory comprises a fully remote controlled FerryBox system fed with seawater pumped in front of the old peer at 12 m depth. Temperature, salinity, pressure, turbidity, oxygen, chl-*a* fluorescence are measured. Furthermore, an additional remote controlled underwater sensor unit able to profile from 12 m to the surface at any frequency carries additional sensors for salinity, pressure, turbidity, oxygen chl-*a* fluorescence and PAR. The system also comprises an ADCP for continuous measurements of currents and waves. Besides these standard sensors, the underwater unit is equipped with a webcam and stereo-optical device to remotely assess fish and jellyfish populations. The AWIPEV observatory is specifically designed for polar experimental work under extreme conditions including ice coverage and the inaccessibility for about 7 months during polar winter. During this time, the system is remotely controlled and maintained from Germany. All data sampled by the sensors are continuously sent to a central server system at Helgoland Island where the data are stored and processed. The processed data are open access and available at http://codm.hzg.de/codm.
+The AWIPEV Underwater Observatory has been deployed at Ny-Alesund (Spitsbergen, 78°55'18N, 11°56'31E) in June 2012. It is part of the German Project COSYNA (Coastal Observation Systems of the Northern- and Arctic Seas), which aims at increasing the availability of continuous real-time data from remote but climatically-sensitive ecosystems. The AWIPEV underwater observatory comprises a fully remote controlled FerryBox system fed with seawater pumped in front of the old pIer at 12 m depth. Temperature, salinity, pressure, turbidity, oxygen, chl-*a* fluorescence are measured. Furthermore, an additional remote controlled underwater sensor unit able to profile from 12 m to the surface at any frequency carries additional sensors for salinity, pressure, turbidity, oxygen chl-*a* fluorescence and PAR. The system also comprises an ADCP for continuous measurements of currents and waves. Besides these standard sensors, the underwater unit is equipped with a webcam and stereo-optical device to remotely assess fish and jellyfish populations. The AWIPEV observatory is specifically designed for polar experimental work under extreme conditions including ice coverage and the inaccessibility for about 7 months during polar winter. During this time, the system is remotely controlled and maintained from Germany. All data sampled by the sensors are continuously sent to a central server system at Helgoland Island where the data are stored and processed. The processed data are open access and available at http://codm.hzg.de/codm.
 
 <div style="text-align:center" markdown="1">
   <img  src="./Images/Container.png" width="200" height="200">
@@ -2298,6 +2311,73 @@ pdelta_ct_snapo
 pdelta_ct_snapo_dygraph
 p_ct_ts
 ```
+
+## Impact of nutrients
+```{r impact of nutrients, echo=FALSE, warning=TRUE, message=FALSE}
+# boxplot
+ts_PO4_bp <- d_all %>%
+  ggplot(aes(x = month(x = datetime, label = TRUE, abbr = TRUE), y = PO4)) +
+  #geom_violin(fill='lightblue', alpha=0.5, size=0.2, trim = TRUE, na.rm = TRUE) +
+  geom_boxplot(notch=FALSE, size=0.2, fill="grey50", outlier.color = "blue", outlier.size = 0.3, na.rm = TRUE) +
+  labs(y = "PO4", x=NULL, title=NULL) +
+  Mytheme() +
+  theme(panel.grid.major.x = element_blank())
+
+ts_Si_bp <- d_all %>%
+  ggplot(aes(x = month(x = datetime, label = TRUE, abbr = TRUE), y = Si)) +
+  #geom_violin(fill='lightblue', alpha=0.5, size=0.2, trim = TRUE, na.rm = TRUE) +
+  geom_boxplot(notch=FALSE, size=0.2, fill="grey50", outlier.color = "blue", outlier.size = 0.3, na.rm = TRUE) +
+  labs(y = "Si", x=NULL, title=NULL) +
+  Mytheme() +
+  theme(panel.grid.major.x = element_blank())
+ts_Si_bp + ts_Si_bp
+# Effects of changes in PO4 and Si
+# 1st cakculate mean values
+means <- d_all %>% 
+  group_by(montht) %>% 
+  summarize(mean_ct = mean(ct, na.rm = TRUE),
+            mean_at_calc = mean(at_calc, na.rm = TRUE),
+            mean_pco2_calc = mean(pco2_calc_fb, na.rm = TRUE),
+            mean_sal = mean(sal_fb, na.rm = TRUE),
+            mean_temp = mean(temp_fb, na.rm = TRUE)) %>% 
+  ungroup()
+mean_ct <-  mean(means$mean_ct)
+mean_at_calc <-  mean(means$mean_at_calc)
+mean_pco2_calc <-  mean(means$mean_pco2_calc)
+mean_sal <-  mean(means$mean_sal)
+mean_temp <-  mean(means$mean_temp)
+# then check impacts using pco2 and AT
+carb_PO4_1 <- carb(24, mean_pco2_calc, mean_at_calc*1e-6, S = mean_sal, T = mean_temp, P = 0, 
+                 Pt = c(min(d_all$PO4/1e6, na.rm=TRUE), max(d_all$PO4/1e6, na.rm=TRUE)), Sit = 0,
+                 k1k2 = "l", kf = "dg", ks = "d", pHscale = "T", b = "u74")
+diff_PO4_1 <- carb_PO4_1[1,] - carb_PO4_1[2,]
+carb_Si_1 <- carb(24, mean_pco2_calc, mean_at_calc*1e-6, S = mean_sal, T = mean_temp, P = 0,
+                Pt = 0, Sit = c(min(d_all$Si/1e6, na.rm=TRUE), max(d_all$Si/1e6, na.rm=TRUE)), 
+                k1k2 = "l", kf = "dg", ks = "d", pHscale = "T", b = "u74")
+diff_Si_1 <- carb_Si_1[1,] - carb_Si_1[2,]
+
+# then check impacts using AT-DIC pair
+carb_PO4_2 <- carb(15, mean_at_calc*1e-6, mean_ct*1e-6, S = mean_sal, T = mean_temp, P = 0, 
+                 Pt = c(min(d_all$PO4/1e6, na.rm=TRUE), max(d_all$PO4/1e6, na.rm=TRUE)), Sit = 0,
+                 k1k2 = "l", kf = "dg", ks = "d", pHscale = "T", b = "u74")
+diff_PO4_2 <- carb_PO4_2[1,] - carb_PO4_2[2,]
+carb_Si_2 <- carb(15, mean_at_calc*1e-6, mean_ct*1e-6, S = mean_sal, T = mean_temp, P = 0,
+                Pt = 0, Sit = c(min(d_all$Si/1e6, na.rm=TRUE), max(d_all$Si/1e6, na.rm=TRUE)), 
+                k1k2 = "l", kf = "dg", ks = "d", pHscale = "T", b = "u74")
+diff_Si_2 <- carb_Si_2[1,] - carb_Si_2[2,]
+```
+
+The concentration of PO4 and Si varies with a factor 10 along a composite year. The ranges are respectively, `r round(range(d_all$PO4, na.rm = TRUE), digits = 2)` for PO4 and `r round(range(d_all$Si, na.rm = TRUE), digits = 2)` for Si. 
+
+### Using the pCO2-AT pair (hourly data)
+The impact of the min max changes of PO4 on pH, DIC, and Omega_a are small:  `r round(1000*diff_PO4_1$pH, digits=2)` mpH units, `r round(1e6*diff_PO4_1$DIC, digits=2)` umol/kg for CT and `r round(diff_PO4_1$OmegaAragonite, digits=2)` for OmegaAragonite.
+
+The impact of the min max changes of Si on pH, DIC, and Omega_a are small:  `r round(1000*diff_Si_1$pH, digits=2)` mpH units, `r round(1e6*diff_Si_1$DIC, digits=2)` umol/kg for CT and `r round(diff_Si_1$OmegaAragonite, digits=2)` for OmegaAragonite.
+
+### Using the CT-AT pair (discrete data)
+The impact of the min max changes of PO4 on pH, pCO2, and Omega_a are small:  `r round(1000*diff_PO4_2$pH, digits=2)` mpH units, `r round(diff_PO4_2$pCO2, digits=2)` uatm for pCO2 and `r round(diff_PO4_2$OmegaAragonite, digits=2)` for OmegaAragonite.
+
+The impact of the min max changes of PO4 on pH, pCO2, and Omega_a are small:  `r round(1000*diff_Si_2$pH, digits=2)` mpH units, `r round(diff_Si_2$pCO2, digits=2)` uatm for pCO2 and `r round(diff_Si_2$OmegaAragonite, digits=2)` for OmegaAragonite.
 
 ## Air-sea CO2 flux
 
