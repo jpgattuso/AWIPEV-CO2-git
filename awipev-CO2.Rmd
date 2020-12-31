@@ -2313,7 +2313,74 @@ p_ct_ts
 ```
 
 ## Impact of nutrients
-```{r impact of nutrients, echo=FALSE, warning=TRUE, message=FALSE}
+```{r impact of nutrients, echo=FALSE, warning=FALSE, message=FALSE}
+# boxplot
+ts_PO4_bp <- d_all %>%
+  ggplot(aes(x = month(x = datetime, label = TRUE, abbr = TRUE), y = PO4)) +
+  #geom_violin(fill='lightblue', alpha=0.5, size=0.2, trim = TRUE, na.rm = TRUE) +
+  geom_boxplot(notch=FALSE, size=0.2, fill="grey50", outlier.color = "blue", outlier.size = 0.3, na.rm = TRUE) +
+  labs(y = "PO4", x=NULL, title=NULL) +
+  Mytheme() +
+  theme(panel.grid.major.x = element_blank())
+
+ts_Si_bp <- d_all %>%
+  ggplot(aes(x = month(x = datetime, label = TRUE, abbr = TRUE), y = Si)) +
+  #geom_violin(fill='lightblue', alpha=0.5, size=0.2, trim = TRUE, na.rm = TRUE) +
+  geom_boxplot(notch=FALSE, size=0.2, fill="grey50", outlier.color = "blue", outlier.size = 0.3, na.rm = TRUE) +
+  labs(y = "Si", x=NULL, title=NULL) +
+  Mytheme() +
+  theme(panel.grid.major.x = element_blank())
+ts_Si_bp + ts_Si_bp
+# Effects of changes in PO4 and Si
+# 1st cakculate mean values
+means <- d_all %>% 
+  group_by(montht) %>% 
+  summarize(mean_ct = mean(ct, na.rm = TRUE),
+            mean_at_calc = mean(at_calc, na.rm = TRUE),
+            mean_pco2_calc = mean(pco2_calc_fb, na.rm = TRUE),
+            mean_sal = mean(sal_fb, na.rm = TRUE),
+            mean_temp = mean(temp_fb, na.rm = TRUE)) %>% 
+  ungroup()
+mean_ct <-  mean(means$mean_ct)
+mean_at_calc <-  mean(means$mean_at_calc)
+mean_pco2_calc <-  mean(means$mean_pco2_calc)
+mean_sal <-  mean(means$mean_sal)
+mean_temp <-  mean(means$mean_temp)
+# then check impacts using pco2 and AT
+carb_PO4_1 <- carb(24, mean_pco2_calc, mean_at_calc*1e-6, S = mean_sal, T = mean_temp, P = 0, 
+                 Pt = c(min(d_all$PO4/1e6, na.rm=TRUE), max(d_all$PO4/1e6, na.rm=TRUE)), Sit = 0,
+                 k1k2 = "l", kf = "dg", ks = "d", pHscale = "T", b = "u74")
+diff_PO4_1 <- carb_PO4_1[1,] - carb_PO4_1[2,]
+carb_Si_1 <- carb(24, mean_pco2_calc, mean_at_calc*1e-6, S = mean_sal, T = mean_temp, P = 0,
+                Pt = 0, Sit = c(min(d_all$Si/1e6, na.rm=TRUE), max(d_all$Si/1e6, na.rm=TRUE)), 
+                k1k2 = "l", kf = "dg", ks = "d", pHscale = "T", b = "u74")
+diff_Si_1 <- carb_Si_1[1,] - carb_Si_1[2,]
+
+# then check impacts using AT-DIC pair
+carb_PO4_2 <- carb(15, mean_at_calc*1e-6, mean_ct*1e-6, S = mean_sal, T = mean_temp, P = 0, 
+                 Pt = c(min(d_all$PO4/1e6, na.rm=TRUE), max(d_all$PO4/1e6, na.rm=TRUE)), Sit = 0,
+                 k1k2 = "l", kf = "dg", ks = "d", pHscale = "T", b = "u74")
+diff_PO4_2 <- carb_PO4_2[1,] - carb_PO4_2[2,]
+carb_Si_2 <- carb(15, mean_at_calc*1e-6, mean_ct*1e-6, S = mean_sal, T = mean_temp, P = 0,
+                Pt = 0, Sit = c(min(d_all$Si/1e6, na.rm=TRUE), max(d_all$Si/1e6, na.rm=TRUE)), 
+                k1k2 = "l", kf = "dg", ks = "d", pHscale = "T", b = "u74")
+diff_Si_2 <- carb_Si_2[1,] - carb_Si_2[2,]
+```
+
+The concentration of PO4 and Si varies with a factor 10 along a composite year. The ranges are respectively, `r round(range(d_all$PO4, na.rm = TRUE), digits = 2)` for PO4 and `r round(range(d_all$Si, na.rm = TRUE), digits = 2)` for Si. 
+
+### Using the pCO2-AT pair (hourly data)
+The impact of the min max changes of PO4 on pH, DIC, and Omega_a are small:  `r round(1000*diff_PO4_1$pH, digits=2)` mpH units, `r round(1e6*diff_PO4_1$DIC, digits=2)` umol/kg for CT and `r round(diff_PO4_1$OmegaAragonite, digits=2)` for OmegaAragonite.
+
+The impact of the min max changes of Si on pH, DIC, and Omega_a are small:  `r round(1000*diff_Si_1$pH, digits=2)` mpH units, `r round(1e6*diff_Si_1$DIC, digits=2)` umol/kg for CT and `r round(diff_Si_1$OmegaAragonite, digits=2)` for OmegaAragonite.
+
+### Using the CT-AT pair (discrete data)
+The impact of the min max changes of PO4 on pH, pCO2, and Omega_a are small:  `r round(1000*diff_PO4_2$pH, digits=2)` mpH units, `r round(diff_PO4_2$pCO2, digits=2)` uatm for pCO2 and `r round(diff_PO4_2$OmegaAragonite, digits=2)` for OmegaAragonite.
+
+The impact of the min max changes of PO4 on pH, pCO2, and Omega_a are small:  `r round(1000*diff_Si_2$pH, digits=2)` mpH units, `r round(diff_Si_2$pCO2, digits=2)` uatm for pCO2 and `r round(diff_Si_2$OmegaAragonite, digits=2)` for OmegaAragonite.
+
+## Impact of choice of constants
+```{r impact of constants, echo=FALSE, warning=FALSE, message=FALSE}
 # boxplot
 ts_PO4_bp <- d_all %>%
   ggplot(aes(x = month(x = datetime, label = TRUE, abbr = TRUE), y = PO4)) +
