@@ -155,7 +155,7 @@ ggplot(fit$model, aes_string(x = names(fit$model)[2], y = names(fit$model)[1])) 
 #                                   max = ~max(., na.rm = TRUE)))
 ```
 
-```{r read data, cleanup and prepare ferrybox data, echo=FALSE, warning=FALSE, message=FALSE}
+```{r read observatory data, cleanup and prepare ferrybox data, echo=FALSE, warning=FALSE, message=FALSE}
 d_hour <-
   readRDS(file = paste0(
     path,
@@ -163,7 +163,7 @@ d_hour <-
   ))
 d_hour <- d_hour %>%
   dplyr::rename(
-    pco2 = pco2_corr_filtered,
+    pco2_fb = pco2_corr_filtered,
     temp_dur = temp_dur_filtered,
     pco2_raw = pco2_raw_filtered,
     sal_fb = sal_fb_filtered,
@@ -391,7 +391,8 @@ discrete <- bind_rows(discrete_no_na, discrete_is_na) %>%
 nuts <- readxl::read_excel(paste0(path, "fb_data/Ferrybox nutrients 2014-2018.xlsx"),
                            skip =1) %>% 
   drop_na(date) %>% 
-  dplyr::mutate(datetime = as.POSIXct(paste0(date, " 12:00:00"))) %>% # assuming sampling time 12:00
+  dplyr::mutate(datetime = as.POSIXct(paste0(date, " 12:00:00")),
+                ) %>% # assuming sampling time 12:00
   dplyr::filter(datetime > as.POSIXct("2015-07-09"))
 # The nearest times
 time_index <- unique(d_all$datetime)
@@ -405,17 +406,17 @@ nuts <- nuts %>%
                   as.vector(nuts$datetime), # The value to find the closest match to (small df)
                   k = 1)]) %>%  # The number of closest values to return
   dplyr::select(-date, -datetime) %>% 
-  dplyr::rename(no3no2 = `no3+no2`)
+  dplyr::rename(NO3NO2 = `NO3+NO2`)
 # cleanup and convert in umol/kg
 d_all <- left_join(d_all, nuts, by = c("datetime" = "closest")) #%>% 
   #dplyr::select(-closest_datetime)
 d_all <- d_all %>% 
   dplyr::mutate(density_fb = seacarb::rho(S = sal_fb, T = temp_fb, P = 0),
-                po4 = po4 / (density_fb/1000),
-                nh4 = nh4 / (density_fb/1000),
-                no3no2 = no3no2 / (density_fb/1000),
-                no3 = no3 / (density_fb/1000),
-                si = si / (density_fb/1000)
+                po4 = PO4 / (density_fb/1000),
+                nh4 = NH4 / (density_fb/1000),
+                no3no2 = NO3NO2 / (density_fb/1000),
+                no3 = NO3 / (density_fb/1000),
+                si = Si / (density_fb/1000)
   )
 ```
 
@@ -1194,7 +1195,7 @@ There are a lot of outliers in the 4th period (since the new analyzer was set up
 
 <!-- ``` -->
 
-## *p*CO~2~
+## *p*CO~2~ and *f*CO~2~
 The HydroC CO~2~ FT sensor (S/N: CO2FT-0215-001) was bought from Contros (Germany) in February 2015. It was deployed in the FerryBox with other sensors since July 2015, the 20th. A spare sensor (S/N: CO2FT-0515-001) was also bought in March 2015 and carried to Ny-Alesund to replace the first one in case of calibration or problem. Both sensors were set on a cycle according to informations given by Contros in March 2015 (c.kirbach@contros.eu):
 
 30 min warm up --> (3 min Zeroing + 15 min Flushing + 702 minutes Measuring) --> (3 + 15 + 702)...
@@ -1207,11 +1208,30 @@ During those steps (except zeroing) the sensor runs normally. Equilibration betw
 
 ### **Corrected Contros vs calculated *p*CO~2~ data**
 
+```{r pco2 to fco2, echo=FALSE, warning=FALSE, message=FALSE}
+d_all <- d_all %>%
+  dplyr::mutate(
+    fco2_fb = seacarb::p2fCO2(
+      pCO2 = pco2_fb,
+      T = temp_fb,
+      Patm = 1,
+      P = 0),
+    fco2_fb_insi_temp = seacarb::fCO2insi(
+      fCO2lab = fco2_fb,
+      Tlab = temp_fb,
+      SST = temp_insitu_11m),
+    .after = pco2_fb
+)
+```
+
+We first calculate fCO2 from pCO2 and then express fCO2 at in situ temperature. Ideally, this should be done with SST as the goal is to estimate air-sea CO2 fluxes. I therefroe use the in situ temperature at 11 m and we will need to speculate on stratitication.
+
+
 ```{r measured vs calculated pCO2, echo=FALSE, warning=FALSE, message=FALSE}
 title <- "Contros vs calculated pCO2"
-fit <- lmodel2(data = d_all,  pco2_corr ~ pco2_calc_fb , nperm = 99)
+fit <- lmodel2(data = d_all,  pco2_fb ~ pco2_calc_fb , nperm = 99)
 
-p <-  ggplot(d_all,aes(x=pco2_calc_fb, y= pco2_corr, label = monthd))+
+p <-  ggplot(d_all,aes(x=pco2_calc_fb, y= pco2_fb, label = monthd))+
    geom_text(aes(color = factor(monthd)))+
   scale_color_discrete(guide="none")+
   geom_abline(slope = 1, intercept = 0, linetype = "dashed") +
@@ -1233,7 +1253,7 @@ print(p) # pco2_calc_fb_pco2_corr_text
 
 ```{r Final pCO2, echo=FALSE, warning=FALSE, message=FALSE, out.width='100%', fig.align="center"}
 pco2_contros_xts <-
-  dplyr::select(d_all, datetime, pco2_calc_fb, pco2_corr)
+  dplyr::select(d_all, datetime, pco2_calc_fb, pco2_fb)
 pco2_contros_xts <-
   as.xts(pco2_contros_xts, order.by = d_all$datetime)
 dygraph(pco2_contros_xts,
@@ -1241,7 +1261,7 @@ dygraph(pco2_contros_xts,
         main = "<i>p</i>CO<sub>2</sub>",
         ylab = "<i>p</i>CO<sub>2</sub>") %>%
   dySeries(
-    "pco2_corr",
+    "pco2_fb",
     label = "Corrected pCO2",
     color =  RColorBrewer::brewer.pal(3, "Dark2")[1],
     strokeWidth = 0,
@@ -1301,14 +1321,14 @@ dygraph(pco2_contros_xts,
 # now remove outliers
 d_all <- d_all %>%
   dplyr::mutate(
-    pco2_corr = case_when(
+    pco2_fb = case_when(
       date > as.Date("2016-04-01") &
-        date <  as.Date("2017-02-05") & pco2_corr > 400 ~ NA_real_,
+        date <  as.Date("2017-02-05") & pco2_fb > 400 ~ NA_real_,
       #date == as.Date("2015-11-19") & sal_mix < 33 ~ NA_real_,
       date > as.Date("2017-08-01") &
-        date <  as.Date("2017-09-30") & pco2_corr > 300 ~ NA_real_,
+        date <  as.Date("2017-09-30") & pco2_fb > 300 ~ NA_real_,
       #date == as.Date("2017-03-22") & sal_mix < 34 ~ NA_real_,
-      TRUE ~ pco2_corr
+      TRUE ~ pco2_fb
     )
   )
 ```
@@ -2431,11 +2451,11 @@ pander(const)
 ```{r impact of constants, echo=FALSE, warning=FALSE, message=FALSE}
 # Compare Lueker and Sulpis
 d_ls <- d_all %>% 
-  drop_na(pco2_corr, at_calc, sal_fb, temp_fb)
+  drop_na(pco2_fb, at_calc, sal_fb, temp_fb)
 carb_l <-
   carb(
     24,
-    d_ls$pco2_corr,
+    d_ls$pco2_fb,
     d_ls$at_calc * 1e-6,
     S = d_ls$sal_fb,
     T = d_ls$temp_fb,
@@ -2451,7 +2471,7 @@ carb_l <-
 carb_s <-
   carb(
     24,
-    d_ls$pco2_corr,
+    d_ls$pco2_fb,
     d_ls$at_calc * 1e-6,
     S = d_ls$sal_fb,
     T = d_ls$temp_fb,
@@ -2680,7 +2700,7 @@ d_all <- dplyr::left_join(d_all, meteo, by = "datetime")
 
 ##TO DO: check calculations by Miller et al. (2020); use formulation of Wanninkhof 2014?
 d_all <- d_all %>%
-  dplyr::mutate(delta_pco2 = pco2_corr - pco2_air, # ppm
+  dplyr::mutate(delta_pco2 = pco2_fb - pco2_air, # ppm
                 k600 = 0.266 * ws^2, #cm/hr Ho et al. (2006)
                 Sc = 2073.1 - (125.62*temp_insitu_11m) + (3.6276*temp_insitu_11m^2) - (0.043219*temp_insitu_ctd^3), #dimensionless
                 k = k600 * (Sc/600)^-0.5, #cm/h
@@ -2750,7 +2770,7 @@ d_all <- dplyr::mutate(d_all, month = as.factor(month(x = datetime, label = TRUE
 saveRDS(file= paste0(path, "fb_data/d_all.rds"), d_all)
 
 pangaea <- as_tibble(d_all) %>% 
-  dplyr::select(datetime, pressure_insitu_ctd, sal_insitu_ctd, sal_fb, sal_mix, temp_insitu_11m, temp_insitu_ctd, temp_fb, temp_sf, temp_dur, at, ct, ph_s_sf_temp_insi, ph_s_dur_temp_fb, phcalc_fb, pco2_corr, pco2_calc_fb, at_calc, ph_dur_corr, pHint_tot_sf) %>%
+  dplyr::select(datetime, pressure_insitu_ctd, sal_insitu_ctd, sal_fb, sal_mix, temp_insitu_11m, temp_insitu_ctd, temp_fb, temp_sf, temp_dur, at, ct, ph_s_sf_temp_insi, ph_s_dur_temp_fb, phcalc_fb, pco2_fb, pco2_calc_fb, at_calc, ph_dur_corr, pHint_tot_sf) %>%
   dplyr::rename(pressure = pressure_insitu_ctd,
                 s_insitu = sal_insitu_ctd,
                 s_fb = sal_fb, 
@@ -2765,7 +2785,7 @@ pangaea <- as_tibble(d_all) %>%
                 ct = ct, 
                 ph_s_sf_t_insi = ph_s_sf_temp_insi, 
                 ph_s_dur_t_fb = ph_s_dur_temp_fb,
-                pco2 = pco2_corr,
+                pco2 = pco2_fb,
                 pco2_calc = pco2_calc_fb,
                 pH_sf = pHint_tot_sf,
                 ph_dur = ph_dur_corr,
