@@ -3,6 +3,7 @@ title: "Carbonate chemistry at Ny-Ålesund: AWIPEV-CO~2~ Project"
 author: "Jean-Pierre Gattuso and Samir Alliouane"
 date: '`r format(Sys.Date(), "%d %B %Y")`'
 output:
+  rmarkdown::
   rmarkdown::html_document:
     theme: paper
     number_sections: false
@@ -62,6 +63,8 @@ if (!require("FNN")) install.packages("FNN")
 library("FNN")
 if (!require("patchwork")) install.packages("patchwork")
 library("patchwork")
+if (!require("pander")) install.packages("pander")
+library("pander")
 
 knitr::opts_chunk$set(echo = TRUE)
 
@@ -152,7 +155,7 @@ ggplot(fit$model, aes_string(x = names(fit$model)[2], y = names(fit$model)[1])) 
 #                                   max = ~max(., na.rm = TRUE)))
 ```
 
-```{r Read, cleanup and prepare ferrybox data, echo=FALSE, warning=FALSE, message=FALSE}
+```{r read data, cleanup and prepare ferrybox data, echo=FALSE, warning=FALSE, message=FALSE}
 d_hour <-
   readRDS(file = paste0(
     path,
@@ -160,7 +163,7 @@ d_hour <-
   ))
 d_hour <- d_hour %>%
   dplyr::rename(
-    pco2_corr = pco2_corr_filtered,
+    pco2 = pco2_corr_filtered,
     temp_dur = temp_dur_filtered,
     pco2_raw = pco2_raw_filtered,
     sal_fb = sal_fb_filtered,
@@ -402,17 +405,17 @@ nuts <- nuts %>%
                   as.vector(nuts$datetime), # The value to find the closest match to (small df)
                   k = 1)]) %>%  # The number of closest values to return
   dplyr::select(-date, -datetime) %>% 
-  dplyr::rename(NO3NO2 = `NO3+NO2`)
+  dplyr::rename(no3no2 = `no3+no2`)
 # cleanup and convert in umol/kg
 d_all <- left_join(d_all, nuts, by = c("datetime" = "closest")) #%>% 
   #dplyr::select(-closest_datetime)
 d_all <- d_all %>% 
   dplyr::mutate(density_fb = seacarb::rho(S = sal_fb, T = temp_fb, P = 0),
-                PO4 = PO4 / (density_fb/1000),
-                NH4 = NH4 / (density_fb/1000),
-                NO3NO2 = NO3NO2 / (density_fb/1000),
-                NO3 = NO3 / (density_fb/1000),
-                Si = Si / (density_fb/1000)
+                po4 = po4 / (density_fb/1000),
+                nh4 = nh4 / (density_fb/1000),
+                no3no2 = no3no2 / (density_fb/1000),
+                no3 = no3 / (density_fb/1000),
+                si = si / (density_fb/1000)
   )
 ```
 
@@ -2315,23 +2318,23 @@ p_ct_ts
 ## Impact of nutrients
 ```{r impact of nutrients, echo=FALSE, warning=FALSE, message=FALSE}
 # boxplot
-ts_PO4_bp <- d_all %>%
-  ggplot(aes(x = month(x = datetime, label = TRUE, abbr = TRUE), y = PO4)) +
+ts_po4_bp <- d_all %>%
+  ggplot(aes(x = month(x = datetime, label = TRUE, abbr = TRUE), y = po4)) +
   #geom_violin(fill='lightblue', alpha=0.5, size=0.2, trim = TRUE, na.rm = TRUE) +
   geom_boxplot(notch=FALSE, size=0.2, fill="grey50", outlier.color = "blue", outlier.size = 0.3, na.rm = TRUE) +
-  labs(y = "PO4", x=NULL, title=NULL) +
+  labs(y = "po4", x=NULL, title=NULL) +
   Mytheme() +
   theme(panel.grid.major.x = element_blank())
 
 ts_Si_bp <- d_all %>%
-  ggplot(aes(x = month(x = datetime, label = TRUE, abbr = TRUE), y = Si)) +
+  ggplot(aes(x = month(x = datetime, label = TRUE, abbr = TRUE), y = si)) +
   #geom_violin(fill='lightblue', alpha=0.5, size=0.2, trim = TRUE, na.rm = TRUE) +
   geom_boxplot(notch=FALSE, size=0.2, fill="grey50", outlier.color = "blue", outlier.size = 0.3, na.rm = TRUE) +
-  labs(y = "Si", x=NULL, title=NULL) +
+  labs(y = "si", x=NULL, title=NULL) +
   Mytheme() +
   theme(panel.grid.major.x = element_blank())
 ts_Si_bp + ts_Si_bp
-# Effects of changes in PO4 and Si
+# Effects of changes in po4 and si
 # 1st cakculate mean values
 means <- d_all %>% 
   group_by(montht) %>% 
@@ -2347,39 +2350,40 @@ mean_pco2_calc <-  mean(means$mean_pco2_calc)
 mean_sal <-  mean(means$mean_sal)
 mean_temp <-  mean(means$mean_temp)
 # then check impacts using pco2 and AT
-carb_PO4_1 <- carb(24, mean_pco2_calc, mean_at_calc*1e-6, S = mean_sal, T = mean_temp, P = 0, 
-                 Pt = c(min(d_all$PO4/1e6, na.rm=TRUE), max(d_all$PO4/1e6, na.rm=TRUE)), Sit = 0,
+carb_po4_1 <- carb(24, mean_pco2_calc, mean_at_calc*1e-6, S = mean_sal, T = mean_temp, P = 0, 
+                 Pt = c(min(d_all$po4/1e6, na.rm=TRUE), max(d_all$po4/1e6, na.rm=TRUE)), Sit = 0,
                  k1k2 = "l", kf = "dg", ks = "d", pHscale = "T", b = "u74")
-diff_PO4_1 <- carb_PO4_1[1,] - carb_PO4_1[2,]
+diff_po4_1 <- carb_po4_1[1,] - carb_po4_1[2,]
 carb_Si_1 <- carb(24, mean_pco2_calc, mean_at_calc*1e-6, S = mean_sal, T = mean_temp, P = 0,
-                Pt = 0, Sit = c(min(d_all$Si/1e6, na.rm=TRUE), max(d_all$Si/1e6, na.rm=TRUE)), 
+                Pt = 0, Sit = c(min(d_all$si/1e6, na.rm=TRUE), max(d_all$si/1e6, na.rm=TRUE)), 
                 k1k2 = "l", kf = "dg", ks = "d", pHscale = "T", b = "u74")
 diff_Si_1 <- carb_Si_1[1,] - carb_Si_1[2,]
 
 # then check impacts using AT-DIC pair
-carb_PO4_2 <- carb(15, mean_at_calc*1e-6, mean_ct*1e-6, S = mean_sal, T = mean_temp, P = 0, 
-                 Pt = c(min(d_all$PO4/1e6, na.rm=TRUE), max(d_all$PO4/1e6, na.rm=TRUE)), Sit = 0,
+carb_po4_2 <- carb(15, mean_at_calc*1e-6, mean_ct*1e-6, S = mean_sal, T = mean_temp, P = 0, 
+                 Pt = c(min(d_all$po4/1e6, na.rm=TRUE), max(d_all$po4/1e6, na.rm=TRUE)), Sit = 0,
                  k1k2 = "l", kf = "dg", ks = "d", pHscale = "T", b = "u74")
-diff_PO4_2 <- carb_PO4_2[1,] - carb_PO4_2[2,]
+diff_po4_2 <- carb_po4_2[1,] - carb_po4_2[2,]
 carb_Si_2 <- carb(15, mean_at_calc*1e-6, mean_ct*1e-6, S = mean_sal, T = mean_temp, P = 0,
-                Pt = 0, Sit = c(min(d_all$Si/1e6, na.rm=TRUE), max(d_all$Si/1e6, na.rm=TRUE)), 
+                Pt = 0, Sit = c(min(d_all$si/1e6, na.rm=TRUE), max(d_all$si/1e6, na.rm=TRUE)), 
                 k1k2 = "l", kf = "dg", ks = "d", pHscale = "T", b = "u74")
 diff_Si_2 <- carb_Si_2[1,] - carb_Si_2[2,]
 ```
 
-The concentration of PO4 and Si varies with a factor 10 along a composite year. The ranges are respectively, `r round(range(d_all$PO4, na.rm = TRUE), digits = 2)` for PO4 and `r round(range(d_all$Si, na.rm = TRUE), digits = 2)` for Si. 
+The concentration of po4 and si varies with a factor 10 along a composite year. The ranges are respectively, `r round(range(d_all$po4, na.rm = TRUE), digits = 2)` for po4 and `r round(range(d_all$si, na.rm = TRUE), digits = 2)` for si. 
 
 ### Using the pCO2-AT pair (hourly data)
-The impact of the min max changes of PO4 on pH, DIC, and Omega_a are small:  `r round(1000*diff_PO4_1$pH, digits=2)` mpH units, `r round(1e6*diff_PO4_1$DIC, digits=2)` umol/kg for CT and `r round(diff_PO4_1$OmegaAragonite, digits=2)` for OmegaAragonite.
+The impact of the min max changes of po4 on pH, DIC, and Omega_a are small:  `r round(1000*diff_po4_1$pH, digits=2)` mpH units, `r round(1e6*diff_po4_1$DIC, digits=2)` umol/kg for CT and `r round(diff_po4_1$OmegaAragonite, digits=2)` for OmegaAragonite.
 
-The impact of the min max changes of Si on pH, DIC, and Omega_a are small:  `r round(1000*diff_Si_1$pH, digits=2)` mpH units, `r round(1e6*diff_Si_1$DIC, digits=2)` umol/kg for CT and `r round(diff_Si_1$OmegaAragonite, digits=2)` for OmegaAragonite.
+The impact of the min max changes of si on pH, DIC, and Omega_a are small:  `r round(1000*diff_Si_1$pH, digits=2)` mpH units, `r round(1e6*diff_Si_1$DIC, digits=2)` umol/kg for CT and `r round(diff_Si_1$OmegaAragonite, digits=2)` for OmegaAragonite.
 
 ### Using the CT-AT pair (discrete data)
-The impact of the min max changes of PO4 on pH, pCO2, and Omega_a are small:  `r round(1000*diff_PO4_2$pH, digits=2)` mpH units, `r round(diff_PO4_2$pCO2, digits=2)` uatm for pCO2 and `r round(diff_PO4_2$OmegaAragonite, digits=2)` for OmegaAragonite.
+The impact of the min max changes of po4 on pH, pCO2, and Omega_a are small:  `r round(1000*diff_po4_2$pH, digits=2)` mpH units, `r round(diff_po4_2$pCO2, digits=2)` uatm for pCO2 and `r round(diff_po4_2$OmegaAragonite, digits=2)` for OmegaAragonite.
 
-The impact of the min max changes of PO4 on pH, pCO2, and Omega_a are small:  `r round(1000*diff_Si_2$pH, digits=2)` mpH units, `r round(diff_Si_2$pCO2, digits=2)` uatm for pCO2 and `r round(diff_Si_2$OmegaAragonite, digits=2)` for OmegaAragonite.
+The impact of the min max changes of po4 on pH, pCO2, and Omega_a are small:  `r round(1000*diff_Si_2$pH, digits=2)` mpH units, `r round(diff_Si_2$pCO2, digits=2)` uatm for pCO2 and `r round(diff_Si_2$OmegaAragonite, digits=2)` for OmegaAragonite.
 
 ## Impact of choice of constants
+### Using mean values
 ```{r impact of constants, echo=FALSE, warning=FALSE, message=FALSE}
 # Compare Lueker and Sulpis
 # use mean values calculated for impacts of nutrients above
@@ -2420,7 +2424,66 @@ const <- bind_rows(diff_ls_1, diff_ls_2) %>%
                 DIC = DIC * 1e6
                 ) %>% 
   dplyr::select(flag:T, pH, pCO2, DIC, OmegaAragonite)
-kable(const, digits = c(0, 1, 1, 3, 1, 1, 2))
+#kable(const, digits = c(0, 1, 1, 3, 1, 1, 2))
+pander(const)
+```
+### Using all values pCO2 and at_calc
+```{r impact of constants, echo=FALSE, warning=FALSE, message=FALSE}
+# Compare Lueker and Sulpis
+d_ls <- d_all %>% 
+  drop_na(pco2_corr, at_calc, sal_fb, temp_fb)
+carb_l <-
+  carb(
+    24,
+    d_ls$pco2_corr,
+    d_ls$at_calc * 1e-6,
+    S = d_ls$sal_fb,
+    T = d_ls$temp_fb,
+    P = 0,
+    Pt = 0,
+    Sit = 0,
+    k1k2 = "l",
+    kf = "dg",
+    ks = "d",
+    pHscale = "T",
+    b = "u74"
+  )
+carb_s <-
+  carb(
+    24,
+    d_ls$pco2_corr,
+    d_ls$at_calc * 1e-6,
+    S = d_ls$sal_fb,
+    T = d_ls$temp_fb,
+    P = 0,
+    Pt = 0,
+    Sit = 0,
+    k1k2 = "s20",
+    kf = "dg",
+    ks = "d",
+    pHscale = "T",
+    b = "u74"
+  )
+diff_ls <- as_tibble(carb_l - carb_s)
+d_ls <- bind_cols(d_ls, diff_ls)
+
+# plot
+lm <- lm2(x = tmp$sal_insitu_ctd_9m, y = d_all$sal_fb)
+p <-  ggplot(d_all,aes(x=sal_insitu_ctd_9m, y= sal_fb))+
+  geom_point( aes(color=factor(monthd))) + 
+  geom_abline(slope=1, intercept=0, linetype = "dashed")+
+  geom_abline(aes(intercept = lm$fit$regression.results[2,2], slope = lm$fit$regression.results[2,3]),colour = "blue") +
+  ylim(c(30.5,35.5)) +xlim(c(28,35.5)) +
+  labs(title = paste("","\n Adj R2 = ", signif(lm$fit$rsquare, 3),
+                     "; Intercept =", signif(lm$fit$regression.results[2,2], 3),
+                     "; Slope =", signif(lm$fit$regression.results[2,3], 3),
+                     "; P =", signif(lm$fit$P.param, 3),
+                     "; RMSE = ", signif(lm$rmse, 3))) +
+  theme(aspect.ratio = 1, plot.title = element_text(size = 7)) + #
+  coord_fixed(ratio = 1 )+
+  labs( x="Salinity CTD 9 m", y="Salinity FB ", color = "Months") + theme_bw()
+
+print(p) #p_sal_fb_ctd
 ```
 
 The difference induces by the choice of the carbonic acid constants is large for pH, pCO2 and DIC and negligible for OmegaAragonite.
@@ -2979,7 +3042,7 @@ All documents concerning maintenance, tasks to do, calibration... are accessible
     
 **crontab awipev@awipev-co2.obs-vlfr.fr**
 
-Si on veut remplacer intégralement les fichiers de pCloud par ceux de awipev-co2 : ajouter “--delete” à la commande rsync.
+si on veut remplacer intégralement les fichiers de pCloud par ceux de awipev-co2 : ajouter “--delete” à la commande rsync.
 Pattern des commandes : # m h dom mon dow command 
 
 * (Every 4 hour on the hour, a crontab action runs automatically the script ny-alesund/R/ny-alesund_cc.R. This script essentially appends the daily files from AWI-NRT database and cleans the data)
