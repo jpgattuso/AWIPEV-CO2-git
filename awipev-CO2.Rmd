@@ -1222,9 +1222,12 @@ d_all <- d_all %>%
       SST = temp_insitu_11m),
     .after = pco2_fb
 )
+
+set.caption("Difference fco2_fb - fco2_fb_insi_temp")
+pander(summary(d_all$fco2_fb - d_all$fco2_fb_insi_temp))
 ```
 
-We first calculate fCO2 from pCO2 and then express fCO2 at in situ temperature. Ideally, this should be done with SST as the goal is to estimate air-sea CO2 fluxes. I therefroe use the in situ temperature at 11 m and we will need to speculate on stratitication.
+We first calculate fCO2 from pCO2 and then express fCO2 at in situ temperature. Ideally, this should be done with SST as the goal is to estimate air-sea CO2 fluxes. I therefore use the in situ temperature at 11 m and we will need to speculate on stratification.
 
 
 ```{r measured vs calculated pCO2, echo=FALSE, warning=FALSE, message=FALSE}
