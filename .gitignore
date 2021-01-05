@@ -44,5 +44,6 @@ awipev-CO2.html
 figures/
 old/
 *.png
+*.log
 figures/*.png
 
