@@ -107,19 +107,40 @@ slope <- reg$Slope
   geom_point(size = 2, col = "blue") +
   geom_abline(aes(intercept = fit$regression.results[2,2], slope = fit$regression.results[2,3]),
               colour = "blue")  + 
-  labs(title = paste(titre,"\n Adj R2 = ", signif(fit$rsquare, 3),
+  labs(title = paste(title,"\n Adj R2 = ", signif(fit$rsquare, 3),
                      "; Intercept =", signif(intercept, 3),
                      "; Slope =", signif(slope, 3),
                      "; P =", signif(fit$P.param, 3)))
 }
 
 #################### Function RMSE for model 2 regression root mean square error
-lm2 <- function(x, y) { 
-  fit <- lmodel2(y  ~ x , nperm = 99)
-  intercept <- fit$regression.results[2,2]
-  slope <- fit$regression.results[2,3]
-  predicted <- intercept + x * slope
-  error <- predicted - x
+lm2 <- function(data = NULL, x, y) {
+  xs <- deparse(substitute(x))
+  ys <- deparse(substitute(y))
+#fit <- lmodel2(formula = y  ~ x, data = data, nperm = 99)
+  print(y)
+  #return(fit)
+
+  lmwrap <- function(d,y,x) {
+    ys <- deparse(substitute(y))
+    xs <- deparse(substitute(x))
+    f <- reformulate(xs,response=ys)
+    return(lm(f,data=d))
+}
+mydata <- data.frame(X=1:10,Y=rnorm(10))
+lmwrap(mydata,Y, X)
+
+lm2(x = d_all$pco2_calc_fb, y = d_all$pco2_fb)
+lm2(data = d_all, x=pco2_calc_fb, y=pco2_fb)
+
+lmodel2(d_all$pco2_calc_fb ~ d_all$pco2_fb, nperm = 99)
+
+  intercept_MA <- fit$regression.results[2,2]
+  slope_MA <- fit$regression.results[2,3]
+  intercept_OLS <- fit$regression.results[1,2]
+  slope_OLS <- fit$regression.results[1,3]
+  predicted <- intercept_OLS + df[[x]] * slope_OLS
+  error <- x - predicted
   my_list <- list(fit = fit, rmse = sqrt(mean(error^2, na.rm=TRUE)))
   return(my_list)
   }
@@ -1245,7 +1266,7 @@ p <-  ggplot(d_all,aes(x=pco2_calc_fb, y= pco2_fb, label = monthd))+
                      "; P =", signif(fit$P.param, 3))) +
   theme(aspect.ratio=1,plot.title = element_text(size=7)) + 
   coord_fixed(ratio = 1 ,xlim=c(200,460) , ylim=c(200,460))+
-  labs(x="Calculated pCO2", y="Contros pCO2 corrected", color = "Months") + theme_bw()  
+  labs(x="Calculated pCO2", y="Contros pCO2") + theme_bw()  
 ```
 The relationship between the Contros and calculated *p*CO~2~ is not good at all in the sense that it is far from the 1:1 line, despite a good r2 (`r round(fit$rsquare, digits=2)`).
 ```{r plot measured vs calculated pCO2, echo=FALSE, warning=FALSE, message=FALSE, out.width='100%', fig.align="center"}
