@@ -1,15 +1,14 @@
 ---
-title: "Carbonate chemistry at Ny-Ålesund: AWIPEV-CO~2~ Project" 
+title: "Carbonate chemistry at Ny-Ålesund" 
 author: "Jean-Pierre Gattuso and Samir Alliouane"
 date: '`r format(Sys.Date(), "%d %B %Y")`'
 output:
-  rmarkdown::
   rmarkdown::html_document:
     theme: paper
     number_sections: false
-    
 ---
 ![ ](Images/AWIPEV-Logo.jpg){width=250px}
+
 
 ```{r set-up, echo=FALSE, warning=FALSE, message=FALSE, include=FALSE}
 Sys.setlocale("LC_ALL", "en_US.UTF-8")
@@ -114,36 +113,25 @@ slope <- reg$Slope
 }
 
 #################### Function RMSE for model 2 regression root mean square error
+#test <- readr::read_csv(file="test_file")
 lm2 <- function(data = NULL, x, y) {
-  xs <- deparse(substitute(x))
-  ys <- deparse(substitute(y))
-#fit <- lmodel2(formula = y  ~ x, data = data, nperm = 99)
-  print(y)
-  #return(fit)
-
-  lmwrap <- function(d,y,x) {
-    ys <- deparse(substitute(y))
-    xs <- deparse(substitute(x))
-    f <- reformulate(xs,response=ys)
-    return(lm(f,data=d))
-}
-mydata <- data.frame(X=1:10,Y=rnorm(10))
-lmwrap(mydata,Y, X)
-
-lm2(x = d_all$pco2_calc_fb, y = d_all$pco2_fb)
-lm2(data = d_all, x=pco2_calc_fb, y=pco2_fb)
-
-lmodel2(d_all$pco2_calc_fb ~ d_all$pco2_fb, nperm = 99)
-
+  col_x <- eval(substitute(x), data)
+  col_y <- eval(substitute(y), data)
+  col_x <- x
+  col_y <- y
+fit <- lmodel2(col_y ~ col_x, nperm = 99)
   intercept_MA <- fit$regression.results[2,2]
   slope_MA <- fit$regression.results[2,3]
   intercept_OLS <- fit$regression.results[1,2]
   slope_OLS <- fit$regression.results[1,3]
-  predicted <- intercept_OLS + df[[x]] * slope_OLS
-  error <- x - predicted
-  my_list <- list(fit = fit, rmse = sqrt(mean(error^2, na.rm=TRUE)))
+  predicted <- intercept_OLS + col_x * slope_OLS
+  error <- col_x - predicted
+  my_list <- list(fit = print(fit), rmse = sqrt(mean(error^2, na.rm=TRUE)))
   return(my_list)
-  }
+}
+#z <- lm2(x = d_all$pco2_calc_fb, y = d_all$pco2_fb)
+#z <- lmodel2(d_all$pco2_fb ~ d_all$pco2_calc_fb)
+#z <- lm2(data = d_all, x = pco2_calc_fb, y = pco2_fb)
 
 #################### Mytheme
 Mytheme <- function(size_labs = 7, face_font="plain") {
@@ -2428,7 +2416,7 @@ The impact of the min max changes of po4 on pH, pCO2, and Omega_a are small:  `r
 
 ## Impact of choice of constants
 ### Using mean values
-```{r impact of constants, echo=FALSE, warning=FALSE, message=FALSE}
+```{r impact of constants 1, echo=FALSE, warning=FALSE, message=FALSE}
 # Compare Lueker and Sulpis
 # use mean values calculated for impacts of nutrients above
 means <- d_all %>% 
@@ -2472,7 +2460,8 @@ const <- bind_rows(diff_ls_1, diff_ls_2) %>%
 pander(const)
 ```
 ### Using all values pCO2 and at_calc
-```{r impact of constants, echo=FALSE, warning=FALSE, message=FALSE}
+
+```{r impact of constants 2, echo=FALSE, warning=FALSE, message=FALSE}
 # Compare Lueker and Sulpis
 d_ls <- d_all %>% 
   drop_na(pco2_fb, at_calc, sal_fb, temp_fb)
@@ -2512,7 +2501,7 @@ diff_ls <- as_tibble(carb_l - carb_s)
 d_ls <- bind_cols(d_ls, diff_ls)
 
 # plot
-lm <- lm2(x = tmp$sal_insitu_ctd_9m, y = d_all$sal_fb)
+lm <- lm2(x = d_all$sal_insitu_ctd_9m, y = d_all$sal_fb)
 p <-  ggplot(d_all,aes(x=sal_insitu_ctd_9m, y= sal_fb))+
   geom_point( aes(color=factor(monthd))) + 
   geom_abline(slope=1, intercept=0, linetype = "dashed")+
@@ -2530,7 +2519,7 @@ p <-  ggplot(d_all,aes(x=sal_insitu_ctd_9m, y= sal_fb))+
 print(p) #p_sal_fb_ctd
 ```
 
-The difference induces by the choice of the carbonic acid constants is large for pH, pCO2 and DIC and negligible for OmegaAragonite.
+The difference induced by the choice of the carbonic acid constants is large for pH, pCO2 and DIC and negligible for OmegaAragonite.
 
 ## Air-sea CO2 flux
 
