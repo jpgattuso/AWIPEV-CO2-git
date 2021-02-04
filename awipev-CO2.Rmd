@@ -216,6 +216,7 @@ d_all <- d_all %>%
 d_all <- d_all %>% 
   dplyr::mutate(datetime = d_hour$datetime, 
                 date = d_hour$date,
+                year = lubridate::year(d_hour$datetime), # year as a number
                 monthd = lubridate::month(d_hour$datetime), # month as a number
                 montht = lubridate::month(d_hour$datetime, label = TRUE, abbr = TRUE) # abbreviated months
   )
@@ -490,6 +491,11 @@ saveRDS(file= paste0(path, "fb_data/d_all.rds"), d_all)
 # Duplicate datetime in closest_datetime to do the left_join
 d_all$closest_datetime <- d_all$datetime
 discrete <- left_join(discrete, d_all %>% dplyr::select(c(closest_datetime, voltEXT, voltINT)), by="closest_datetime")
+
+# order columns
+d_all <- d_all %>% 
+  dplyr::select(order(colnames(d_all))) %>% 
+  dplyr::select(datetime, date, year, monthd, montht, everything())
 ```
 
 <style type="text/css">
@@ -1228,8 +1234,7 @@ d_all <- d_all %>%
     fco2_fb_insi_temp = seacarb::fCO2insi(
       fCO2lab = fco2_fb,
       Tlab = temp_fb,
-      SST = temp_insitu_11m),
-    .after = pco2_fb
+      SST = temp_insitu_11m)
 )
 
 set.caption("Difference fco2_fb - fco2_fb_insi_temp")
@@ -2779,7 +2784,13 @@ The annual air-sea CO2 flux is `r round(sum(air_sea_month), digits = 0)` mol/(m2
 # d_all comprises additional columns calculated in this script
 d_all$at <- ifelse(is.nan(d_all$at), NA, d_all$at) # replace all NaN by NA
 d_all$ct <- ifelse(is.nan(d_all$at), NA, d_all$ct) # replace all NaN by NA
-d_all <- dplyr::mutate(d_all, month = as.factor(month(x = datetime, label = TRUE)))
+#d_all <- dplyr::mutate(d_all, month = as.factor(month(x = datetime, label = TRUE)))
+
+# order columns
+d_all <- d_all %>% 
+  dplyr::select(order(colnames(d_all))) %>% 
+  dplyr::select(datetime, date, year, monthd, montht, everything())
+
 saveRDS(file= paste0(path, "fb_data/d_all.rds"), d_all)
 
 pangaea <- as_tibble(d_all) %>% 
