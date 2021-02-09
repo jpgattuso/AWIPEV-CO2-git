@@ -94,22 +94,30 @@ which.closest <- function(x, table, ...) {
 }
 
 #################### Regression function
-# function regression plot with model II equation (MA) in title
-## Dans labs ajout de la variable TITRE pour mettre titre avant chaque graphe
-ggreg2 <- function (fit, xdata, ydata) { # x and y are the names of the variables
-  fit_data <- data.frame(fit$x, fit$y)
-  colnames(fit_data) = c(xdata, ydata)
-reg <- fit$regression.results[2,] #one selects MA only
-intercept <- reg$Intercept
-slope <- reg$Slope
-  ggplot(data = fit_data, aes_string(x = xdata, y = ydata)) + 
-  geom_point(size = 2, col = "blue") +
-  geom_abline(aes(intercept = fit$regression.results[2,2], slope = fit$regression.results[2,3]),
+# function regression plot with equation (MA or OLS) in title
+ggreg <- function (xdata, ydata, type = "OLS", plot = TRUE, title = "title") { # x and y are the names of the variables
+  fit_data <- tibble(xdata, ydata)
+  colnames(fit_data) = c("xdata", "ydata")
+  fit <- print(lmodel2::lmodel2(ydata ~ xdata))
+if (type == "OLS") ty = 1 #one selects OLS only
+if (type == "MA") ty = 2 #one selects MA only
+#reg <- fit$regression.results[ty,] #one selects OLS only
+intercept <- fit$regression.results$Intercept[ty]
+slope <- fit$regression.results$Slope[ty]
+if (plot == TRUE) {
+  plt <- ggplot(data = fit_data, aes(x = xdata, y = ydata)) + 
+  geom_point(na.rm = TRUE, size = 2, colour = "blue") +
+  geom_abline(aes(intercept = intercept, slope = slope),
               colour = "blue")  + 
-  labs(title = paste(title,"\n Adj R2 = ", signif(fit$rsquare, 3),
+  labs(title = paste(title, "; type: ", type,
+                     "\n R2 = ", round(fit$rsquare, digits = 2),
                      "; Intercept =", signif(intercept, 3),
                      "; Slope =", signif(slope, 3),
                      "; P =", signif(fit$P.param, 3)))
+  return(plt)
+  } else {
+  return(fit)
+}
 }
 
 #################### Function RMSE for model 2 regression root mean square error
