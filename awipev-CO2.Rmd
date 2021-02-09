@@ -74,20 +74,6 @@ table_nums <- captioner(prefix = "Table")
 if (Sys.getenv("LOGNAME") == "gattuso") path = "../../pCloud\ Sync/Documents/experiments/exp168_awipev-CO2/"
 if (Sys.getenv("LOGNAME") == "samir") path = "../../pCloud\ Sync/exp168_awipev-CO2/"
 
-
-######## function to make regression plot with model I equation in title
-ggreg <- function (fit, point_size=2) {
-  ggplot(fit$model, aes_string(x = names(fit$model)[2],
-                               y = names(fit$model)[1])) +
-    geom_point(size = point_size, col = "blue") +
-    stat_smooth(method = "lm", col = "black") +
-    labs(title = paste(title, "\nAdj R2 = ",signif(summary(fit)$adj.r.squared, 5),
-                       "; Intercept =",signif(fit$coef[[1]],5 ),
-                       "; Slope =",signif(fit$coef[[2]], 5),
-                       "; P =",signif(summary(fit)$coef[2,4], 5))) +
-    theme(plot.title = element_text(size=7))
-}
-
 #################### which.closest function
 which.closest <- function(x, table, ...) {
   round(approx(x=table, y=1:length(table), xout=x, ...)$y)

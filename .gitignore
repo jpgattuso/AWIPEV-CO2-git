@@ -47,3 +47,5 @@ old/
 *.log
 figures/*.png
 
+# Ignore others
+.DS_Store
