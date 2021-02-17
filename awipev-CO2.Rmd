@@ -596,7 +596,7 @@ kable(z, digits = 1)
 
 # Good data per year
 
-rm(d_min)
+#rm(d_min)
 ```
 
 
