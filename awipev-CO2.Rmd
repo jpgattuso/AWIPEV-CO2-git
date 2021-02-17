@@ -593,6 +593,9 @@ p <- ggplot(data = zz, aes(x = name, y = value, fill = Flag)) +
   theme(plot.margin = margin(t = 0, r = 0.0, b = 0, l = 0.0, unit = "cm"))
 ggsave(filename = "figures/availability.png", plot = p, width = 20, units = "cm")
 kable(z, digits = 1)
+
+# Good data per year
+
 rm(d_min)
 ```
 
