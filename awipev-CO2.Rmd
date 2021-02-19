@@ -356,12 +356,14 @@ colnames(seafetph) <- c("date", "mean", "sd")
 durafetph <- pH_durafet_mean
 colnames(durafetph) <- c("date", "mean", "sd")
 pH_seafet_durafet <- rbind(seafetph,durafetph)
-
 #calculations for all pH spectro measurement for sd
 sd_min <- min(pH_seafet_durafet$sd)
 sd_max <- max(pH_seafet_durafet$sd)
 sd_mean <- mean(pH_seafet_durafet$sd)
 
+#put back the right column name for the following script
+pH_durafet_mean$ph_s_dur_temp_fb <- pH_durafet_mean$ph_s_dur_temp_fb_mean
+pH_seafet_mean$ph_s_sf_temp_insi <- pH_seafet_mean$ph_s_sf_temp_insi_mean
 #  make means in "d" to have same format and call it "discrete"
 discrete <- d %>%
   dplyr::group_by(date) %>%
@@ -402,6 +404,7 @@ discrete_is_na$pco2_calc_fb <- NA
 discrete <- bind_rows(discrete_no_na, discrete_is_na) %>% 
   dplyr::arrange(date)
 ```
+
 ```{r read and prepare nutrient data, echo=FALSE, warning=TRUE, message=FALSE}
 # File "Ferrybox nutrients 2014-2018.xlsx" provided by 
 # Willem van de Poll <w.h.van.de.poll@rug.nl> on 2020-01-16
