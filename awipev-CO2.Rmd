@@ -594,9 +594,18 @@ p <- ggplot(data = zz, aes(x = name, y = value, fill = Flag)) +
 ggsave(filename = "figures/availability.png", plot = p, width = 20, units = "cm")
 kable(z, digits = 1)
 
-# Good data per year
-
-#rm(d_min)
+# Monthly distribution of hourly data
+d2 <- d_all %>% 
+  dplyr::select(datetime, montht, pco2_inst, ph_s_sf_temp_insi)
+p <- ggplot(data = d2, aes(x = montht, y = pco2_inst)) +
+  geom_bar(stat="identity", width = 0.3) +
+  scale_fill_discrete(labels = labels) + 
+  labs(x="Month", y="pCO2", title = "") +
+  Mytheme(size_labs = 8) +
+  theme(plot.margin = margin(t = 0, r = 0.0, b = 0, l = 0.0, unit = "cm"))
+p
+ggsave(filename = "figures/monthly_availability.png", plot = p, width = 20, units = "cm")
+#rm(d_min, d2)
 ```
 
 
