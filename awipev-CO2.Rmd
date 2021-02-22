@@ -468,7 +468,8 @@ d_all <- full_join(d_all, discrete2merge, by="datetime")
 
 # seaFET pH 
 discrete2merge <- discrete %>%
-  dplyr::select(closest_datetime, ph_s_sf_temp_insi) %>%
+  dplyr::select(closest_datetime, ph_s_sf_temp_insi_mean) %>%
+  dplyr::rename(ph_s_sf_temp_insi = ph_s_sf_temp_insi_mean) %>%
   dplyr::filter(!is.na(closest_datetime)) %>%
   rename(datetime=closest_datetime)
 d_all <- full_join(d_all, discrete2merge, by="datetime")
@@ -480,7 +481,8 @@ d_all <- d_all %>%
 
 # durafet pH 
 discrete2merge <- discrete %>%
-  dplyr::select(closest_datetime, ph_s_dur_temp_fb) %>%
+  dplyr::select(closest_datetime, ph_s_dur_temp_fb_mean) %>%
+  dplyr::rename(ph_s_dur_temp_fb = ph_s_dur_temp_fb_mean) %>%
   dplyr::filter(!is.na(closest_datetime)) %>%
   rename(datetime=closest_datetime)
 d_all <- full_join(d_all, discrete2merge, by="datetime")
