@@ -600,7 +600,7 @@ labels <- c("Good", "Not usable", "Outside regional range", "Outliers (despike)"
 colnames(z) <- c("Flag", "pCO2", "Salinity FerryBox", "In situ salinity", 
                  "Temperature FerryBox", "In situ temperature", "Durafet pH", "seaFET pH")
 zz <- pivot_longer(z, -Flag)
-p <- ggplot(data = zz, aes(x = name, y = value, fill = Flag)) +
+p_avail <- ggplot(data = zz, aes(x = name, y = value, fill = Flag)) +
   geom_bar(position = position_stack(reverse = TRUE), stat="identity", width = 0.3) +
   #scale_y_reverse() +
   scale_fill_discrete(labels = labels) + 
@@ -608,22 +608,40 @@ p <- ggplot(data = zz, aes(x = name, y = value, fill = Flag)) +
   #geom_text(aes(label=round(value, digits = 0)), position = position_stack((hjust = 0.5)), size = 3) +
   labs(x="", y="", title = "Distribution (%) of quality flags", color = "Quality flag") +
   Mytheme(size_labs = 8) +
-  theme(plot.margin = margin(t = 0, r = 0.0, b = 0, l = 0.0, unit = "cm"))
-ggsave(filename = "figures/availability.png", plot = p, width = 20, units = "cm")
+  theme(plot.margin = margin(t = -8, r = 0.0, b = -8, l = 0.0, unit = "cm"))
+#ggsave(filename = "figures/availability.png", plot = p_avail, width = 15, height = 8, units = "cm")
 kable(z, digits = 1)
 
 # Monthly distribution of hourly data
 d2 <- d_all %>% 
-  dplyr::select(datetime, montht, pco2_inst, ph_s_sf_temp_insi)
-p <- ggplot(data = d2, aes(x = montht, y = pco2_inst)) +
-  geom_bar(stat="identity", width = 0.3) +
-  scale_fill_discrete(labels = labels) + 
-  labs(x="Month", y="pCO2", title = "") +
+  dplyr::select(montht, pco2_inst, phINT)
+count_pco2_inst_no_NA <- sum(!is.na(d2$pco2_inst)) # total non-NA pCO2 values
+count_phINT_no_NA <-  sum(!is.na(d2$phINT)) # total non-NA pH seafet values
+# calculate the distribution of non-NA pCO2 and pH values per month
+d2_summary <- d2 %>% 
+  dplyr::group_by(montht) %>% 
+  dplyr::summarise(pco2_pc = round(100 * sum(!is.na(pco2_inst))/count_pco2_inst_no_NA, digits = 1),
+                   pH_pc = round(100 * sum(!is.na(phINT))/count_phINT_no_NA, digits = 1)
+                   )
+# plot the distribution of non-NA pCO2 and pH values per month
+d2_summary_long <- d2_summary %>% 
+  tidyr::pivot_longer(cols = c(pco2_pc, pH_pc))
+p_avail_month <- ggplot(data = d2_summary_long) +
+  geom_col(aes(x = montht, y = value, fill = name), position = "dodge", width = 0.75) +
+  scale_fill_discrete(name = "", labels = c("pCO2", "pH")) + 
+  labs(x="Month", y="Percent of total number of data", title = "") +
   Mytheme(size_labs = 8) +
-  theme(plot.margin = margin(t = 0, r = 0.0, b = 0, l = 0.0, unit = "cm"))
+  theme(plot.margin = margin(t = 0, r = 0, b = 0, l = 0.5, unit = "cm"))
+#ggsave(filename = "figures/monthly_availability.png", plot = p_avail_month, width = 15, height = 8, units = "cm")
+
+# Combine plots
+p <- (p_avail / p_avail_month)
+p <- p + plot_annotation(tag_levels = 'A')
 p
-ggsave(filename = "figures/monthly_availability.png", plot = p, width = 20, units = "cm")
-#rm(d_min, d2)
+ggsave(filename = "figures/availability.png", plot = p, width = 20, height = 15, units = "cm")
+
+# deleted uneeded data
+rm(d_min, list=ls(pattern="^d2"))
 ```
 
 
