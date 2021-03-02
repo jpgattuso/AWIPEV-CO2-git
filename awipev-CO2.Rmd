@@ -62,6 +62,8 @@ if (!require("patchwork")) install.packages("patchwork")
 library("patchwork")
 if (!require("pander")) install.packages("pander")
 library("pander")
+if (!require("tsibble")) install.packages("tsibble")
+library("tsibble")
 
 knitr::opts_chunk$set(echo = TRUE)
 
@@ -1802,12 +1804,15 @@ d_all <- d_all %>%
     )
   )
 
-seafet_depth_xts <- dplyr::select(d_all, datetime, ph_s_sf_temp_insi, pHint_tot_sf_7m, pHint_tot_sf_9m)
+seafet_depth_xts <- dplyr::select(d_all, datetime, ph_s_sf_temp_insi, pHint_tot_sf_1m, pHint_tot_sf_3m, pHint_tot_sf_5m, pHint_tot_sf_7m, pHint_tot_sf_9m)
 seafet_depth_xts <- as.xts(seafet_depth_xts, order.by = d_all$datetime)
 dygraph(seafet_depth_xts, group = "depth", main="pH seaFET", ylab="pHT") %>%
 dySeries("ph_s_sf_temp_insi", label = "pH spectro", color =  "red", strokeWidth = 0, pointSize = 4 ) %>%
 dySeries("pHint_tot_sf_9m", label = "pHT 9m", color =  RColorBrewer::brewer.pal(3, "Dark2")[1], strokeWidth = 0, pointSize = 1) %>%
 dySeries("pHint_tot_sf_7m", label = "pHT 7m", color =  RColorBrewer::brewer.pal(3, "Dark2")[2], strokeWidth = 0, pointSize = 1) %>%
+dySeries("pHint_tot_sf_5m", label = "pHT 5m", color =  RColorBrewer::brewer.pal(3, "Dark2")[3], strokeWidth = 0, pointSize = 1) %>%
+dySeries("pHint_tot_sf_3m", label = "pHT 3m", color =  RColorBrewer::brewer.pal(3, "Dark2")[4], strokeWidth = 0, pointSize = 1) %>%
+dySeries("pHint_tot_sf_1m", label = "pHT 1m", color =  RColorBrewer::brewer.pal(3, "Dark2")[5], strokeWidth = 0, pointSize = 1) %>%
 dyEvent(as.POSIXct("2017-08-24 12:00:00", tz="UTC"), "seaFET #1005 installed", labelLoc = "bottom", color="red") %>%
   dyEvent(as.POSIXct("2018-02-02 09:00:00", tz="UTC"), "seaFET settings changed to every 1H", labelLoc = "bottom", color="red") %>% 
   dyEvent(as.POSIXct("2018-04-17 12:00:00", tz="UTC"), "seaFET #0007 installed + continuous mode set", labelLoc = "bottom", color="red") %>%
@@ -1825,7 +1830,7 @@ dyEvent(as.POSIXct("2017-08-24 12:00:00", tz="UTC"), "seaFET #1005 installed", l
 
 ### **seaFET pH profiles**
 
-```{r seafet profile, echo=FALSE, message= FALSE, warning=FALSE, out.width="80%",fig.show='hold', fig.align="center"}
+```{r seafet profiles, echo=FALSE, message= FALSE, warning=FALSE, out.width="80%",fig.show='hold', fig.align="center"}
 # range <- d_all %>%
 #   dplyr::mutate(pH_range_more_6m = ifelse(pressure_insitu_ctd > 6, pHint_tot_sf, NA)) %>%
 #   group_by(montht) %>%
@@ -2878,6 +2883,83 @@ write_csv(pangaea, path = paste0(path, "fb_data/pangaea.csv"))
 # ph_dur = pH Durafet at FerryBox temperature (FerryBox)
 # ph_calc = pH at fb temp calculated from CT and AT samples collected at the FerryBox
 ```
+
+# ```{r whole time series, fig.width=10, fig.height=10, echo=FALSE, message= FALSE}
+# size_point <- 2 # size of data points
+# alpha <- 1 #transparency
+# 
+# d <- d_all %>% 
+#   as_tsibble(index = datetime) %>% 
+#   dplyr::arrange(datetime) %>%
+#   tsibble::fill_gaps() %>%
+#   dplyr::mutate(year_month = format(datetime, '%Y-%m'),
+#                 quarter = quarter(datetime)) %>%
+# #  dplyr::rename(pco2_contros = pco2_corr) %>% 
+#   replace(., is.na(.), NA) # replace NaN by NA everywhere
+# 
+# d_ts <- d %>%
+#   dplyr::select(datetime, temp_insitu_11m, sal_fb, par_air, pco2_inst,
+#                 pHint_tot_sf_9m, ph_s_sf_temp_insi, at_calc, at) #%>%
+#   #tidyr::pivot_longer(-datetime, values_to = "value")
+#   
+# #sal_fb
+# ts_sal <- d_all %>%
+#   ggplot(aes(x = datetime, y = sal_fb), na.rm=TRUE) +
+#   scale_x_datetime(breaks = date_breaks("1 year"), labels = date_format("%Y")) +
+#   geom_point(colour="blue", alpha=alpha, na.rm=TRUE, size=size_point) + 
+#   labs(title="Salinity FerryBox",x="", y="Salinity") +
+#   Mytheme(size_labs = 8)
+# # ts_sal_py <- ggplotly(ts_sal,dynamicTicks = TRUE)
+# # filename.html <- paste0(path_fig, "ts_sal_py.html")
+# # saveWidget(ts_sal_py, filename.html, selfcontained = T, libdir = "lib")
+# 
+# # temp_insitu_11m
+# ts_temp <- d_all %>%
+#   ggplot(aes(x = datetime, y = temp_insitu_11m), na.rm=TRUE) +
+#   scale_x_datetime(breaks = date_breaks("1 year"), labels = date_format("%Y")) +
+#   geom_point(colour="blue", alpha=alpha, na.rm=TRUE, size=size_point) + 
+#   labs(title="In situ temperature 11 m",x="", y="Temperature (°C)") +
+#   Mytheme(size_labs = 8)
+# 
+# # PAR
+# ts_par_air <- d_all %>%
+#   ggplot(aes(x = datetime, y = par_air), na.rm=TRUE) +
+#   scale_x_datetime(breaks = date_breaks("1 year"), labels = date_format("%Y")) +
+#   geom_point(colour="blue", alpha=alpha, na.rm=TRUE, size=size_point) + 
+#   labs(title="Atmospheric PAR",x="", y="PAR (umol m-2 s-1)") +
+#   Mytheme(size_labs = 8)
+# 
+# # PCO2 
+# ts_pCO2 <- d_all %>%
+#   ggplot() +
+#   scale_x_datetime(breaks = date_breaks("1 year"), labels = date_format("%Y")) +
+#   geom_point(aes(x = datetime, y = pco2_inst), 
+#              colour="blue", alpha=alpha, na.rm=TRUE, size=size_point) + 
+#   geom_point(aes(x = datetime, y = pco2_calc_fb), colour="red", alpha=alpha, na.rm=TRUE, size=size_point) + 
+#   labs(title="Mesured (blue) and calculated (CT+AT; red) pCO2",x="", y="pCO2 (uatm)") +
+#   Mytheme(size_labs = 8)
+# 
+# # SEAFET pH
+# ts_pH <- d_all %>%
+#   ggplot(aes(x = datetime, y = pHint_tot_sf_9m), na.rm=TRUE) +
+#   scale_x_datetime(breaks = date_breaks("1 year"), labels = date_format("%Y")) +
+#   geom_point(colour="blue", alpha=alpha, na.rm=TRUE, size=size_point) + 
+#   geom_point(aes(x = datetime, y = ph_s_sf_temp_insi), colour="red", alpha=alpha, na.rm=TRUE, size=size_point) + 
+#   labs(title="In situ pH below 8 m (seaFET in blue, spectrophotometric pH in red))",x="", y=expression(paste(pH[T]))) +
+#   Mytheme(size_labs = 8)
+# 
+# # AT
+# ts_at <- d_all %>%
+#   ggplot(aes(x = datetime, y = at_calc), na.rm=TRUE) +
+#   scale_x_datetime(breaks = date_breaks("1 year"), labels = date_format("%Y")) +
+#   geom_point(colour="blue", alpha=alpha, na.rm=TRUE, size=size_point) + 
+#   geom_point(aes(x = datetime, y = at), colour="red", alpha=alpha, na.rm=TRUE, size=size_point) + 
+#   labs(title="Total alkalinity calculated from salinity (blue) and discrete measurements (red)", x="", y="AT (umol/kg)") +
+#   Mytheme(size_labs = 8)
+# 
+# g <- cowplot::plot_grid(ts_sal, ts_temp, ts_par_air, ts_pCO2, ts_pH, ts_at, align='v', ncol=1)
+# print(g)
+# ```
 ## Maintenance
 <div style="text-align: justify"> 
 
