@@ -130,7 +130,10 @@ fit <- lmodel2(col_y ~ col_x, nperm = 99)
 #################### Mytheme
 Mytheme <- function(size_labs = 7, face_font="plain") {
   theme_bw() +
-  theme(axis.text.x = element_text(face=face_font, size=size_labs, color="black"),
+  theme(title = element_text(face=face_font, size=size_labs, color="black"),
+        legend.title = element_text(face=face_font, size=size_labs, color="black"),
+        legend.text = element_text(face=face_font, size=size_labs, color="black"),
+        axis.text.x = element_text(face=face_font, size=size_labs, color="black"),
         axis.title.x = element_text(face=face_font, size=size_labs),
         axis.text.y = element_text(face=face_font, color="black", size=size_labs),
         axis.title.y = element_text(face=face_font, size=size_labs),
@@ -138,7 +141,7 @@ Mytheme <- function(size_labs = 7, face_font="plain") {
         axis.ticks.y = element_line(size=0.1),
         axis.ticks.length = unit(1.1, "mm"),
         panel.grid.major = element_line(size = 0.25, color="black", linetype="dashed"),
-        aspect.ratio = 1 / 2,
+        #aspect.ratio = 1 / 2,
         plot.margin = margin(t = 0, r = 0, b = 0, l = 0, unit = "cm")
   )
 }
@@ -1790,7 +1793,15 @@ d_all <- d_all %>%
                 pHint_tot_sf_3m = ifelse(pressure_insitu_ctd >= 2 & pressure_insitu_ctd < 4, pHint_tot_sf, NA),
                 pHint_tot_sf_5m = ifelse(pressure_insitu_ctd >= 4 & pressure_insitu_ctd < 6, pHint_tot_sf, NA),
                 pHint_tot_sf_7m = ifelse(pressure_insitu_ctd >= 6 & pressure_insitu_ctd < 8, pHint_tot_sf, NA),
-                pHint_tot_sf_9m = ifelse(pressure_insitu_ctd >= 8 , pHint_tot_sf, NA)
+                pHint_tot_sf_9m = ifelse(pressure_insitu_ctd >= 8 , pHint_tot_sf, NA),
+                depth_discrete = case_when(
+      !is.na(pHint_tot_sf_1m) ~ 1,
+      !is.na(pHint_tot_sf_3m) ~ 3,
+      !is.na(pHint_tot_sf_5m) ~ 5,
+      !is.na(pHint_tot_sf_7m) ~ 7,
+      !is.na(pHint_tot_sf_9m) ~ 9
+      ),
+      depth_discrete = as.factor(depth_discrete)
   )
                  
 # add spectro points that cannot be taken into consideration (some ancillary data T and/or S not available)
@@ -2820,6 +2831,7 @@ ggsave(
   width = 6.6, height = 10, units = "cm", res = 300,
   scaling = 0.4
 )
+rm(p_f_air_sea)
 knitr::include_graphics(pngfile)
 ```
 
@@ -2887,33 +2899,16 @@ write_csv(pangaea, path = paste0(path, "fb_data/pangaea.csv"))
 ```
 
 ```{r whole time series, fig.width=10, fig.height=10, echo=FALSE, message= FALSE}
-size_point <- 2 # size of data points
+size_point <- 0.3 # size of data points
 alpha <- 1 #transparency
+size_labs <- 6 # font size labels
 
-# d <- d_all %>% 
-#   as_tsibble(index = datetime) %>% 
-#   dplyr::arrange(datetime) %>%
-#   tsibble::fill_gaps() %>%
-#   dplyr::mutate(year_month = format(datetime, '%Y-%m'),
-#                 quarter = quarter(datetime)) %>%
-# #  dplyr::rename(pco2_contros = pco2_corr) %>% 
-#   replace(., is.na(.), NA) # replace NaN by NA everywhere
-# 
-#  autoplot(vars(Close, log(Close)))
-#  
-#  
-# d_ts <- d %>%
-#   dplyr::select(datetime, temp_insitu_11m, sal_fb, par_air, pco2_fb,
-#                 pressure_insitu_ctd, pHint_tot_sf, ph_s_sf_temp_insi, at_calc, at) #%>%
-#   #tidyr::pivot_longer(-datetime, values_to = "value")
- 
-#sal_fb
 ts_sal <- d_all %>%
   ggplot(aes(x = datetime, y = sal_fb), na.rm=TRUE) +
   scale_x_datetime(breaks = date_breaks("1 year"), labels = date_format("%Y")) +
   geom_point(colour="blue", alpha=alpha, na.rm=TRUE, size=size_point) + 
   labs(title="Salinity FerryBox",x="", y="Salinity") +
-  Mytheme(size_labs = 8)
+  Mytheme(size_labs = size_labs)
 
 # temp_insitu_11m
 ts_temp <- d_all %>%
@@ -2921,7 +2916,7 @@ ts_temp <- d_all %>%
   scale_x_datetime(breaks = date_breaks("1 year"), labels = date_format("%Y")) +
   geom_point(colour="blue", alpha=alpha, na.rm=TRUE, size=size_point) + 
   labs(title="In situ temperature 11 m",x="", y="Temperature (°C)") +
-  Mytheme(size_labs = 8)
+  Mytheme(size_labs = size_labs)
 
 # PAR
 ts_par_air <- d_all %>%
@@ -2929,7 +2924,7 @@ ts_par_air <- d_all %>%
   scale_x_datetime(breaks = date_breaks("1 year"), labels = date_format("%Y")) +
   geom_point(colour="blue", alpha=alpha, na.rm=TRUE, size=size_point) + 
   labs(title="Atmospheric PAR",x="", y="PAR (umol m-2 s-1)") +
-  Mytheme(size_labs = 8)
+  Mytheme(size_labs = size_labs)
 
 # PCO2 
 ts_pCO2 <- d_all %>%
@@ -2937,37 +2932,40 @@ ts_pCO2 <- d_all %>%
   scale_x_datetime(breaks = date_breaks("1 year"), labels = date_format("%Y")) +
   geom_point(aes(x = datetime, y = pco2_fb), 
              colour="blue", alpha=alpha, na.rm=TRUE, size=size_point) + 
-  geom_point(aes(x = datetime, y = pco2_calc_fb), colour="red", alpha=alpha, na.rm=TRUE, size=size_point) + 
+  geom_point(aes(x = datetime, y = pco2_calc_fb), colour="red", alpha=alpha, na.rm=TRUE, size=size_point*3) + 
   labs(title="Mesured (blue) and calculated (CT+AT; red) pCO2",x="", y="pCO2 (uatm)") +
-  Mytheme(size_labs = 8)
+  Mytheme(size_labs = size_labs)
 
 # SEAFET pH
-d_pH <- d_all %>% 
-  dplyr::select(datetime, pressure_insitu_ctd, pHint_tot_sf) %>% tidyr::pivot_longer(-datetime, values_to = "value")
-ts_pH <- d_all %>%
-  ggplot(na.rm=TRUE) +
+ts_pH <- d_all %>% 
+  ggplot() +
   scale_x_datetime(breaks = date_breaks("1 year"), labels = date_format("%Y")) +
-  geom_point(aes(x = datetime, y = pHint_tot_sf_9m), colour="blue", alpha=alpha, na.rm=TRUE, size=size_point) + 
-  geom_point(aes(x = datetime, y = ph_s_sf_temp_insi), colour="red", alpha=alpha, na.rm=TRUE, size=size_point) + 
-  labs(title="In situ pH below 8 m (seaFET in blue, spectrophotometric pH in red))",x="", y=expression(paste(pH[T]))) +
-  Mytheme(size_labs = 8)
+  geom_point(aes(x = datetime, y = pHint_tot_sf, col = pressure_insitu_ctd), alpha=alpha, na.rm=TRUE, size=size_point) + 
+  scale_colour_gradient(name = "Depth (m)", low = "#56B1F7", high = "#132B43") + # reverse colors
+  guides(colour = guide_colourbar(reverse = TRUE)) + # reverse colour bar
+  geom_point(aes(x = datetime, y = ph_s_sf_temp_insi), colour="red", alpha=alpha, na.rm=TRUE, size=size_point*3) + 
+  labs(title="In situ pH, spectrophotometric pH in red))",x="", y=expression(paste(pH[T]))) +
+  Mytheme(size_labs = size_labs) +
+  theme(legend.position = c(0.1, 0.5),
+        legend.key.height = unit(0.5, 'cm'))
 
 # AT
 ts_at <- d_all %>%
   ggplot(aes(x = datetime, y = at_calc), na.rm=TRUE) +
   scale_x_datetime(breaks = date_breaks("1 year"), labels = date_format("%Y")) +
   geom_point(colour="blue", alpha=alpha, na.rm=TRUE, size=size_point) + 
-  geom_point(aes(x = datetime, y = at), colour="red", alpha=alpha, na.rm=TRUE, size=size_point) + 
+  geom_point(aes(x = datetime, y = at), colour="red", alpha=alpha, na.rm=TRUE, size=size_point*3) + 
   labs(title="Total alkalinity calculated from salinity (blue) and discrete measurements (red)", x="", y="AT (umol/kg)") +
-  Mytheme(size_labs = 8)
+  Mytheme(size_labs = size_labs)
 
 # Combine plots
 g <- (ts_sal / ts_temp / ts_par_air / ts_pCO2 / ts_pH / ts_at)
 g <- g + plot_annotation(tag_levels = 'A')
-g
+ggsave(filename = "figures/time_series.png", plot = g, width = 15, height = 30, units = "cm")
+#rm(ls(pattern = "ts_"))
 
-g <- cowplot::plot_grid(ts_sal, ts_temp, ts_par_air, ts_pCO2, ts_pH, ts_at, align='v', ncol=1)
-print(g)
+#save_plot(filename = "figures/time_series.png", plot = g)
+#g_cw <- cowplot::plot_grid(ts_sal, ts_temp, ts_par_air, ts_pCO2, ts_pH, ts_at, align='v', ncol=1)
 ```
 ## Maintenance
 <div style="text-align: justify"> 
