@@ -2962,8 +2962,8 @@ ts_at <- d_all %>%
 g <- (ts_sal / ts_temp / ts_par_air / ts_pCO2 / ts_pH / ts_at)
 g <- g + plot_annotation(tag_levels = 'A')
 ggsave(filename = "figures/time_series.png", plot = g, width = 15, height = 30, units = "cm")
-#rm(ls(pattern = "ts_"))
-
+rm(list = ls(pattern = "ts_")) #delete big ggplot objects
+gc() #garbage collection
 #save_plot(filename = "figures/time_series.png", plot = g)
 #g_cw <- cowplot::plot_grid(ts_sal, ts_temp, ts_par_air, ts_pCO2, ts_pH, ts_at, align='v', ncol=1)
 ```
