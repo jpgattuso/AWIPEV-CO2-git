@@ -79,6 +79,12 @@ which.closest <- function(x, table, ...) {
   round(approx(x=table, y=1:length(table), xout=x, ...)$y)
 }
 
+######## function to calculate min, max 3 quantiles
+qq <- function (data, digits) { 
+  as.numeric(formatC(quantile(x = data, probs = c(0, 0.025, 0.50, 0.975, 1), na.rm = TRUE),
+                     format = "f", digits = digits))
+}
+
 #################### Regression function
 # function regression plot with equation (MA or OLS) in title
 ggreg <- function (xdata, ydata, type = "OLS", plot = TRUE, title = "title") { # x and y are the names of the variables
@@ -2898,7 +2904,7 @@ write_csv(pangaea, path = paste0(path, "fb_data/pangaea.csv"))
 # ph_calc = pH at fb temp calculated from CT and AT samples collected at the FerryBox
 ```
 
-```{r whole time series, fig.width=10, fig.height=10, echo=FALSE, message= FALSE}
+```{r whole time series plot, fig.width=10, fig.height=10, echo=FALSE, message= FALSE}
 size_point <- 0.3 # size of data points
 alpha <- 1 #transparency
 size_labs <- 6 # font size labels
@@ -2964,9 +2970,81 @@ g <- g + plot_annotation(tag_levels = 'A')
 ggsave(filename = "figures/time_series.png", plot = g, width = 15, height = 30, units = "cm")
 rm(list = ls(pattern = "ts_")) #delete big ggplot objects
 gc() #garbage collection
+
 #save_plot(filename = "figures/time_series.png", plot = g)
 #g_cw <- cowplot::plot_grid(ts_sal, ts_temp, ts_par_air, ts_pCO2, ts_pH, ts_at, align='v', ncol=1)
 ```
+
+```{r whole time series monthly box plots and stats, fig.width=10, fig.height=10, echo=FALSE, message= FALSE}
+size_point <- 0.5 # size of data points
+alpha <- 1 #transparency
+ts_sal_bp <- d_all %>%
+  ggplot(aes(x = month(x = datetime, label = TRUE, abbr = TRUE), y = sal_fb)) +
+  geom_violin(fill='lightblue', alpha=0.5, size=0.2, trim = TRUE) +
+  geom_boxplot(notch=TRUE, size=0.2, fill="grey50", outlier.color = "blue", outlier.size = 0.3) +
+  labs(y = "Salinity", x=NULL, title=NULL) +
+  Mytheme() +
+  theme(panel.grid.major.x = element_blank())
+
+ts_temp_bp <- d_all %>%
+  ggplot(aes(x = month(x = datetime, label = TRUE, abbr = TRUE), y = temp_insitu_11m)) +
+  geom_violin(fill='lightblue', alpha=0.5, size=0.2, trim = TRUE, na.rm=TRUE) +
+  geom_boxplot(notch=TRUE, size=0.2, fill="grey50", outlier.color = "blue", 
+               outlier.size = 0.3, na.rm=TRUE) +
+  labs(y = "Temperature", x=NULL, title=NULL) +
+  Mytheme() +
+  theme(panel.grid.major.x = element_blank())
+
+ts_pCO2_bp <- d_all %>%
+  ggplot(aes(x = month(x = datetime, label = TRUE, abbr = TRUE), y = pco2_fb)) +
+  geom_violin(fill='lightblue', alpha=0.5, size=0.2, trim = TRUE, na.rm=TRUE) +
+  geom_boxplot(notch=TRUE, size=0.2, fill="grey50", outlier.color = "blue", 
+               outlier.size = 0.3, na.rm=TRUE) +
+  labs(y = expression(paste(pCO[2])), x=NULL, title=NULL) +
+  Mytheme() +
+  theme(panel.grid.major.x = element_blank())
+
+ts_pH_bp <- d_all %>%
+  ggplot(aes(x = month(x = datetime, label = TRUE, abbr = TRUE), y = pHint_tot_sf)) +
+  geom_violin(fill='lightblue', alpha=0.5, size=0.2, trim = TRUE, na.rm=TRUE) +
+  geom_boxplot(notch=TRUE, size=0.2, fill="grey50", outlier.color = "blue", 
+               outlier.size = 0.3, na.rm=TRUE) +
+  labs(y = expression(paste(pH[T])), x=NULL, title=NULL) +
+  Mytheme() +
+  theme(panel.grid.major.x = element_blank())
+
+ts_at_bp <- d_all %>%
+  ggplot(aes(x = month(x = datetime, label = TRUE, abbr = TRUE), y = at_calc)) +
+  geom_violin(fill='lightblue', alpha=0.5, size=0.2, trim = TRUE, na.rm=TRUE) +
+  geom_boxplot(notch=TRUE, size=0.2, fill="grey50", outlier.color = "blue", 
+               outlier.size = 0.3, na.rm=TRUE) +
+  labs(y = "Total alkalinity", x=NULL, title=NULL) +
+  Mytheme() +
+  theme(panel.grid.major.x = element_blank())
+
+# Combine plots
+g <- (ts_sal_bp / ts_temp_bp / ts_pCO2_bp / ts_pH_bp / ts_at_bp)
+g <- g + plot_annotation(tag_levels = 'A')
+ggsave(filename = "figures/ts_boxplots.png", plot = g, width = 15, height = 30, units = "cm")
+rm(list = ls(pattern = "ts_")) #delete big ggplot objects
+gc() #garbage collection
+
+# g <- cowplot::plot_grid(ts_sal_bp, ts_temp_bp, ts_pCO2_bp, ts_pH_bp, ts_at_bp, align='v', ncol=1)
+# print(g)
+
+Salinity <- qq(d_all$sal_fb, digits=1)
+Temperature <- qq(d_all$temp_fb, digits=1)
+pCO2 <- qq(d_all$pCO2_contros, digits=1)
+pH <- qq(d_all$pHint_tot_sf, digits=3)
+AT <- qq(d_all$at_calc, digits=1)
+tab_quartiles <- as_tibble(rbind(Salinity, Temperature, pCO2, pH, AT)) %>%
+  rename("2.5%"=V1, "50%"=V2, "97.5%"=V3) %>%
+  mutate(Variable=c("Salinity", "Temperature", "pCO2", "pH", "AT")) %>%
+  dplyr::select(Variable, everything())
+kable(tab_quartiles, caption = "Key quantiles") %>%
+  kable_styling(full_width=FALSE, bootstrap_options = c("striped", "hover", "condensed", "responsive"))
+```
+
 ## Maintenance
 <div style="text-align: justify"> 
 
