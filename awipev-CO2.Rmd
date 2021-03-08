@@ -2986,8 +2986,8 @@ ts_sal_bp <- d_all %>%
   geom_boxplot(notch=TRUE, size=0.2, fill="grey50", outlier.color = "blue", outlier.size = 0.3) +
   labs(y = "Salinity", x=NULL, title=NULL) +
   Mytheme() +
-  theme(panel.grid.major.x = element_blank())
-
+  theme(panel.grid.major.x = element_blank(),
+        aspect.ratio=0.5)
 ts_temp_bp <- d_all %>%
   ggplot(aes(x = month(x = datetime, label = TRUE, abbr = TRUE), y = temp_insitu_11m)) +
   geom_violin(fill='lightblue', alpha=0.5, size=0.2, trim = TRUE, na.rm=TRUE) +
@@ -2995,8 +2995,8 @@ ts_temp_bp <- d_all %>%
                outlier.size = 0.3, na.rm=TRUE) +
   labs(y = "Temperature", x=NULL, title=NULL) +
   Mytheme() +
-  theme(panel.grid.major.x = element_blank())
-
+  theme(panel.grid.major.x = element_blank(),
+        aspect.ratio=0.5)
 ts_pCO2_bp <- d_all %>%
   ggplot(aes(x = month(x = datetime, label = TRUE, abbr = TRUE), y = pco2_fb)) +
   geom_violin(fill='lightblue', alpha=0.5, size=0.2, trim = TRUE, na.rm=TRUE) +
@@ -3004,8 +3004,8 @@ ts_pCO2_bp <- d_all %>%
                outlier.size = 0.3, na.rm=TRUE) +
   labs(y = expression(paste(pCO[2])), x=NULL, title=NULL) +
   Mytheme() +
-  theme(panel.grid.major.x = element_blank())
-
+  theme(panel.grid.major.x = element_blank(),
+        aspect.ratio=0.5)
 ts_pH_bp <- d_all %>%
   ggplot(aes(x = month(x = datetime, label = TRUE, abbr = TRUE), y = pHint_tot_sf)) +
   geom_violin(fill='lightblue', alpha=0.5, size=0.2, trim = TRUE, na.rm=TRUE) +
@@ -3013,8 +3013,8 @@ ts_pH_bp <- d_all %>%
                outlier.size = 0.3, na.rm=TRUE) +
   labs(y = expression(paste(pH[T])), x=NULL, title=NULL) +
   Mytheme() +
-  theme(panel.grid.major.x = element_blank())
-
+  theme(panel.grid.major.x = element_blank(),
+        aspect.ratio=0.5)
 ts_at_bp <- d_all %>%
   ggplot(aes(x = month(x = datetime, label = TRUE, abbr = TRUE), y = at_calc)) +
   geom_violin(fill='lightblue', alpha=0.5, size=0.2, trim = TRUE, na.rm=TRUE) +
@@ -3022,12 +3022,13 @@ ts_at_bp <- d_all %>%
                outlier.size = 0.3, na.rm=TRUE) +
   labs(y = "Total alkalinity", x=NULL, title=NULL) +
   Mytheme() +
-  theme(panel.grid.major.x = element_blank())
+  theme(panel.grid.major.x = element_blank(),
+        aspect.ratio=0.5)
 
 # Combine plots
-g <- (ts_sal_bp + ts_temp_bp + ts_pCO2_bp + ts_pH_bp + ts_at_bp)
+g <- ts_sal_bp / ts_temp_bp / ts_pCO2_bp / ts_pH_bp / ts_at_bp
 g <- g + plot_annotation(tag_levels = 'A')
-ggsave(filename = "figures/ts_boxplots.png", plot = g, width = 15, height = 30, units = "cm")
+ggsave(filename = "figures/ts_boxplots.png", plot = g)
 rm(list = ls(pattern = "ts_")) #delete big ggplot objects
 gc() #garbage collection
 
