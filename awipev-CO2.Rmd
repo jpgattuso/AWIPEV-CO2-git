@@ -2980,72 +2980,92 @@ gc() #garbage collection
 ```{r whole time series monthly box plots and stats, fig.width=10, fig.height=10, echo=FALSE, message= FALSE}
 size_point <- 0.5 # size of data points
 alpha <- 1 #transparency
-ts_sal_bp <- d_all %>%
-  ggplot(aes(x = month(x = datetime, label = TRUE, abbr = TRUE), y = sal_fb)) +
-  geom_violin(fill='lightblue', alpha=0.5, size=0.2, trim = TRUE) +
-  geom_boxplot(notch=TRUE, size=0.2, fill="grey50", outlier.color = "blue", outlier.size = 0.3) +
-  labs(y = "Salinity", x=NULL, title=NULL) +
-  Mytheme() +
-  theme(panel.grid.major.x = element_blank(),
-        aspect.ratio=0.5)
-ts_temp_bp <- d_all %>%
-  ggplot(aes(x = month(x = datetime, label = TRUE, abbr = TRUE), y = temp_insitu_11m)) +
-  geom_violin(fill='lightblue', alpha=0.5, size=0.2, trim = TRUE, na.rm=TRUE) +
-  geom_boxplot(notch=TRUE, size=0.2, fill="grey50", outlier.color = "blue", 
-               outlier.size = 0.3, na.rm=TRUE) +
-  labs(y = "Temperature", x=NULL, title=NULL) +
-  Mytheme() +
-  theme(panel.grid.major.x = element_blank(),
-        aspect.ratio=0.5)
-ts_pCO2_bp <- d_all %>%
-  ggplot(aes(x = month(x = datetime, label = TRUE, abbr = TRUE), y = pco2_fb)) +
-  geom_violin(fill='lightblue', alpha=0.5, size=0.2, trim = TRUE, na.rm=TRUE) +
-  geom_boxplot(notch=TRUE, size=0.2, fill="grey50", outlier.color = "blue", 
-               outlier.size = 0.3, na.rm=TRUE) +
-  labs(y = expression(paste(pCO[2])), x=NULL, title=NULL) +
-  Mytheme() +
-  theme(panel.grid.major.x = element_blank(),
-        aspect.ratio=0.5)
-ts_pH_bp <- d_all %>%
-  ggplot(aes(x = month(x = datetime, label = TRUE, abbr = TRUE), y = pHint_tot_sf)) +
-  geom_violin(fill='lightblue', alpha=0.5, size=0.2, trim = TRUE, na.rm=TRUE) +
-  geom_boxplot(notch=TRUE, size=0.2, fill="grey50", outlier.color = "blue", 
-               outlier.size = 0.3, na.rm=TRUE) +
-  labs(y = expression(paste(pH[T])), x=NULL, title=NULL) +
-  Mytheme() +
-  theme(panel.grid.major.x = element_blank(),
-        aspect.ratio=0.5)
-ts_at_bp <- d_all %>%
-  ggplot(aes(x = month(x = datetime, label = TRUE, abbr = TRUE), y = at_calc)) +
-  geom_violin(fill='lightblue', alpha=0.5, size=0.2, trim = TRUE, na.rm=TRUE) +
-  geom_boxplot(notch=TRUE, size=0.2, fill="grey50", outlier.color = "blue", 
-               outlier.size = 0.3, na.rm=TRUE) +
-  labs(y = "Total alkalinity", x=NULL, title=NULL) +
-  Mytheme() +
-  theme(panel.grid.major.x = element_blank(),
-        aspect.ratio=0.5)
+d_bp <- d_all %>% # just for this chunk
+  dplyr::select(datetime, sal_fb, temp_insitu_11m, pco2_fb, pHint_tot_sf, at_calc)
 
-# Combine plots
-g <- ts_sal_bp / ts_temp_bp / ts_pCO2_bp / ts_pH_bp / ts_at_bp
-g <- g + plot_annotation(tag_levels = 'A')
-ggsave(filename = "figures/ts_boxplots.png", plot = g)
-rm(list = ls(pattern = "ts_")) #delete big ggplot objects
-gc() #garbage collection
-
-# g <- cowplot::plot_grid(ts_sal_bp, ts_temp_bp, ts_pCO2_bp, ts_pH_bp, ts_at_bp, align='v', ncol=1)
-# print(g)
-
-Salinity <- round(quantile(d_all$sal_fb, na.rm =TRUE), digits=1)
-Temperature <- round(quantile(d_all$temp_insitu_11m, na.rm =TRUE), digits=1)
-pCO2 <- round(quantile(d_all$pco2_fb, na.rm =TRUE), digits=1)
-pH <- round(quantile(d_all$pHint_tot_sf, na.rm =TRUE), digits=3)
-AT <- round(quantile(d_all$at_calc, na.rm =TRUE), digits=1)
-tab_quartiles <- as_tibble(rbind(Salinity, Temperature, pCO2, pH, AT)) %>%
+# Quantiles table
+Salinity <- round(quantile(d_bp$sal_fb, na.rm =TRUE), digits=1)
+Temperature <- round(quantile(d_bp$temp_insitu_11m, na.rm =TRUE), digits=1)
+pco2 <- round(quantile(d_bp$pco2_fb, na.rm =TRUE), digits=1)
+pH <- round(quantile(d_bp$pHint_tot_sf, na.rm =TRUE), digits=3)
+AT <- round(quantile(d_bp$at_calc, na.rm =TRUE), digits=1)
+tab_quartiles <- as_tibble(rbind(Salinity, Temperature, pco2, pH, AT)) %>%
   #rename("2.5%"=V1, "50%"=V2, "97.5%"=V3) %>%
   mutate(Variable=c("Salinity", "Temperature", "pCO2", "pH", "AT")) %>%
   dplyr::select(Variable, everything())
 kable(tab_quartiles, caption = "Key quantiles") %>%
   kable_styling(full_width= FALSE, bootstrap_options = c("striped", "hover", "condensed", "responsive"))
+
+# detection of extremes
+# calculate 1st and 9th deciles 
+dec_sal_fb <- quantile(d_bp$sal_fb, na.rm =TRUE, probs = c(0.1, 0.9))
+dec_temp_insitu_11m <- quantile(d_bp$temp_insitu_11m, na.rm =TRUE, probs = c(0.1, 0.9))
+dec_pco2_fb <- quantile(d_bp$pco2_fb, na.rm =TRUE, probs = c(0.1, 0.9))
+dec_pHint_tot_sf <- quantile(d_bp$pHint_tot_sf, na.rm =TRUE, probs = c(0.1, 0.9))
+dec_at_calc <- quantile(d_bp$at_calc, na.rm =TRUE, probs = c(0.1, 0.9))
+
+# identify extremes
+d_bp <- d_bp %>% 
+  dplyr::mutate(ext_sal_fb = ifelse(sal_fb < dec_sal_fb[1] |
+                                            sal_fb > dec_sal_fb[2], sal_fb, NA),
+                ext_temp_insitu_11m = ifelse(temp_insitu_11m < dec_temp_insitu_11m[1] |
+                                            temp_insitu_11m > dec_temp_insitu_11m[2],
+                                            temp_insitu_11m, NA),
+                ext_pco2_fb = ifelse(pco2_fb < dec_pco2_fb[1] |
+                                            pco2_fb > dec_pco2_fb[2], pco2_fb, NA),
+                ext_pHint_tot_sf = ifelse(pHint_tot_sf < dec_pHint_tot_sf[1] |
+                                            pHint_tot_sf > dec_pHint_tot_sf[2], pHint_tot_sf, NA),
+                ext_at_calc = ifelse(at_calc < dec_at_calc[1] |
+                                            at_calc > dec_at_calc[2], at_calc, NA))
+ts_sal_bp <- d_bp %>%
+  ggplot(aes(x = month(x = datetime, label = TRUE, abbr = TRUE), y = sal_fb)) +
+  geom_boxplot(notch=FALSE, size=0.2, fill="blue", outlier.shape = NA, na.rm=TRUE) +
+  geom_point(aes(x = month(x = datetime, label = TRUE, abbr = TRUE), y = ext_sal_fb), col = "lightblue", size = size_point) +
+  labs(y = "Salinity", x=NULL, title=NULL) +
+  Mytheme() +
+  theme(panel.grid.major.x = element_blank(),
+        aspect.ratio=0.5)
+ts_temp_bp <- d_bp %>%
+  ggplot(aes(x = month(x = datetime, label = TRUE, abbr = TRUE), y = temp_insitu_11m)) +
+  geom_boxplot(notch=FALSE, size=0.2, fill="blue", outlier.shape = NA, na.rm=TRUE) +
+  geom_point(aes(x = month(x = datetime, label = TRUE, abbr = TRUE), y = ext_temp_insitu_11m), col = "lightblue", size = size_point) +
+  labs(y = "Temperature", x=NULL, title=NULL) +
+  Mytheme() +
+  theme(panel.grid.major.x = element_blank(),
+        aspect.ratio=0.5)
+ts_pco2_bp <- d_bp %>%
+  ggplot(aes(x = month(x = datetime, label = TRUE, abbr = TRUE), y = pco2_fb)) +
+  geom_boxplot(notch=FALSE, size=0.2, fill="blue", outlier.shape = NA, na.rm=TRUE) +
+  geom_point(aes(x = month(x = datetime, label = TRUE, abbr = TRUE), y = ext_pco2_fb), col = "lightblue", size = size_point) +
+  labs(y = expression(paste(pCO[2])), x=NULL, title=NULL) +
+  Mytheme() +
+  theme(panel.grid.major.x = element_blank(),
+        aspect.ratio=0.5)
+ts_pH_bp <- d_bp %>%
+  ggplot(aes(x = month(x = datetime, label = TRUE, abbr = TRUE), y = pHint_tot_sf)) +
+  geom_boxplot(notch=FALSE, size=0.2, fill="blue", outlier.shape = NA, na.rm=TRUE) +
+  geom_point(aes(x = month(x = datetime, label = TRUE, abbr = TRUE), y = ext_pHint_tot_sf), col = "lightblue", size = size_point) +
+  labs(y = expression(paste(pH[T])), x=NULL, title=NULL) +
+  Mytheme() +
+  theme(panel.grid.major.x = element_blank(),
+        aspect.ratio=0.5)
+ts_at_bp <- d_bp %>%
+  ggplot(aes(x = month(x = datetime, label = TRUE, abbr = TRUE), y = at_calc)) +
+  geom_boxplot(notch=FALSE, size=0.2, fill="blue", outlier.shape = NA, na.rm=TRUE) +
+  geom_point(aes(x = month(x = datetime, label = TRUE, abbr = TRUE), y = ext_at_calc), col = "lightblue", size = size_point) +
+  labs(y = "Total alkalinity", x=NULL, title=NULL) +
+  Mytheme() +
+  theme(panel.grid.major.x = element_blank(),
+        aspect.ratio=0.5)
+# Combine plots
+g <- ts_sal_bp / ts_temp_bp / ts_pco2_bp / ts_pH_bp / ts_at_bp
+g <- g + plot_annotation(tag_levels = 'A')
+ggsave(filename = "figures/ts_boxplots.png", plot = g)
+rm(list = ls(pattern = "ts_"), d_bp) #delete big ggplot objects and temp data
+gc() #garbage collection
+
+
+
 ```
 
 ## Maintenance
