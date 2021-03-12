@@ -203,7 +203,7 @@ d_all <- d_all %>%
           ifelse(
             pressure_insitu_ctd > 6 & pressure_insitu_ctd <= 8,
             7,
-            ifelse(pressure_insitu_ctd > 8, 9, NA)
+            ifelse(pressure_insitu_ctd > 8, 10, NA)
           )
         )
       )
@@ -1883,7 +1883,7 @@ print(p)
 tmp <- d_all %>% 
   dplyr::select(montht, pHint_tot_sf, depth) %>%
   dplyr::mutate(depth = as.factor(ifelse(depth == 1 | depth == 3, 2, depth))) %>% 
-  dplyr::filter(depth == 2 | depth == 9) %>% 
+  dplyr::filter(depth == 2 | depth == 10) %>% 
   group_by(depth, montht)
 summary(aov(tmp$pHint_tot_sf ~ tmp$depth * tmp$montht))
 
@@ -2592,21 +2592,9 @@ print(p) #p_sal_fb_ctd
 
 The difference induced by the choice of the carbonic acid constants is large for pH, pCO2 and DIC and negligible for OmegaAragonite.
 
-## Air-sea CO2 flux
-
-To calculate the air-sea CO2 flux, we use:
-
-+ seawater pCO2 measured in the FerryBox on water pumped from 11 m depth.
-+ atmospheric CO2 measured at the Zeppelin station and downloaded on 2020-08-19 from https://gaw.kishou.go.jp/search/file/0054-6001-1001-01-01-9999 
-+ wind spreed data collected by the AWI at 10 m height (sent to JPG by P. Fischer, Aug. 2020)
-
-Since there are many gaps, a climatological year is used: air-sea flux calculated by day, then by month, then by year.
-
-seaFET pH is significantly different at the surface and depth. It should therefore be the same for pCO2.
-
-Let's look first at the stratification (salinity, temperature and density).
-
+## Stratification
 ```{r stratification, echo=FALSE, message= FALSE, warning=FALSE}
+depth_labels <- c("0-2", "2-4", "4-6", "6-8", "8-12")
 # we look at salinity all depths
 tmp <- d_all %>% 
   dplyr::select(montht, sal_insitu_ctd, depth) %>%
@@ -2615,54 +2603,22 @@ p <- tmp %>%
   ggplot(aes(x=as.factor(depth), y = sal_insitu_ctd)) +
   geom_boxplot(notch=FALSE, size=0.2, fill="grey50", outlier.color = "blue", outlier.size = 0.3) +
   labs(title = "Salinity vs depth", x = "Depth (m)", y= "Salinity") +
+  scale_x_discrete(labels = depth_labels) +
   facet_wrap(vars(montht), scale = "free_y")
 print(p)
-
-# heatmap
-tmp <- d_all %>%
-  dplyr::filter(!is.na(depth)) %>%
-  dplyr::select(montht, sal_insitu_ctd, depth) %>%
-  group_by(montht, depth)
-sal_median <- skim(tmp) %>%
-  dplyr::select(depth, montht, numeric.p50) %>%
-  pivot_wider(names_from = depth, values_from = c(numeric.p50))
-
-plt <- sal_median %>%
-  ggplot(aes(
-    x = montht,
-    y = as.factor(depth),
-    fill = median(sal_insitu_ctd)
-  ), color = "white") +
-  geom_tile() +
-  scale_fill_gradientn(colors = viridis(5), breaks = seq(31, 36, by = 1), na.value = "grey") +
-  labs(x = "", y = "", fill = "Salinity") +
-  scale_x_discrete(position = "top") +
-  scale_y_discrete(name = "", limits = rev(levels(as.factor(tmp$depth)))) +
-  # scale_y_discrete(name = "", limits = rev(levels(as.factor(tmp$depth))),
-  #                  rev(levels(tmp$depth))[c(1,3,5,7,9)]) +
-  # coord_equal() +
-  theme(legend.position = "top",
-        axis.text.y = element_text(size = 13),
-        axis.text.x = element_text(size = 13),
-        legend.text = element_text(size = 13),
-        legend.title = element_text(size = 14),
-        #legend.key.size = unit(1.5, "cm"),
-        legend.key.height = unit(0.8, "cm"),
-        legend.key.width  = unit(2, "cm"))
-#plt
 
 # we look at salinity 0 to 4 m vs more than 8 m
 tmp <- d_all %>% 
   dplyr::select(montht, sal_insitu_ctd, depth) %>%
   dplyr::mutate(depth = as.factor(ifelse(depth == 1 | depth == 3, 2, depth))) %>% 
-  dplyr::filter(depth == 2 | depth == 9) %>% 
+  dplyr::filter(depth == 2 | depth == 10) %>% 
   group_by(depth, montht)
 sal_range <- skim(tmp) %>% 
   dplyr::select(depth, montht, numeric.p50) %>% 
   pivot_wider(names_from = depth, values_from = c(numeric.p50)) %>% 
   dplyr::rename(median2m = "2",
-                median9m = "9") %>% 
-  dplyr::mutate(sal_range = median2m - median9m)
+                median10m = "10") %>% 
+  dplyr::mutate(sal_range = median2m - median10m)
 kable(sal_range, digits = 2, caption = "Median salinity")
 
 summary(aov(tmp$sal_insitu_ctd ~ tmp$depth * tmp$montht))
@@ -2689,21 +2645,21 @@ print(p)
 tmp <- d_all %>% 
   dplyr::select(montht, temp_insitu_ctd, depth) %>%
   dplyr::mutate(depth = as.factor(ifelse(depth == 1 | depth == 3, 2, depth))) %>% 
-  dplyr::filter(depth == 2 | depth == 9) %>% 
+  dplyr::filter(depth == 2 | depth == 10) %>% 
   group_by(depth, montht)
 temp_range <- skim(tmp) %>% 
   dplyr::select(depth, montht, numeric.p50) %>% 
   pivot_wider(names_from = depth, values_from = c(numeric.p50)) %>% 
   dplyr::rename(median2m = "2",
-                median9m = "9") %>% 
-  dplyr::mutate(temp_range = median2m - median9m)
+                median10m = "10") %>% 
+  dplyr::mutate(temp_range = median2m - median10m)
 kable(temp_range, digits = 2, caption = "Median temperature")
 summary(aov(tmp$temp_insitu_ctd ~ tmp$depth * tmp$montht))
 
 p <- tmp %>% 
   ggplot(aes(x=as.factor(depth), y = temp_insitu_ctd)) +
   geom_boxplot(notch=FALSE, size=0.2, fill="grey50", outlier.color = "blue", outlier.size = 0.3) +
-  labs(title = "Temperature vs depth", x = "Depth (m)", y= "Salinity") +
+  labs(title = "Temperature vs depth", x = "Depth (m)", y= "Temperature") +
   facet_wrap(vars(montht), scale = "free_y")
 print(p)
 
@@ -2712,22 +2668,23 @@ tmp <- d_all %>%
   dplyr::select(montht, sal_insitu_ctd, temp_insitu_ctd, depth) %>%
   dplyr::mutate(density = seacarb::rho(S = sal_insitu_ctd, T = temp_insitu_ctd, P = 0),
                 depth = as.factor(ifelse(depth == 1 | depth == 3, 2, depth))) %>% 
-  dplyr::filter(depth == 2 | depth == 9) %>% 
+  dplyr::filter(depth == 2 | depth == 10) %>% 
   dplyr::select(montht, depth, density) %>% 
   group_by(depth, montht) 
 den_range <- skim(tmp) %>% 
   dplyr::select(depth, montht, numeric.p50) %>% 
   pivot_wider(names_from = depth, values_from = c(numeric.p50)) %>% 
   dplyr::rename(median2m = "2",
-                median9m = "9") %>% 
-  dplyr::mutate(den_range = median2m - median9m)
+                median10m = "10") %>% 
+  dplyr::mutate(den_range = median2m - median10m)
 kable(den_range, digits = 2, caption = "Median density")
 summary(aov(tmp$density ~ tmp$depth * tmp$montht))
 
 p <- tmp %>% 
   ggplot(aes(x=as.factor(depth), y = density)) +
   geom_boxplot(notch=FALSE, size=0.2, fill="grey50", outlier.color = "blue", outlier.size = 0.3) +
-  labs(title = "Density vs depth", x = "Depth (m)", y= "Salinity") +
+  labs(title = "Density vs depth", x = "Depth (m)", y= "Density") +
+  scale_x_discrete(labels = c("0-4", "8-12")) +
   facet_wrap(vars(montht), scale = "free_y")
 print(p)
 ```
@@ -2735,6 +2692,22 @@ Using the medians because data are missing.
 
 + Salinity 
 + Temperature is always colder at 0-4 m than below 8 m (0.15 to 2°C).
+
+## Air-sea CO2 flux
+
+To calculate the air-sea CO2 flux, we use:
+
++ seawater pCO2 measured in the FerryBox on water pumped from 11 m depth.
++ atmospheric CO2 measured at the Zeppelin station and downloaded on 2020-08-19 from https://gaw.kishou.go.jp/search/file/0054-6001-1001-01-01-9999 
++ wind spreed data collected by the AWI at 10 m height (sent to JPG by P. Fischer, Aug. 2020)
+
+Since there are many gaps, a climatological year is used: air-sea flux calculated by day, then by month, then by year.
+
+seaFET pH is significantly different at the surface and depth. It should therefore be the same for pCO2.
+
+Let's look first at the stratification (salinity, temperature and density).
+
+
 
 
 ```{r atmospheric CO2 Zeppelin, echo=FALSE, message= FALSE, warning=FALSE}
