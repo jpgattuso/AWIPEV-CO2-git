@@ -2499,11 +2499,11 @@ The impact of the min max changes of po4 on pH, pCO2, and Omega_a are small:  `r
 The impact of the min max changes of po4 on pH, pCO2, and Omega_a are small:  `r round(1000*diff_Si_2$pH, digits=2)` mpH units, `r round(diff_Si_2$pCO2, digits=2)` uatm for pCO2 and `r round(diff_Si_2$OmegaAragonite, digits=2)` for OmegaAragonite.
 
 ## Impact of choice of constants
-### Using mean values
+### Lueker vs Sulpis using mean values
 ```{r impact of constants 1, echo=FALSE, warning=FALSE, message=FALSE}
 # Compare Lueker and Sulpis
 # use mean values calculated for impacts of nutrients above
-means <- d_all %>% 
+monthly_means <- d_all %>% 
   group_by(montht) %>% 
   summarize(mean_ct = mean(ct, na.rm = TRUE),
             mean_at_calc = mean(at_calc, na.rm = TRUE),
@@ -2511,12 +2511,12 @@ means <- d_all %>%
             mean_sal = mean(sal_fb, na.rm = TRUE),
             mean_temp = mean(temp_fb, na.rm = TRUE)) %>% 
   ungroup()
-mean_ct <-  mean(means$mean_ct)
-mean_at_calc <-  mean(means$mean_at_calc)
-mean_pco2_calc <-  mean(means$mean_pco2_calc)
-mean_sal <-  mean(means$mean_sal)
-mean_temp <-  mean(means$mean_temp)
-# impacts using pco2 and AT
+mean_ct <-  mean(monthly_means$mean_ct)
+mean_at_calc <-  mean(monthly_means$mean_at_calc)
+mean_pco2_calc <-  mean(monthly_means$mean_pco2_calc)
+mean_sal <-  mean(monthly_means$mean_sal)
+mean_temp <-  mean(monthly_means$mean_temp)
+# impacts using pco2 and AT pair
 carb_l_1 <- carb(24, mean_pco2_calc, mean_at_calc*1e-6, S = mean_sal, T = mean_temp, P = 0, 
                  Pt = 0, Sit = 0,
                  k1k2 = "l", kf = "dg", ks = "d", pHscale = "T", b = "u74")
@@ -2533,29 +2533,29 @@ carb_s_2 <- carb(15, mean_at_calc*1e-6, mean_ct*1e-6, S = mean_sal, T = mean_tem
                 Pt = 0, Sit = 0, 
                 k1k2 = "s20", kf = "dg", ks = "d", pHscale = "T", b = "u74")
 diff_ls_2 <- carb_l_2 - carb_s_2
-const <- bind_rows(diff_ls_1, diff_ls_2) %>% 
+const_choice <- bind_rows(diff_ls_1, diff_ls_2) %>% 
   dplyr::mutate(flag = c("pCO2 and ALK", "ALK and DIC"),
                 S = mean_sal,
                 T = mean_temp,
                 DIC = DIC * 1e6
                 ) %>% 
-  dplyr::select(flag:T, pH, pCO2, DIC, OmegaAragonite)
+  dplyr::select(flag, T, pH, pCO2, DIC, OmegaAragonite)
 #kable(const, digits = c(0, 1, 1, 3, 1, 1, 2))
-pander(const)
+pander(const_choice)
 ```
-### Using all values pCO2 and at_calc
+### Lueker vs Sulpis using all values pCO2 and at_calc
 
 ```{r impact of constants 2, echo=FALSE, warning=FALSE, message=FALSE}
 # Compare Lueker and Sulpis
-d_ls <- d_all %>% 
+tmp <- d_all %>% 
   drop_na(pco2_fb, at_calc, sal_fb, temp_fb)
 carb_l <-
   carb(
     24,
-    d_ls$pco2_fb,
-    d_ls$at_calc * 1e-6,
-    S = d_ls$sal_fb,
-    T = d_ls$temp_fb,
+    tmp$pco2_fb,
+    tmp$at_calc * 1e-6,
+    S = tmp$sal_fb,
+    T = tmp$temp_fb,
     P = 0,
     Pt = 0,
     Sit = 0,
@@ -2568,10 +2568,10 @@ carb_l <-
 carb_s <-
   carb(
     24,
-    d_ls$pco2_fb,
-    d_ls$at_calc * 1e-6,
-    S = d_ls$sal_fb,
-    T = d_ls$temp_fb,
+    tmp$pco2_fb,
+    tmp$at_calc * 1e-6,
+    S = tmp$sal_fb,
+    T = tmp$temp_fb,
     P = 0,
     Pt = 0,
     Sit = 0,
@@ -2581,9 +2581,21 @@ carb_s <-
     pHscale = "T",
     b = "u74"
   )
-diff_ls <- as_tibble(carb_l - carb_s)
-d_ls <- bind_cols(d_ls, diff_ls)
-
+diff_ls <- as_tibble(carb_l - carb_s) %>% 
+  dplyr::select(pH, pCO2, DIC, OmegaAragonite)
+a
+dplyr::mutate
+diff_ls_quant <- bind_rows(
+  quantiles(diff_ls$pH),)
+)
+const_choice <- bind_rows(diff_ls_1, diff_ls_2) %>% 
+  dplyr::mutate(flag = c("pCO2 and ALK", "ALK and DIC"),
+                S = mean_sal,
+                T = mean_temp,
+                DIC = DIC * 1e6
+                ) %>% 
+  
+  
 # plot
 lm <- lm2(x = d_all$sal_insitu_ctd_9m, y = d_all$sal_fb)
 p <-  ggplot(d_all,aes(x=sal_insitu_ctd_9m, y= sal_fb))+
@@ -2635,7 +2647,6 @@ tmp_delta <- tmp %>%
                 median8_12m = "10") %>% 
   dplyr::mutate(sal_range = median0_4m - median8_12m)
 kable(tmp_delta, digits = 2, caption = "Median salinity")
-
 
 p <- tmp %>% 
   ggplot(aes(x=as.factor(depth), y = sal_insitu_ctd)) +
