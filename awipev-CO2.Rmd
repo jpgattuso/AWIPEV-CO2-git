@@ -227,6 +227,7 @@ d_all <- d_all %>%
                 monthd = lubridate::month(d_hour$datetime), # month as a number
                 montht = lubridate::month(d_hour$datetime, label = TRUE, abbr = TRUE) # abbreviated months
   )
+rm(d_hour)
 ```
 
 ```{r Sal filter, fig.width=10, fig.height=4, echo=FALSE, message= FALSE}
@@ -656,7 +657,7 @@ p
 ggsave(filename = "figures/availability.png", plot = p, width = 20, height = 15, units = "cm")
 
 # deleted uneeded data
-rm(d_min, list=ls(pattern="^d2"))
+rm(x, d_min, list=ls(pattern="^d2"))
 ```
 
 
@@ -729,6 +730,7 @@ p_sal_range <- ggplot(data = df) +
 p_sal_range
 
 kable(quantile(x = df$range, na.rm = TRUE), digits = 2, col.names = "Sal. unit", caption = "Quantiles salinity gradient between 0-2 m and > 8 m")
+rm(sal_xts)
 ```
 There are `r sum(!is.na(df$range))` days with salinity values at both 1 m (0-2 m) and 9 m (> 8 m). The salinity difference between 1 and 9 m ranges between `r min(df$range, na.rm=TRUE)` and `r max(df$range, na.rm=TRUE)` (mean: `r mean(df$range, na.rm=TRUE)`; `r median(df$range, na.rm=TRUE)`). The difference with depth is therefore significant.
 
@@ -789,6 +791,7 @@ dygraph(temp_insitu_xts, group = "awipev", main="Temperature (in situ 11 m)", yl
       dyOptions(drawGrid = TRUE, drawPoints = TRUE, pointSize = 2,useDataTimezone = TRUE) %>%
       dyLegend(show = "follow")   %>%
       dyRangeSelector(height = 30, dateWindow= NULL)
+rm(temp_fb_xts, temp_insitu_xts)
 ```
       
 ### **Temperature profiles**
@@ -815,6 +818,7 @@ df <- d_all %>%
             mean9m = mean(temp_insitu_ctd_9m, na.rm = TRUE),
             range = mean(temp_insitu_ctd_1m, na.rm = TRUE)-mean(temp_insitu_ctd_9m, na.rm = TRUE)) %>% 
   ungroup()
+rm(temp_xts)
 ```
 There are `r sum(!is.na(df$range))` days with temperature values at both 1 m (0-2 m) and 9 m (> 8 m). The temperature difference between 1 and 9 m ranges between `r min(df$range, na.rm=TRUE)`°C and `r max(df$range, na.rm=TRUE)`°C (mean: `r mean(df$range, na.rm=TRUE)`°C; `r median(df$range, na.rm=TRUE)`°C). The difference with depth is therefore significant.
 
@@ -1195,6 +1199,7 @@ The relationship between titrated total alkalinity (references) and salinity is 
 ```{r plot Discrete salinity vs TA, echo=FALSE, warning=FALSE, message=FALSE, out.width="100%", fig.align="center"}
  # PLOT
  print(at_s)
+rm(at_s)
 ```
 
 #### **Final TA re-calculated data (Salinity relationship)**
@@ -1238,7 +1243,7 @@ dygraph(at_contros_calc_xts, group = "awipev", main="TA, calculated from sal_mix
   dyLegend(show = "follow")   %>%
   dyOptions(drawGrid = TRUE, drawPoints = TRUE,useDataTimezone = TRUE) %>%
     dyRangeSelector(height = 30, dateWindow= NULL)
-
+rm(at_contros_calc_xts)
 ```
 
 There are a lot of outliers in the 4th period (since the new analyzer was set up in Nov. 2018). We use the desplike function to remove them.
@@ -1389,7 +1394,7 @@ dygraph(pco2_contros_xts,
     useDataTimezone = TRUE
   ) %>%
   dyRangeSelector(height = 30, dateWindow = NULL)
-
+rm(pco2_contros_xts)
 # now remove outliers
 d_all <- d_all %>%
   dplyr::mutate(
@@ -1846,6 +1851,7 @@ dyEvent(as.POSIXct("2017-08-24 12:00:00", tz="UTC"), "seaFET #1005 installed", l
   dyHighlight(highlightCircleSize = 8,highlightSeriesBackgroundAlpha = 0.5,hideOnMouseOut = TRUE) %>%
   dyOptions(drawGrid = TRUE, drawPoints = TRUE, pointSize = c(1,8,1),useDataTimezone = TRUE, digitsAfterDecimal=4) %>%
   dyRangeSelector(height = 30, dateWindow= NULL)
+rm(seafet_depth_xts)
 ```
 
 
@@ -2115,6 +2121,7 @@ p <-
   Mytheme() +
   theme(panel.grid.major.x = element_blank())
 print(p) # plot_range_dur
+rm(durafet_contros_xts)
 ```
 
 The average offset between durafet and references (spectro) data is `r average_offset_dur` pH unit (sd = `r sd_offset_dur`, n = `r n_offset_dur`).
@@ -2194,6 +2201,7 @@ pdur_sf_norm_text <-  ggplot(d_all,aes(x=pH_durafet_norm4, y= pHint_tot_sf_norm4
   labs( x="pH durafet, 4°C", y="pH seaFET, 4°C ", color = "Month ")  +theme_bw()
 
 print(pdur_sf_norm_text)
+rm(pdur_sf_norm_text)
 
 durafet_sf_contros_xts <- dplyr::select(d_all, datetime, pH_durafet_norm4, pHint_tot_sf_norm4)
 durafet_sf_contros_xts <- as.xts(durafet_sf_contros_xts, order.by = d_all$datetime)
@@ -2205,6 +2213,7 @@ dygraph(durafet_sf_contros_xts, group = "awipev", main="pH durafet vs pH seaFET 
        dyLegend(show = "follow")   %>%
     dyOptions(drawGrid = TRUE, drawPoints = TRUE, pointSize = c(1,8,1),useDataTimezone = TRUE, digitsAfterDecimal=4) %>%
     dyRangeSelector(height = 30, dateWindow= NULL) 
+rm(durafet_sf_contros_xts, pdur_sf_norm_text)
 ```
 
 ### **Calculated / Durafet pHs**
@@ -2228,6 +2237,7 @@ dygraph(durafet_calc_contros_xts, group = "awipev", main="pH calculated vs pH du
        dyLegend(show = "follow")   %>%
     dyOptions(drawGrid = TRUE, drawPoints = TRUE, pointSize = c(1,8,1),useDataTimezone = TRUE, digitsAfterDecimal=4) %>%
     dyRangeSelector(height = 30, dateWindow= NULL)
+rm(durafet_calc_contros_xts)
 ```
 
 ### **Calculated / seaFET pHs**
@@ -2242,6 +2252,7 @@ dygraph(seafet_calc_contros_xts, group = "awipev", main="pH calculated vs pH sea
        dyLegend(show = "follow")   %>%
 dyOptions(drawGrid = TRUE, drawPoints = TRUE, pointSize = c(1,8,1),useDataTimezone = TRUE, digitsAfterDecimal=4) %>%
     dyRangeSelector(height = 30, dateWindow= NULL)
+rm(seafet_calc_contros_xts)
 ```
 
 ### **Spectro / durafet**
@@ -2416,6 +2427,7 @@ p_at_ts
 pdelta_ct_snapo
 pdelta_ct_snapo_dygraph
 p_ct_ts
+rm(at_diff_xts, ct_diff_xts)
 ```
 
 ## Impact of nutrients
@@ -2436,7 +2448,7 @@ ts_Si_bp <- d_all %>%
   labs(y = "si", x=NULL, title=NULL) +
   Mytheme() +
   theme(panel.grid.major.x = element_blank())
-ts_Si_bp + ts_Si_bp
+ts_po4_bp + ts_Si_bp
 # Effects of changes in po4 and si
 # 1st cakculate mean values
 means <- d_all %>% 
@@ -2471,6 +2483,7 @@ carb_Si_2 <- carb(15, mean_at_calc*1e-6, mean_ct*1e-6, S = mean_sal, T = mean_te
                 Pt = 0, Sit = c(min(d_all$si/1e6, na.rm=TRUE), max(d_all$si/1e6, na.rm=TRUE)), 
                 k1k2 = "l", kf = "dg", ks = "d", pHscale = "T", b = "u74")
 diff_Si_2 <- carb_Si_2[1,] - carb_Si_2[2,]
+rm(ts_po4_bp, ts_Si_bp)
 ```
 
 The concentration of po4 and si varies with a factor 10 along a composite year. The ranges are respectively, `r round(range(d_all$po4, na.rm = TRUE), digits = 2)` for po4 and `r round(range(d_all$si, na.rm = TRUE), digits = 2)` for si. 
@@ -2607,21 +2620,22 @@ p <- tmp %>%
   facet_wrap(vars(montht), scale = "free_y")
 print(p)
 
+summary(aov(tmp$sal_insitu_ctd ~ tmp$depth * tmp$montht))
+
 # we look at salinity 0 to 4 m vs more than 8 m
 tmp <- d_all %>% 
   dplyr::select(montht, sal_insitu_ctd, depth) %>%
   dplyr::mutate(depth = as.factor(ifelse(depth == 1 | depth == 3, 2, depth))) %>% 
-  dplyr::filter(depth == 2 | depth == 10) %>% 
-  group_by(depth, montht)
-sal_range <- skim(tmp) %>% 
-  dplyr::select(depth, montht, numeric.p50) %>% 
-  pivot_wider(names_from = depth, values_from = c(numeric.p50)) %>% 
-  dplyr::rename(median2m = "2",
-                median10m = "10") %>% 
-  dplyr::mutate(sal_range = median2m - median10m)
-kable(sal_range, digits = 2, caption = "Median salinity")
+  dplyr::filter(depth == 2 | depth == 10)
+tmp_delta <- tmp %>% 
+  group_by(depth, montht) %>% 
+  dplyr::summarise(sal_med = median(sal_insitu_ctd, na.rm = TRUE)) %>% 
+  tidyr::pivot_wider(names_from = depth, values_from = sal_med) %>% 
+  dplyr::rename(median0_4m = "2",
+                median8_12m = "10") %>% 
+  dplyr::mutate(sal_range = median0_4m - median8_12m)
+kable(tmp_delta, digits = 2, caption = "Median salinity")
 
-summary(aov(tmp$sal_insitu_ctd ~ tmp$depth * tmp$montht))
 
 p <- tmp %>% 
   ggplot(aes(x=as.factor(depth), y = sal_insitu_ctd)) +
@@ -2637,7 +2651,7 @@ tmp <- d_all %>%
 p <- tmp %>% 
   ggplot(aes(x=as.factor(depth), y = temp_insitu_ctd)) +
   geom_boxplot(notch=FALSE, size=0.2, fill="grey50", outlier.color = "blue", outlier.size = 0.3) +
-  labs(title = "Temperature vs depth", x = "Depth (m)", y= "Salinity") +
+  labs(title = "Temperature vs depth", x = "Depth (m)", y= "Temperature") +
   facet_wrap(vars(montht), scale = "free_y")
 print(p)
 
@@ -2647,14 +2661,16 @@ tmp <- d_all %>%
   dplyr::mutate(depth = as.factor(ifelse(depth == 1 | depth == 3, 2, depth))) %>% 
   dplyr::filter(depth == 2 | depth == 10) %>% 
   group_by(depth, montht)
-temp_range <- skim(tmp) %>% 
-  dplyr::select(depth, montht, numeric.p50) %>% 
-  pivot_wider(names_from = depth, values_from = c(numeric.p50)) %>% 
-  dplyr::rename(median2m = "2",
-                median10m = "10") %>% 
-  dplyr::mutate(temp_range = median2m - median10m)
-kable(temp_range, digits = 2, caption = "Median temperature")
 summary(aov(tmp$temp_insitu_ctd ~ tmp$depth * tmp$montht))
+
+tmp_delta <- tmp %>% 
+  group_by(depth, montht) %>% 
+  dplyr::summarise(temp_med = median(temp_insitu_ctd, na.rm = TRUE)) %>% 
+  tidyr::pivot_wider(names_from = depth, values_from = temp_med) %>% 
+  dplyr::rename(median0_4m = "2",
+                median8_12m = "10") %>% 
+  dplyr::mutate(temp_range = median0_4m - median8_12m)
+kable(tmp_delta, digits = 2, caption = "Median temperature")
 
 p <- tmp %>% 
   ggplot(aes(x=as.factor(depth), y = temp_insitu_ctd)) +
@@ -2671,14 +2687,17 @@ tmp <- d_all %>%
   dplyr::filter(depth == 2 | depth == 10) %>% 
   dplyr::select(montht, depth, density) %>% 
   group_by(depth, montht) 
-den_range <- skim(tmp) %>% 
-  dplyr::select(depth, montht, numeric.p50) %>% 
-  pivot_wider(names_from = depth, values_from = c(numeric.p50)) %>% 
-  dplyr::rename(median2m = "2",
-                median10m = "10") %>% 
-  dplyr::mutate(den_range = median2m - median10m)
-kable(den_range, digits = 2, caption = "Median density")
 summary(aov(tmp$density ~ tmp$depth * tmp$montht))
+
+tmp_delta <- tmp %>% 
+  group_by(depth, montht) %>% 
+  dplyr::summarise(den_med = median(density, na.rm = TRUE)) %>% 
+  tidyr::pivot_wider(names_from = depth, values_from = den_med) %>% 
+  dplyr::rename(median0_4m = "2",
+                median8_12m = "10") %>% 
+  dplyr::mutate(den_med = median0_4m - median8_12m)
+kable(tmp_delta, digits = 2, caption = "Median density")
+
 
 p <- tmp %>% 
   ggplot(aes(x=as.factor(depth), y = density)) +
