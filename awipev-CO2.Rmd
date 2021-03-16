@@ -2267,7 +2267,7 @@ p <-  ggplot(d_all, aes(x=ph_s_dur_temp_fb, y= ph_dur_corr, label = monthd)) +
   geom_abline(slope=1, intercept =0, linetype = "dashed") +
   geom_abline(aes(intercept = lm$fit$regression.results[2,2], slope = lm$fit$regression.results[2,3]),
               colour = "blue") +
-  labs(title = paste("pH spectro vs pH durafet","\n Adj R2 = ", signif(lm$fit$rsquare, 3),
+  labs(title = paste("pH spectro vs pH durafet (both at FB temperature","\n Adj R2 = ", signif(lm$fit$rsquare, 3),
                      "; Intercept =", signif(lm$fit$regression.results[2,2], 3),
                      "; Slope =", signif(lm$fit$regression.results[2,3], 3),
                      "; P =", signif(lm$fit$P.param, 3),
@@ -2289,7 +2289,7 @@ p <-  ggplot(d_all, aes(x=ph_s_sf_temp_insi, y= pHint_tot_sf, label = monthd)) +
   geom_abline(slope=1, intercept =0, linetype = "dashed") +
   geom_abline(aes(intercept = lm$fit$regression.results[2,2], slope = lm$fit$regression.results[2,3]),
               colour = "blue") +
-  labs(title = paste("pH spectro vs pH seafet","\n Adj R2 = ", signif(lm$fit$rsquare, 3),
+  labs(title = paste("pH spectro vs pH seafet (at in situ temperature)","\n Adj R2 = ", signif(lm$fit$rsquare, 3),
                      "; Intercept =", signif(lm$fit$regression.results[2,2], 3),
                      "; Slope =", signif(lm$fit$regression.results[2,3], 3),
                      "; P =", signif(lm$fit$P.param, 3),
@@ -2499,7 +2499,7 @@ The impact of the min max changes of po4 on pH, pCO2, and Omega_a are small:  `r
 The impact of the min max changes of po4 on pH, pCO2, and Omega_a are small:  `r round(1000*diff_Si_2$pH, digits=2)` mpH units, `r round(diff_Si_2$pCO2, digits=2)` uatm for pCO2 and `r round(diff_Si_2$OmegaAragonite, digits=2)` for OmegaAragonite.
 
 ## Impact of choice of constants
-### Lueker vs Sulpis using mean values
+### Lueker vs Sulpis using means of monthly means
 ```{r impact of constants 1, echo=FALSE, warning=FALSE, message=FALSE}
 # Compare Lueker and Sulpis
 # use mean values calculated for impacts of nutrients above
@@ -2511,6 +2511,13 @@ monthly_means <- d_all %>%
             mean_sal = mean(sal_fb, na.rm = TRUE),
             mean_temp = mean(temp_fb, na.rm = TRUE)) %>% 
   ungroup()
+means <- monthly_means %>% 
+  summarise(across(
+    .cols = is.numeric, 
+    .fns = mean, na.rm = TRUE, 
+    .names = "{col}"
+  ))
+
 mean_ct <-  mean(monthly_means$mean_ct)
 mean_at_calc <-  mean(monthly_means$mean_at_calc)
 mean_pco2_calc <-  mean(monthly_means$mean_pco2_calc)
@@ -2539,11 +2546,15 @@ const_choice <- bind_rows(diff_ls_1, diff_ls_2) %>%
                 T = mean_temp,
                 DIC = DIC * 1e6
                 ) %>% 
-  dplyr::select(flag, T, pH, pCO2, DIC, OmegaAragonite)
-#kable(const, digits = c(0, 1, 1, 3, 1, 1, 2))
-pander(const_choice)
+  dplyr::select(flag, pH, pCO2, DIC, OmegaAragonite)
+knitr::kable(const_choice, digits = c(0, 3, 1, 1, 3), caption = "Lueker minus Sulpis", format = "simple")
 ```
+The means used are:
+`r knitr::kable(means, format = "simple")`
+
+
 ### Lueker vs Sulpis using all values pCO2 and at_calc
+One uses the pair pCO2-AT
 
 ```{r impact of constants 2, echo=FALSE, warning=FALSE, message=FALSE}
 # Compare Lueker and Sulpis
@@ -2583,20 +2594,12 @@ carb_s <-
   )
 diff_ls <- as_tibble(carb_l - carb_s) %>% 
   dplyr::select(pH, pCO2, DIC, OmegaAragonite)
-a
-dplyr::mutate
 diff_ls_quant <- bind_rows(
-  quantiles(diff_ls$pH),)
-)
-const_choice <- bind_rows(diff_ls_1, diff_ls_2) %>% 
-  dplyr::mutate(flag = c("pCO2 and ALK", "ALK and DIC"),
-                S = mean_sal,
-                T = mean_temp,
-                DIC = DIC * 1e6
-                ) %>% 
-  
-  
-# plot
+  quantile(diff_ls$pH), quantile(diff_ls$pCO2), quantile(diff_ls$DIC * 1e6), 
+  quantile(diff_ls$OmegaAragonite)) %>% 
+  dplyr::mutate(Variable = c("pH", "pCO2", "DIC", "OmegaAragonite"), .before = 1)
+pander(diff_ls_quant)
+
 lm <- lm2(x = d_all$sal_insitu_ctd_9m, y = d_all$sal_fb)
 p <-  ggplot(d_all,aes(x=sal_insitu_ctd_9m, y= sal_fb))+
   geom_point( aes(color=factor(monthd))) + 
@@ -2613,6 +2616,7 @@ p <-  ggplot(d_all,aes(x=sal_insitu_ctd_9m, y= sal_fb))+
   labs( x="Salinity CTD 9 m", y="Salinity FB ", color = "Months") + theme_bw()
 
 print(p) #p_sal_fb_ctd
+
 ```
 
 The difference induced by the choice of the carbonic acid constants is large for pH, pCO2 and DIC and negligible for OmegaAragonite.
