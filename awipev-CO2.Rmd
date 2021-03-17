@@ -340,11 +340,18 @@ d <- left_join(d, d_all %>%
 pH_seafet <- d %>%
   dplyr::filter(!is.na(ph_s_sf) & !is.na(temp_insitu_ctd))
 pH_seafet <- pH_seafet %>% 
-  dplyr::mutate(ph_s_sf_temp_insi = 
-                  pHinsi(pH = pH_seafet$ph_s_sf, 
+  dplyr::mutate(
+    ph_s_sf_temp_insi = pHinsi(pH = pH_seafet$ph_s_sf, 
                          ALK = pH_seafet$at_mean_interp*1e-6, Tinsi = pH_seafet$temp_insitu_ctd, 
                          Tlab = pH_seafet$temp_s_lab, Pinsi = pH_seafet$pressure_insitu_ctd/10, 
-                         S = pH_seafet$sal_mix, Pt = 0, Sit = 0))
+                         S = pH_seafet$sal_mix, Pt = 0, Sit = 0, k1k2 = "x", kf = "x", ks="d", 
+                         pHscale = "T", b="u74"),
+   ph_s_sf_norm4 = pHinsi(pH = pH_seafet$ph_s_sf, 
+                         ALK = pH_seafet$at_mean_interp*1e-6, Tinsi = 4, 
+                         Tlab = pH_seafet$temp_s_lab, Pinsi = pH_seafet$pressure_insitu_ctd/10, 
+                         S = pH_seafet$sal_mix, Pt = 0, Sit = 0, k1k2 = "x", kf = "x", ks="d", 
+                         pHscale = "T", b="u74")
+  )
 
 # Conversion of spec pH of FerryBox samples to FerryBox temp
 pH_durafet <- d %>%
@@ -1816,9 +1823,20 @@ d_all <- d_all %>%
       ),
       depth_discrete = as.factor(depth_discrete)
   )
+
+
+d_all <- d_all %>%
+  dplyr::mutate(ph_s_sf_norm4 = ifelse(!is.na(pH_seafet$ph_s_sf),
+                                              pHinsi(pH = pH_seafet$ph_s_sf, 
+                         ALK = pH_seafet$at_mean_interp*1e-6, Tinsi = 4, 
+                         Tlab = pH_seafet$temp_s_lab, Pinsi = pH_seafet$pressure_insitu_ctd/10, 
+                         S = pH_seafet$sal_mix, Pt = 0, Sit = 0, k1k2 = "x", kf = "x", ks="d", 
+                         pHscale = "T", b="u74"), NA
+  ))
                  
-# add spectro points that cannot be taken into consideration (some ancillary data T and/or S not available)
-# shown as white triangles on the plot
+# add spectro points that cannot be taken into consideration (some ancillary data T and/or S not available) shown as white triangles on the plot
+# ALSO Conversion of spec pH of FerryBox samples at 4°C
+
 d_all <- d_all %>%
   dplyr::mutate(
     pH_s_sf_no_calb = ifelse(
@@ -1827,8 +1845,7 @@ d_all <- d_all %>%
         datetime == as.POSIXct("2019-01-18 11:00:00"),
       ph_s_sf_temp_insi,
       NA
-    )
-  )
+    ))
 
 seafet_depth_xts <- dplyr::select(d_all, datetime, ph_s_sf_temp_insi, pHint_tot_sf_1m, pHint_tot_sf_3m, pHint_tot_sf_5m, pHint_tot_sf_7m, pHint_tot_sf_9m)
 seafet_depth_xts <- as.xts(seafet_depth_xts, order.by = d_all$datetime)
@@ -2503,6 +2520,13 @@ The impact of the min max changes of po4 on pH, pCO2, and Omega_a are small:  `r
 ```{r impact of constants 1, echo=FALSE, warning=FALSE, message=FALSE}
 # Compare Lueker and Sulpis
 # use mean values calculated for impacts of nutrients above
+
+# first, order columns
+d_all <- d_all %>% 
+  dplyr::select(order(colnames(d_all))) %>% 
+  dplyr::select(datetime, date, year, monthd, montht, everything())
+
+# calculate means
 monthly_means <- d_all %>% 
   group_by(montht) %>% 
   summarize(mean_ct = mean(ct, na.rm = TRUE),
@@ -2547,14 +2571,16 @@ const_choice <- bind_rows(diff_ls_1, diff_ls_2) %>%
                 DIC = DIC * 1e6
                 ) %>% 
   dplyr::select(flag, pH, pCO2, DIC, OmegaAragonite)
-knitr::kable(const_choice, digits = c(0, 3, 1, 1, 3), caption = "Lueker minus Sulpis", format = "simple")
 ```
 The means used are:
 `r knitr::kable(means, format = "simple")`
 
+The differences are:
+`r knitr::kable(const_choice, digits = c(0, 3, 1, 1, 3), caption = "Lueker minus Sulpis", format = "simple")`
+
 
 ### Lueker vs Sulpis using all values pCO2 and at_calc
-One uses the pair pCO2-AT
+One uses the pair pCO2-AT_calc
 
 ```{r impact of constants 2, echo=FALSE, warning=FALSE, message=FALSE}
 # Compare Lueker and Sulpis
