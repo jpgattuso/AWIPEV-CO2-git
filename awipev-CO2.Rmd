@@ -89,7 +89,7 @@ qq <- function (data, digits) {
 
 #################### Regression function
 # function regression plot with equation (MA or OLS) in title
-ggreg <- function (xdata, ydata, type = "OLS", plot = TRUE, title = "title") { # x and y are the names of the variables
+ggreg <- function (xdata, ydata, type = "OLS", plot = TRUE, title = "title", subtitle = "subtitle", xlab = "x", ylab = "y") { # x and y are the names of the variables
   fit_data <- tibble(xdata, ydata)
   colnames(fit_data) = c("xdata", "ydata")
   fit <- print(lmodel2::lmodel2(ydata ~ xdata))
@@ -107,7 +107,10 @@ if (plot == TRUE) {
                      "\n R2 = ", round(fit$rsquare, digits = 2),
                      "; Intercept =", signif(intercept, 3),
                      "; Slope =", signif(slope, 3),
-                     "; P =", signif(fit$P.param, 3)))
+                     "; P =", signif(fit$P.param, 3)),
+       subtitle = subtitle,
+       x = xlab,
+       y = ylab)
   return(plt)
   } else {
   return(fit)
@@ -336,7 +339,7 @@ d <- left_join(d, d_all %>%
                  ), by = "closest_datetime") %>% 
   dplyr::select(-closest_datetime)
 
-# Conversion of spec pH of in situ samples to in situ temp
+# Conversion of spec pH of in situ samples to in situ temp and 4 °C
 pH_seafet <- d %>%
   dplyr::filter(!is.na(ph_s_sf) & !is.na(temp_insitu_ctd))
 pH_seafet <- pH_seafet %>% 
@@ -344,12 +347,12 @@ pH_seafet <- pH_seafet %>%
     ph_s_sf_temp_insi = pHinsi(pH = pH_seafet$ph_s_sf, 
                          ALK = pH_seafet$at_mean_interp*1e-6, Tinsi = pH_seafet$temp_insitu_ctd, 
                          Tlab = pH_seafet$temp_s_lab, Pinsi = pH_seafet$pressure_insitu_ctd/10, 
-                         S = pH_seafet$sal_mix, Pt = 0, Sit = 0, k1k2 = "x", kf = "x", ks="d", 
+                         S = pH_seafet$sal_mix, Pt = 0, Sit = 0, k1k2 = "l", kf = "x", ks="d", 
                          pHscale = "T", b="u74"),
    ph_s_sf_norm4 = pHinsi(pH = pH_seafet$ph_s_sf, 
                          ALK = pH_seafet$at_mean_interp*1e-6, Tinsi = 4, 
                          Tlab = pH_seafet$temp_s_lab, Pinsi = pH_seafet$pressure_insitu_ctd/10, 
-                         S = pH_seafet$sal_mix, Pt = 0, Sit = 0, k1k2 = "x", kf = "x", ks="d", 
+                         S = pH_seafet$sal_mix, Pt = 0, Sit = 0, k1k2 = "l", kf = "x", ks="d", 
                          pHscale = "T", b="u74")
   )
 
@@ -361,36 +364,38 @@ pH_durafet <- pH_durafet %>%
 
 # Make mean for replicates + SD
 pH_seafet_mean <- pH_seafet%>%
-  dplyr::select(date, ph_s_sf_temp_insi)%>% 
+  dplyr::select(date, ph_s_sf_temp_insi, ph_s_sf_norm4)%>% 
   dplyr::group_by(date) %>% 
   dplyr::summarise(ph_s_sf_temp_insi_mean = mean(ph_s_sf_temp_insi, na.rm = TRUE),
-                   ph_s_sf_temp_insi_sd= sd(ph_s_sf_temp_insi, na.rm = TRUE)
+                   #ph_s_sf_temp_insi_sd = sd(ph_s_sf_temp_insi, na.rm = TRUE),
+                   ph_s_sf_norm4_mean = mean(ph_s_sf_norm4, na.rm = TRUE)
                    )
 
 pH_durafet_mean <- pH_durafet%>%
   dplyr::select(date, ph_s_dur_temp_fb)%>% 
   dplyr::group_by(date) %>% 
-  dplyr::summarize(ph_s_dur_temp_fb_mean = mean(ph_s_dur_temp_fb, na.rm = TRUE),
-                   ph_s_dur_temp_fb_sd = sd(ph_s_dur_temp_fb, na.rm = TRUE))
+  dplyr::summarize(ph_s_dur_temp_fb_mean = mean(ph_s_dur_temp_fb, na.rm = TRUE)#,
+                   #ph_s_dur_temp_fb_sd = sd(ph_s_dur_temp_fb, na.rm = TRUE)
+                   )
 
-#bind all spectro measurements, vhange name of dataframe only to do the rbind.
-seafetph <- pH_seafet_mean
-colnames(seafetph) <- c("date", "mean", "sd")
-durafetph <- pH_durafet_mean
-colnames(durafetph) <- c("date", "mean", "sd")
-pH_seafet_durafet <- rbind(seafetph,durafetph)
+# #bind all spectro measurements, vhange name of dataframe only to do the rbind.
+# seafetph <- pH_seafet_mean
+# colnames(seafetph) <- c("date", "ph_s_sf_insi", "ph_s_sf_norm4")
+# durafetph <- pH_durafet_mean
+# colnames(durafetph) <- c("date", "ph_s_dur_temp_fb")
+# pH_seafet_durafet <- rbind(seafetph,durafetph)
 
-#calculations for all pH spectro measurement for sd
-sd_min <- min(pH_seafet_durafet$sd)
-sd_max <- max(pH_seafet_durafet$sd)
-sd_mean <- mean(pH_seafet_durafet$sd)
+# #calculations for all pH spectro measurement for sd
+# sd_min <- min(pH_seafet_durafet$sd)
+# sd_max <- max(pH_seafet_durafet$sd)
+# sd_mean <- mean(pH_seafet_durafet$sd)
 
 #  make means in "d" to have same format and call it "discrete"
 discrete <- d %>%
   dplyr::group_by(date) %>%
   dplyr::summarize(
     datetime = mean(datetime, na.rm = TRUE),
-      sal_fb = mean(sal_fb, na.rm = TRUE),
+    sal_fb = mean(sal_fb, na.rm = TRUE),
     sal_mix = mean(sal_mix, na.rm = TRUE),
     temp_fb = mean(temp_fb, na.rm = TRUE),
     at_mean_interp = mean(at_mean_interp, na.rm = TRUE),
@@ -491,8 +496,9 @@ d_all <- full_join(d_all, discrete2merge, by="datetime")
 
 # seaFET pH 
 discrete2merge <- discrete %>%
-  dplyr::select(closest_datetime, ph_s_sf_temp_insi_mean) %>%
-  dplyr::rename(ph_s_sf_temp_insi = ph_s_sf_temp_insi_mean) %>%
+  dplyr::select(closest_datetime, ph_s_sf_temp_insi_mean, ph_s_sf_norm4_mean) %>%
+  dplyr::rename(ph_s_sf_temp_insi = ph_s_sf_temp_insi_mean,
+                ph_s_sf_norm4 = ph_s_sf_norm4_mean) %>%
   dplyr::filter(!is.na(closest_datetime)) %>%
   rename(datetime=closest_datetime)
 d_all <- full_join(d_all, discrete2merge, by="datetime")
@@ -1825,14 +1831,14 @@ d_all <- d_all %>%
   )
 
 
-d_all <- d_all %>%
-  dplyr::mutate(ph_s_sf_norm4 = ifelse(!is.na(pH_seafet$ph_s_sf),
-                                              pHinsi(pH = pH_seafet$ph_s_sf, 
-                         ALK = pH_seafet$at_mean_interp*1e-6, Tinsi = 4, 
-                         Tlab = pH_seafet$temp_s_lab, Pinsi = pH_seafet$pressure_insitu_ctd/10, 
-                         S = pH_seafet$sal_mix, Pt = 0, Sit = 0, k1k2 = "x", kf = "x", ks="d", 
-                         pHscale = "T", b="u74"), NA
-  ))
+# d_all <- d_all %>%
+#   dplyr::mutate(ph_s_sf_norm4 = ifelse(!is.na(pH_seafet$ph_s_sf),
+#                                               pHinsi(pH = pH_seafet$ph_s_sf, 
+#                          ALK = pH_seafet$at_mean_interp*1e-6, Tinsi = 4, 
+#                          Tlab = pH_seafet$temp_s_lab, Pinsi = pH_seafet$pressure_insitu_ctd/10, 
+#                          S = pH_seafet$sal_mix, Pt = 0, Sit = 0, k1k2 = "l", kf = "x", ks="d", 
+#                          pHscale = "T", b="u74"), NA
+#   ))
                  
 # add spectro points that cannot be taken into consideration (some ancillary data T and/or S not available) shown as white triangles on the plot
 # ALSO Conversion of spec pH of FerryBox samples at 4°C
@@ -2197,12 +2203,12 @@ pH_sf <- d_all %>%
   dplyr::filter(!is.na(pHint_tot_sf), !is.na(temp_insitu_ctd_9m), !is.na(sal_insitu_ctd_9m)) %>%
   dplyr::filter(datetime < as.POSIXct("2018-01-01") | datetime > as.POSIXct("2018-02-03"))
 
-pH_sf$pHint_tot_sf_norm4 <- pHinsi(pH=pH_sf$pHint_tot_sf, ALK=mean(d_all$at, na.rm=TRUE), Tinsi=4, Tlab=pH_sf$temp_insitu_ctd_9m, Pinsi=11/10, S=pH_sf$sal_insitu_ctd_9m, Pt=0, Sit=0, k1k2 = "x", kf = "x", ks="d", pHscale = "T", b="u74")
+pH_sf$pHint_tot_sf_norm4 <- pHinsi(pH=pH_sf$pHint_tot_sf, ALK=mean(d_all$at, na.rm=TRUE), Tinsi=4, Tlab=pH_sf$temp_insitu_ctd_9m, Pinsi=11/10, S=pH_sf$sal_insitu_ctd_9m, Pt=0, Sit=0, k1k2 = "l", kf = "x", ks="d", pHscale = "T", b="u74")
 
 pH_dur <- d_all %>%
   dplyr::select(datetime, sal_fb,temp_fb, ph_dur_corr)%>%
   dplyr::filter(!is.na(ph_dur_corr), !is.na(temp_fb), !is.na(sal_fb))
-pH_dur$pH_durafet_norm4 <- pHinsi(pH=pH_dur$ph_dur_corr, ALK=mean(d_all$at, na.rm=TRUE), Tinsi=4, Tlab=pH_dur$temp_fb, Pinsi=11/10, S=pH_dur$sal_fb, Pt=0, Sit=0, k1k2 = "x", kf = "x", ks="d", pHscale = "T", b="u74")
+pH_dur$pH_durafet_norm4 <- pHinsi(pH=pH_dur$ph_dur_corr, ALK=mean(d_all$at, na.rm=TRUE), Tinsi=4, Tlab=pH_dur$temp_fb, Pinsi=11/10, S=pH_dur$sal_fb, Pt=0, Sit=0, k1k2 = "l", kf = "x", ks="d", pHscale = "T", b="u74")
 
 # join pH sf norm + pH dur norm
 d_all <- left_join(d_all, pH_sf%>%dplyr::select(datetime, pHint_tot_sf_norm4 ), by="datetime")
@@ -2239,7 +2245,7 @@ rm(durafet_sf_contros_xts, pdur_sf_norm_text)
 pH_calc <- discrete %>%
   dplyr::select(datetime, sal_fb, temp_fb, phcalc_fb, at)%>%
   dplyr::filter(!is.na(phcalc_fb), !is.na(temp_fb), !is.na(sal_fb))
-pH_calc$pH_calc_fb_norm4 <- pHinsi(pH = pH_calc$phcalc_fb, ALK=pH_calc$at*1e-6, Tinsi=4, Tlab=pH_calc$temp_fb, Pinsi=11/10, S=pH_calc$sal_fb, Pt=0, Sit=0, k1k2 = "x", kf = "x", ks="d", pHscale = "T", b="u74")
+pH_calc$pH_calc_fb_norm4 <- pHinsi(pH = pH_calc$phcalc_fb, ALK=pH_calc$at*1e-6, Tinsi=4, Tlab=pH_calc$temp_fb, Pinsi=11/10, S=pH_calc$sal_fb, Pt=0, Sit=0, k1k2 = "l", kf = "x", ks="d", pHscale = "T", b="u74")
 
 # join pH calc norm + pH dur/sf norm in d_all
 d_all <- left_join(d_all, pH_calc %>% dplyr::select(datetime, pH_calc_fb_norm4), by="datetime")
@@ -2515,7 +2521,7 @@ The impact of the min max changes of po4 on pH, pCO2, and Omega_a are small:  `r
 
 The impact of the min max changes of po4 on pH, pCO2, and Omega_a are small:  `r round(1000*diff_Si_2$pH, digits=2)` mpH units, `r round(diff_Si_2$pCO2, digits=2)` uatm for pCO2 and `r round(diff_Si_2$OmegaAragonite, digits=2)` for OmegaAragonite.
 
-## Impact of choice of constants
+## Impact of choice of constants  {.tabset .tabset-pills}
 ### Lueker vs Sulpis using means of monthly means
 ```{r impact of constants 1, echo=FALSE, warning=FALSE, message=FALSE}
 # Compare Lueker and Sulpis
@@ -2582,10 +2588,13 @@ The differences are:
 ### Lueker vs Sulpis using all values pCO2 and at_calc
 One uses the pair pCO2-AT_calc
 
+
 ```{r impact of constants 2, echo=FALSE, warning=FALSE, message=FALSE}
-# Compare Lueker and Sulpis
+# Compare Lueker and Sulpis using pco2_fb and at_calc
 tmp <- d_all %>% 
-  drop_na(pco2_fb, at_calc, sal_fb, temp_fb)
+  tidyr::drop_na(pco2_fb, at_calc, sal_fb, temp_fb) %>% 
+  dplyr::select(ph_s_sf_norm4, pco2_fb, at_calc, sal_fb, temp_fb)
+  
 carb_l <-
   carb(
     24,
@@ -2602,6 +2611,12 @@ carb_l <-
     pHscale = "T",
     b = "u74"
   )
+# normalize derived pH at 4°C
+carb_l$pH <- pHinsi(pH = carb_l$pH, 
+                         ALK = carb_l$ALK, Tinsi = 4, 
+                         Tlab = carb_l$T, Pinsi = 0, 
+                         S = carb_l$S, Pt = 0, Sit = 0, k1k2 = "l", kf = "x", ks="d", 
+                         pHscale = "T", b="u74")
 carb_s <-
   carb(
     24,
@@ -2618,15 +2633,36 @@ carb_s <-
     pHscale = "T",
     b = "u74"
   )
-diff_ls <- as_tibble(carb_l - carb_s) %>% 
-  dplyr::select(pH, pCO2, DIC, OmegaAragonite)
-diff_ls_quant <- bind_rows(
-  quantile(diff_ls$pH), quantile(diff_ls$pCO2), quantile(diff_ls$DIC * 1e6), 
-  quantile(diff_ls$OmegaAragonite)) %>% 
-  dplyr::mutate(Variable = c("pH", "pCO2", "DIC", "OmegaAragonite"), .before = 1)
-pander(diff_ls_quant)
+# normalize derived pH at 4°C
+carb_s$pH <- pHinsi(pH = carb_s$pH, 
+                         ALK = carb_s$ALK, Tinsi = 4, 
+                         Tlab = carb_s$T, Pinsi = 0, 
+                         S = carb_s$S, Pt = 0, Sit = 0, k1k2 = "l", kf = "x", ks="d", 
+                         pHscale = "T", b="u74")
 
-lm <- lm2(x = d_all$sal_insitu_ctd_9m, y = d_all$sal_fb)
+# do difference
+diff_ls <- as_tibble(carb_l - carb_s) %>% 
+  dplyr::rename(delta_ph = pH, delta_ct = DIC, delta_OmegaAragonite = OmegaAragonite) %>%
+  dplyr::select(delta_ph, delta_ct, delta_OmegaAragonite)
+
+# calculate quantiles
+diff_ls_quant <- bind_rows(
+  quantile(diff_ls$delta_ph), quantile(diff_ls$delta_ct * 1e6),
+  quantile(diff_ls$delta_OmegaAragonite)) %>% 
+  dplyr::mutate(Variable = c("pH", "DIC", "OmegaAragonite"), .before = 1)
+#pander(diff_ls_quant)
+
+# prepare tibble to compare calculated pH and spec pH
+tmp2 <- tibble(ph_s_sf_norm4 = tmp$ph_s_sf_norm4, pH_l = carb_l$pH, pH_s = carb_s$pH) %>% 
+  tidyr::drop_na(ph_s_sf_norm4)
+
+p1 <- ggreg(xdata = tmp2$ph_s_sf_norm4, ydata = tmp2$pH_l, type = "OLS", plot = TRUE, 
+            title = "both pH normalized at 4°C", subtitle = "",
+            xlab = "Spectrophotometric pH measured @ 4°C",
+            ylab = "pH @ 4°C calculated (pCO2+AT) with Lueker")
+p2 <- ggreg(xdata = tmp2$ph_s_sf_norm4, ydata = tmp2$pH_s, type = "OLS", plot = TRUE, title = "both pH normalized at 4°C") 
+  
+lm <- lm2(x = tmp2$ph_s_sf_norm4, y = tmp2$pH_l)
 p <-  ggplot(d_all,aes(x=sal_insitu_ctd_9m, y= sal_fb))+
   geom_point( aes(color=factor(monthd))) + 
   geom_abline(slope=1, intercept=0, linetype = "dashed")+
@@ -2646,6 +2682,9 @@ print(p) #p_sal_fb_ctd
 ```
 
 The difference induced by the choice of the carbonic acid constants is large for pH, pCO2 and DIC and negligible for OmegaAragonite.
+
+`r knitr::kable(diff_ls_quant, digits = c(0, rep(3, 5)), caption = "Lueker minus Sulpis", format = "simple")`
+
 
 ## Stratification
 ```{r stratification, echo=FALSE, message= FALSE, warning=FALSE}
