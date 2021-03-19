@@ -112,9 +112,9 @@ if (plot == TRUE) {
        x = xlab,
        y = ylab)
   return(plt)
-  } else {
-  return(fit)
-}
+  } #else {
+  #return(fit)
+#}
 }
 
 #################### Function RMSE for model 2 regression root mean square error
@@ -326,8 +326,7 @@ d$closest_datetime[abs(d$datetime - d_all$datetime[closest]) > 30*60] <- NA
 d_all$closest_datetime <- d_all$datetime
 d <- left_join(d, d_all %>%
                  dplyr::select(
-                   c(
-                     closest_datetime,
+                   c(closest_datetime,
                      sal_fb,
                      temp_fb,
                      temp_mix,
@@ -684,7 +683,7 @@ rm(x, d_min, list=ls(pattern="^d2"))
 
 
 ## Salinities
-Several salinity sensors are on site, 1 inside the Ferrybox (SBE45) and 5 outside (ctd183, ctd181, ctd578, ctd964/964b and ctd103) that are switched periodically. Salinity from FB is taken in consideration. If data gaps are encountered, they are filled with bottom salinty data from ctd (> 8 m). New column "sal_mix" is created and is the one used in ESSD paper.
+Several salinity sensors are on site, 1 inside the Ferrybox (SBE45) and 5 outside (ctd183, ctd181, ctd578, ctd964/964b and ctd103) that are switched periodically. Salinity from FB is taken in consideration. If data gaps are encountered, they are filled with bottom salinity data from ctd (> 8 m). New column "sal_mix" is created and is the one used in ESSD paper.
 
 + 1 SBE45 inside the Ferrybox (sal_fb)
 + 5 CTD > 8 m depth (sal_insitu_ctd)
@@ -2531,7 +2530,7 @@ The impact of the min max changes of po4 on pH, pCO2, and Omega_a are small:  `r
 The impact of the min max changes of po4 on pH, pCO2, and Omega_a are small:  `r round(1000*diff_Si_2$pH, digits=2)` mpH units, `r round(diff_Si_2$pCO2, digits=2)` uatm for pCO2 and `r round(diff_Si_2$OmegaAragonite, digits=2)` for OmegaAragonite.
 
 ## Impact of choice of constants  {.tabset .tabset-pills}
-### Lueker vs Sulpis using means of monthly means
+### Lueker vs Sulpis using mean discrete values
 ```{r impact of constants discrete, echo=FALSE, warning=FALSE, message=FALSE}
 # Compare Lueker and Sulpis using mean discrete values
 # first, order columns
@@ -2544,6 +2543,7 @@ mean_at <- mean(discrete$at, na.rm = TRUE)
 mean_pco2 <- mean(discrete$pco2_calc_fb, na.rm = TRUE)
 mean_sal <- mean(discrete$sal_fb, na.rm = TRUE)
 mean_temp <- mean(discrete$temp_fb, na.rm = TRUE)
+mean_discrete <- tibble(mean_ct = mean_ct, mean_at = mean_at, mean_pco2 = mean_pco2, mean_sal = mean_sal, mean_temp = mean_temp)
 # calculate typical uncertainty assuming uncertainties of 3 uatm for pCO2 and 4 umol/kg for AT and CT
 errors_pco2_at <- seacarb::errors(flag=24, var1=mean_pco2, var2=1e-6*mean_at, S=mean_sal,
                           T=mean_temp, P=0, Pt=0, Sit=0, k1k2="l", kf="dg", ks="d", pHscale="T",
@@ -2583,79 +2583,67 @@ const_choice <- bind_rows(diff_ls_1, diff_ls_2) %>%
   dplyr::bind_cols(errors)
 ```
 The means used are:
-`r knitr::kable(tibble(mean_at, mean_ct, mean_pco2, mean_sal, mean_temp), digits = c(1, 1, 0, 1, 1), caption = "Mean discrete values.", format = "simple")`
+`r knitr::kable(mean_discrete, digits = c(1, 1, 0, 1, 1), caption = "Mean discrete values.", format = "simple")`
 
 The differences are:
 `r knitr::kable(const_choice, digits = c(0, 3, 1, 1, 3, 3, 1, 1, 1), caption = "Lueker minus Sulpis. e indicates typical errors estimated with seacarb.", format = "simple")`
 
 ### Lueker vs Sulpis using FerryBox pCO2 and at_calc
 ```{r impact of constants on FerryBox data, echo=FALSE, warning=FALSE, message=FALSE}
-# Compare Lueker and Sulpis using pco2_fb and at_calc
+# Compare Lueker and Sulpis using pco2_fb and at in situ
 tmp <- d_all %>% 
-  tidyr::drop_na(pco2_fb, at_calc, sal_fb, temp_fb) %>% 
+  tidyr::drop_na(pco2_fb, at, sal_fb, temp_fb) %>% 
   dplyr::select(ph_s_dur_temp_4, pco2_fb, at_calc, sal_fb, temp_fb)
 # Using Lueker  
-carb_l <-
-  carb(
-    24,
-    tmp$pco2_fb,
-    tmp$at_calc * 1e-6,
-    S = tmp$sal_fb,
-    T = tmp$temp_fb,
-    P = 0,
-    Pt = 0,
-    Sit = 0,
-    k1k2 = "l",
-    kf = "dg",
-    ks = "d",
-    pHscale = "T",
-    b = "u74"
-  )
+carb_l <- carb(flag = 24, var1 = tmp$pco2_fb, var2 = tmp$at_calc * 1e-6, S = tmp$sal_fb, 
+               T = tmp$temp_fb, P = 0, Pt = 0, Sit = 0, k1k2 = "l", kf = "dg", ks = "d", 
+               pHscale = "T", b = "u74")
 # normalize Lueker-derived pH at 4°C
-carb_l$pH <- pHinsi(pH = carb_l$pH, 
-                         ALK = carb_l$ALK, Tinsi = 4, 
-                         Tlab = carb_l$T, Pinsi = 0, 
+carb_l$pH <- pHinsi(pH = carb_l$pH, ALK = carb_l$ALK, Tinsi = 4, Tlab = carb_l$T, Pinsi = 0, 
                          S = carb_l$S, Pt = 0, Sit = 0, k1k2 = "l", kf = "dg", ks="d", 
                          pHscale = "T", b="u74")
 # Using Sulpis
-carb_s <-
-  carb(
-    24,
-    tmp$pco2_fb,
-    tmp$at_calc * 1e-6,
-    S = tmp$sal_fb,
-    T = tmp$temp_fb,
-    P = 0,
-    Pt = 0,
-    Sit = 0,
-    k1k2 = "s20",
-    kf = "dg",
-    ks = "d",
-    pHscale = "T",
-    b = "u74"
-  )
+carb_s <- carb(flag = 24, var1 = tmp$pco2_fb, var2 = tmp$at_calc * 1e-6, S = tmp$sal_fb, 
+               T = tmp$temp_fb, P = 0, Pt = 0, Sit = 0, k1k2 = "s20", kf = "dg", ks = "d", 
+               pHscale = "T", b = "u74")
 # normalize Sulpis-derived pH at 4°C
-carb_s$pH <- pHinsi(pH = carb_s$pH, 
-                         ALK = carb_s$ALK, Tinsi = 4, 
-                         Tlab = carb_s$T, Pinsi = 0, 
+carb_s$pH <- pHinsi(pH = carb_s$pH, ALK = carb_s$ALK, Tinsi = 4, Tlab = carb_s$T, Pinsi = 0, 
                          S = carb_s$S, Pt = 0, Sit = 0, k1k2 = "s20", kf = "dg", ks="d", 
+                         pHscale = "T", b="u74")
+# Using Papadimitriou
+carb_p <- carb(flag = 24, var1 = tmp$pco2_fb, var2 = tmp$at_calc * 1e-6, S = tmp$sal_fb, 
+               T = tmp$temp_fb, P = 0, Pt = 0, Sit = 0, k1k2 = "p18", kf = "dg", ks = "d", 
+               pHscale = "T", b = "u74")
+# normalize Papadimitriou-derived pH at 4°C
+carb_s$pH <- pHinsi(pH = carb_s$pH, ALK = carb_s$ALK, Tinsi = 4, Tlab = carb_s$T, Pinsi = 0, 
+                         S = carb_s$S, Pt = 0, Sit = 0, k1k2 = "p18", kf = "dg", ks="d", 
+                         pHscale = "T", b="u74")
+# Using Millero et al. (2002)
+carb_m <- carb(flag = 24, var1 = tmp$pco2_fb, var2 = tmp$at_calc * 1e-6, S = tmp$sal_fb, 
+               T = tmp$temp_fb, P = 0, Pt = 0, Sit = 0, k1k2 = "m02", kf = "dg", ks = "d", 
+               pHscale = "T", b = "u74")
+# normalize Millero et al. (2002)-derived pH at 4°C
+carb_s$pH <- pHinsi(pH = carb_s$pH, ALK = carb_s$ALK, Tinsi = 4, Tlab = carb_s$T, Pinsi = 0, 
+                         S = carb_s$S, Pt = 0, Sit = 0, k1k2 = "m02", kf = "dg", ks="d", 
                          pHscale = "T", b="u74")
 # calculate difference Lueker - Sulpis
 diff_ls <- as_tibble(carb_l - carb_s) %>% 
   dplyr::rename(delta_ph = pH, delta_ct = DIC, delta_OmegaAragonite = OmegaAragonite) %>%
   dplyr::select(delta_ph, delta_ct, delta_OmegaAragonite)
-# calculate descriptive statistics
+# calculate descriptive statistics Lueker - Sulpis
 diff_ls_quant <- tibble(pH = as.numeric(summary(diff_ls$delta_ph)),
                         CT = as.numeric(summary(diff_ls$delta_ct * 1e6)),
                         OmegaAragonite = as.numeric(summary(diff_ls$delta_OmegaAragonite))) %>%
   dplyr::mutate(var = c("Min", "Q1", "Median", "Mean", "Q3", "Max"), .before = 1)
 # prepare tibble to compare calculated pH and spec pH
-tmp2 <- tibble(ph_s_dur_temp_4 = tmp$ph_s_dur_temp_4, pH_l = carb_l$pH, pH_s = carb_s$pH) %>% 
+tmp2 <- tibble(ph_s_dur_temp_4 = tmp$ph_s_dur_temp_4, pH_l = carb_l$pH, pH_s = carb_s$pH, pH_p = carb_p$pH, pH_m = carb_m$pH) %>% 
   tidyr::drop_na(ph_s_dur_temp_4)
 # summary of differences
-diff_lueker <- as.numeric(summary(tmp2$ph_s_dur_temp_4 - tmp2$pH_l))
-diff_sulpis <- as.numeric(summary(tmp2$ph_s_dur_temp_4 - tmp2$pH_s))
-lueker_sulpis_table <- tibble(var = c("Min", "Q1", "Median", "Mean", "Q3", "Max"), diff_lueker, diff_sulpis)
+lueker <- as.numeric(summary(tmp2$ph_s_dur_temp_4 - tmp2$pH_l))
+sulpis <- as.numeric(summary(tmp2$ph_s_dur_temp_4 - tmp2$pH_s))
+papadimitriou <- as.numeric(summary(tmp2$ph_s_dur_temp_4 - tmp2$pH_p))
+millero2002 <- as.numeric(summary(tmp2$ph_s_dur_temp_4 - tmp2$pH_m))
+diff_table <- tibble(var = c("Min", "Q1", "Median", "Mean", "Q3", "Max"), lueker, sulpis, papadimitriou, millero2002)
 # make plots
 p1 <- ggreg(xdata = tmp2$ph_s_dur_temp_4, ydata = tmp2$pH_l, type = "MA", plot = TRUE, 
             title = "Lueker vs measured", subtitle = "both pH normalized at 4°C",
@@ -2668,14 +2656,17 @@ p2 <- ggreg(xdata = tmp2$ph_s_dur_temp_4, ydata = tmp2$pH_s, type = "MA", plot =
 p <- p1 + p2
 ggsave(filename = "figures/lueker-sulpis.png", plot = p, width = 20, height = 15, units = "cm")
 ```
-The discrete values of pCO2, AT (calculated from the AT-salinity relationship), salinity and temperature in the FerryBox were used to calculate pH from measured pCO2 and AT (from a salinity-AT relationship) using the formulations for K1 and K2 of Lueker et al. (2000) and Sulpis et al. (2020). The differences induced by the choice of the carbonic acid constants is:
-+ large for pH (0.026 pH units on average; always higher with Sulpis than with Lueker)
-+ large for CT (3.7 umol/kg on average; always lower with Sulpis than with Lueker)
-+ negligible for OmegaAragonite
+The discrete values of pCO2, salinity and temperature in the FerryBox and in situ AT were used to calculate pH from measured pCO2 and AT using the formulations for K1 and K2 of Lueker et al. (2000) and Sulpis et al. (2020). The differences induced by the choice of the carbonic acid constants is:
+
+- small for pH (`r round(diff_ls_quant[4, 2], digits = 3)` pH units on average; ; median is `r round(diff_ls_quant[3, 2], digits = 3)`) compared with the uncertainty calculated with seacarb (`r round(const_choice[1, 6], digits = 3)`. In general, pH is higher with Sulpis than with Lueker.
+- very good for CT (`r round(diff_ls_quant[4, 3], digits = 1)` umol/kg on average; always lower with Sulpis than with Lueker) compared with the uncertainty calculated with seacarb (`r round(const_choice[1, 8], digits = 1)`)
+- negligible for OmegaAragonite
+
 `r knitr::kable(diff_ls_quant, digits = c(0, rep(3, 5)), caption = "Lueker minus Sulpis using discrete Ferrybox data.", format = "simple")`
 
-Here we compare pH measured spectrophotometrically with pH calculated from pCO2 and AT using the sets of K1 and K2 of Lueker et al. (2000) and Sulpis et al. (2020). All pH values were normalized to a temperature of 4°C. The absloute differences are large, up to 0.14 pH units. On average, both formulations overestimate spectrophotometric pH, by 0.016 pH units with Lueker et al. (2020) and by 0.042 pH units with Sulpis et al. (2020).
-`r knitr::kable(lueker_sulpis_table, digits = 3, caption = "Difference between spectrophotometric pH and pH calculated with pCO2 and AT using the formulations for K1 and K2 of Lueker and Sulpis.", format = "simple")`
+Here we compare pH measured spectrophotometrically with pH calculated from pCO2 and AT using various formulations of K1 and K2. All pH values were normalized to a temperature of 4°C. The absolute differences are large, up to `r round(max(abs(diff_table[, 2:5])), digits=3)` pH units. On average, both formulations overestimate spectrophotometric pH. The calculated pH closer to measured pH is using the formulation of Lueker et al. (2020) with a mean difference of `r round(max(diff_table[4, 2:5]), digits=3)` pH units. This difference is twice larger than the uncertainty for pH calculated from pCO2 and AT according to seacarb (`r round(errors_pco2_at$pH, digits=3)`).
+`r knitr::kable(diff_table, digits = 3, caption = "Difference between spectrophotometric pH and pH calculated with pCO2 and AT using different formulations for K1 and K2.", format = "simple")`
+`r include_graphics("figures/lueker-sulpis.png")`
 
 ## Stratification
 ```{r stratification, echo=FALSE, message= FALSE, warning=FALSE}
