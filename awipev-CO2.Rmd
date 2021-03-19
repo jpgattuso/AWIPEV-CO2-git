@@ -2532,27 +2532,41 @@ d_all <- d_all %>%
   dplyr::select(order(colnames(d_all))) %>% 
   dplyr::select(datetime, date, year, monthd, montht, everything())
 
-# calculate means
-monthly_means <- d_all %>% 
-  group_by(montht) %>% 
-  summarize(mean_ct = mean(ct, na.rm = TRUE),
-            mean_at_calc = mean(at_calc, na.rm = TRUE),
-            mean_pco2_calc = mean(pco2_calc_fb, na.rm = TRUE),
-            mean_sal = mean(sal_fb, na.rm = TRUE),
-            mean_temp = mean(temp_fb, na.rm = TRUE)) %>% 
-  ungroup()
-means <- monthly_means %>% 
-  summarise(across(
-    .cols = is.numeric, 
-    .fns = mean, na.rm = TRUE, 
-    .names = "{col}"
-  ))
+# # calculate means
+# monthly_means <- d_all %>% 
+#   group_by(montht) %>% 
+#   summarize(mean_ct = mean(ct, na.rm = TRUE),
+#             mean_at_calc = mean(at_calc, na.rm = TRUE),
+#             mean_pco2_calc = mean(pco2_calc_fb, na.rm = TRUE),
+#             mean_sal = mean(sal_fb, na.rm = TRUE),
+#             mean_temp = mean(temp_fb, na.rm = TRUE)) %>% 
+#   ungroup()
+# means <- monthly_means %>% 
+#   summarise(across(
+#     .cols = is.numeric, 
+#     .fns = mean, na.rm = TRUE, 
+#     .names = "{col}"
+#   ))
 
-mean_ct <-  mean(monthly_means$mean_ct)
-mean_at_calc <-  mean(monthly_means$mean_at_calc)
-mean_pco2_calc <-  mean(monthly_means$mean_pco2_calc)
-mean_sal <-  mean(monthly_means$mean_sal)
-mean_temp <-  mean(monthly_means$mean_temp)
+mean_ct <-  mean(discrete$ct, na.rm = TRUE)
+mean_at <-  mean(discrete$ct, na.rm = TRUE)
+mean_pco2 <-  mean(d_all$pco2_calc_fb)
+mean_sal <-  mean(discrete$sal_fb, na.rm = TRUE)
+mean_temp <-  mean(discrete$temp_fb, na.rm = TRUE)
+
+# calculate typical uncertainty assuming uncertainties of 3 uatm for pCO2 and 4 umol/kg for AT
+errors_pco2_at <- seacarb::errors(flag=24, var1=mean_pco2_calc, var2=1e-6*mean_at_calc, S=mean_sal,
+                          T=mean_temp, P=0, Pt=0, Sit=0, k1k2="l", kf="dg", ks="d", pHscale="T",
+                          b="u74", evar1=3, evar2 = 4e-6)
+errors_at_ct <- seacarb::errors(flag=15, var1=1e-6*mean_at_calc, var2=1e-6*mean_ct, S=mean_sal,
+                          T=mean_temp, P=0, Pt=0, Sit=0, k1k2="l", kf="dg", ks="d", pHscale="T",
+                          b="u74", evar1=4e-6, evar2 = 4e-6)
+errors <- tibble(e_pH = c(errors_pco2_at$pH, errors_at_ct$pH),
+                 e_pCO2 = c(NA, errors_at_ct$pCO2),
+                 e_DIC = c(errors_pco2_at$pH, NA)*1e3,
+                 e_Oa = c(errors_pco2_at$OmegaAragonite, errors_at_ct$OmegaAragonite)
+)
+
 # impacts using pco2 and AT pair
 carb_l_1 <- carb(24, mean_pco2_calc, mean_at_calc*1e-6, S = mean_sal, T = mean_temp, P = 0, 
                  Pt = 0, Sit = 0,
@@ -2576,19 +2590,16 @@ const_choice <- bind_rows(diff_ls_1, diff_ls_2) %>%
                 T = mean_temp,
                 DIC = DIC * 1e6
                 ) %>% 
-  dplyr::select(flag, pH, pCO2, DIC, OmegaAragonite)
+  dplyr::select(flag, pH, pCO2, DIC, OmegaAragonite) %>% 
+  dplyr::bind_cols(errors)
 ```
 The means used are:
 `r knitr::kable(means, format = "simple")`
 
 The differences are:
-`r knitr::kable(const_choice, digits = c(0, 3, 1, 1, 3), caption = "Lueker minus Sulpis", format = "simple")`
-
+`r knitr::kable(const_choice, digits = c(0, 3, 1, 1, 3, 3, 1, 1, 1), caption = "Lueker minus Sulpis. e indicates typical errors estimated with seacarb.", format = "simple")`
 
 ### Lueker vs Sulpis using all values pCO2 and at_calc
-One uses the pair pCO2-AT_calc
-
-
 ```{r impact of constants 2, echo=FALSE, warning=FALSE, message=FALSE}
 # Compare Lueker and Sulpis using pco2_fb and at_calc
 tmp <- d_all %>% 
@@ -2645,45 +2656,40 @@ diff_ls <- as_tibble(carb_l - carb_s) %>%
   dplyr::rename(delta_ph = pH, delta_ct = DIC, delta_OmegaAragonite = OmegaAragonite) %>%
   dplyr::select(delta_ph, delta_ct, delta_OmegaAragonite)
 
-# calculate quantiles
-diff_ls_quant <- bind_rows(
-  quantile(diff_ls$delta_ph), quantile(diff_ls$delta_ct * 1e6),
-  quantile(diff_ls$delta_OmegaAragonite)) %>% 
-  dplyr::mutate(Variable = c("pH", "DIC", "OmegaAragonite"), .before = 1)
-#pander(diff_ls_quant)
+# calculate descriptive statistics
+diff_ls_quant <- tibble(pH = as.numeric(summary(diff_ls$delta_ph)),
+                        CT = as.numeric(summary(diff_ls$delta_ct * 1e6)),
+                        OmegaAragonite = as.numeric(summary(diff_ls$delta_OmegaAragonite))) %>%
+  dplyr::mutate(var = c("Min", "Q1", "Median", "Mean", "Q3", "Max"), .before = 1)
 
 # prepare tibble to compare calculated pH and spec pH
 tmp2 <- tibble(ph_s_sf_norm4 = tmp$ph_s_sf_norm4, pH_l = carb_l$pH, pH_s = carb_s$pH) %>% 
   tidyr::drop_na(ph_s_sf_norm4)
 
-p1 <- ggreg(xdata = tmp2$ph_s_sf_norm4, ydata = tmp2$pH_l, type = "OLS", plot = TRUE, 
-            title = "both pH normalized at 4°C", subtitle = "",
+# summary of differences
+diff_lueker <- as.numeric(summary(tmp2$ph_s_sf_norm4 - tmp2$pH_l))
+diff_sulpis <- as.numeric(summary(tmp2$ph_s_sf_norm4 - tmp2$pH_s))
+lueker_sulpis_table <- tibble(var = c("Min", "Q1", "Median", "Mean", "Q3", "Max"), diff_lueker, diff_sulpis)
+
+# make plots
+p1 <- ggreg(xdata = tmp2$ph_s_sf_norm4, ydata = tmp2$pH_l, type = "MA", plot = TRUE, 
+            title = "Lueker vs measured", subtitle = "both pH normalized at 4°C",
             xlab = "Spectrophotometric pH measured @ 4°C",
             ylab = "pH @ 4°C calculated (pCO2+AT) with Lueker")
-p2 <- ggreg(xdata = tmp2$ph_s_sf_norm4, ydata = tmp2$pH_s, type = "OLS", plot = TRUE, title = "both pH normalized at 4°C") 
-  
-lm <- lm2(x = tmp2$ph_s_sf_norm4, y = tmp2$pH_l)
-p <-  ggplot(d_all,aes(x=sal_insitu_ctd_9m, y= sal_fb))+
-  geom_point( aes(color=factor(monthd))) + 
-  geom_abline(slope=1, intercept=0, linetype = "dashed")+
-  geom_abline(aes(intercept = lm$fit$regression.results[2,2], slope = lm$fit$regression.results[2,3]),colour = "blue") +
-  ylim(c(30.5,35.5)) +xlim(c(28,35.5)) +
-  labs(title = paste("","\n Adj R2 = ", signif(lm$fit$rsquare, 3),
-                     "; Intercept =", signif(lm$fit$regression.results[2,2], 3),
-                     "; Slope =", signif(lm$fit$regression.results[2,3], 3),
-                     "; P =", signif(lm$fit$P.param, 3),
-                     "; RMSE = ", signif(lm$rmse, 3))) +
-  theme(aspect.ratio = 1, plot.title = element_text(size = 7)) + #
-  coord_fixed(ratio = 1 )+
-  labs( x="Salinity CTD 9 m", y="Salinity FB ", color = "Months") + theme_bw()
-
-print(p) #p_sal_fb_ctd
-
+p2 <- ggreg(xdata = tmp2$ph_s_sf_norm4, ydata = tmp2$pH_s, type = "MA", plot = TRUE, 
+            title = "Sulpis vs measured", subtitle = "both pH normalized at 4°C",
+            xlab = "Spectrophotometric pH measured @ 4°C",
+            ylab = "pH @ 4°C calculated (pCO2+AT) with Sulpis") 
+p <- p1 + p2
+ggsave(filename = "figures/lueker-sulpis.png", plot = p, width = 20, height = 15, units = "cm")
 ```
-
-The difference induced by the choice of the carbonic acid constants is large for pH, pCO2 and DIC and negligible for OmegaAragonite.
+The overall means of pCO2, AT (calculated from the AT-salinity relationship), salinity and temperature in the FerryBox were used to calculate pH from measured pCO2 and AT (from a salinity-AT relationship) and from AT and CT. using the formulations of Lueker et al. (2000) and Sulpis et al. (2020) of K1 and K2. The difference induced by the choice of the carbonic acid constants is large for pH, pCO2 and DIC and negligible for OmegaAragonite.
 
 `r knitr::kable(diff_ls_quant, digits = c(0, rep(3, 5)), caption = "Lueker minus Sulpis", format = "simple")`
+
+Here we compare pH measured spectrophotometrically with pH calculated from pCO2 and AT using the sets of K1 and K2 of Lueker et al. (2000) and Sulpis et al. (2020). All pH values were normalized to a temperature of 4°C. Both formulations overestimate spectrophotometric pH 
+`r knitr::kable(lueker_sulpis_table, digits = 3, caption = "Difference between spectrophotometric pH and Lueker and Sulpis", format = "simple")`
+
 
 
 ## Stratification
