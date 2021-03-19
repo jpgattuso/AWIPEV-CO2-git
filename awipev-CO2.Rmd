@@ -355,7 +355,6 @@ pH_seafet <- pH_seafet %>%
                          S = pH_seafet$sal_mix, Pt = 0, Sit = 0, k1k2 = "l", kf = "dg", ks="d", 
                          pHscale = "T", b="u74")
   )
-
 # Conversion of spec pH of FerryBox samples to FerryBox temp
 pH_durafet <- d %>%
   tidyr::drop_na(ph_s_dur, sal_fb, temp_fb)
@@ -371,21 +370,20 @@ pH_durafet <- pH_durafet %>%
                          S = pH_durafet$sal_fb, Pt = 0, Sit = 0, k1k2 = "l", kf = "dg", ks="d", 
                          pHscale = "T", b="u74")
    )
-
 # Make mean for replicates + SD
-pH_seafet_mean <- pH_seafet%>%
-  dplyr::select(date, ph_s_sf_temp_insi, ph_s_sf_temp_4)%>% 
+pH_seafet_mean <- pH_seafet %>%
+  dplyr::select(date, ph_s_sf_temp_insi, ph_s_sf_temp_4) %>% 
   dplyr::group_by(date) %>% 
   dplyr::summarise(ph_s_sf_temp_insi_mean = mean(ph_s_sf_temp_insi, na.rm = TRUE),
                    #ph_s_sf_temp_insi_sd = sd(ph_s_sf_temp_insi, na.rm = TRUE),
                    ph_s_sf_temp_4_mean = mean(ph_s_sf_temp_4, na.rm = TRUE)
                    )
-
-pH_durafet_mean <- pH_durafet%>%
-  dplyr::select(date, ph_s_dur_temp_fb)%>% 
+pH_durafet_mean <- pH_durafet %>%
+  dplyr::select(date, ph_s_dur_temp_fb, ph_s_dur_temp_4) %>% 
   dplyr::group_by(date) %>% 
-  dplyr::summarize(ph_s_dur_temp_fb_mean = mean(ph_s_dur_temp_fb, na.rm = TRUE)#,
-                   #ph_s_dur_temp_fb_sd = sd(ph_s_dur_temp_fb, na.rm = TRUE)
+  dplyr::summarize(ph_s_dur_temp_fb_mean = mean(ph_s_dur_temp_fb, na.rm = TRUE),
+                   #ph_s_dur_temp_fb_sd = sd(ph_s_dur_temp_fb, na.rm = TRUE),
+                   ph_s_dur_temp_4_mean = mean(ph_s_dur_temp_4, na.rm = TRUE)
                    )
 
 # #bind all spectro measurements, vhange name of dataframe only to do the rbind.
@@ -520,8 +518,9 @@ d_all <- d_all %>%
 
 # durafet pH 
 discrete2merge <- discrete %>%
-  dplyr::select(closest_datetime, ph_s_dur_temp_fb_mean) %>%
-  dplyr::rename(ph_s_dur_temp_fb = ph_s_dur_temp_fb_mean) %>%
+  dplyr::select(closest_datetime, ph_s_dur_temp_fb_mean, ph_s_dur_temp_4_mean) %>%
+  dplyr::rename(ph_s_dur_temp_fb = ph_s_dur_temp_fb_mean,
+                ph_s_dur_temp_4 = ph_s_dur_temp_4_mean) %>%
   dplyr::filter(!is.na(closest_datetime)) %>%
   rename(datetime=closest_datetime)
 d_all <- full_join(d_all, discrete2merge, by="datetime")
@@ -2584,17 +2583,17 @@ const_choice <- bind_rows(diff_ls_1, diff_ls_2) %>%
   dplyr::bind_cols(errors)
 ```
 The means used are:
-`r knitr::kable(tibble(mean_at, mean_ct, mean_pco2, mean_sal, mean_temp), caption = "Mean discrete values.", format = "simple")`
+`r knitr::kable(tibble(mean_at, mean_ct, mean_pco2, mean_sal, mean_temp), digits = c(1, 1, 0, 1, 1), caption = "Mean discrete values.", format = "simple")`
 
 The differences are:
 `r knitr::kable(const_choice, digits = c(0, 3, 1, 1, 3, 3, 1, 1, 1), caption = "Lueker minus Sulpis. e indicates typical errors estimated with seacarb.", format = "simple")`
 
-### Lueker vs Sulpis using all values pCO2 and at_calc
-```{r impact of constants whole series, echo=FALSE, warning=FALSE, message=FALSE}
+### Lueker vs Sulpis using FerryBox pCO2 and at_calc
+```{r impact of constants on FerryBox data, echo=FALSE, warning=FALSE, message=FALSE}
 # Compare Lueker and Sulpis using pco2_fb and at_calc
 tmp <- d_all %>% 
   tidyr::drop_na(pco2_fb, at_calc, sal_fb, temp_fb) %>% 
-  dplyr::select(ph_s_sf_temp_4, pco2_fb, at_calc, sal_fb, temp_fb)
+  dplyr::select(ph_s_dur_temp_4, pco2_fb, at_calc, sal_fb, temp_fb)
 # Using Lueker  
 carb_l <-
   carb(
@@ -2651,32 +2650,32 @@ diff_ls_quant <- tibble(pH = as.numeric(summary(diff_ls$delta_ph)),
                         OmegaAragonite = as.numeric(summary(diff_ls$delta_OmegaAragonite))) %>%
   dplyr::mutate(var = c("Min", "Q1", "Median", "Mean", "Q3", "Max"), .before = 1)
 # prepare tibble to compare calculated pH and spec pH
-tmp2 <- tibble(ph_s_sf_temp_4 = tmp$ph_s_sf_temp_4, pH_l = carb_l$pH, pH_s = carb_s$pH) %>% 
-  tidyr::drop_na(ph_s_sf_temp_4)
+tmp2 <- tibble(ph_s_dur_temp_4 = tmp$ph_s_dur_temp_4, pH_l = carb_l$pH, pH_s = carb_s$pH) %>% 
+  tidyr::drop_na(ph_s_dur_temp_4)
 # summary of differences
-diff_lueker <- as.numeric(summary(tmp2$ph_s_sf_temp_4 - tmp2$pH_l))
-diff_sulpis <- as.numeric(summary(tmp2$ph_s_sf_temp_4 - tmp2$pH_s))
+diff_lueker <- as.numeric(summary(tmp2$ph_s_dur_temp_4 - tmp2$pH_l))
+diff_sulpis <- as.numeric(summary(tmp2$ph_s_dur_temp_4 - tmp2$pH_s))
 lueker_sulpis_table <- tibble(var = c("Min", "Q1", "Median", "Mean", "Q3", "Max"), diff_lueker, diff_sulpis)
 # make plots
-p1 <- ggreg(xdata = tmp2$ph_s_sf_temp_4, ydata = tmp2$pH_l, type = "MA", plot = TRUE, 
+p1 <- ggreg(xdata = tmp2$ph_s_dur_temp_4, ydata = tmp2$pH_l, type = "MA", plot = TRUE, 
             title = "Lueker vs measured", subtitle = "both pH normalized at 4°C",
             xlab = "Spectrophotometric pH measured @ 4°C",
             ylab = "pH @ 4°C calculated (pCO2+AT) with Lueker")
-p2 <- ggreg(xdata = tmp2$ph_s_sf_temp_4, ydata = tmp2$pH_s, type = "MA", plot = TRUE, 
+p2 <- ggreg(xdata = tmp2$ph_s_dur_temp_4, ydata = tmp2$pH_s, type = "MA", plot = TRUE, 
             title = "Sulpis vs measured", subtitle = "both pH normalized at 4°C",
             xlab = "Spectrophotometric pH measured @ 4°C",
             ylab = "pH @ 4°C calculated (pCO2+AT) with Sulpis") 
 p <- p1 + p2
 ggsave(filename = "figures/lueker-sulpis.png", plot = p, width = 20, height = 15, units = "cm")
 ```
-The overall means of pCO2, AT (calculated from the AT-salinity relationship), salinity and temperature in the FerryBox were used to calculate pH from measured pCO2 and AT (from a salinity-AT relationship) and from AT and CT. using the formulations of Lueker et al. (2000) and Sulpis et al. (2020) of K1 and K2. The difference induced by the choice of the carbonic acid constants is large for pH, pCO2 and DIC and negligible for OmegaAragonite.
+The discrete values of pCO2, AT (calculated from the AT-salinity relationship), salinity and temperature in the FerryBox were used to calculate pH from measured pCO2 and AT (from a salinity-AT relationship) using the formulations for K1 and K2 of Lueker et al. (2000) and Sulpis et al. (2020). The differences induced by the choice of the carbonic acid constants is:
++ large for pH (0.026 pH units on average; always higher with Sulpis than with Lueker)
++ large for CT (3.7 umol/kg on average; always lower with Sulpis than with Lueker)
++ negligible for OmegaAragonite
+`r knitr::kable(diff_ls_quant, digits = c(0, rep(3, 5)), caption = "Lueker minus Sulpis using discrete Ferrybox data.", format = "simple")`
 
-`r knitr::kable(diff_ls_quant, digits = c(0, rep(3, 5)), caption = "Lueker minus Sulpis", format = "simple")`
-
-Here we compare pH measured spectrophotometrically with pH calculated from pCO2 and AT using the sets of K1 and K2 of Lueker et al. (2000) and Sulpis et al. (2020). All pH values were normalized to a temperature of 4°C. Both formulations overestimate spectrophotometric pH 
-`r knitr::kable(lueker_sulpis_table, digits = 3, caption = "Difference between spectrophotometric pH and Lueker and Sulpis", format = "simple")`
-
-
+Here we compare pH measured spectrophotometrically with pH calculated from pCO2 and AT using the sets of K1 and K2 of Lueker et al. (2000) and Sulpis et al. (2020). All pH values were normalized to a temperature of 4°C. The absloute differences are large, up to 0.14 pH units. On average, both formulations overestimate spectrophotometric pH, by 0.016 pH units with Lueker et al. (2020) and by 0.042 pH units with Sulpis et al. (2020).
+`r knitr::kable(lueker_sulpis_table, digits = 3, caption = "Difference between spectrophotometric pH and pH calculated with pCO2 and AT using the formulations for K1 and K2 of Lueker and Sulpis.", format = "simple")`
 
 ## Stratification
 ```{r stratification, echo=FALSE, message= FALSE, warning=FALSE}
