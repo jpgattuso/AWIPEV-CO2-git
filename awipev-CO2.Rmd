@@ -349,7 +349,7 @@ pH_seafet <- pH_seafet %>%
                          Tlab = pH_seafet$temp_s_lab, Pinsi = pH_seafet$pressure_insitu_ctd/10, 
                          S = pH_seafet$sal_mix, Pt = 0, Sit = 0, k1k2 = "l", kf = "dg", ks="d", 
                          pHscale = "T", b="u74"),
-   ph_s_sf_norm4 = pHinsi(pH = pH_seafet$ph_s_sf, 
+   ph_s_sf_temp_4 = pHinsi(pH = pH_seafet$ph_s_sf, 
                          ALK = pH_seafet$at_mean_interp*1e-6, Tinsi = 4, 
                          Tlab = pH_seafet$temp_s_lab, Pinsi = pH_seafet$pressure_insitu_ctd/10, 
                          S = pH_seafet$sal_mix, Pt = 0, Sit = 0, k1k2 = "l", kf = "dg", ks="d", 
@@ -365,7 +365,7 @@ pH_durafet <- pH_durafet %>%
                               ALK = pH_durafet$at_mean_interp*1e-6, Tinsi = pH_durafet$temp_fb, 
                               Tlab = pH_durafet$temp_s_lab, Pinsi = 0, S = pH_durafet$sal_fb, 
                               Pt = 0, Sit = 0, k1k2 = "l", kf = "dg", ks="d", pHscale = "T", b="u74"),
-   ph_s_dur_norm4 = pHinsi(pH = pH_durafet$ph_s_dur, 
+   ph_s_dur_temp_4 = pHinsi(pH = pH_durafet$ph_s_dur, 
                          ALK = pH_durafet$at_mean_interp*1e-6, Tinsi = 4, 
                          Tlab = pH_durafet$temp_s_lab, Pinsi = 0, 
                          S = pH_durafet$sal_fb, Pt = 0, Sit = 0, k1k2 = "l", kf = "dg", ks="d", 
@@ -374,11 +374,11 @@ pH_durafet <- pH_durafet %>%
 
 # Make mean for replicates + SD
 pH_seafet_mean <- pH_seafet%>%
-  dplyr::select(date, ph_s_sf_temp_insi, ph_s_sf_norm4)%>% 
+  dplyr::select(date, ph_s_sf_temp_insi, ph_s_sf_temp_4)%>% 
   dplyr::group_by(date) %>% 
   dplyr::summarise(ph_s_sf_temp_insi_mean = mean(ph_s_sf_temp_insi, na.rm = TRUE),
                    #ph_s_sf_temp_insi_sd = sd(ph_s_sf_temp_insi, na.rm = TRUE),
-                   ph_s_sf_norm4_mean = mean(ph_s_sf_norm4, na.rm = TRUE)
+                   ph_s_sf_temp_4_mean = mean(ph_s_sf_temp_4, na.rm = TRUE)
                    )
 
 pH_durafet_mean <- pH_durafet%>%
@@ -390,7 +390,7 @@ pH_durafet_mean <- pH_durafet%>%
 
 # #bind all spectro measurements, vhange name of dataframe only to do the rbind.
 # seafetph <- pH_seafet_mean
-# colnames(seafetph) <- c("date", "ph_s_sf_insi", "ph_s_sf_norm4")
+# colnames(seafetph) <- c("date", "ph_s_sf_insi", "ph_s_sf_temp_4")
 # durafetph <- pH_durafet_mean
 # colnames(durafetph) <- c("date", "ph_s_dur_temp_fb")
 # pH_seafet_durafet <- rbind(seafetph,durafetph)
@@ -506,9 +506,9 @@ d_all <- full_join(d_all, discrete2merge, by="datetime")
 
 # seaFET pH 
 discrete2merge <- discrete %>%
-  dplyr::select(closest_datetime, ph_s_sf_temp_insi_mean, ph_s_sf_norm4_mean) %>%
+  dplyr::select(closest_datetime, ph_s_sf_temp_insi_mean, ph_s_sf_temp_4_mean) %>%
   dplyr::rename(ph_s_sf_temp_insi = ph_s_sf_temp_insi_mean,
-                ph_s_sf_norm4 = ph_s_sf_norm4_mean) %>%
+                ph_s_sf_temp_4 = ph_s_sf_temp_4_mean) %>%
   dplyr::filter(!is.na(closest_datetime)) %>%
   rename(datetime=closest_datetime)
 d_all <- full_join(d_all, discrete2merge, by="datetime")
@@ -1842,7 +1842,7 @@ d_all <- d_all %>%
 
 
 # d_all <- d_all %>%
-#   dplyr::mutate(ph_s_sf_norm4 = ifelse(!is.na(pH_seafet$ph_s_sf),
+#   dplyr::mutate(ph_s_sf_temp_4 = ifelse(!is.na(pH_seafet$ph_s_sf),
 #                                               pHinsi(pH = pH_seafet$ph_s_sf, 
 #                          ALK = pH_seafet$at_mean_interp*1e-6, Tinsi = 4, 
 #                          Tlab = pH_seafet$temp_s_lab, Pinsi = pH_seafet$pressure_insitu_ctd/10, 
@@ -2213,19 +2213,19 @@ pH_sf <- d_all %>%
   dplyr::filter(!is.na(pHint_tot_sf), !is.na(temp_insitu_ctd_9m), !is.na(sal_insitu_ctd_9m)) %>%
   dplyr::filter(datetime < as.POSIXct("2018-01-01") | datetime > as.POSIXct("2018-02-03"))
 
-pH_sf$pHint_tot_sf_norm4 <- pHinsi(pH=pH_sf$pHint_tot_sf, ALK=mean(d_all$at, na.rm=TRUE), Tinsi=4, Tlab=pH_sf$temp_insitu_ctd_9m, Pinsi=11/10, S=pH_sf$sal_insitu_ctd_9m, Pt=0, Sit=0, k1k2 = "l", kf = "dg", ks="d", pHscale = "T", b="u74")
+pH_sf$pHint_tot_sf_temp_4 <- pHinsi(pH=pH_sf$pHint_tot_sf, ALK=mean(d_all$at, na.rm=TRUE), Tinsi=4, Tlab=pH_sf$temp_insitu_ctd_9m, Pinsi=11/10, S=pH_sf$sal_insitu_ctd_9m, Pt=0, Sit=0, k1k2 = "l", kf = "dg", ks="d", pHscale = "T", b="u74")
 
 pH_dur <- d_all %>%
   dplyr::select(datetime, sal_fb,temp_fb, ph_dur_corr)%>%
   dplyr::filter(!is.na(ph_dur_corr), !is.na(temp_fb), !is.na(sal_fb))
-pH_dur$pH_durafet_norm4 <- pHinsi(pH=pH_dur$ph_dur_corr, ALK=mean(d_all$at, na.rm=TRUE), Tinsi=4, Tlab=pH_dur$temp_fb, Pinsi=11/10, S=pH_dur$sal_fb, Pt=0, Sit=0, k1k2 = "l", kf = "dg", ks="d", pHscale = "T", b="u74")
+pH_dur$pH_durafet_temp_4 <- pHinsi(pH=pH_dur$ph_dur_corr, ALK=mean(d_all$at, na.rm=TRUE), Tinsi=4, Tlab=pH_dur$temp_fb, Pinsi=11/10, S=pH_dur$sal_fb, Pt=0, Sit=0, k1k2 = "l", kf = "dg", ks="d", pHscale = "T", b="u74")
 
 # join pH sf norm + pH dur norm
-d_all <- left_join(d_all, pH_sf%>%dplyr::select(datetime, pHint_tot_sf_norm4 ), by="datetime")
-d_all <- left_join(d_all, pH_dur%>%dplyr::select(datetime, pH_durafet_norm4 ), by="datetime")
+d_all <- left_join(d_all, pH_sf%>%dplyr::select(datetime, pHint_tot_sf_temp_4 ), by="datetime")
+d_all <- left_join(d_all, pH_dur%>%dplyr::select(datetime, pH_durafet_temp_4 ), by="datetime")
 
-fit <- lmodel2(data = d_all,  pHint_tot_sf_norm4 ~ pH_durafet_norm4 , nperm = 99)
-pdur_sf_norm_text <-  ggplot(d_all,aes(x=pH_durafet_norm4, y= pHint_tot_sf_norm4, label = monthd))+
+fit <- lmodel2(data = d_all,  pHint_tot_sf_temp_4 ~ pH_durafet_temp_4 , nperm = 99)
+pdur_sf_norm_text <-  ggplot(d_all,aes(x=pH_durafet_temp_4, y= pHint_tot_sf_temp_4, label = monthd))+
   geom_point( aes(color=factor(monthd)), size =1, alpha=0.5) + 
   facet_wrap( ~ factor(monthd), ncol = 3) +
   geom_abline(slope = 1, intercept = 0, linetype = "dashed") +
@@ -2236,11 +2236,11 @@ pdur_sf_norm_text <-  ggplot(d_all,aes(x=pH_durafet_norm4, y= pHint_tot_sf_norm4
 print(pdur_sf_norm_text)
 rm(pdur_sf_norm_text)
 
-durafet_sf_contros_xts <- dplyr::select(d_all, datetime, pH_durafet_norm4, pHint_tot_sf_norm4)
+durafet_sf_contros_xts <- dplyr::select(d_all, datetime, pH_durafet_temp_4, pHint_tot_sf_temp_4)
 durafet_sf_contros_xts <- as.xts(durafet_sf_contros_xts, order.by = d_all$datetime)
 dygraph(durafet_sf_contros_xts, group = "awipev", main="pH durafet vs pH seaFET at 4°C", ylab="pHT") %>%
-    dySeries("pH_durafet_norm4", label = "pH durafet", color ="blue", strokeWidth=0, pointSize=2) %>%
-    dySeries("pHint_tot_sf_norm4", label = "pH seaFET", color =  "red", strokeWidth = 0, pointSize = 2 ) %>%
+    dySeries("pH_durafet_temp_4", label = "pH durafet", color ="blue", strokeWidth=0, pointSize=2) %>%
+    dySeries("pHint_tot_sf_temp_4", label = "pH seaFET", color =  "red", strokeWidth = 0, pointSize = 2 ) %>%
     # dyOptions(colors = RColorBrewer::brewer.pal(3, "Dark2"), pointSize = 4) %>%
     dyHighlight(highlightCircleSize = 8,highlightSeriesBackgroundAlpha = 0.5,hideOnMouseOut = TRUE) %>%
        dyLegend(show = "follow")   %>%
@@ -2255,16 +2255,16 @@ rm(durafet_sf_contros_xts, pdur_sf_norm_text)
 pH_calc <- discrete %>%
   dplyr::select(datetime, sal_fb, temp_fb, phcalc_fb, at)%>%
   dplyr::filter(!is.na(phcalc_fb), !is.na(temp_fb), !is.na(sal_fb))
-pH_calc$pH_calc_fb_norm4 <- pHinsi(pH = pH_calc$phcalc_fb, ALK=pH_calc$at*1e-6, Tinsi=4, Tlab=pH_calc$temp_fb, Pinsi=11/10, S=pH_calc$sal_fb, Pt=0, Sit=0, k1k2 = "l", kf = "dg", ks="d", pHscale = "T", b="u74")
+pH_calc$pH_calc_fb_temp_4 <- pHinsi(pH = pH_calc$phcalc_fb, ALK=pH_calc$at*1e-6, Tinsi=4, Tlab=pH_calc$temp_fb, Pinsi=11/10, S=pH_calc$sal_fb, Pt=0, Sit=0, k1k2 = "l", kf = "dg", ks="d", pHscale = "T", b="u74")
 
 # join pH calc norm + pH dur/sf norm in d_all
-d_all <- left_join(d_all, pH_calc %>% dplyr::select(datetime, pH_calc_fb_norm4), by="datetime")
+d_all <- left_join(d_all, pH_calc %>% dplyr::select(datetime, pH_calc_fb_temp_4), by="datetime")
 
-durafet_calc_contros_xts <- dplyr::select(d_all, datetime, pH_durafet_norm4, pH_calc_fb_norm4)
+durafet_calc_contros_xts <- dplyr::select(d_all, datetime, pH_durafet_temp_4, pH_calc_fb_temp_4)
 durafet_calc_contros_xts <- as.xts(durafet_calc_contros_xts, order.by = d_all$datetime)
 dygraph(durafet_calc_contros_xts, group = "awipev", main="pH calculated vs pH durafet, normalized at 4°C", ylab="pHT") %>%
-    dySeries("pH_durafet_norm4", label = "pH durafet", color ="blue", strokeWidth=0, pointSize=2) %>%
-    dySeries("pH_calc_fb_norm4", label = "pH calculated", color =  "red", strokeWidth = 0, pointSize = 4 ) %>%
+    dySeries("pH_durafet_temp_4", label = "pH durafet", color ="blue", strokeWidth=0, pointSize=2) %>%
+    dySeries("pH_calc_fb_temp_4", label = "pH calculated", color =  "red", strokeWidth = 0, pointSize = 4 ) %>%
     # dyOptions(colors = RColorBrewer::brewer.pal(3, "Dark2"), pointSize = 4) %>%
     dyHighlight(highlightCircleSize = 8,highlightSeriesBackgroundAlpha = 0.5,hideOnMouseOut = TRUE) %>%
        dyLegend(show = "follow")   %>%
@@ -2275,11 +2275,11 @@ rm(durafet_calc_contros_xts)
 
 ### **Calculated / seaFET pHs**
 ```{r pHs comparaison sf calc, echo=FALSE, message= FALSE, warning=FALSE}
-seafet_calc_contros_xts <- dplyr::select(d_all, datetime, pHint_tot_sf_norm4, pH_calc_fb_norm4)
+seafet_calc_contros_xts <- dplyr::select(d_all, datetime, pHint_tot_sf_temp_4, pH_calc_fb_temp_4)
 seafet_calc_contros_xts <- as.xts(seafet_calc_contros_xts, order.by = d_all$datetime)
 dygraph(seafet_calc_contros_xts, group = "awipev", main="pH calculated vs pH seaFET, normalized at 4°C", ylab="pHT") %>%
-    dySeries("pHint_tot_sf_norm4", label = "pH seaFET", color ="blue", strokeWidth=0, pointSize=2) %>%
-    dySeries("pH_calc_fb_norm4", label = "pH calculated", color =  "red", strokeWidth = 0, pointSize = 4 ) %>%
+    dySeries("pHint_tot_sf_temp_4", label = "pH seaFET", color ="blue", strokeWidth=0, pointSize=2) %>%
+    dySeries("pH_calc_fb_temp_4", label = "pH calculated", color =  "red", strokeWidth = 0, pointSize = 4 ) %>%
     # dyOptions(colors = RColorBrewer::brewer.pal(3, "Dark2"), pointSize = 4) %>%
     dyHighlight(highlightCircleSize = 8,highlightSeriesBackgroundAlpha = 0.5,hideOnMouseOut = TRUE) %>%
        dyLegend(show = "follow")   %>%
@@ -2594,7 +2594,7 @@ The differences are:
 # Compare Lueker and Sulpis using pco2_fb and at_calc
 tmp <- d_all %>% 
   tidyr::drop_na(pco2_fb, at_calc, sal_fb, temp_fb) %>% 
-  dplyr::select(ph_s_sf_norm4, pco2_fb, at_calc, sal_fb, temp_fb)
+  dplyr::select(ph_s_sf_temp_4, pco2_fb, at_calc, sal_fb, temp_fb)
 # Using Lueker  
 carb_l <-
   carb(
@@ -2651,18 +2651,18 @@ diff_ls_quant <- tibble(pH = as.numeric(summary(diff_ls$delta_ph)),
                         OmegaAragonite = as.numeric(summary(diff_ls$delta_OmegaAragonite))) %>%
   dplyr::mutate(var = c("Min", "Q1", "Median", "Mean", "Q3", "Max"), .before = 1)
 # prepare tibble to compare calculated pH and spec pH
-tmp2 <- tibble(ph_s_sf_norm4 = tmp$ph_s_sf_norm4, pH_l = carb_l$pH, pH_s = carb_s$pH) %>% 
-  tidyr::drop_na(ph_s_sf_norm4)
+tmp2 <- tibble(ph_s_sf_temp_4 = tmp$ph_s_sf_temp_4, pH_l = carb_l$pH, pH_s = carb_s$pH) %>% 
+  tidyr::drop_na(ph_s_sf_temp_4)
 # summary of differences
-diff_lueker <- as.numeric(summary(tmp2$ph_s_sf_norm4 - tmp2$pH_l))
-diff_sulpis <- as.numeric(summary(tmp2$ph_s_sf_norm4 - tmp2$pH_s))
+diff_lueker <- as.numeric(summary(tmp2$ph_s_sf_temp_4 - tmp2$pH_l))
+diff_sulpis <- as.numeric(summary(tmp2$ph_s_sf_temp_4 - tmp2$pH_s))
 lueker_sulpis_table <- tibble(var = c("Min", "Q1", "Median", "Mean", "Q3", "Max"), diff_lueker, diff_sulpis)
 # make plots
-p1 <- ggreg(xdata = tmp2$ph_s_sf_norm4, ydata = tmp2$pH_l, type = "MA", plot = TRUE, 
+p1 <- ggreg(xdata = tmp2$ph_s_sf_temp_4, ydata = tmp2$pH_l, type = "MA", plot = TRUE, 
             title = "Lueker vs measured", subtitle = "both pH normalized at 4°C",
             xlab = "Spectrophotometric pH measured @ 4°C",
             ylab = "pH @ 4°C calculated (pCO2+AT) with Lueker")
-p2 <- ggreg(xdata = tmp2$ph_s_sf_norm4, ydata = tmp2$pH_s, type = "MA", plot = TRUE, 
+p2 <- ggreg(xdata = tmp2$ph_s_sf_temp_4, ydata = tmp2$pH_s, type = "MA", plot = TRUE, 
             title = "Sulpis vs measured", subtitle = "both pH normalized at 4°C",
             xlab = "Spectrophotometric pH measured @ 4°C",
             ylab = "pH @ 4°C calculated (pCO2+AT) with Sulpis") 
