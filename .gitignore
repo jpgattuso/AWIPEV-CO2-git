@@ -31,6 +31,7 @@ awipev-CO2.html
 # Ignore png and figures
 figures/
 old/
+*.tex
 *.png
 *.log
 figures/*.png
