@@ -2679,7 +2679,7 @@ p <- (p1 + p2) / p3
 ggsave(filename = "figures/k1k2_all.png", plot = p, width = 25, height = 20, units = "cm")
 ggsave(filename = "figures/k1k2_temperature.png", plot = p3, width = 25, height = 20, units = "cm")
 ```
-```{r save for k1k2 report, echo=FALSE, message= FALSE, warning=FALSE}
+```{r save elements for k1k2 report, echo=FALSE, message= FALSE, warning=FALSE}
 k1k2 <- list(mean_discrete = mean_discrete, const_choice = const_choice, tmp2 = tmp2,
              errors_pco2_at = errors_pco2_at, diff_table = diff_table, 
              diff_ls_quant = diff_ls_quant)
