@@ -2676,7 +2676,8 @@ p3 <- tmp2 %>%
   labs(x = "Ferrybox temperature (°C)", y = "Spec pH - calculated pH (units)") +
   theme(legend.title = element_blank())
 p <- (p1 + p2) / p3
-ggsave(filename = "figures/lueker-sulpis.png", plot = p, width = 25, height = 20, units = "cm")
+ggsave(filename = "figures/k1k2_all.png", plot = p, width = 25, height = 20, units = "cm")
+ggsave(filename = "figures/k1k2_temperature.png", plot = p3, width = 25, height = 20, units = "cm")
 ```
 ```{r save for k1k2 report, echo=FALSE, message= FALSE, warning=FALSE}
 k1k2 <- list(mean_discrete = mean_discrete, const_choice = const_choice, tmp2 = tmp2,
