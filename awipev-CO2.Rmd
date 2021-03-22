@@ -2462,7 +2462,7 @@ p_ct_ts
 rm(at_diff_xts, ct_diff_xts)
 ```
 
-## Impact of nutrients
+## Impact of nutrients   {.tabset .tabset-pills}
 ```{r impact of nutrients, echo=FALSE, warning=FALSE, message=FALSE}
 # boxplot
 ts_po4_bp <- d_all %>%
@@ -2496,39 +2496,60 @@ mean_at_calc <-  mean(means$mean_at_calc)
 mean_pco2_calc <-  mean(means$mean_pco2_calc)
 mean_sal <-  mean(means$mean_sal)
 mean_temp <-  mean(means$mean_temp)
-# then check impacts using pco2 and AT
+# then check impacts of 0, min and max nutrient values using pco2 and AT
 carb_po4_1 <- carb(24, mean_pco2_calc, mean_at_calc*1e-6, S = mean_sal, T = mean_temp, P = 0, 
-                 Pt = c(min(d_all$po4/1e6, na.rm=TRUE), max(d_all$po4/1e6, na.rm=TRUE)), Sit = 0,
+                 Pt = c(0, min(d_all$po4/1e6, na.rm=TRUE), max(d_all$po4/1e6, na.rm=TRUE)), Sit = 0,
                  k1k2 = "l", kf = "dg", ks = "d", pHscale = "T", b = "u74")
-diff_po4_1 <- carb_po4_1[1,] - carb_po4_1[2,]
+diff_po4_0a <- carb_po4_1[1,] - carb_po4_1[3,] # diff between no PO4 and max PO4
+diff_po4_1a <- carb_po4_1[2,] - carb_po4_1[3,] # diff between min PO4 and max PO4
 carb_Si_1 <- carb(24, mean_pco2_calc, mean_at_calc*1e-6, S = mean_sal, T = mean_temp, P = 0,
-                Pt = 0, Sit = c(min(d_all$si/1e6, na.rm=TRUE), max(d_all$si/1e6, na.rm=TRUE)), 
+                Pt = 0, Sit = c(0, min(d_all$si/1e6, na.rm=TRUE), max(d_all$si/1e6, na.rm=TRUE)), 
                 k1k2 = "l", kf = "dg", ks = "d", pHscale = "T", b = "u74")
-diff_Si_1 <- carb_Si_1[1,] - carb_Si_1[2,]
+diff_Si_0a <- carb_Si_1[1,] - carb_Si_1[3,] # diff between no Si and max Si
+diff_Si_1a <- carb_Si_1[2,] - carb_Si_1[3,] # diff between no Si and max Si
 
-# then check impacts using AT-DIC pair
+# then check impacts of min and max nutrient values using AT-DIC pair
 carb_po4_2 <- carb(15, mean_at_calc*1e-6, mean_ct*1e-6, S = mean_sal, T = mean_temp, P = 0, 
-                 Pt = c(min(d_all$po4/1e6, na.rm=TRUE), max(d_all$po4/1e6, na.rm=TRUE)), Sit = 0,
+                 Pt = c(0, min(d_all$po4/1e6, na.rm=TRUE), max(d_all$po4/1e6, na.rm=TRUE)), Sit = 0,
                  k1k2 = "l", kf = "dg", ks = "d", pHscale = "T", b = "u74")
-diff_po4_2 <- carb_po4_2[1,] - carb_po4_2[2,]
+diff_po4_0b <- carb_po4_2[1,] - carb_po4_2[3,] # diff between no PO4 and max PO4
+diff_po4_1b <- carb_po4_2[2,] - carb_po4_2[3,] # diff between min PO4 and max PO4
 carb_Si_2 <- carb(15, mean_at_calc*1e-6, mean_ct*1e-6, S = mean_sal, T = mean_temp, P = 0,
-                Pt = 0, Sit = c(min(d_all$si/1e6, na.rm=TRUE), max(d_all$si/1e6, na.rm=TRUE)), 
+                Pt = 0, Sit = c(0, min(d_all$si/1e6, na.rm=TRUE), max(d_all$si/1e6, na.rm=TRUE)), 
                 k1k2 = "l", kf = "dg", ks = "d", pHscale = "T", b = "u74")
-diff_Si_2 <- carb_Si_2[1,] - carb_Si_2[2,]
+diff_Si_0b <- carb_Si_2[1,] - carb_Si_2[3,] # diff between no Si and max Si
+diff_Si_1b <- carb_Si_2[2,] - carb_Si_2[3,] # diff between no Si and max Si
+
+#nuts <- tibble(Pair = "pCO2-AT", "CT-AT",
+#)
+nuts_table <- bind_rows(diff_po4_0a, diff_Si_0a, diff_po4_0b, diff_Si_0b) %>% 
+  dplyr::mutate(flag = c("pCO2 and ALK", "pCO2 and ALK", "ALK and DIC", "ALK and DIC"),
+                nutrients = c("No PO4-max PO4", "No Si-max Si", "No PO4-max PO4", 
+                              "No Si-max Si")) %>% 
+  dplyr::select(flag, nutrients, pH, pCO2, DIC, OmegaAragonite)
 rm(ts_po4_bp, ts_Si_bp)
 ```
+`r knitr::kable(nuts_table, digits = c(1, 1, 4, 2, 4, 3), caption = "Impact of PO4 and Si.", format = "simple")`
 
 The concentration of po4 and si varies with a factor 10 along a composite year. The ranges are respectively, `r round(range(d_all$po4, na.rm = TRUE), digits = 2)` for po4 and `r round(range(d_all$si, na.rm = TRUE), digits = 2)` for si. 
 
 ### Using the pCO2-AT pair (hourly data)
-The impact of the min max changes of po4 on pH, DIC, and Omega_a are small:  `r round(1000*diff_po4_1$pH, digits=2)` mpH units, `r round(1e6*diff_po4_1$DIC, digits=2)` umol/kg for CT and `r round(diff_po4_1$OmegaAragonite, digits=2)` for OmegaAragonite.
+The difference between no PO4 and its maximum value on pH, DIC, and Omega_a are small:  `r round(1000*diff_po4_0a$pH, digits=2)` mpH units, `r round(1e6*diff_po4_0a$DIC, digits=2)` umol/kg for CT and `r round(diff_po4_0a$OmegaAragonite, digits=2)` for OmegaAragonite.
 
-The impact of the min max changes of si on pH, DIC, and Omega_a are small:  `r round(1000*diff_Si_1$pH, digits=2)` mpH units, `r round(1e6*diff_Si_1$DIC, digits=2)` umol/kg for CT and `r round(diff_Si_1$OmegaAragonite, digits=2)` for OmegaAragonite.
+The impact of the min max changes of po4 on pH, DIC, and Omega_a are small:  `r round(1000*diff_po4_1a$pH, digits=2)` mpH units, `r round(1e6*diff_po4_1a$DIC, digits=2)` umol/kg for CT and `r round(diff_po4_1a$OmegaAragonite, digits=2)` for OmegaAragonite.
+
+The difference between no Si and its maximum value on pH, DIC, and Omega_a are small:  `r round(1000*diff_Si_0a$pH, digits=2)` mpH units, `r round(1e6*diff_Si_0a$DIC, digits=2)` umol/kg for CT and `r round(diff_Si_0a$OmegaAragonite, digits=2)` for OmegaAragonite.
+
+The impact of the min max changes of si on pH, DIC, and Omega_a are small:  `r round(1000*diff_Si_1a$pH, digits=2)` mpH units, `r round(1e6*diff_Si_1a$DIC, digits=2)` umol/kg for CT and `r round(diff_Si_1a$OmegaAragonite, digits=2)` for OmegaAragonite.
 
 ### Using the CT-AT pair (discrete data)
-The impact of the min max changes of po4 on pH, pCO2, and Omega_a are small:  `r round(1000*diff_po4_2$pH, digits=2)` mpH units, `r round(diff_po4_2$pCO2, digits=2)` uatm for pCO2 and `r round(diff_po4_2$OmegaAragonite, digits=2)` for OmegaAragonite.
+The difference between no PO4 and its maximum value on pH, pCO2, and Omega_a are small:  `r round(1000*diff_po4_0b$pH, digits=2)` mpH units, `r round(diff_po4_0b$pCO2, digits=2)` uatm for pCO2 and `r round(diff_po4_0b$OmegaAragonite, digits=2)` for OmegaAragonite.
 
-The impact of the min max changes of po4 on pH, pCO2, and Omega_a are small:  `r round(1000*diff_Si_2$pH, digits=2)` mpH units, `r round(diff_Si_2$pCO2, digits=2)` uatm for pCO2 and `r round(diff_Si_2$OmegaAragonite, digits=2)` for OmegaAragonite.
+The impact of the min max changes of po4 on pH, pCO2, and Omega_a are small:  `r round(1000*diff_po4_1b$pH, digits=2)` mpH units, `r round(diff_po4_1b$pCO2, digits=2)` uatm for pCO2 and `r round(diff_po4_1b$OmegaAragonite, digits=2)` for OmegaAragonite.
+
+The difference between no Si and its maximum value on pH, pCO2, and Omega_a are small:  `r round(1000*diff_Si_0b$pH, digits=2)` mpH units, `r round(diff_Si_0b$pCO2, digits=2)` uatm for pCO2 and `r round(diff_Si_0b$OmegaAragonite, digits=2)` for OmegaAragonite.
+
+The impact of the min max changes of Si on pH, pCO2, and Omega_a are small:  `r round(1000*diff_Si_1b$pH, digits=2)` mpH units, `r round(diff_Si_1b$pCO2, digits=2)` uatm for pCO2 and `r round(diff_Si_1b$OmegaAragonite, digits=2)` for OmegaAragonite.
 
 ## Impact of choice of constants  {.tabset .tabset-pills}
 ### Lueker vs Sulpis using mean discrete values
@@ -2589,9 +2610,8 @@ The means used are:
 The differences are:
 `r knitr::kable(const_choice, digits = c(0, 3, 1, 1, 3, 3, 1, 1, 1), caption = "Lueker minus Sulpis. e indicates typical errors estimated with seacarb.", format = "simple")`
 
-### Lueker vs Sulpis using FerryBox pCO2 and at in situ
-```{r impact of constants on FerryBox data, echo=FALSE, warning=FALSE, message=FALSE}
-# Compare Lueker and Sulpis using pco2_fb and at in situ
+### K1K2 using FerryBox pCO2 and at in situ
+```{r impact of constants using FerryBox pCO2 and at in situ, echo=FALSE, warning=FALSE, message=FALSE}
 tmp <- d_all %>% 
   tidyr::drop_na(pco2_fb, at, sal_fb, temp_fb) %>% 
   dplyr::select(datetime, ph_s_dur_temp_4, pco2_fb, at_calc, sal_fb, temp_fb)
@@ -2686,7 +2706,9 @@ k1k2 <- list(mean_discrete = mean_discrete, const_choice = const_choice, tmp2 = 
 save(k1k2, file="reports/k1k2_data.RData")
 ```
 
-The discrete values of pCO2, salinity and temperature in the FerryBox and in situ AT were used to calculate pH from measured pCO2 and AT using the formulations for K1 and K2 of Lueker et al. (2000) and Sulpis et al. (2020). The differences induced by the choice of the carbonic acid constants is:
+The discrete values of pCO2, salinity and temperature in the FerryBox and in situ AT were used to calculate pH from measured pCO2 and AT using the formulations for K1 and K2 of Lueker et al. (2000) and Sulpis et al. (2020). Note that this cannot be done with in situ AT and CT because spectrophotometric pH in situ is not at a fixed depth.
+
+The differences induced by the choice of the carbonic acid constants is:
 
 - small for pH (`r round(diff_ls_quant[4, 2], digits = 3)` pH units on average; ; median is `r round(diff_ls_quant[3, 2], digits = 3)`) compared with the uncertainty calculated with seacarb (`r round(const_choice[1, 6], digits = 3)`. In general, pH is higher with Sulpis than with Lueker.
 - very good for CT (`r round(diff_ls_quant[4, 3], digits = 1)` umol/kg on average; always lower with Sulpis than with Lueker) compared with the uncertainty calculated with seacarb (`r round(const_choice[1, 8], digits = 1)`)
