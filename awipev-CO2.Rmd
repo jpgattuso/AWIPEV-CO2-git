@@ -3,9 +3,10 @@ title: "Carbonate chemistry at Ny-Ålesund"
 author: "Jean-Pierre Gattuso and Samir Alliouane"
 date: '`r format(Sys.Date(), "%d %B %Y")`'
 output:
-  rmarkdown::html_document:
-    theme: paper
-    number_sections: false
+  html_document: default
+  word_document: default
+  pdf_document: default
+  odt_document: default
 ---
 ![ ](Images/AWIPEV-Logo.jpg){width=250px}
 
@@ -2588,12 +2589,12 @@ The means used are:
 The differences are:
 `r knitr::kable(const_choice, digits = c(0, 3, 1, 1, 3, 3, 1, 1, 1), caption = "Lueker minus Sulpis. e indicates typical errors estimated with seacarb.", format = "simple")`
 
-### Lueker vs Sulpis using FerryBox pCO2 and at_calc
+### Lueker vs Sulpis using FerryBox pCO2 and at in situ
 ```{r impact of constants on FerryBox data, echo=FALSE, warning=FALSE, message=FALSE}
 # Compare Lueker and Sulpis using pco2_fb and at in situ
 tmp <- d_all %>% 
   tidyr::drop_na(pco2_fb, at, sal_fb, temp_fb) %>% 
-  dplyr::select(ph_s_dur_temp_4, pco2_fb, at_calc, sal_fb, temp_fb)
+  dplyr::select(datetime, ph_s_dur_temp_4, pco2_fb, at_calc, sal_fb, temp_fb)
 # Using Lueker  
 carb_l <- carb(flag = 24, var1 = tmp$pco2_fb, var2 = tmp$at_calc * 1e-6, S = tmp$sal_fb, 
                T = tmp$temp_fb, P = 0, Pt = 0, Sit = 0, k1k2 = "l", kf = "dg", ks = "d", 
@@ -2636,7 +2637,9 @@ diff_ls_quant <- tibble(pH = as.numeric(summary(diff_ls$delta_ph)),
                         OmegaAragonite = as.numeric(summary(diff_ls$delta_OmegaAragonite))) %>%
   dplyr::mutate(var = c("Min", "Q1", "Median", "Mean", "Q3", "Max"), .before = 1)
 # prepare tibble to compare calculated pH and spec pH
-tmp2 <- tibble(ph_s_dur_temp_4 = tmp$ph_s_dur_temp_4, pH_l = carb_l$pH, pH_s = carb_s$pH, pH_p = carb_p$pH, pH_m = carb_m$pH) %>% 
+tmp2 <- tibble(datetime = tmp$datetime, ph_s_dur_temp_4 = tmp$ph_s_dur_temp_4, 
+               pH_l = carb_l$pH, pH_s = carb_s$pH, 
+               pH_p = carb_p$pH, pH_m = carb_m$pH, temp_fb = tmp$temp_fb) %>% 
   tidyr::drop_na(ph_s_dur_temp_4)
 # summary of differences
 lueker <- as.numeric(summary(tmp2$ph_s_dur_temp_4 - tmp2$pH_l))
@@ -2648,14 +2651,40 @@ diff_table <- tibble(var = c("Min", "Q1", "Median", "Mean", "Q3", "Max"), lueker
 p1 <- ggreg(xdata = tmp2$ph_s_dur_temp_4, ydata = tmp2$pH_l, type = "MA", plot = TRUE, 
             title = "Lueker vs measured", subtitle = "both pH normalized at 4°C",
             xlab = "Spectrophotometric pH measured @ 4°C",
-            ylab = "pH @ 4°C calculated (pCO2+AT) with Lueker")
+            ylab = "pH @ 4°C calculated (pCO2+AT) with Lueker") +
+  lims(x = c(8, 8.4), y = c(8, 8.4)) +
+  theme(plot.title = element_text(size = 10),
+        axis.text = element_text(size = 10)) +
+  coord_fixed(ratio = 1)
 p2 <- ggreg(xdata = tmp2$ph_s_dur_temp_4, ydata = tmp2$pH_s, type = "MA", plot = TRUE, 
             title = "Sulpis vs measured", subtitle = "both pH normalized at 4°C",
             xlab = "Spectrophotometric pH measured @ 4°C",
-            ylab = "pH @ 4°C calculated (pCO2+AT) with Sulpis") 
-p <- p1 + p2
-ggsave(filename = "figures/lueker-sulpis.png", plot = p, width = 20, height = 15, units = "cm")
+            ylab = "pH @ 4°C calculated (pCO2+AT) with Sulpis")  +
+  lims(x = c(8, 8.4), y = c(8, 8.4)) +
+  theme(plot.title = element_text(size = 10),
+        axis.text = element_text(size = 10)) +
+  coord_fixed(ratio = 1)
+p3 <- tmp2 %>% 
+  dplyr::mutate(delta_lueker = tmp2$ph_s_dur_temp_4 - tmp2$pH_l, 
+                delta_sulpis = tmp2$ph_s_dur_temp_4 - tmp2$pH_s, 
+                delta_papadimitriou = tmp2$ph_s_dur_temp_4 - tmp2$pH_p, 
+                delta_millero2002 = tmp2$ph_s_dur_temp_4 - tmp2$pH_m) %>% 
+  dplyr::select(-starts_with("ph_"), -datetime) %>% 
+  tidyr::pivot_longer(!temp_fb, names_to = "delta", values_to = "diff") %>% 
+  ggplot(aes(x = temp_fb, y = diff, col = delta)) +
+  geom_point() + geom_line() +
+  labs(x = "Ferrybox temperature (°C)", y = "Spec pH - calculated pH (units)") +
+  theme(legend.title = element_blank())
+p <- (p1 + p2) / p3
+ggsave(filename = "figures/lueker-sulpis.png", plot = p, width = 25, height = 20, units = "cm")
 ```
+```{r save for k1k2 report, echo=FALSE, message= FALSE, warning=FALSE}
+k1k2 <- list(mean_discrete = mean_discrete, const_choice = const_choice, tmp2 = tmp2,
+             errors_pco2_at = errors_pco2_at, diff_table = diff_table, 
+             diff_ls_quant = diff_ls_quant)
+save(k1k2, file="reports/k1k2_data.RData")
+```
+
 The discrete values of pCO2, salinity and temperature in the FerryBox and in situ AT were used to calculate pH from measured pCO2 and AT using the formulations for K1 and K2 of Lueker et al. (2000) and Sulpis et al. (2020). The differences induced by the choice of the carbonic acid constants is:
 
 - small for pH (`r round(diff_ls_quant[4, 2], digits = 3)` pH units on average; ; median is `r round(diff_ls_quant[3, 2], digits = 3)`) compared with the uncertainty calculated with seacarb (`r round(const_choice[1, 6], digits = 3)`. In general, pH is higher with Sulpis than with Lueker.
