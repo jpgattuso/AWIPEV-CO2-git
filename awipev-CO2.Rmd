@@ -2614,9 +2614,9 @@ The differences are:
 ```{r impact of constants using FerryBox pCO2 and at in situ, echo=FALSE, warning=FALSE, message=FALSE}
 tmp <- d_all %>% 
   tidyr::drop_na(pco2_fb, at, sal_fb, temp_fb) %>% 
-  dplyr::select(datetime, ph_s_dur_temp_4, pco2_fb, at_calc, sal_fb, temp_fb)
+  dplyr::select(datetime, ph_s_dur_temp_4, pco2_fb, at, sal_fb, temp_fb)
 # Using Lueker  
-carb_l <- carb(flag = 24, var1 = tmp$pco2_fb, var2 = tmp$at_calc * 1e-6, S = tmp$sal_fb, 
+carb_l <- carb(flag = 24, var1 = tmp$pco2_fb, var2 = tmp$at * 1e-6, S = tmp$sal_fb, 
                T = tmp$temp_fb, P = 0, Pt = 0, Sit = 0, k1k2 = "l", kf = "dg", ks = "d", 
                pHscale = "T", b = "u74")
 # normalize Lueker-derived pH at 4°C
@@ -2624,7 +2624,7 @@ carb_l$pH <- pHinsi(pH = carb_l$pH, ALK = carb_l$ALK, Tinsi = 4, Tlab = carb_l$T
                          S = carb_l$S, Pt = 0, Sit = 0, k1k2 = "l", kf = "dg", ks="d", 
                          pHscale = "T", b="u74")
 # Using Sulpis
-carb_s <- carb(flag = 24, var1 = tmp$pco2_fb, var2 = tmp$at_calc * 1e-6, S = tmp$sal_fb, 
+carb_s <- carb(flag = 24, var1 = tmp$pco2_fb, var2 = tmp$at * 1e-6, S = tmp$sal_fb, 
                T = tmp$temp_fb, P = 0, Pt = 0, Sit = 0, k1k2 = "s20", kf = "dg", ks = "d", 
                pHscale = "T", b = "u74")
 # normalize Sulpis-derived pH at 4°C
@@ -2632,20 +2632,20 @@ carb_s$pH <- pHinsi(pH = carb_s$pH, ALK = carb_s$ALK, Tinsi = 4, Tlab = carb_s$T
                          S = carb_s$S, Pt = 0, Sit = 0, k1k2 = "s20", kf = "dg", ks="d", 
                          pHscale = "T", b="u74")
 # Using Papadimitriou
-carb_p <- carb(flag = 24, var1 = tmp$pco2_fb, var2 = tmp$at_calc * 1e-6, S = tmp$sal_fb, 
+carb_p <- carb(flag = 24, var1 = tmp$pco2_fb, var2 = tmp$at * 1e-6, S = tmp$sal_fb, 
                T = tmp$temp_fb, P = 0, Pt = 0, Sit = 0, k1k2 = "p18", kf = "dg", ks = "d", 
                pHscale = "T", b = "u74")
 # normalize Papadimitriou-derived pH at 4°C
-carb_s$pH <- pHinsi(pH = carb_s$pH, ALK = carb_s$ALK, Tinsi = 4, Tlab = carb_s$T, Pinsi = 0, 
-                         S = carb_s$S, Pt = 0, Sit = 0, k1k2 = "p18", kf = "dg", ks="d", 
+carb_p$pH <- pHinsi(pH = carb_p$pH, ALK = carb_p$ALK, Tinsi = 4, Tlab = carb_p$T, Pinsi = 0, 
+                         S = carb_p$S, Pt = 0, Sit = 0, k1k2 = "p18", kf = "dg", ks="d", 
                          pHscale = "T", b="u74")
 # Using Millero et al. (2002)
-carb_m <- carb(flag = 24, var1 = tmp$pco2_fb, var2 = tmp$at_calc * 1e-6, S = tmp$sal_fb, 
+carb_m <- carb(flag = 24, var1 = tmp$pco2_fb, var2 = tmp$at * 1e-6, S = tmp$sal_fb, 
                T = tmp$temp_fb, P = 0, Pt = 0, Sit = 0, k1k2 = "m02", kf = "dg", ks = "d", 
                pHscale = "T", b = "u74")
 # normalize Millero et al. (2002)-derived pH at 4°C
-carb_s$pH <- pHinsi(pH = carb_s$pH, ALK = carb_s$ALK, Tinsi = 4, Tlab = carb_s$T, Pinsi = 0, 
-                         S = carb_s$S, Pt = 0, Sit = 0, k1k2 = "m02", kf = "dg", ks="d", 
+carb_m$pH <- pHinsi(pH = carb_m$pH, ALK = carb_m$ALK, Tinsi = 4, Tlab = carb_m$T, Pinsi = 0, 
+                         S = carb_m$S, Pt = 0, Sit = 0, k1k2 = "m02", kf = "dg", ks="d", 
                          pHscale = "T", b="u74")
 # calculate difference Lueker - Sulpis
 diff_ls <- as_tibble(carb_l - carb_s) %>% 
