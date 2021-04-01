@@ -2699,7 +2699,7 @@ lueker <- as.numeric(summary(tmp2$ph_s_dur_temp_4_l - tmp2$pH_l))
 sulpis <- as.numeric(summary(tmp2$ph_s_dur_temp_4_s20 - tmp2$pH_s))
 papadimitriou <- as.numeric(summary(tmp2$ph_s_dur_temp_4_p18 - tmp2$pH_p))
 millero2002 <- as.numeric(summary(tmp2$ph_s_dur_temp_4_m02 - tmp2$pH_m))
-diff_table <- tibble(var = c("Min", "Q1", "Median", "Mean", "Q3", "Max"), lueker, sulpis, papadimitriou, millero2002)
+diff_table_pco2_at <- tibble(var = c("Min", "Q1", "Median", "Mean", "Q3", "Max"), lueker, sulpis, papadimitriou, millero2002)
 # make plots
 p1 <- ggreg(xdata = tmp2$ph_s_dur_temp_4_l, ydata = tmp2$pH_l, type = "MA", plot = TRUE, 
             title = "Lueker vs measured", subtitle = "both pH normalized at 4°C",
@@ -2733,7 +2733,7 @@ ggsave(filename = "figures/k1k2_all_pco2_at.png", plot = p, width = 25, height =
 
 # save elements for k1k2 report
 k1k2_pco2_at <- list(mean_discrete = mean_discrete, const_choice = const_choice, tmp2 = tmp2,
-             errors_pco2_at = errors_pco2_at, diff_table = diff_table, 
+             errors_pco2_at = errors_pco2_at, diff_table_pco2_at = diff_table_pco2_at, 
              diff_ls_quant = diff_ls_quant)
 save(k1k2_pco2_at, file="reports/k1k2_pco2_at.RData")
 ```
@@ -2746,8 +2746,8 @@ The discrete values of pCO2, AT, salinity and temperature in the FerryBox were u
 
 `r knitr::kable(diff_ls_quant, digits = c(0, rep(3, 5)), caption = "Lueker minus Sulpis using discrete Ferrybox data.", format = "simple")`
 
-Here we compare pH measured spectrophotometrically with pH calculated from pCO2 and AT using various formulations of K1 and K2. All pH values were normalized to a temperature of 4°C. The absolute differences are generally large, up to `r round(max(abs(diff_table[, 2:5])), digits=3)` pH units. In general, all formulations overestimate spectrophotometric pH. pH calculated using the formulation of Papadimitriou et al. (2018) is closer to measured pH, with a mean difference of `r round(diff_table[4, 4], digits=3)` pH units. This difference is `r abs(round(diff_table[4, 4]/errors_pco2_at$pH, digits=1))` times larger than the uncertainty for pH calculated from pCO2 and AT according to seacarb (`r round(errors_pco2_at$pH, digits=3)`).
-`r knitr::kable(diff_table, digits = 3, caption = "Difference between spectrophotometric pH and pH calculated with pCO2 and AT using different formulations for K1 and K2.", format = "simple")`
+Here we compare pH measured spectrophotometrically with pH calculated from pCO2 and AT using various formulations of K1 and K2. All pH values were normalized to a temperature of 4°C. The absolute differences are generally large, up to `r round(max(abs(diff_table_pco2_at[, 2:5])), digits=3)` pH units. In general, all formulations overestimate spectrophotometric pH. pH calculated using the formulation of Papadimitriou et al. (2018) is closer to measured pH, with a mean difference of `r round(diff_table_pco2_at[4, 4], digits=3)` pH units. This difference is `r abs(round(diff_table_pco2_at[4, 4]/errors_pco2_at$pH, digits=1))` times larger than the uncertainty for pH calculated from pCO2 and AT according to seacarb (`r round(errors_pco2_at$pH, digits=3)`).
+`r knitr::kable(diff_table_pco2_at, digits = 3, caption = "Difference between spectrophotometric pH and pH calculated with pCO2 and AT using different formulations for K1 and K2.", format = "simple")`
 `r include_graphics("figures/k1k2_all_pco2_at.png")`
 
 ### K1K2 using CT and AT
@@ -2810,7 +2810,7 @@ lueker <- as.numeric(summary(tmp2$ph_s_dur_temp_4_l - tmp2$pH_l2))
 sulpis <- as.numeric(summary(tmp2$ph_s_dur_temp_4_s20 - tmp2$pH_s2))
 papadimitriou <- as.numeric(summary(tmp2$ph_s_dur_temp_4_p18 - tmp2$pH_p2))
 millero2002 <- as.numeric(summary(tmp2$ph_s_dur_temp_4_m02 - tmp2$pH_m2))
-diff_table <- tibble(var = c("Min", "Q1", "Median", "Mean", "Q3", "Max"), lueker, sulpis, papadimitriou, millero2002)
+diff_table_at_ct <- tibble(var = c("Min", "Q1", "Median", "Mean", "Q3", "Max"), lueker, sulpis, papadimitriou, millero2002)
 # make plots
 p1 <- ggreg(xdata = tmp2$ph_s_dur_temp_4_l, ydata = tmp2$pH_l2, type = "MA", plot = TRUE, 
             title = "Lueker vs measured", subtitle = "both pH normalized at 4°C",
@@ -2843,14 +2843,13 @@ p <- (p1 + p2) / p3
 ggsave(filename = "figures/k1k2_all_at_ct.png", plot = p, width = 25, height = 20, units = "cm")
 
 # save elements for k1k2 report
-k1k2_at_ct <- list(mean_discrete = mean_discrete, const_choice = const_choice, tmp2 = tmp2,
-             errors_pco2_at = errors_pco2_at, diff_table = diff_table, 
-             diff_ls_quant = diff_ls_quant)
+k1k2_at_ct <- list(errors_at_ct = errors_at_ct,
+                   diff_table_at_ct = diff_table_at_ct)
 save(k1k2_at_ct, file="reports/k1k2_at_ct.RData")
 ```
-Here we compare pH measured spectrophotometrically with pH calculated from AT and CT using various formulations of K1 and K2. All pH values were normalized to a temperature of 4°C. The absolute differences are generally large, up to `r round(max(abs(diff_table[, 2:5])), digits=3)` pH units. In general, all formulations overestimate spectrophotometric pH. pH calculated using the formulation of Papadimitriou et al. (2018) is closer to measured pH, with a mean difference of `r round(diff_table[4, 4], digits=3)` pH units. This difference is `r abs(round(diff_table[4, 4]/errors_at_ct$pH, digits=1))` times larger than the uncertainty for pH calculated from AT and CT according to seacarb (`r round(errors_at_ct$pH, digits=3)`).
+Here we compare pH measured spectrophotometrically with pH calculated from AT and CT using various formulations of K1 and K2. All pH values were normalized to a temperature of 4°C. The absolute differences are generally large, up to `r round(max(abs(diff_table_at_ct[, 2:5])), digits=3)` pH units. In general, all formulations overestimate spectrophotometric pH. pH calculated using the formulation of Papadimitriou et al. (2018) is closer to measured pH, with a mean difference of `r round(diff_table_at_ct[4, 4], digits=3)` pH units. This difference is `r abs(round(diff_table_at_ct[4, 4]/errors_at_ct$pH, digits=1))` times the uncertainty for pH calculated from AT and CT according to seacarb (`r round(errors_at_ct$pH, digits=3)`). The differences found with the other formulations are, on average, slightly lower than the uncertainty for pH calculated from AT and CT according to seacarb.
 
-`r knitr::kable(diff_table, digits = 3, caption = "Difference between spectrophotometric pH and pH calculated with pCO2 and AT using different formulations for K1 and K2.", format = "simple")`
+`r knitr::kable(diff_table_at_ct, digits = 3, caption = "Difference between spectrophotometric pH and pH calculated with AT and CT using different formulations for K1 and K2.", format = "simple")`
 `r include_graphics("figures/k1k2_all_at_ct.png")`
 
 ## Stratification
