@@ -3068,17 +3068,19 @@ p_f_air_sea_m <- ggplot(data = air_sea_month) +
 #p_f_air_sea_m
 #ggsave(filename = "figures/f_air_sea_m.png", plot = p_f_air_sea_m, width = 20, units = "cm")
 
-p <- cowplot::plot_grid(p_f_air_sea, p_f_air_sea_d, p_f_air_sea_m, ncol = 1)
-pngfile <- "figures/air-sea_CO2_flux.png"
-ggsave(
-  pngfile, 
-  p, 
-  device = agg_png, 
-  width = 6.6, height = 10, units = "cm", res = 300,
-  scaling = 0.4
-)
-rm(p_f_air_sea)
-knitr::include_graphics(pngfile)
+p <- p_f_air_sea / p_f_air_sea_d / p_f_air_sea_m
+ggsave(filename = "figures/air-sea_CO2_flux.png", plot = p, width = 20, units = "cm")
+#p <- cowplot::plot_grid(p_f_air_sea, p_f_air_sea_d, p_f_air_sea_m, ncol = 1)
+#pngfile <- "figures/air-sea_CO2_flux.png"
+# ggsave(
+#   pngfile, 
+#   p, 
+#   device = agg_png, 
+#   width = 6.6, height = 10, units = "cm", res = 300,
+#   scaling = 0.4
+# )
+knitr::include_graphics("figures/air-sea_CO2_flux.png")
+#rm(p, p_f_air_sea, p_f_air_sea_d, p_f_air_sea_m)
 ```
 
 The annual air-sea CO2 flux is `r round(sum(air_sea_month), digits = 0)` mol/(m2 year).
