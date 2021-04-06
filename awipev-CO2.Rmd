@@ -2576,8 +2576,7 @@ The difference between no Si and its maximum value on pH, pCO2, and Omega_a are 
 
 The impact of the min max changes of Si on pH, pCO2, and Omega_a are small:  `r round(1000*diff_Si_1b$pH, digits=2)` mpH units, `r round(diff_Si_1b$pCO2, digits=2)` uatm for pCO2 and `r round(diff_Si_1b$OmegaAragonite, digits=2)` for OmegaAragonite.
 
-## Impact K1K2  {.tabset .tabset-pills}
-### Lueker vs Sulpis
+## K1K2  {.tabset .tabset-pills}
 ```{r impact of constants discrete, echo=FALSE, warning=FALSE, message=FALSE}
 # Compare Lueker and Sulpis using mean discrete values
 # first, order columns
@@ -2630,11 +2629,6 @@ const_choice <- bind_rows(diff_ls_1, diff_ls_2) %>%
   dplyr::select(flag, pH, pCO2, DIC, OmegaAragonite) %>% 
   dplyr::bind_cols(errors)
 ```
-Using the following using mean discrete values:
-`r knitr::kable(mean_discrete, digits = c(1, 1, 0, 1, 1), caption = "Mean discrete values.", format = "simple")`
-
-The differences are:
-`r knitr::kable(const_choice, digits = c(0, 3, 1, 1, 3, 3, 1, 1, 1), caption = "Lueker minus Sulpis. e indicates typical errors estimated with seacarb.", format = "simple")`
 
 ### K1K2 using pCO2 and AT
 ```{r impact of constants using FerryBox pCO2 and at, echo=FALSE, warning=FALSE, message=FALSE}
@@ -2737,7 +2731,14 @@ k1k2_pco2_at <- list(mean_discrete = mean_discrete, const_choice = const_choice,
              diff_ls_quant = diff_ls_quant)
 save(k1k2_pco2_at, file="reports/k1k2_pco2_at.RData")
 ```
+#### Difference Lueker vs Sulpis
+Using the following using mean discrete values:
+`r knitr::kable(mean_discrete, digits = c(1, 1, 0, 1, 1), caption = "Mean discrete values.", format = "simple")`
 
+The differences are:
+`r knitr::kable(const_choice, digits = c(0, 3, 1, 1, 3, 3, 1, 1, 1), caption = "Lueker minus Sulpis. e indicates typical errors estimated with seacarb.", format = "simple")`
+
+#### Difference between all formulations and measured pH
 The discrete values of pCO2, AT, salinity and temperature in the FerryBox were used to calculate pH using the formulations for K1 and K2 of Lueker et al. (2000) and Sulpis et al. (2020). The differences induced by the choice of the carbonic acid constants are:
 
 - large for pH (`r round(diff_ls_quant[4, 2], digits = 3)` pH units on average; ; median is `r round(diff_ls_quant[3, 2], digits = 3)`) compared with the uncertainty calculated with seacarb (`r round(const_choice[1, 6], digits = 3)`). In general, pH is higher with Sulpis than with Lueker.
@@ -2847,6 +2848,14 @@ k1k2_at_ct <- list(errors_at_ct = errors_at_ct,
                    diff_table_at_ct = diff_table_at_ct)
 save(k1k2_at_ct, file="reports/k1k2_at_ct.RData")
 ```
+#### Difference Lueker vs Sulpis
+Using the following using mean discrete values:
+`r knitr::kable(mean_discrete, digits = c(1, 1, 0, 1, 1), caption = "Mean discrete values.", format = "simple")`
+
+The differences are:
+`r knitr::kable(const_choice, digits = c(0, 3, 1, 1, 3, 3, 1, 1, 1), caption = "Lueker minus Sulpis. e indicates typical errors estimated with seacarb.", format = "simple")`
+
+#### Difference between all formulations and measured pH
 Here we compare pH measured spectrophotometrically with pH calculated from AT and CT using various formulations of K1 and K2. All pH values were normalized to a temperature of 4°C. The absolute differences are generally large, up to `r round(max(abs(diff_table_at_ct[, 2:5])), digits=3)` pH units. In general, all formulations overestimate spectrophotometric pH. pH calculated using the formulation of Papadimitriou et al. (2018) is closer to measured pH, with a mean difference of `r round(diff_table_at_ct[4, 4], digits=3)` pH units. This difference is `r abs(round(diff_table_at_ct[4, 4]/errors_at_ct$pH, digits=1))` times the uncertainty for pH calculated from AT and CT according to seacarb (`r round(errors_at_ct$pH, digits=3)`). The differences found with the other formulations are, on average, slightly lower than the uncertainty for pH calculated from AT and CT according to seacarb.
 
 `r knitr::kable(diff_table_at_ct, digits = 3, caption = "Difference between spectrophotometric pH and pH calculated with AT and CT using different formulations for K1 and K2.", format = "simple")`
