@@ -169,7 +169,7 @@ d <- d_all %>%
   fill_gaps() %>%
   dplyr::mutate(year_month = format(datetime, '%Y-%m'),
                 quarter = quarter(datetime)) %>%
-  dplyr::rename(pco2_contros = pco2_corr) %>% 
+  #dplyr::rename(pco2_contros = pco2_corr) %>% 
   replace(., is.na(.), NA) # replace NaN by NA everywhere
 ```
 
@@ -202,7 +202,7 @@ size_point <- 2 # size of data points
 alpha <- 1 #transparency
 
 d_ts <- d %>%
-  dplyr::select(datetime, temp_insitu_11m, sal_fb, par_air, pco2_contros,
+  dplyr::select(datetime, temp_insitu_11m, sal_fb, par_air, pco2_fb,
                 pHint_tot_sf_9m, ph_s_sf_temp_insi, at_calc, at) #%>%
   #tidyr::pivot_longer(-datetime, values_to = "value")
   
@@ -213,9 +213,9 @@ ts_sal <- d_all %>%
   geom_point(colour="blue", alpha=alpha, na.rm=TRUE, size=size_point) + 
   labs(title="Salinity FerryBox",x="", y="Salinity") +
   Mytheme(size_labs = 8)
-ts_sal_py <- ggplotly(ts_sal,dynamicTicks = TRUE)
-filename.html <- paste0(path_fig, "ts_sal_py.html")
-saveWidget(ts_sal_py, filename.html, selfcontained = T, libdir = "lib")
+# ts_sal_py <- ggplotly(ts_sal,dynamicTicks = TRUE)
+# filename.html <- paste0(path_fig, "ts_sal_py.html")
+# saveWidget(ts_sal_py, filename.html, selfcontained = T, libdir = "lib")
 
 # temp_insitu_11m
 ts_temp <- d_all %>%
