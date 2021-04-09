@@ -192,6 +192,14 @@ d_hour <- d_hour %>%
     ph_dur = ph_dur_filtered
   ) %>% 
   arrange(datetime)
+# read a file provided by Philipp for reconstructing missing pressure data
+svl_remos_depth <- tibble(
+  readRDS(file = paste0(
+    path,
+    "fb_data/svl_remos_depth.rds"
+  )))
+d_hour <- dplyr::left_join(d_hour, svl_remos_depth, by = 'datetime') %>% 
+  dplyr::select(-adcp_fill, -ctd_fill)
 d_all <- as_tibble(d_hour) #d_all will be the merger
 d_all <- d_all %>%
   dplyr::mutate_all(function(x) ifelse(is.nan(x), NA, x)) %>% # replace all NaN by NA
@@ -2556,13 +2564,13 @@ diff_max_0b <- carb_2[1,] - carb_2[2,] # AT-CT: diff between (0 PO4 and Si) and 
 #nuts <- tibble(Pair = "pCO2-AT", "CT-AT",
 #)
 nuts_table <- bind_rows(diff_po4_0a, diff_Si_0a, diff_po4_0b, diff_Si_0b, diff_max_0a, diff_max_0b) %>% 
-  dplyr::mutate(flag = c("pCO2 and ALK", "pCO2 and ALK", "ALK and DIC", "ALK and DIC", "ALK and DIC", "ALK and DIC"),
+  dplyr::mutate(flag = c("pCO2 and ALK", "pCO2 and ALK", "ALK and DIC", "ALK and DIC", "pCO2 and AT", "ALK and DIC"),
                 nutrients = c("No PO4-max PO4", "No Si-max Si", "No PO4-max PO4", 
                               "No Si-max Si", "No nuts-max nuts", "No nuts-max nuts")) %>% 
   dplyr::select(flag, nutrients, pH, pCO2, DIC, OmegaAragonite)
 rm(ts_po4_bp, ts_Si_bp)
 ```
-`r knitr::kable(nuts_table, digits = c(1, 1, 4, 2, 4, 3), caption = "Impact of PO4 and Si.", format = "simple")`
+`r knitr::kable(nuts_table, digits = c(1, 1, 4, 2, 7, 3), caption = "Impact of PO4 and Si.", format = "simple")`
 
 The concentration of po4 and si varies with a factor 10 along a composite year. The ranges are respectively, `r round(range(d_all$po4, na.rm = TRUE), digits = 2)` for po4 and `r round(range(d_all$si, na.rm = TRUE), digits = 2)` for si. 
 
