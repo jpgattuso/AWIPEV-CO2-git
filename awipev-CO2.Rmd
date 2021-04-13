@@ -192,20 +192,33 @@ d_hour <- d_hour %>%
     ph_dur = ph_dur_filtered
   ) %>% 
   arrange(datetime)
+# read a file provided by Philipp on 2021-04-09 which fills most gaps of pressure data
+# depth_complete replaces all other depth and pressure variables
+svl_remos_depth <- tibble(
+  readRDS(file = paste0(
+    path,
+    "fb_data/svl_remos_depth.rds"
+  )))
+d_hour <- dplyr::left_join(d_hour, svl_remos_depth, by = 'datetime') %>% 
+  dplyr::select(-adcp_fill, -ctd_fill) %>% 
+  dplyr::rename(depth = depth_complete)
+# check_plot <- d_hour %>% 
+#   ggplot() + geom_point(aes(x=datetime, y=depth, col='blue', alpha = 0.7)) +
+#   geom_point(aes(x=datetime, y=depth, col='red', alpha = 0.3))
 d_all <- as_tibble(d_hour) #d_all will be the merger
 d_all <- d_all %>%
   dplyr::mutate_all(function(x) ifelse(is.nan(x), NA, x)) %>% # replace all NaN by NA
-  dplyr::mutate(depth = ifelse( # create new variable depth
+  dplyr::mutate(depth_group = ifelse( # create new variable depth
       pressure_insitu_ctd <= 2,
       1,
       ifelse(
-        pressure_insitu_ctd > 2 & pressure_insitu_ctd <= 4,
+        pressure_insitu_ctd > 2 & depth <= 4,
         3,
         ifelse(
-          pressure_insitu_ctd > 4 & pressure_insitu_ctd <= 6,
+          pressure_insitu_ctd > 4 & depth <= 6,
           5,
           ifelse(
-            pressure_insitu_ctd > 6 & pressure_insitu_ctd <= 8,
+            pressure_insitu_ctd > 6 & depth <= 8,
             7,
             ifelse(pressure_insitu_ctd > 8, 10, NA)
           )
@@ -1869,7 +1882,7 @@ d_all <- d_all %>%
 #   dplyr::mutate(ph_s_sf_temp_4 = ifelse(!is.na(pH_seafet$ph_s_sf),
 #                                               pHinsi(pH = pH_seafet$ph_s_sf, 
 #                          ALK = pH_seafet$at_mean_interp*1e-6, Tinsi = 4, 
-#                          Tlab = pH_seafet$temp_s_lab, Pinsi = pH_seafet$pressure_insitu_ctd/10, 
+#                          Tlab = pH_seafet$temp_s_lab, Pinsi = pH_seafet$depth/10, 
 #                          S = pH_seafet$sal_mix, Pt = 0, Sit = 0, k1k2 = "l", kf = "dg", ks="d", 
 #                          pHscale = "T", b="u74"), NA
 #   ))
@@ -1916,7 +1929,7 @@ rm(seafet_depth_xts)
 
 ```{r seafet profiles, echo=FALSE, message= FALSE, warning=FALSE, out.width="80%",fig.show='hold', fig.align="center"}
 # range <- d_all %>%
-#   dplyr::mutate(pH_range_more_6m = ifelse(pressure_insitu_ctd > 6, pHint_tot_sf, NA)) %>%
+#   dplyr::mutate(pH_range_more_6m = ifelse(depth > 6, pHint_tot_sf, NA)) %>%
 #   group_by(montht) %>%
 #   summarize(pH_range = max(pHint_tot_sf, na.rm = TRUE) - min(pHint_tot_sf, na.rm = TRUE),
 #             pH_range_more_6m = max(pH_range_more_6m, na.rm = TRUE) - min(pH_range_more_6m, na.rm = TRUE),
@@ -1926,8 +1939,8 @@ rm(seafet_depth_xts)
 
 # # datetime when pH values are in but no pressure data. File sent to send to Philipp
 # no_pressure <- d_all %>% 
-#   dplyr::select(datetime, pressure_insitu_ctd, pHint_tot_sf) %>% 
-#   dplyr::filter(is.na(pressure_insitu_ctd) & !is.na(pHint_tot_sf))
+#   dplyr::select(datetime, depth, pHint_tot_sf) %>% 
+#   dplyr::filter(is.na(depth) & !is.na(pHint_tot_sf))
 # readr::write_csv(x = no_pressure, path=paste0(path,"/fb_awipev-co2_server/ny-alesund/data//no_pressure.csv"))
 
 
@@ -2556,13 +2569,13 @@ diff_max_0b <- carb_2[1,] - carb_2[2,] # AT-CT: diff between (0 PO4 and Si) and 
 #nuts <- tibble(Pair = "pCO2-AT", "CT-AT",
 #)
 nuts_table <- bind_rows(diff_po4_0a, diff_Si_0a, diff_po4_0b, diff_Si_0b, diff_max_0a, diff_max_0b) %>% 
-  dplyr::mutate(flag = c("pCO2 and ALK", "pCO2 and ALK", "ALK and DIC", "ALK and DIC", "ALK and DIC", "ALK and DIC"),
+  dplyr::mutate(flag = c("pCO2 and ALK", "pCO2 and ALK", "ALK and DIC", "ALK and DIC", "pCO2 and AT", "ALK and DIC"),
                 nutrients = c("No PO4-max PO4", "No Si-max Si", "No PO4-max PO4", 
                               "No Si-max Si", "No nuts-max nuts", "No nuts-max nuts")) %>% 
   dplyr::select(flag, nutrients, pH, pCO2, DIC, OmegaAragonite)
 rm(ts_po4_bp, ts_Si_bp)
 ```
-`r knitr::kable(nuts_table, digits = c(1, 1, 4, 2, 4, 3), caption = "Impact of PO4 and Si.", format = "simple")`
+`r knitr::kable(nuts_table, digits = c(1, 1, 4, 2, 7, 3), caption = "Impact of PO4 and Si.", format = "simple")`
 
 The concentration of po4 and si varies with a factor 10 along a composite year. The ranges are respectively, `r round(range(d_all$po4, na.rm = TRUE), digits = 2)` for po4 and `r round(range(d_all$si, na.rm = TRUE), digits = 2)` for si. 
 
@@ -2874,22 +2887,22 @@ Here we compare pH measured spectrophotometrically with pH calculated from AT an
 depth_labels <- c("0-2", "2-4", "4-6", "6-8", "8-12")
 # we look at salinity all depths
 tmp <- d_all %>% 
-  dplyr::select(montht, sal_insitu_ctd, depth) %>%
-  group_by(depth, montht)
+  dplyr::select(montht, sal_insitu_ctd, depth_group) %>%
+  group_by(depth_group, montht)
 p <- tmp %>% 
-  ggplot(aes(x=as.factor(depth), y = sal_insitu_ctd)) +
+  ggplot(aes(x=as.factor(depth_group), y = sal_insitu_ctd)) +
   geom_boxplot(notch=FALSE, size=0.2, fill="grey50", outlier.color = "blue", outlier.size = 0.3) +
   labs(title = "Salinity vs depth", x = "Depth (m)", y= "Salinity") +
   scale_x_discrete(labels = depth_labels) +
   facet_wrap(vars(montht), scale = "free_y")
 print(p)
 
-summary(aov(tmp$sal_insitu_ctd ~ tmp$depth * tmp$montht))
+summary(aov(tmp$sal_insitu_ctd ~ tmp$depth_group * tmp$montht))
 
 # we look at salinity 0 to 4 m vs more than 8 m
 tmp <- d_all %>% 
-  dplyr::select(montht, sal_insitu_ctd, depth) %>%
-  dplyr::mutate(depth = as.factor(ifelse(depth == 1 | depth == 3, 2, depth))) %>% 
+  dplyr::select(montht, sal_insitu_ctd, depth_group) %>%
+  dplyr::mutate(depth = as.factor(ifelse(depth_group == 1 | depth_group == 3, 2, depth_group))) %>% 
   dplyr::filter(depth == 2 | depth == 10)
 tmp_delta <- tmp %>% 
   group_by(depth, montht) %>% 
@@ -2970,6 +2983,7 @@ p <- tmp %>%
   facet_wrap(vars(montht), scale = "free_y")
 print(p)
 ```
+
 Using the medians because data are missing.
 
 + Salinity 
@@ -3119,8 +3133,8 @@ d_all <- d_all %>%
 saveRDS(file= paste0(path, "fb_data/d_all.rds"), d_all)
 
 pangaea <- as_tibble(d_all) %>% 
-  dplyr::select(datetime, pressure_insitu_ctd, sal_insitu_ctd, sal_fb, sal_mix, temp_insitu_11m, temp_insitu_ctd, temp_fb, temp_sf, temp_dur, at, ct, ph_s_sf_temp_insi, ph_s_dur_temp_fb, ph_calc_fb, pco2_fb, pco2_calc_fb, at_calc, ph_dur_corr, pHint_tot_sf) %>%
-  dplyr::rename(pressure = pressure_insitu_ctd,
+  dplyr::select(datetime, depth, sal_insitu_ctd, sal_fb, sal_mix, temp_insitu_11m, temp_insitu_ctd, temp_fb, temp_sf, temp_dur, at, ct, ph_s_sf_temp_insi, ph_s_dur_temp_fb, ph_calc_fb, pco2_fb, pco2_calc_fb, at_calc, ph_dur_corr, pHint_tot_sf) %>%
+  dplyr::rename(pressure = depth,
                 s_insitu = sal_insitu_ctd,
                 s_fb = sal_fb, 
                 s_mix = sal_mix,
@@ -3207,7 +3221,7 @@ ts_pCO2 <- d_all %>%
 ts_pH <- d_all %>% 
   ggplot() +
   scale_x_datetime(breaks = date_breaks("1 year"), labels = date_format("%Y")) +
-  geom_point(aes(x = datetime, y = pHint_tot_sf, col = pressure_insitu_ctd), alpha=alpha, na.rm=TRUE, size=size_point) + 
+  geom_point(aes(x = datetime, y = pHint_tot_sf, col = depth), alpha=alpha, na.rm=TRUE, size=size_point) + 
   scale_colour_gradient(name = "Depth (m)", low = "#56B1F7", high = "#132B43") + # reverse colors
   guides(colour = guide_colourbar(reverse = TRUE)) + # reverse colour bar
   geom_point(aes(x = datetime, y = ph_s_sf_temp_insi), colour="red", alpha=alpha, na.rm=TRUE, size=size_point*3) + 
