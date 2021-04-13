@@ -17,18 +17,12 @@ Sys.setenv(TZ='UTC') # on utilise UTC
 rm(list = ls())
 if (!require("tidyverse")) install.packages("tidyverse")
 library(tidyverse)
-# if (!require("robfilter")) install.packages("robfilter")
-# library("robfilter")
 if (!require("seacarb")) install.packages("seacarb")
 library("seacarb")
 if (!require("gridExtra")) install.packages("gridExtra")
 library("gridExtra")
-# if (!require("reshape2")) install.packages("reshape2")
-# library("reshape2")
 if (!require("lubridate")) install.packages("lubridate")
 library("lubridate")
-# if (!require("lmtest")) install.packages("lmtest")
-# library("lmtest")
 if (!require("grid")) install.packages("grid")
 library(grid)
 if (!require("viridis")) install.packages("viridis")
@@ -43,18 +37,8 @@ if (!require("captioner")) install.packages("captioner")
 library("captioner")
 if (!require("xts")) install.packages("xts")
 library("xts")
-# if (!require("seismicRoll")) install.packages("seismicRoll")
-# library("seismicRoll")
 if (!require("scales")) install.packages("scales")
 library("scales")
-# if (!require("cowplot")) install.packages("cowplot")
-# library(cowplot)
-# if (!require("htmlwidgets")) install.packages("htmlwidgets")
-# library("htmlwidgets")
-# if (!require("hms")) install.packages("hms")
-# library("hms")
-# if (!require("ragg")) install.packages("ragg")
-# library("ragg")
 if (!require("skimr")) install.packages("skimr")
 library("skimr")
 if (!require("FNN")) install.packages("FNN")
@@ -135,9 +119,6 @@ fit <- lmodel2(col_y ~ col_x, nperm = 99)
   my_list <- list(fit = print(fit), rmse = sqrt(mean(error^2, na.rm=TRUE)))
   return(my_list)
 }
-#z <- lm2(x = d_all$pco2_calc_fb, y = d_all$pco2_fb)
-#z <- lmodel2(d_all$pco2_fb ~ d_all$pco2_calc_fb)
-#z <- lm2(data = d_all, x = pco2_calc_fb, y = pco2_fb)
 
 #################### Mytheme
 Mytheme <- function(size_labs = 7, face_font="plain") {
@@ -168,9 +149,6 @@ ggplot(fit$model, aes_string(x = names(fit$model)[2], y = names(fit$model)[1])) 
                      " P =",signif(summary(fit)$coef[2,4], 5)))
 }
 
-#################### MySkim
-# myskim <- skim_with(numeric = sfl(min = ~min(., na.rm = TRUE),
-#                                   max = ~max(., na.rm = TRUE)))
 ```
 
 ```{r read observatory data, cleanup and prepare ferrybox data, echo=FALSE, warning=FALSE, message=FALSE}
@@ -418,18 +396,6 @@ pH_durafet_mean <- pH_durafet %>%
                    ph_s_dur_temp_4_p18_mean = mean(ph_s_dur_temp_4_p18, na.rm = TRUE),
                    ph_s_dur_temp_4_m02_mean = mean(ph_s_dur_temp_4_m02, na.rm = TRUE)
                    )
-
-# #bind all spectro measurements, vhange name of dataframe only to do the rbind.
-# seafetph <- pH_seafet_mean
-# colnames(seafetph) <- c("date", "ph_s_sf_insi", "ph_s_sf_temp_4")
-# durafetph <- pH_durafet_mean
-# colnames(durafetph) <- c("date", "ph_s_dur_temp_fb")
-# pH_seafet_durafet <- rbind(seafetph,durafetph)
-
-# #calculations for all pH spectro measurement for sd
-# sd_min <- min(pH_seafet_durafet$sd)
-# sd_max <- max(pH_seafet_durafet$sd)
-# sd_mean <- mean(pH_seafet_durafet$sd)
 
 #  make means in "d" to have same format and call it "discrete"
 discrete <- d %>%
@@ -955,268 +921,6 @@ The mean difference between temperature Ferrybox and in situ at 11 m is: `r mean
 ## Total alkalinity
 
 Since we bought the AT analyser (February 2016), numerous problems happened due to a leak of the degassing unit in each analyser and sudden step changes. Last analyser repaired by Contros was installed back in the FB on 2018-07-31. This was the 3rd analyser on site. Even with this instrument, data collection didn't show satisfaction.
-
-<!-- We identify four periods (see plot at the end of this page with dark and ligth grey): -->
-
-<!-- - from the set-up of the instrument on **2016-02-23** to **2017-02-09** during which we try to correct for the drift -->
-<!-- - from **2017-02-09** to **2017-03-10** during which no drift correction is made, just an offset is applied to correct for the sudden shift in the data -->
-<!-- - from the set-up of a new instrument on **2018-01-08** to **2018-06-20**, during which another correction using the discrete samples will be performed. In this period and before to stop it, continuous leakages in the degasing unit happened. -->
-<!-- - from the set-up of a repaired unit on **2018-07-31** to **2018-10-31**. Here, the instrument took wrong salinity to perform AT measurements. The cause is not clear yet but Steffen sent to Samir a protocol on 2018-08-24 to correct those data with right salinity. Also, after this issue, since 2018-08-20, bad data were still measured. Steffen diagnosed a "bubble issue" in the indicator tubbings. Steps will be sent to Marine to solve this issue. After this, it was not a bubble. We decided to switch off the instrument to save reagents and wait until the comming of Steffen in NYA with a new instrument. -->
-
-<!-- A new instrument was installed with Steffen on **2018-10-31**. This new instrument has a complete new designed membrane which will solve the problem. Steffen also developped a TA web interface to communicate remotly with the analyser. Samir has all the passwords and ID to connect. -->
-
-<!-- The instrument is usually calibrated against CRM standards after deployment, CRMs are run after 3 months as samples (measurement mode, not calibration mode), an then immediately calibrated again. This procedure is repeated every 3 months. -->
-
-<!-- ### **Filtration of AT data: outliers removing** -->
-
-<!-- Outliers are present because of the cleaning operations made on the FerryBox everydays at 12:00am and 12:00pm. We first removed the outliers using a filter and decided, after a Skype conference with Steffen on September 2016, to: -->
-
-<!--   - Remove existing filters ( > 2350 µmol/kg). -->
-<!--   - Filter using salinity flag. -->
-<!--   - Filter using pH flag. -->
-<!--   - Not to filter on temperature flag. -->
-<!--   - Apply a 3 data points median filter (no longer used; see despike function in "oce" package) -->
-
-<!-- We decided to use "despike" function as data filter. This filter is done in "ny-alesund_cc.R". Length of runing median is: k = 121 days and the indicator (n times the sd between x and the reference) to consider a data from an outlier is: n = 0.5. -->
-
-<!-- ### **Correction of AT data** -->
-
-<!-- Calibration was initially performed twice a year since the analyser was supposed to be stable. Calibration was performed using the internal "calibration mode" against a CRM from A.Dickson (Batch #145, 2016-02-24) right after the instrument was installed and a second time on 2016-09-16. This approch is not longer used since September 2016 (Skype with Contros). -->
-
-<!-- Since this date, the analyser is calibrated by measuring a CRM with the "measurement mode" in order to measure the offset of the instrument. Additionally, discrete seawater are sampled weekly and TA is analysed by SNAPO-CO2. -->
-
-<!--   - Two methods to correct the drift are available: -->
-<!--     - based on CRMs  -->
-<!--     - based on AT measurement of discrete samples ("references"). -->
-
-<!-- #### **Calibration** -->
-
-<!-- - **2019-01-29 14:10**: Calibration started by Philipp Fisher using CRM 145 (2226.16 umol/kg, 33.572). The three previous measurements were 2314.5, 233.8, 2313.7 (analyser stable) and the six subsequent measurements were 2211.8, 2277.5, 2305.4, 2316.6, 2317.9. Error was done with CRM salinity (Analyser was not unplugged from the FB).  -->
-<!-- Steffen's response: -->
-<!-- > Hence, the serial connection should be cut off or the FB module feeding the analyzer with salinity data should be stopped during calibration. The calibration can be recalculated afterwards in the data post-processing. However, I see that the calibration resulted in very similar pH values 3.540 (September calibration) and 3.543 (January calibration) with very similar correction factors 1.2371 and 1.2365. Also the TA values are very similar to the baseline measurements from before at approx. 2316 µM. So for now, it should be fine.   -->
-
-
-<!-- #### **CRM measurements** -->
-
-<!-- The calibration of the sensor is made against a CRM standard from A. Dickson. We run a standard on the analyser as a regular measurement (measurement mode). Result sof calibrations are shown on the following plot.Dashed lines represent the theoritical value of AT (CRM) and hard lines represent CRM measured AT by the instrument. -->
-
-<!-- ```{r CRM measurements, echo=FALSE, warning=FALSE, message=FALSE, out.width="80%",fig.show='hold', fig.align="center"} -->
-<!-- calib_analyser <-  read.table(paste0(path, "fb_data/Calibration_TA/TA_#1215/measure_CRM_TA.txt"), header = T, dec = ".", as.is = T, sep = ",", fill = TRUE) -->
-
-<!-- # To make the mean  -->
-<!-- # Keep dates as Character to plot without date gaps. -->
-<!-- calib_analyser3 <- calib_analyser %>% -->
-<!--   dplyr::filter(analyser == "TA3")  -->
-<!-- meanTA3 <- calib_analyser3 %>%  -->
-<!--   group_by(day) %>%  -->
-<!--   summarise (meanTA = mean(TA)) -->
-
-<!-- melt_calib <- melt(calib_analyser, id.vars=c("analyser", "TA_theo", "datetime", "CRM"), measure.vars=c("TA")) -->
-<!-- calib_p <- ggplot()+  -->
-<!--           geom_point(data= melt_calib, aes(x=datetime, y=value, color=factor(CRM), shape= factor(analyser)) , size=3) + -->
-<!--           scale_color_manual(values=c("blue","red"))+ -->
-<!--          # set dashed lines for theoritical CRM -->
-<!--           geom_segment(aes(x=1,xend=20,y=2226.16,yend=2226.16), linetype="dashed", color="blue")+ -->
-<!--           annotate("text", x = 11, y = 2228, label = "Batch #145 = 2226.16", color="blue")+ -->
-<!--           geom_segment(aes(x=20,xend=23,y=2213.59,yend=2213.59), linetype="dashed", color="red")+ -->
-<!--           annotate("text", x = 15.5, y = 2213.59, label = "Batch #159 = 2213.59", color="red")+ -->
-<!--         # set hard lines for measured CRM -->
-<!--           geom_segment(aes(x=1,xend=5,y=2254,yend=2254), color="blue") + -->
-<!--           annotate("text", x = 3, y = 2249, label = "2254", color="blue")+ -->
-<!--           geom_segment(aes(x=6,xend=10,y=2251.6,yend=2251.6), color="blue") + -->
-<!--           annotate("text", x = 8, y = 2247, label = "2251.6", color="blue")+ -->
-<!--           geom_segment(aes(x=11,xend=15,y=2190.4,yend=2190.4), color="blue")+ -->
-<!--           annotate("text", x = 14, y = 2195, label = "2190.4", color="blue")+ -->
-<!--           geom_segment(aes(x=16,xend=20,y=2203.5,yend=2203.5), color="blue")+ -->
-<!--           annotate("text", x = 18, y = 2200, label = "2203.5", color="blue")+ -->
-<!--           geom_segment(aes(x=21,xend=23,y=2224.20,yend=2224.20), color="red")+ -->
-<!--           annotate("text", x = 22, y = 2230, label = "2224.2", color="red") + -->
-<!--   theme_bw() + theme(axis.text.x = element_text(angle = 45, hjust = 1))+  -->
-<!--   labs(title= "",y=expression(paste("Total alkalinity (µmoles.",kg^-1,")")), x="Date", color= "CRM",shape= "Deployed instrument") -->
-
-<!-- ggsave("figures/TA_calibration_CRM.png", calib_p, units="cm") -->
-<!-- print(calib_p) -->
-<!-- ``` -->
-
-
-<!-- #### **Discrete samples ("references")**  -->
-
-<!-- On 2018-04-19, Steffen sent his answer concerning the drift correction during the period February 2016 to March 2017. Within this one year period, the analyser was running, except the first week of May 2016. Discrete samples were collected and 3 CRMs were measured which was deemed not enough (see below). He suggested to base the correction on the AT of discrete ("reference") samples. -->
-
-<!-- > "I chose the discrete reference samples due to the fact that those cover the entire working range including time, salinity and also provide a broader data basis for this kind of correction. Also, when looking at the uncertainty below, I fear that the three CRM measurements over 5 month are not sufficient enough for such a drift determination." -->
-
-<!-- A linear regression was performed based on the difference between the measured (analyzer) and discrete samples. Discrete samples were matched with the AT measured by the analyser. If there is no measurement coincident with a discrete sample, a linear interpolation was made between the two data surrounding the discrete sample data. The differences between the measured (analyzer) and analysed ("reference") data was plotted as a function of time. -->
-
-<!-- This approach was performed: -->
-
-<!--   - on the same period than in Steffen email's (**First period**, 2016-02-23 to 2017-02-09) -->
-<!--   - and during the **third period**, with the new analyzer (2018-01-07 to 2018-06-20) -->
-
-<!-- ##### **First period**  -->
-
-<!-- ```{r First period, echo=FALSE, warning=FALSE, message=FALSE, out.width="50%",fig.show='hold', fig.align="center"} -->
-<!-- #Interpolation of continuous sensor data to match a maximum of reference data. -->
-<!-- TAinterp_all <-approx(d_all$datetime, d_all$AT, xout=d_all$datetime, method="linear", rule=2) -->
-<!-- names(TAinterp_all) <- c("datetime", "AT_interp") -->
-<!-- TAinterp_all <- as.data.frame(TAinterp_all) -->
-<!-- d_all$AT_interp <- TAinterp_all$AT_interp -->
-
-<!-- # create a column with difference between sensor and ref -->
-<!-- d_all <- d_all%>% -->
-<!--   dplyr::mutate(diff_ta =  at-AT_interp ) -->
-<!-- # create colum with instrument number -->
-<!-- d_all <- d_all %>% -->
-<!--   dplyr::mutate(TA_period= ifelse(datetime >= "2016-02-26 00:00:00" & datetime < "2017-02-09 12:00:00", "TA1", -->
-<!--                             ifelse(datetime >= "2017-02-09 12:00:00" & datetime < "2017-03-10 12:00:00", "TA2", -->
-<!--                             ifelse(datetime >= "2018-01-07 00:00:00" & datetime < "2018-06-20 00:00:00", "TA3", -->
-<!--                             ifelse(datetime >= "2018-07-31 00:00:00" & datetime < "2018-10-30 18:00:00", "TA4", -->
-<!--                             ifelse(datetime >= "2018-10-31 09:00:00" & datetime < "2019-01-16 09:00:00", "TA5", -->
-<!--                             ifelse(datetime >= "2019-01-26 13:25:00" , "TA6", "TA0"))))))) -->
-
-<!-- #remove outliers -->
-<!-- calib_ta_first <- d_all%>% -->
-<!--   dplyr::select(datetime, closest_datetime,AT, AT_interp, at,diff_ta,TA_period)%>% -->
-<!--   dplyr::filter(TA_period =="TA1" & !is.na(at)) -->
-<!--   #dplyr::filter( !is.na(at))#, diff_ta > -40 & diff_ta < 20 ) -->
-<!-- # & datetime != "2016-08-18 08:00:00" & datetime != "2016-12-29 12:00:00 ",!is.na(at)) -->
-
-<!-- # Parameters of regression -->
-<!-- fit <- lm( data=calib_ta_first%>%filter(diff_ta <= 50), diff_ta ~ datetime) -->
-<!-- at_slope_TA1 <- round(fit$coefficients[[2]] , digits=6) -->
-<!-- at_slope1 <- round(at_slope_TA1 * 3600 *24 * 365.24, digits=2) -->
-<!-- at_intercept1 <- round(fit$coefficients[[1]], digits= 2) -->
-<!-- ``` -->
-
-<!-- The slope is: `r #at_slope_TA1` x 3600 x 24 x 365.24 = `r #at_slope1` µmoles.kg-1.yr-1. Regression is: R2 = `r #round(signif(summary(fit)$adj.r.squared, 5), digits =4)`. Outliers are in red. -->
-
-
-<!-- ```{r First period plot, echo=FALSE, warning=FALSE, message=FALSE, out.width="50%",fig.show='hold', fig.align="center"} -->
-<!--  # Plot of regression -->
-<!--  p <- ggplot(calib_ta_first%>%filter(diff_ta <= 50),aes(datetime,diff_ta)) + -->
-<!--      geom_point() + geom_smooth(method='lm', se=FALSE)+ -->
-<!--      geom_point(data= calib_ta_first%>%filter(diff_ta >= 50), aes(x=datetime, y=diff_ta), color="red")  + -->
-<!--    geom_hline(yintercept = 0, linetype="dashed" )+ -->
-<!--    labs(title = paste("Adj R2 = ",signif(summary(fit)$adj.r.squared, 5), -->
-<!--                       "Intercept =",signif(fit$coef[[1]],5 ), -->
-<!--                       "Slope =",signif(fit$coef[[2]], 5), -->
-<!--                       "P =",signif(summary(fit)$coef[2,4], 5))) + -->
-<!--    ylab("Difference: Reference - Analyser") + xlab("Time") + scale_x_datetime(date_labels = "%b %Y", date_minor_breaks = "month", timezone="UTC") -->
-<!--  print(p) -->
-<!--  ggsave(paste0("figures/Diff_ref_TA_first_period.png"), p, units="cm") -->
-<!-- ``` -->
-
-<!-- ##### **Third period** -->
-
-<!-- ```{r Third period, echo=FALSE, warning=FALSE, message=FALSE, out.width="50%",fig.show='hold',fig.align="center"} -->
-
-<!--  #remove outliers and remove period without TA measurements -->
-<!--  calib_ta_third <- d_all%>% -->
-<!--    dplyr::select(datetime, closest_datetime,AT, AT_interp, at,diff_ta, TA_period)%>% -->
-<!--    dplyr::filter(TA_period == "TA3" & !is.na(at)) -->
-
-<!--  # Parameters of regression -->
-<!--  fit <- lm( data=calib_ta_third, diff_ta ~ datetime) -->
-<!--  at_slope_TA3 <- round(fit$coefficients[[2]] , digits=8) -->
-<!--  at_slope3 <- round(at_slope_TA3 * 3600 *24 * 365.24, digits=2) -->
-<!--  at_intercept3 <- round(fit$coefficients[[1]], digits= 2) # pas besoin ici. -->
-<!-- ``` -->
-
-<!-- The slope is in days: `r #at_slope_TA3` x 3600 x 24 x 365.24 = `r #at_slope3` µmoles.kg-1.an-1. Regression is: R2 = `r #round(signif(summary(fit)$adj.r.squared, 5), digits =4)`. No outliers. -->
-
-
-<!-- ```{r Third period plot, echo=FALSE, warning=FALSE, message=FALSE, out.width="50%",fig.show='hold', fig.align="center"} -->
-<!-- # # Plot of regression -->
-<!--  p <- ggplot(calib_ta_third,aes(x=datetime, y=diff_ta) )+ -->
-<!--      geom_point() + geom_smooth(method='lm', se=FALSE)+ -->
-<!--      #geom_point(data= calib_ta_third%>%filter(diff_ta < -40 & diff_ta<20), aes(x=datetime, y=diff_ta), color="red")  + -->
-<!--     geom_hline(yintercept = 0, linetype="dashed" )+ -->
-<!--    geom_vline(xintercept = as.POSIXct("2018-01-08 12:55:00", tz="UTC"), colour="red", linetype = "longdash") + -->
-<!--    #geom_text(aes(xintercept=as.POSIXct("2018-01-01 12:55:00"),label="TA "), colour="red", vjust=1.2)+ -->
-<!--    labs(title = paste("Adj R2 = ",signif(summary(fit)$adj.r.squared, 5), -->
-<!--                       "Intercept =",signif(fit$coef[[1]],5 ), -->
-<!--                       " Slope =",signif(fit$coef[[2]], 5), -->
-<!--                       " P =",signif(summary(fit)$coef[2,4], 5))) + ylab("Difference: Reference - Analyser") + xlab("Time") + -->
-<!--    scale_x_datetime( date_labels = "%b %Y", date_minor_breaks = "month", timezone="UTC") -->
-<!--  print(p) -->
-<!--  ggsave(paste0("figures/Diff_ref_TA_third_period.png"), p, units="cm") -->
-<!-- ``` -->
-
-<!-- ##### **Second period** -->
-
-<!-- ```{r Second period, echo=FALSE, warning=FALSE, message=FALSE, out.width="100%",fig.show='hold'} -->
-
-<!-- #remove outliers and remove period without TA measurements -->
-<!-- calib_ta_second <- d_all%>% -->
-<!--   dplyr::select(datetime, closest_datetime, AT, AT_interp, at, diff_ta, TA_period)%>% -->
-<!--   dplyr::filter(TA_period == "TA2" & !is.na(at)) -->
-
-<!-- mean_offset <- mean(calib_ta_second$diff_ta) -->
-
-<!-- ```  -->
-
-<!-- For the second period, the average difference between 5 discrete samples "references" and TA analyser measurements (`r #mean_offset` µmoles.kg~-1~) was added to TA value as an offset. -->
-
-
-<!-- #### **Final TA corrected data (Regression)** -->
-
-
-<!-- The following plot shows the corrected TA data with regressions (Periods 1 and 3) and with offset (Period 2) applied according to Steffen's proposition. -->
-<!-- It is clear that these corrected data (in green) cannot be used for periods 1 to 3. The jury is still out for period 4. The issue of salinity must be clarified before an assessment can be made.  -->
-
-
-<!-- ```{r Correction applied, echo=FALSE, warning=FALSE, message=FALSE, out.width="100%",fig.show='hold'} -->
-<!-- # Correction for the 3 periods is apply -->
-<!-- d_all <- d_all%>% -->
-<!--   dplyr::mutate(datetime_reg = as.numeric(datetime), -->
-<!--                 at_intercept = ifelse(TA_period == "TA1", at_intercept1, -->
-<!--                                ifelse(TA_period == "TA3", at_intercept3, NA)), -->
-<!--                 at_slope = ifelse(TA_period == "TA1", at_slope_TA1, -->
-<!--                            ifelse(TA_period == "TA3", at_slope_TA3, NA)) -->
-<!--                 ) -->
-
-<!-- d_all <- d_all%>% -->
-<!--  dplyr::mutate(TA_reg_corrected = ifelse(TA_period == "TA1", (AT + (d_all$datetime_reg * d_all$at_slope + at_intercept)), -->
-<!--                                         ifelse(TA_period == "TA2", (AT + mean_offset), -->
-<!--                                         ifelse(TA_period == "TA3", (AT + (datetime_reg * at_slope)+ at_intercept), NA)))) -->
-
-<!-- at_contros_cleaned_xts <- dplyr::select(d_all, datetime,AT,at,TA_reg_corrected) -->
-<!-- at_contros_cleaned_xts <-  as.xts(at_contros_cleaned_xts, order.by = d_all$datetime) -->
-<!-- dygraph(at_contros_cleaned_xts, group = "awipev", main=" Total Alkalinity (in Ferrybox)", ylab="Total alkalinity") %>% -->
-<!--    #dySeries("at_contros", color = RColorBrewer::brewer.pal(3, "Set2"), strokeWidth = 0, pointSize=2) %>% -->
-<!--   dySeries("AT", label= "Raw TA", color = "blue", strokeWidth = 0, pointSize=2) %>% -->
-<!--   dySeries("TA_reg_corrected", label= "Corrected TA", color = RColorBrewer::brewer.pal(3, "Dark2")[1], strokeWidth = 0, pointSize=2) %>% -->
-<!--   dySeries("at", label="TA reference",color = "red", strokeWidth = 0, pointSize=4) %>% -->
-<!--   dyEvent(as.POSIXct("2016-05-31 10:00:00", tz="UTC"), "HCl Changed", labelLoc = "bottom") %>% -->
-<!--   dyEvent(as.POSIXct("2016-06-24 10:00:00", tz="UTC"), "BCG Changed", labelLoc = "bottom") %>% -->
-<!--   dyEvent(as.POSIXct("2016-02-24 14:00:00", tz="UTC"), "Calibration 1", labelLoc = "bottom") %>% -->
-<!--   dyEvent(as.POSIXct("2016-09-16 10:00:00", tz="UTC"), "Calibration 2", labelLoc = "bottom") %>% -->
-<!--   dyEvent(as.POSIXct("2017-03-21 12:00:00", tz="UTC"), "TA analyser changed", labelLoc = "top", color="red") %>% -->
-<!--   dyEvent(as.POSIXct("2018-01-08 12:55:00", tz="UTC"), "TA analyser changed #TA-0317-001", labelLoc = "top", color="red") %>% -->
-<!--   dyEvent(as.POSIXct("2018-07-31 00:00:00", tz="UTC"), "TA analyser changed #TA-1215-001", labelLoc = "top", color="red") %>% -->
-<!--   dyEvent(as.POSIXct("2018-10-30 18:00:00", tz="UTC"), "TA analyser changed #TA-0317-001", labelLoc = "top", color="red") %>% -->
-<!--   dyEvent(as.POSIXct("2016-11-15 09:00:00", tz="UTC"), "CRM measurement", labelLoc = "bottom") %>% -->
-<!--   dyEvent(as.POSIXct("2017-02-09 12:20:00", tz="UTC"), "CRM measurement", labelLoc = "bottom") %>% -->
-<!--   dyEvent(as.POSIXct("2017-04-11 06:20:00", tz="UTC"), "CRM measurement", labelLoc = "bottom") %>% -->
-<!--   dyEvent(as.POSIXct("2018-01-22 13:00:12", tz="UTC"), "CRM measurement", labelLoc = "bottom") %>% -->
-<!--   dyEvent(as.POSIXct("2018-05-16 12:39:39", tz="UTC"), "CRM measurement", labelLoc = "bottom") %>% -->
-<!--   dyEvent(as.POSIXct("2018-10-31 10:29:27", tz="UTC"), "CRM measurement", labelLoc = "bottom") %>% -->
-<!--   dyEvent(as.POSIXct("2019-01-26 13:25:20", tz="UTC"), "Calibration mode - CRM", labelLoc = "bottom") %>% -->
-<!--   #dyOptions(colors = RColorBrewer::brewer.pal(3, "Dark2"), pointSize = 4) %>% -->
-<!--   dyShading(from = TAevents[1], to = TAevents[2], color = "#EDEDED") %>% -->
-<!--   dyShading(from = TAevents[3], to = TAevents[4], color = "#C2C2C2") %>% -->
-<!--   dyShading(from = TAevents[5], to = TAevents[6], color = "#EDEDED") %>% -->
-<!--   dyShading(from = TAevents[7], to = TAevents[8], color = "#C2C2C2") %>% -->
-<!--   dyShading(from = TAevents[9], to = TAevents[10], color = "#EDEDED") %>% -->
-<!--   dyShading(from = TAevents[11], to = TAevents[12], color = "#C2C2C2") %>% -->
-<!--   dyAxis("y",valueRange = c(1600, 2650)) %>% -->
-<!--   dyHighlight(highlightCircleSize = 8,highlightSeriesBackgroundAlpha = 0.5,hideOnMouseOut = TRUE) %>% -->
-<!--   dyOptions( strokeWidth= 0) %>% -->
-<!--   dyLegend(show = "follow")   %>% -->
-<!--   dyOptions(drawGrid = TRUE, drawPoints = TRUE,useDataTimezone = TRUE) %>% -->
-<!--     dyRangeSelector(height = 30, dateWindow= NULL) -->
-
-<!-- ``` -->
-
 
 ### **Discrete total alkalinity (reference) vs salinity relationship**
 
@@ -2922,10 +2626,10 @@ print(p)
 
 # we look at temperature all depths
 tmp <- d_all %>% 
-  dplyr::select(montht, temp_insitu_ctd, depth) %>%
-  group_by(depth, montht)
+  dplyr::select(montht, temp_insitu_ctd, depth_group) %>%
+  group_by(depth_group, montht)
 p <- tmp %>% 
-  ggplot(aes(x=as.factor(depth), y = temp_insitu_ctd)) +
+  ggplot(aes(x=as.factor(depth_group), y = temp_insitu_ctd)) +
   geom_boxplot(notch=FALSE, size=0.2, fill="grey50", outlier.color = "blue", outlier.size = 0.3) +
   labs(title = "Temperature vs depth", x = "Depth (m)", y= "Temperature") +
   facet_wrap(vars(montht), scale = "free_y")
@@ -2933,8 +2637,8 @@ print(p)
 
 # we look at temperature 0 to 4 m vs more than 8 m
 tmp <- d_all %>% 
-  dplyr::select(montht, temp_insitu_ctd, depth) %>%
-  dplyr::mutate(depth = as.factor(ifelse(depth == 1 | depth == 3, 2, depth))) %>% 
+  dplyr::select(montht, temp_insitu_ctd, depth_group) %>%
+  dplyr::mutate(depth = as.factor(ifelse(depth_group == 1 | depth_group == 3, 2, depth_group))) %>% 
   dplyr::filter(depth == 2 | depth == 10) %>% 
   group_by(depth, montht)
 summary(aov(tmp$temp_insitu_ctd ~ tmp$depth * tmp$montht))
@@ -2957,12 +2661,13 @@ print(p)
 
 # we look at density 0 to 4 m vs more than 8 m
 tmp <- d_all %>% 
-  dplyr::select(montht, sal_insitu_ctd, temp_insitu_ctd, depth) %>%
-  dplyr::mutate(density = seacarb::rho(S = sal_insitu_ctd, T = temp_insitu_ctd, P = 0),
-                depth = as.factor(ifelse(depth == 1 | depth == 3, 2, depth))) %>% 
+  dplyr::select(montht, sal_insitu_ctd, temp_insitu_ctd, depth_group, pressure_insitu_ctd) %>%
+  dplyr::mutate(density = seacarb::rho(S = sal_insitu_ctd, T = temp_insitu_ctd, P = pressure_insitu_ctd),
+                depth = as.factor(ifelse(depth_group == 1 | depth_group == 3, 2, depth_group))) %>% 
   dplyr::filter(depth == 2 | depth == 10) %>% 
   dplyr::select(montht, depth, density) %>% 
   group_by(depth, montht) 
+summary(tmp)
 summary(aov(tmp$density ~ tmp$depth * tmp$montht))
 
 tmp_delta <- tmp %>% 
@@ -3214,7 +2919,7 @@ ts_pCO2 <- d_all %>%
   geom_point(aes(x = datetime, y = pco2_fb), 
              colour="blue", alpha=alpha, na.rm=TRUE, size=size_point) + 
   geom_point(aes(x = datetime, y = pco2_calc_fb), colour="red", alpha=alpha, na.rm=TRUE, size=size_point*3) + 
-  labs(title="Mesured (blue) and calculated (CT+AT; red) pCO2",x="", y="pCO2 (uatm)") +
+  labs(title="Measured (blue) and calculated (CT+AT; red) pCO2",x="", y="pCO2 (uatm)") +
   Mytheme(size_labs = size_labs)
 
 # SEAFET pH
