@@ -186,7 +186,7 @@ d_hour <- dplyr::left_join(d_hour, svl_remos_depth, by = 'datetime') %>%
 d_all <- as_tibble(d_hour) #d_all will be the merger
 d_all <- d_all %>%
   dplyr::mutate_all(function(x) ifelse(is.nan(x), NA, x)) %>% # replace all NaN by NA
-  dplyr::mutate(depth_group = ifelse( # create new variable depth
+  dplyr::mutate(depth_group_pressure = ifelse( # create new variable depth
       pressure_insitu_ctd <= 2,
       1,
       ifelse(
@@ -197,6 +197,23 @@ d_all <- d_all %>%
           5,
           ifelse(
             pressure_insitu_ctd > 6 & depth <= 8,
+            7,
+            ifelse(pressure_insitu_ctd > 8, 10, NA)
+          )
+        )
+      )
+    ),
+    depth_group_philipp = ifelse( # create new variable depth
+      depth <= 2,
+      1,
+      ifelse(
+        depth > 2 & depth <= 4,
+        3,
+        ifelse(
+          depth > 4 & depth <= 6,
+          5,
+          ifelse(
+            depth > 6 & depth <= 8,
             7,
             ifelse(depth > 8, 10, NA)
           )
@@ -2588,6 +2605,13 @@ Here we compare pH measured spectrophotometrically with pH calculated from AT an
 
 ## Stratification
 ```{r stratification, echo=FALSE, message= FALSE, warning=FALSE}
+# we look at the distribution of data
+tmp <- d_hour %>% 
+  dplyr::select(date, depth, pressure_insitu_ctd) %>% 
+  dplyr::mutate(month=month(d_hour$date, label = TRUE)) %>% 
+  group_by(month)
+
+
 depth_labels <- c("0-2", "2-4", "4-6", "6-8", "8-12")
 # we look at salinity all depths
 tmp <- d_all %>% 
