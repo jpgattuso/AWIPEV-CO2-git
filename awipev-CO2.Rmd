@@ -186,7 +186,7 @@ d_hour <- dplyr::left_join(d_hour, svl_remos_depth, by = 'datetime') %>%
 d_all <- as_tibble(d_hour) #d_all will be the merger
 d_all <- d_all %>%
   dplyr::mutate_all(function(x) ifelse(is.nan(x), NA, x)) %>% # replace all NaN by NA
-  dplyr::mutate(depth_group = ifelse( # create new variable depth
+  dplyr::mutate(depth_group_pressure = ifelse( # create new variable depth
       pressure_insitu_ctd <= 2,
       1,
       ifelse(
@@ -197,6 +197,23 @@ d_all <- d_all %>%
           5,
           ifelse(
             pressure_insitu_ctd > 6 & depth <= 8,
+            7,
+            ifelse(pressure_insitu_ctd > 8, 10, NA)
+          )
+        )
+      )
+    ),
+    depth_group_philipp = ifelse( # create new variable depth
+      depth <= 2,
+      1,
+      ifelse(
+        depth > 2 & depth <= 4,
+        3,
+        ifelse(
+          depth > 4 & depth <= 6,
+          5,
+          ifelse(
+            depth > 6 & depth <= 8,
             7,
             ifelse(depth > 8, 10, NA)
           )
@@ -2588,6 +2605,13 @@ Here we compare pH measured spectrophotometrically with pH calculated from AT an
 
 ## Stratification
 ```{r stratification, echo=FALSE, message= FALSE, warning=FALSE}
+# we look at the distribution of data
+tmp <- d_all %>% 
+  dplyr::select(date, depth, pressure_insitu_ctd) %>% 
+  dplyr::mutate(month=month(d_all$date, label = TRUE)) %>% 
+  group_by(month)
+
+
 depth_labels <- c("0-2", "2-4", "4-6", "6-8", "8-12")
 # we look at salinity all depths
 tmp <- d_all %>% 
@@ -2708,16 +2732,13 @@ seaFET pH is significantly different at the surface and depth. It should therefo
 
 Let's look first at the stratification (salinity, temperature and density).
 
-
-
-
 ```{r atmospheric CO2 Zeppelin, echo=FALSE, message= FALSE, warning=FALSE}
 ## Atmospheric CO2 Zeppelin
 # downloaded 2020-08-19 from https://gaw.kishou.go.jp/search/file/0054-6001-1001-01-01-9999
 # value:units : ppm
 # value:long_name : measured_mole_fraction_of_trace_gas_in_dry_air
-atm_co2 <-
-  read_delim(file = paste0(path, "atmospheric_co2_zeppelin/co2_zep_surface-insitu_54_9999-9999_hourly.txt"),
+atm_co2_old <-
+  read_delim(file = paste0(path, "atmospheric_co2_zeppelin_old/co2_zep_surface-insitu_54_9999-9999_hourly.txt"),
   delim = " ",
   comment = "#",
   #skip = 182,
@@ -2727,7 +2748,30 @@ atm_co2 <-
   dplyr::mutate(pco2_air = value,
   datetime = as_datetime(paste(paste(year, month, day, sep="-"), paste(hour, minute, second, sep="-"), sep = " "))) %>%
   dplyr::select(datetime, pco2_air)
-d_all <- dplyr::left_join(d_all, atm_co2, by = "datetime")
+
+# downloaded 2021-04-14
+# http://ebas.nilu.no/Pages/DataSetList.aspx?key=3673A72690B343B1AEC0F1673FE8C09D
+file_names <- c("atmospheric_co2_zeppelin/NO0042G.20160101000000.20180420115103.online_crds.carbon_dioxide.air.1y.1h.NO01L_picarro2_G2401.NO01L_picarro.lev2.nas", "atmospheric_co2_zeppelin/NO0042G.20170101000000.20180413180000.online_crds.carbon_dioxide.air.7mo.1h.NO01L_picarro2_G2401.NO01L_picarro.lev2.nas", 
+"atmospheric_co2_zeppelin/NO0042G.20180101000000.20210413133953.online_crds.carbon_dioxide.air.1y.1h.NO01L_picarro2_G2401.NO01L_picarro.lev2.nas", "atmospheric_co2_zeppelin/NO0042G.20190101000000.20210413133953.online_crds.carbon_dioxide.air.1y.1h.NO01L_picarro2_G2401.NO01L_picarro.lev2.nas", "atmospheric_co2_zeppelin/NO0042G.20200101000000.20210413000000.online_crds.carbon_dioxide.air.1y.1h.NO01L_picarro2_G2401.NO01L_picarro.lev2.nas")
+atm_co2 <- NULL
+year_co2 <- ymd_hm(paste0(c(2016:2020), "-01-01 00:00"))
+for (i in 1:5) {
+print(i)
+tmp <-
+  read_table2(file = paste0(path, file_names[i]),
+  comment = "#",
+  #skip = 182,
+  col_names = FALSE,
+  na = c("9999.999", "99.999", "9999.990", "9999.99"),
+  ) %>%
+  dplyr::mutate(pco2_air = X3,
+  datetime = year_co2[i] + X1*24*3600) %>% 
+  dplyr::select(datetime, pco2_air)
+  tmp$datetime <- lubridate::round_date(tmp$datetime, unit="1 minutes")
+atm_co2 <- bind_rows(atm_co2, tmp)
+  }
+
+#d_all <- dplyr::left_join(d_all, atm_co2, by = "datetime")
 p_atm_co2 <- ggplot(data=atm_co2) +
   geom_point(aes(x = datetime, y = pco2_air), col = "blue", size = 0.15, na.rm = TRUE) +
   labs(title = "Atmospheric CO2 at Zeppelin", x = "Time", y = "CO2 (ppm)") +
