@@ -2606,21 +2606,10 @@ Here we compare pH measured spectrophotometrically with pH calculated from AT an
 ## Stratification
 ```{r stratification, echo=FALSE, message= FALSE, warning=FALSE}
 # we look at the distribution of data
-<<<<<<< HEAD
-tmp <- d_all %>% 
-  dplyr::select(date, depth, pressure_insitu_ctd) %>% 
-  dplyr::mutate(month=month(d_all$date, label = TRUE)) %>% 
-  group_by(month)
-
-# We add a variable depth_group in d_all in order to be able to choose depth_group_pressure or depth_group_p
-=======
 tmp <- d_hour %>% 
   dplyr::select(date, depth, pressure_insitu_ctd) %>% 
   dplyr::mutate(month=month(d_hour$date, label = TRUE)) %>% 
   group_by(month)
-
-
->>>>>>> 71d7bd9efe3e64b3cb3e7fa0231c13e0175b4aec
 depth_labels <- c("0-2", "2-4", "4-6", "6-8", "8-12")
 # we look at salinity all depths
 tmp <- d_all %>% 
