@@ -2611,10 +2611,11 @@ tmp <- d_all %>%
   dplyr::mutate(month=month(d_all$date, label = TRUE)) %>% 
   group_by(month)
 
-
+# We add a variable depth_group in d_all in order to be able to choose depth_group_pressure or depth_group_p
 depth_labels <- c("0-2", "2-4", "4-6", "6-8", "8-12")
 # we look at salinity all depths
 tmp <- d_all %>% 
+  dplyr::mutate(depth_group = depth_group_pressure) %>% 
   dplyr::select(montht, sal_insitu_ctd, depth_group) %>%
   group_by(depth_group, montht)
 p <- tmp %>% 
