@@ -157,6 +157,7 @@ d_hour <-
     path,
     "fb_awipev-co2_server/ny-alesund/data/NRT_data/nydata_hour.rds"
   ))
+
 d_hour <- d_hour %>%
   dplyr::filter(datetime <= as.POSIXct("2021-01-10")) %>% #cutoff date
   dplyr::select(-pco2_inst) %>% # this is the serial number of pCO2 sensor, not needed
@@ -183,6 +184,21 @@ d_hour <- dplyr::left_join(d_hour, svl_remos_depth, by = 'datetime') %>%
 # check_plot <- d_hour %>% 
 #   ggplot() + geom_point(aes(x=datetime, y=depth, col='blue', alpha = 0.7)) +
 #   geom_point(aes(x=datetime, y=depth, col='red', alpha = 0.3))
+
+# # read a file provided by Philipp on 2021-04-13 in the hope that it contains
+# # in situ CTD salinity data for any month of June. IT DOES NOT
+# sal_2021_04_13 <-
+#   readRDS(file = paste0(
+#     path,
+#     "fb_data/remos_2021-04-13/svl_remos_ctd_salinity_2017_2020.rds"
+#   )) %>% 
+#   dplyr::rename(sal_new = svl_ctd_salinity_mean)
+# zz <- dplyr::left_join(d_hour, sal_2021_04_13, by = 'datetime') %>%
+#   dplyr::mutate(month = month(date)) %>%
+#   dplyr::filter(depth < 4, month(date) == 6, datetime > as.POSIXct("2017-07-01 11:00:00"))
+# pp <- ggplot(zz, aes(x=datetime, y=sal_new)) +
+#     geom_point()
+
 d_all <- as_tibble(d_hour) #d_all will be the merger
 d_all <- d_all %>%
   dplyr::mutate_all(function(x) ifelse(is.nan(x), NA, x)) %>% # replace all NaN by NA
@@ -2606,9 +2622,9 @@ Here we compare pH measured spectrophotometrically with pH calculated from AT an
 ## Stratification
 ```{r stratification, echo=FALSE, message= FALSE, warning=FALSE}
 # we look at the distribution of data
-tmp <- d_hour %>% 
+tmp <- d_all %>% 
   dplyr::select(date, depth, pressure_insitu_ctd) %>% 
-  dplyr::mutate(month=month(d_hour$date, label = TRUE)) %>% 
+  dplyr::mutate(month=month(d_all$date, label = TRUE)) %>% 
   group_by(month)
 depth_labels <- c("0-2", "2-4", "4-6", "6-8", "8-12")
 # we look at salinity all depths
