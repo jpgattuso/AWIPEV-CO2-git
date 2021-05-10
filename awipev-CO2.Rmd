@@ -2797,6 +2797,15 @@ ggsave(filename = "figures/atm_co2.png", plot = p_atm_co2, width = 20, units = "
 ```{r meteo data, echo=FALSE, message= FALSE, warning=FALSE}
 #[1] "Year"               "Month"              "Day"                "Hour"              
 #[5] "Temperature[degC]"  "Pressure[hPa]"      "WindSpeed[m/s]"     "WindDirection[deg]"
+wind_2020 <-
+  readRDS(file = paste0(
+    path,
+    "meteo_awi/svl_wind10_2020_hour.rds"
+  )) %>% 
+  dplyr::rename(datetime = 'Date/Time',
+                ws = mean_speed,
+                wd = mean_direction) %>% 
+  dplyr::mutate(datetime = as.POSIXct(datetime, format = "%d-%m-%Y %H"))
 
 load(file = paste0(path, "meteo_awi/wind_nyalesund.RData")) 
 meteo <- tibble(windnyalesund) %>%
