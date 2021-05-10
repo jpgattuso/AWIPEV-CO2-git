@@ -2644,6 +2644,7 @@ summary(aov(tmp$sal_insitu_ctd ~ tmp$depth_group * tmp$montht))
 
 # we look at salinity 0 to 4 m vs more than 8 m
 tmp <- d_all %>% 
+  dplyr::mutate(depth_group = depth_group_pressure) %>% 
   dplyr::select(montht, sal_insitu_ctd, depth_group) %>%
   dplyr::mutate(depth = as.factor(ifelse(depth_group == 1 | depth_group == 3, 2, depth_group))) %>% 
   dplyr::filter(depth == 2 | depth == 10)
@@ -2665,6 +2666,7 @@ print(p)
 
 # we look at temperature all depths
 tmp <- d_all %>% 
+  dplyr::mutate(depth_group = depth_group_pressure) %>% 
   dplyr::select(montht, temp_insitu_ctd, depth_group) %>%
   group_by(depth_group, montht)
 p <- tmp %>% 
@@ -2676,6 +2678,7 @@ print(p)
 
 # we look at temperature 0 to 4 m vs more than 8 m
 tmp <- d_all %>% 
+  dplyr::mutate(depth_group = depth_group_pressure) %>% 
   dplyr::select(montht, temp_insitu_ctd, depth_group) %>%
   dplyr::mutate(depth = as.factor(ifelse(depth_group == 1 | depth_group == 3, 2, depth_group))) %>% 
   dplyr::filter(depth == 2 | depth == 10) %>% 
@@ -2700,6 +2703,7 @@ print(p)
 
 # we look at density 0 to 4 m vs more than 8 m
 tmp <- d_all %>% 
+  dplyr::mutate(depth_group = depth_group_pressure) %>% 
   dplyr::select(montht, sal_insitu_ctd, temp_insitu_ctd, depth_group, pressure_insitu_ctd) %>%
   dplyr::mutate(density = seacarb::rho(S = sal_insitu_ctd, T = temp_insitu_ctd, P = pressure_insitu_ctd),
                 depth = as.factor(ifelse(depth_group == 1 | depth_group == 3, 2, depth_group))) %>% 
@@ -2816,7 +2820,8 @@ meteo <- tibble(windnyalesund) %>%
          wd = `WindDirection[deg]`
         ) %>%
   dplyr::select(datetime, temp_air, p_air, ws, wd)
-d_all <- dplyr::left_join(d_all, meteo, by = "datetime")
+d_all <- dplyr::left_join(d_all, meteo, by = "datetime") %>% 
+  select(sort(dplyr::everything()))
 ```
 
 ```{r air-sea CO2, echo=FALSE, message= FALSE, warning=FALSE}
