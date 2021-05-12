@@ -2764,15 +2764,15 @@ atm_co2_old <-
   col_names = TRUE,
   na = "-999.999",
   ) %>%
-  dplyr::mutate(pco2_air = value,
+  dplyr::mutate(co2_air = value,
   datetime = as_datetime(paste(paste(year, month, day, sep="-"), paste(hour, minute, second, sep="-"), sep = " "))) %>%
-  dplyr::select(datetime, pco2_air)
+  dplyr::select(datetime, co2_air)
 
 # downloaded 2021-04-14
 # http://ebas.nilu.no/Pages/DataSetList.aspx?key=3673A72690B343B1AEC0F1673FE8C09D
 file_names <- c("atmospheric_co2_zeppelin/NO0042G.20160101000000.20180420115103.online_crds.carbon_dioxide.air.1y.1h.NO01L_picarro2_G2401.NO01L_picarro.lev2.nas", "atmospheric_co2_zeppelin/NO0042G.20170101000000.20180413180000.online_crds.carbon_dioxide.air.7mo.1h.NO01L_picarro2_G2401.NO01L_picarro.lev2.nas", 
 "atmospheric_co2_zeppelin/NO0042G.20180101000000.20210413133953.online_crds.carbon_dioxide.air.1y.1h.NO01L_picarro2_G2401.NO01L_picarro.lev2.nas", "atmospheric_co2_zeppelin/NO0042G.20190101000000.20210413133953.online_crds.carbon_dioxide.air.1y.1h.NO01L_picarro2_G2401.NO01L_picarro.lev2.nas", "atmospheric_co2_zeppelin/NO0042G.20200101000000.20210413000000.online_crds.carbon_dioxide.air.1y.1h.NO01L_picarro2_G2401.NO01L_picarro.lev2.nas")
-atm_co2 <- NULL
+atm_co2_new <- NULL
 year_co2 <- ymd_hm(paste0(c(2016:2020), "-01-01 00:00"))
 for (i in 1:5) {
 print(i)
@@ -2783,16 +2783,25 @@ tmp <-
   col_names = FALSE,
   na = c("9999.999", "99.999", "9999.990", "9999.99"),
   ) %>%
-  dplyr::mutate(pco2_air = X3,
+  dplyr::mutate(co2_air = X3,
   datetime = year_co2[i] + X1*24*3600) %>% 
-  dplyr::select(datetime, pco2_air)
+  dplyr::select(datetime, co2_air)
   tmp$datetime <- lubridate::round_date(tmp$datetime, unit="1 minutes")
-atm_co2 <- bind_rows(atm_co2, tmp)
+atm_co2_new <- bind_rows(atm_co2_new, tmp)
   }
+# combine the two sources of CO2 data
+# the new source has missing data in 2018, so the data from the old source
+# are used for 2018
+atm_co2 <- dplyr::left_join(atm_co2_new, atm_co2_old, by = "datetime") %>% dplyr::rename(co2_air = co2_air.x, co2_air_old = co2_air.y) %>% dplyr::mutate(co2_air = ifelse(year(atm_co2$datetime) == 2018, co2_air_old, co2_air))
+summary(atm_co2)
 
 #d_all <- dplyr::left_join(d_all, atm_co2, by = "datetime")
-p_atm_co2 <- ggplot(data=atm_co2) +
-  geom_point(aes(x = datetime, y = pco2_air), col = "blue", size = 0.15, na.rm = TRUE) +
+p_atm_co2 <- atm_co2 %>% 
+  #tidyr::pivot_longer(cols = c(pco2_air, pco2_air_old), names_to = "dataset", values_to = "pco2") %>% 
+  ggplot() +
+  geom_point(aes(x = datetime, y = co2_air), col = "blue", size = 0.15, na.rm = TRUE) +
+  #facet_grid(rows = vars(dataset)) +
+  #geom_point(aes(x = datetime, y = pco2_air_old), col = "grey", size = 0.15, na.rm = TRUE) +
   labs(title = "Atmospheric CO2 at Zeppelin", x = "Time", y = "CO2 (ppm)") +
   Mytheme(size_labs = 8)
 ggsave(filename = "figures/atm_co2.png", plot = p_atm_co2, width = 20, units = "cm")
