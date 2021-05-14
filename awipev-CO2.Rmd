@@ -2840,7 +2840,7 @@ meteo <- tibble(windnyalesund) %>%
          wd = `WindDirection[deg]`
         ) %>%
   dplyr::select(datetime, temp_air, p_air, ws, wd)
-zz <- dplyr::left_join(d_all, meteo, by = "datetime") %>% 
+d_all <- dplyr::left_join(d_all, meteo, by = "datetime") %>% 
   select(sort(current_vars()))
 ```
 
@@ -2851,7 +2851,7 @@ zz <- dplyr::left_join(d_all, meteo, by = "datetime") %>%
 
 ##TO DO: check calculations by Miller et al. (2020); use formulation of Wanninkhof 2014?
 d_all <- d_all %>%
-  dplyr::mutate(delta_pco2 = pco2_fb - pco2_air, # ppm
+  dplyr::mutate(delta_pco2 = pco2_fb - co2_air, # ppm
                 k600 = 0.266 * ws^2, #cm/hr Ho et al. (2006)
                 Sc = 2073.1 - (125.62*temp_insitu_11m) + (3.6276*temp_insitu_11m^2) - (0.043219*temp_insitu_ctd^3), #dimensionless
                 k = k600 * (Sc/600)^-0.5, #cm/h
@@ -2860,7 +2860,7 @@ d_all <- d_all %>%
                 f_air_sea = k * alp * delta_pco2 # mmol/(m2 h)
                 )
 
-p_f_air_sea <- ggplot(data=d_all) +
+p_f_air_sea <- ggplot(data = d_all) +
   geom_point(aes(x = datetime, y = f_air_sea), col = "blue", size = 0.15, na.rm = TRUE) +
   labs(title = "Air-sea CO2 flux (all data)", x = "Time", y = "CO2 (mmol/(m2 h))") +
   Mytheme(size_labs = 8)
