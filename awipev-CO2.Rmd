@@ -2759,7 +2759,7 @@ Let's look first at the stratification (salinity, temperature and density).
 # value:units : ppm
 # value:long_name : measured_mole_fraction_of_trace_gas_in_dry_air
 atm_co2_old <-
-  read_delim(file = paste0(path, "atmospheric_co2_zeppelin_old/co2_zep_surface-insitu_54_9999-9999_hourly.txt"),
+  read_delim(file = paste0(path, "atmospheric_co2_zeppelin/co2_zep_surface-insitu_54_9999-9999_hourly.txt"),
   delim = " ",
   comment = "#",
   #skip = 182,
@@ -2777,7 +2777,6 @@ file_names <- c("atmospheric_co2_zeppelin/NO0042G.20160101000000.20180420115103.
 atm_co2_new <- NULL
 year_co2 <- ymd_hm(paste0(c(2016:2020), "-01-01 00:00"))
 for (i in 1:5) {
-print(i)
 tmp <-
   read_table2(file = paste0(path, file_names[i]),
   comment = "#",
@@ -2794,29 +2793,28 @@ atm_co2_new <- bind_rows(atm_co2_new, tmp)
 # combine the two sources of CO2 data
 # the new source has missing data in 2018, so the data from the old source
 # are used for 2018
-atm_co2 <- dplyr::left_join(atm_co2_new, atm_co2_old, by = "datetime")
+atm_co2 <- dplyr::full_join(atm_co2_new, atm_co2_old, by = "datetime")
 atm_co2 <- atm_co2 %>% 
-  dplyr::rename(co2_air = co2_air.x, co2_air_old = co2_air.y) %>%
-  dplyr::mutate(co2_air = ifelse(year(atm_co2$datetime) == 2018, co2_air_old, co2_air))
-# summary(atm_co2)
-zz <- as_tsibble(atm_co2) %>% 
-  mutate(smoothed_co2_air = slide_dbl(co2_air, .f = mean,
-                                   .before = 1, .after = 1))
-ggplot(zz) +
-  aes(x = time_hour, y = smoothed_temp, color = origin)
-  
-slide_dbl(~mean(.x$datetime, .x$co2_air), .before = 3, .after = 3)
-  #slide_period_dbl(.x = atm_co2$co2_air, .f = mean, .i = atm_co2$datetime, .period = "month")
-#d_all <- dplyr::left_join(d_all, atm_co2, by = "datetime")
-p_atm_co2 <- atm_co2 %>% 
+  dplyr::rename(co2_air_new = co2_air.x, co2_air_old = co2_air.y) %>%
+  dplyr::mutate(co2_air = ifelse(year(atm_co2$datetime) == 2020, co2_air_new, co2_air_old))
+# Below was an attempt to smooth but
+# zz <- as_tsibble(atm_co2) %>% 
+#   mutate(smoothed_co2_air = slide_dbl(co2_air, .f = mean, .before = 12, .after = 12, .complete = TRUE))
+# ggplot(zz) +
+#   geom_line(aes(x = datetime, y = smoothed_co2_air))
+d_all <- dplyr::left_join(d_all, dplyr::select(atm_co2, datetime, co2_air), by = "datetime") %>% 
+  select(sort(current_vars()))
+
+
+p_atm_co2 <- d_all %>% 
   #tidyr::pivot_longer(cols = c(pco2_air, pco2_air_old), names_to = "dataset", values_to = "pco2") %>% 
   ggplot() +
-  geom_point(aes(x = datetime, y = running_mean(atm_co2$co2_air, 24)), col = "blue", size = 0.15, na.rm = TRUE) +
+  geom_point(aes(x = datetime, y = co2_air), col = "blue", size = 0.15, na.rm = TRUE) +
   #facet_grid(rows = vars(dataset)) +
   #geom_point(aes(x = datetime, y = pco2_air_old), col = "grey", size = 0.15, na.rm = TRUE) +
   labs(title = "Atmospheric CO2 at Zeppelin", x = "Time", y = "CO2 (ppm)") +
   Mytheme(size_labs = 8)
-p_atm_co2
+#p_atm_co2
 ggsave(filename = "figures/atm_co2.png", plot = p_atm_co2, width = 20, units = "cm")
 ```
 
@@ -2842,8 +2840,8 @@ meteo <- tibble(windnyalesund) %>%
          wd = `WindDirection[deg]`
         ) %>%
   dplyr::select(datetime, temp_air, p_air, ws, wd)
-d_all <- dplyr::left_join(d_all, meteo, by = "datetime") %>% 
-  select(sort(dplyr::everything()))
+zz <- dplyr::left_join(d_all, meteo, by = "datetime") %>% 
+  select(sort(current_vars()))
 ```
 
 ```{r air-sea CO2, echo=FALSE, message= FALSE, warning=FALSE}
