@@ -986,6 +986,7 @@ at_s <- ggplot(d_all_at_discrete,aes(x=sal_mix, y= at, label = monthd))+
         axis.title.x= element_text(size =7),
         plot.margin = unit(c(0.5,1,1,1), "cm"),
         plot.title = element_text(size=7, hjust=0.05,margin = margin(l = 10, b = -70)))
+ggsave(filename = "figures/at_s.png", plot = at_s, width = 25, height = 20, units = "cm")
 
 # Salinity is a predictor of AT -> using the regression defined above
 d_all$at_calc <- slope_s_at * d_all$sal_mix + intercept_s_at
