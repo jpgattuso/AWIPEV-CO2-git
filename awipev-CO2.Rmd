@@ -988,6 +988,25 @@ at_s <- ggplot(d_all_at_discrete,aes(x=sal_mix, y= at, label = monthd))+
         plot.title = element_text(size=7, hjust=0.05,margin = margin(l = 10, b = -70)))
 ggsave(filename = "figures/at_s.png", plot = at_s, width = 25, height = 20, units = "cm")
 
+# Same plot for paper
+p_at_s <- ggplot(d_all_at_discrete,aes(x=sal_mix, y= at))+
+    labs(x="Salinity", y="Discrete AT")  +
+    stat_smooth(method = "lm", col = "black") +
+    labs(title = paste("", "\nAdj R2 = ",signif(summary(fit)$adj.r.squared, 5),
+                       ";\nIntercept =",signif(fit$coef[[1]],5 ),
+                       ";\nSlope =",signif(fit$coef[[2]], 5),
+                       ";\nP =", signif(summary(fit)$coef[2,4], 5),
+                       ";\nRMSE =", signif(sqrt(mean(fit$residuals^2)), 5))) +
+  theme_bw() +
+  theme(aspect.ratio=1,
+        axis.text=element_text(size=7),
+        axis.title.y= element_text(size =7),
+        axis.title.x= element_text(size =7),
+        plot.margin = unit(c(0.5,1,1,1), "cm"),
+        plot.title = element_text(size=7, hjust=0.05,margin = margin(l = 10, b = -70)))
+ggsave(filename = "figures/p_at_s.png", plot = p_at_s, width = 25, height = 20, units = "cm")
+
+
 # Salinity is a predictor of AT -> using the regression defined above
 d_all$at_calc <- slope_s_at * d_all$sal_mix + intercept_s_at
 ```
