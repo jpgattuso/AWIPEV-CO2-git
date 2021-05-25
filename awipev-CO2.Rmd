@@ -2755,6 +2755,99 @@ Using the medians because data are missing.
 + Salinity 
 + Temperature is always colder at 0-4 m than below 8 m (0.15 to 2°C).
 
+## Deconvolution of pCO2 changes
+```{r pCO2 changes due to changes in T, S, AT and CT, include=FALSE}
+# We follow the method of Garcia-Ibanez described above.
+# construct a dataframe with monthly means for the entire series (mXX) as well as real data (without mrefix m)
+deconv_dat <- tbl_df(
+  data.frame(date=as.POSIXct(mean0m$sampling_date), mAT=means_month0m$AT[mean0m$monthd]*1e-6, mCT=means_month0m$CT[mean0m$monthd]*1e-6, mS=means_month0m$Salinity[mean0m$monthd], mT=means_month0m$Temperature[mean0m$monthd], P=mean0m$mean_P, Pt=mean0m$mean_Pt, Sit=mean0m$mean_Sit, AT=mean0m$mean_ta*1e-6, CT=mean0m$mean_dic*1e-6, S=mean0m$mean_salinity, T=mean0m$mean_temperature)
+)
+
+d <- NULL; deconv <- NULL # d is for the data to use in carb, deconv is to store the results
+deconv <- data_frame(date=as.POSIXct(mean0m$sampling_date))
+d <- filter(deconv_dat, !is.na(mAT), !is.na(mCT), !is.na(mS), !is.na(T)) # we eliminate date with NAs
+deconv_pCO2_T <- data_frame(date=d$date,
+                     deconv_pCO2_T=carb(flag=15, var1=d$mAT, var2=d$mCT, S=d$mS, T=d$T, P=d$P, Pt=d$Pt, Sit=d$Sit, k1k2 = "l", kf = "pf", pHscale = "T", b="l10")$pCO2
+)
+d <- filter(deconv_dat, !is.na(mAT), !is.na(mCT), !is.na(S), !is.na(mT)) # we eliminate date with NAs
+deconv_pCO2_S <- data_frame(date=d$date,
+                     deconv_pCO2_S=carb(flag=15, var1=d$mAT, var2=d$mCT, S=d$S, T=d$mT, P=d$P, Pt=d$Pt, 
+                                      Sit=d$Sit, k1k2 = "l", kf = "pf", pHscale = "T", b="l10")$pCO2
+                     )
+d <- filter(deconv_dat, !is.na(AT), !is.na(mCT), !is.na(mS), !is.na(mT)) # we eliminate date with NAs
+deconv_pCO2_AT <- data_frame(date=d$date,
+                     deconv_pCO2_AT=carb(flag=15, var1=d$AT, var2=d$mCT, S=d$mS, T=d$mT, P=d$P, Pt=d$Pt, Sit=d$Sit, k1k2 = "l", kf = "pf", pHscale = "T", b="l10")$pCO2
+)
+d <- filter(deconv_dat, !is.na(mAT), !is.na(CT), !is.na(mS), !is.na(mT)) # we eliminate date with NAs
+deconv_pCO2_CT <- data_frame(date=d$date,
+                     deconv_pCO2_CT=carb(flag=15, var1=d$mAT, var2=d$CT, S=d$mS, T=d$mT, P=d$P, Pt=d$Pt, Sit=d$Sit, k1k2 = "l", kf = "pf", pHscale = "T", b="l10")$pCO2
+)
+
+# Bring all results together
+deconv <- deconv %>%
+  left_join(deconv_pCO2_T) %>%
+  left_join(deconv_pCO2_S) %>%
+  left_join(deconv_pCO2_AT) %>%
+  left_join(deconv_pCO2_CT)
+
+# Regressions and tables of key parameters
+var_list <-
+  c(
+  "deconv_pCO2_T",
+  "deconv_pCO2_S",
+  "deconv_pCO2_AT",
+  "deconv_pCO2_CT"
+  )
+lms <- lapply(var_list, function(x) {
+  summary(lm(substitute(i ~ decimal_date(date), list(i = as.name(x))), data = deconv))
+  })
+reg <- NULL
+for (i in 1:length(var_list)) {
+  #one loops through all anomalies
+  # calculate probability of fstatistic because it cannot be extracted from lms above
+  # see http://stats.stackexchange.com/questions/92824/extracting-the-model-p-value-for-a-multiple-regression-in-r
+  # slope returned by lm is per second
+  prob <-
+  pf(lms[[i]]$fstatistic[1],
+  lms[[i]]$fstatistic[2],
+  lms[[i]]$fstatistic[3],
+  lower.tail = FALSE)
+  reg <-
+  rbind(reg, as.numeric(
+  c(
+    lms[[i]]$coefficients[2, 1],
+    lms[[i]]$coefficients[2, 2],
+  lms[[i]]$coefficients[2, 4],
+  lms[[i]]$coefficients[1, 1],
+  lms[[i]]$coefficients[1, 2],
+  lms[[i]]$coefficients[1, 4],
+  lms[[i]]$r.squared,
+  prob
+  )
+  ))
+}
+colnames(reg) <-
+  c("Slope",
+  "SE Slope",
+  "P Slope",
+  "Intercept",
+  "SE int.",
+  "P int.",
+  "R2",
+  "P value")
+row.names(reg) <- var_list
+reg_deconv <- reg
+
+# Plot
+#deconv_melt <- melt(deconv, id="date")
+deconv_melt <-  gather(data = deconv, key = variable, value=value, -date)
+fig_deconv_pCO2 <- ggplot(deconv_melt) + geom_point(aes(x=date, y=value, color=variable), size=0.5) +
+  facet_grid(variable ~., scales="free_y") + 
+  xlab("Time") + ylab("pCO2 (uatm")+
+  Mytheme() +
+  scale_colour_discrete(guide="none")
+ggsave(file="../figures/fig_deconv_pCO2.png", fig_deconv, width = 18, height = 20, units = "cm")
+```
 
 ## Air-sea CO2 flux
 
