@@ -1098,9 +1098,13 @@ During those steps (except zeroing) the sensor runs normally. Equilibration betw
 
 ### **Corrected Contros vs calculated *p*CO~2~ data**
 
-```{r pco2 to fco2, echo=FALSE, warning=FALSE, message=FALSE}
+```{r pco2 and fco2 at in situ temp, echo=FALSE, warning=FALSE, message=FALSE}
 d_all <- d_all %>%
   dplyr::mutate(
+    pco2_fb_insi_temp = seacarb::pCO2insi(
+      pCO2lab = pco2_fb,
+      Tlab = temp_fb,
+      SST = temp_insitu_11m),
     fco2_fb = seacarb::p2fCO2(
       pCO2 = pco2_fb,
       T = temp_fb,
@@ -1110,13 +1114,14 @@ d_all <- d_all %>%
       fCO2lab = fco2_fb,
       Tlab = temp_fb,
       SST = temp_insitu_11m)
-)
+) %>% 
+  dplyr::select(sort(current_vars()))
 
 set.caption("Difference fco2_fb - fco2_fb_insi_temp")
 pander(summary(d_all$fco2_fb - d_all$fco2_fb_insi_temp))
 ```
 
-We first calculate fCO2 from pCO2 and then express fCO2 at in situ temperature. Ideally, this should be done with SST as the goal is to estimate air-sea CO2 fluxes. I therefore use the in situ temperature at 11 m and we will need to speculate on stratification.
+We first calculate fCO2 from pCO2 and then express both pCO2 and fCO2 at in situ temperature. Ideally, this should be done with SST as the goal is to estimate air-sea CO2 fluxes. I therefore use the in situ temperature at 11 m and we will need to speculate on stratification.
 
 
 ```{r measured vs calculated pCO2, echo=FALSE, warning=FALSE, message=FALSE}
