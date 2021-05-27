@@ -2762,8 +2762,28 @@ Using the medians because data are missing.
 
 ## Deconvolution of pCO2 changes
 ```{r pCO2 changes due to changes in T, S, AT and CT, include=FALSE}
-# We follow the method of Garcia-Ibanez described above.
-# construct a dataframe with monthly means for the entire series (mXX) as well as real data (without mrefix m)
+# First we prepare data. CT is needed for deconvolution
+# we calculate it from at_calc and pCO2
+# nuts are not taken into consideration
+deconv_tmp <- d_all %>% # just for this chunk
+  dplyr::select(datetime, monthd, sal_fb, temp_fb, pco2_fb, at_calc) %>% 
+  tidyr::drop_na() %>% 
+  dplyr::mutate(ct_calc = seacarb::carb(
+    flag = 24, var1 = deconv_tmp$pco2_fb, var2 = deconv_tmp$at_calc*1e-6, S=deconv_tmp$sal_fb, T=deconv_tmp$temp_fb, 
+    Patm=1, P=1.1, Pt=0, Sit=0, 
+    k1k2="l", kf="dg", ks="d", pHscale="T", b="u74")
+    )
+deconv_monthly <-  deconv_tmp %>% 
+  dplyr::group_by(monthd) %>% 
+  dplyr::summarise(
+    sal_fb = mean(sal_fb, na.rm = TRUE),
+    temp_fb = mean(temp_fb, na.rm = TRUE),
+    pco2_fb = mean(pco2_fb, na.rm = TRUE),
+    at_calc = mean(at_calc, na.rm = TRUE),
+    ct_calc = mean(ct_calc, na.rm = TRUE)
+  ) %>% 
+  dplyr::ungroup()
+  
 deconv_dat <- tbl_df(
   data.frame(date=as.POSIXct(mean0m$sampling_date), mAT=means_month0m$AT[mean0m$monthd]*1e-6, mCT=means_month0m$CT[mean0m$monthd]*1e-6, mS=means_month0m$Salinity[mean0m$monthd], mT=means_month0m$Temperature[mean0m$monthd], P=mean0m$mean_P, Pt=mean0m$mean_Pt, Sit=mean0m$mean_Sit, AT=mean0m$mean_ta*1e-6, CT=mean0m$mean_dic*1e-6, S=mean0m$mean_salinity, T=mean0m$mean_temperature)
 )
@@ -3258,14 +3278,24 @@ gc() #garbage collection
 # First we prepare data. CT is needed for deconvolution
 # we calculate it from at_calc and pCO2
 # nuts are not taken into consideration
-deconv_dat <- d_all %>% # just for this chunk
-  dplyr::select(datetime, sal_fb, temp_fb, pco2_fb, at_calc) %>% 
+deconv_tmp <- d_all %>% # just for this chunk
+  dplyr::select(datetime, monthd, sal_fb, temp_fb, pco2_fb, at_calc) %>% 
   dplyr::mutate(ct_calc = seacarb::carb(
     flag = 24, var1 = pco2_fb, var2 = at_calc, S=sal_fb, T=25, Patm=1, P=0, Pt=0, Sit=0,
-        k1k2="x", kf="x", ks="d", pHscale="T", b="u74", gas="potential", 
+        k1k2="l", kf="dg", ks="d", pHscale="T", b="u74", gas="potential", 
         warn="y", eos="eos80", long=1.e20, lat=1.e20)
-    
-  ))
+    )
+deconv_monthly <-  d_all %>% 
+  dplyr::group_by(monthd) %>% 
+  dplyr::summarise(
+    sal_fb = mean(sal_fb, na.rm = TRUE),
+    temp_fb = mean(temp_fb, na.rm = TRUE),
+    pco2_fb = mean(pco2_fb, na.rm = TRUE),
+    at_calc = mean(at_calc, na.rm = TRUE),
+    ct_calc = mean(ct_calc, na.rm = TRUE)
+  ) %>% 
+  ungroup()
+ 
 
 # We follow the method of Garcia-Ibanez described above.
 # construct a dataframe with monthly means for the entire series (mXX) as well as real data (without prefix m)
