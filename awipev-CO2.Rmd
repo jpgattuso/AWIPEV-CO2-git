@@ -2767,11 +2767,12 @@ Using the medians because data are missing.
 # nuts are not taken into consideration
 deconv_tmp <- d_all %>% # just for this chunk
   dplyr::select(datetime, monthd, sal_fb, temp_fb, pco2_fb, at_calc) %>% 
-  tidyr::drop_na() %>% 
+  tidyr::drop_na()
+deconv_tmp <- deconv_tmp %>% 
   dplyr::mutate(ct_calc = seacarb::carb(
     flag = 24, var1 = deconv_tmp$pco2_fb, var2 = deconv_tmp$at_calc*1e-6, S=deconv_tmp$sal_fb, T=deconv_tmp$temp_fb, 
     Patm=1, P=1.1, Pt=0, Sit=0, 
-    k1k2="l", kf="dg", ks="d", pHscale="T", b="u74")
+    k1k2="l", kf="dg", ks="d", pHscale="T", b="u74")$DIC * 1e6
     )
 deconv_monthly <-  deconv_tmp %>% 
   dplyr::group_by(monthd) %>% 
@@ -2784,9 +2785,8 @@ deconv_monthly <-  deconv_tmp %>%
   ) %>% 
   dplyr::ungroup()
   
-deconv_dat <- tbl_df(
-  data.frame(date=as.POSIXct(mean0m$sampling_date), mAT=means_month0m$AT[mean0m$monthd]*1e-6, mCT=means_month0m$CT[mean0m$monthd]*1e-6, mS=means_month0m$Salinity[mean0m$monthd], mT=means_month0m$Temperature[mean0m$monthd], P=mean0m$mean_P, Pt=mean0m$mean_Pt, Sit=mean0m$mean_Sit, AT=mean0m$mean_ta*1e-6, CT=mean0m$mean_dic*1e-6, S=mean0m$mean_salinity, T=mean0m$mean_temperature)
-)
+deconv_dat <- tibble(sampling_date=deconv_tmp$sampling_date, mAT=deconv_monthly$at_calc[deconv_tmp$monthd]*1e-6, mCT=deconv_monthly$ct_calc[deconv_tmp$monthd]*1e-6, mS=deconv_monthly$sal_fb[deconv_tmp$monthd], mT=deconv_monthly$temp_fb[deconv_tmp$monthd], P=deconv_tmp$depth/10, Pt=rep("NA", length.out=nrow(deconv_tmp)), Sit=mean0m$mean_Sit, AT=mean0m$mean_ta*1e-6, CT=mean0m$mean_dic*1e-6, S=mean0m$mean_salinity, T=mean0m$mean_temperature)
+
 
 d <- NULL; deconv <- NULL # d is for the data to use in carb, deconv is to store the results
 deconv <- data_frame(date=as.POSIXct(mean0m$sampling_date))
