@@ -1113,6 +1113,19 @@ d_all <- d_all %>%
     fco2_fb_insi_temp = seacarb::fCO2insi(
       fCO2lab = fco2_fb,
       Tlab = temp_fb,
+      SST = temp_insitu_11m),
+    pco2_calc_fb_insi_temp = seacarb::pCO2insi(
+      pCO2lab = pco2_calc_fb,
+      Tlab = temp_fb,
+      SST = temp_insitu_11m),
+    fco2_calc_fb = seacarb::p2fCO2(
+      pCO2 = pco2_calc_fb,
+      T = temp_fb,
+      Patm = 1,
+      P = 0),
+    fco2_calc_fb_insi_temp = seacarb::fCO2insi(
+      fCO2lab = fco2_calc_fb,
+      Tlab = temp_fb,
       SST = temp_insitu_11m)
 ) %>% 
   dplyr::select(sort(current_vars()))
@@ -2677,8 +2690,8 @@ tmp_delta <- tmp %>%
   tidyr::pivot_wider(names_from = depth, values_from = sal_med) %>% 
   dplyr::rename(median0_4m = "2",
                 median8_12m = "10") %>% 
-  dplyr::mutate(sal_range = median0_4m - median8_12m)
-kable(tmp_delta, digits = 2, caption = "Median salinity")
+  dplyr::mutate(sal_delta = median0_4m - median8_12m)
+kable(tmp_delta, digits = 2, caption = "Median salinity with (median0_4m - median8_12m)")
 
 p <- tmp %>% 
   ggplot(aes(x=as.factor(depth), y = sal_insitu_ctd)) +
@@ -2714,8 +2727,8 @@ tmp_delta <- tmp %>%
   tidyr::pivot_wider(names_from = depth, values_from = temp_med) %>% 
   dplyr::rename(median0_4m = "2",
                 median8_12m = "10") %>% 
-  dplyr::mutate(temp_range = median0_4m - median8_12m)
-kable(tmp_delta, digits = 2, caption = "Median temperature")
+  dplyr::mutate(temp_delta = median0_4m - median8_12m)
+kable(tmp_delta, digits = 2, caption = "Median temperature with (median0_4m - median8_12m)")
 
 p <- tmp %>% 
   ggplot(aes(x=as.factor(depth), y = temp_insitu_ctd)) +
@@ -2742,8 +2755,8 @@ tmp_delta <- tmp %>%
   tidyr::pivot_wider(names_from = depth, values_from = den_med) %>% 
   dplyr::rename(median0_4m = "2",
                 median8_12m = "10") %>% 
-  dplyr::mutate(den_med = median0_4m - median8_12m)
-kable(tmp_delta, digits = 2, caption = "Median density")
+  dplyr::mutate(den_delta = median0_4m - median8_12m)
+kable(tmp_delta, digits = 2, caption = "Median density with (median0_4m - median8_12m)")
 
 
 p <- tmp %>% 
@@ -3275,123 +3288,6 @@ rm(list = ls(pattern = "ts_"), d_bp) #delete big ggplot objects and temp data
 gc() #garbage collection
 ```
 
-## Deconvolution of pCO2 changes
-```{r pCO2 changes due to changes in T, S, AT and CT, include=FALSE}
-# First we prepare data. CT is needed for deconvolution
-# we calculate it from at_calc and pCO2
-# nuts are not taken into consideration
-deconv_tmp <- d_all %>% # just for this chunk
-  dplyr::select(datetime, monthd, sal_fb, temp_fb, pco2_fb, at_calc) %>% 
-  dplyr::mutate(ct_calc = seacarb::carb(
-    flag = 24, var1 = pco2_fb, var2 = at_calc, S=sal_fb, T=25, Patm=1, P=0, Pt=0, Sit=0,
-        k1k2="l", kf="dg", ks="d", pHscale="T", b="u74", gas="potential", 
-        warn="y", eos="eos80", long=1.e20, lat=1.e20)
-    )
-deconv_monthly <-  d_all %>% 
-  dplyr::group_by(monthd) %>% 
-  dplyr::summarise(
-    sal_fb = mean(sal_fb, na.rm = TRUE),
-    temp_fb = mean(temp_fb, na.rm = TRUE),
-    pco2_fb = mean(pco2_fb, na.rm = TRUE),
-    at_calc = mean(at_calc, na.rm = TRUE),
-    ct_calc = mean(ct_calc, na.rm = TRUE)
-  ) %>% 
-  ungroup()
- 
-
-# We follow the method of Garcia-Ibanez described above.
-# construct a dataframe with monthly means for the entire series (mXX) as well as real data (without prefix m)
-# we do not consider nutrients
-
-
-
-deconv_dat <- tibble(date=as.POSIXct(mean0m$sampling_date), mAT=means_month0m$AT[mean0m$monthd]*1e-6, mCT=means_month0m$CT[mean0m$monthd]*1e-6, mS=means_month0m$Salinity[mean0m$monthd], mT=means_month0m$Temperature[mean0m$monthd], P=mean0m$mean_P, Pt=mean0m$mean_Pt, Sit=mean0m$mean_Sit, AT=mean0m$mean_ta*1e-6, CT=mean0m$mean_dic*1e-6, S=mean0m$mean_salinity, T=mean0m$mean_temperature)
-
-d <- NULL; deconv <- NULL # d is for the data to use in carb, deconv is to store the results
-deconv <- data_frame(date=as.POSIXct(mean0m$sampling_date))
-d <- filter(deconv_dat, !is.na(mAT), !is.na(mCT), !is.na(mS), !is.na(T)) # we eliminate date with NAs
-deconv_pCO2_T <- data_frame(date=d$date,
-                     deconv_pCO2_T=carb(flag=15, var1=d$mAT, var2=d$mCT, S=d$mS, T=d$T, P=d$P, Pt=d$Pt, Sit=d$Sit, k1k2 = "l", kf = "pf", pHscale = "T", b="l10")$pCO2
-)
-d <- filter(deconv_dat, !is.na(mAT), !is.na(mCT), !is.na(S), !is.na(mT)) # we eliminate date with NAs
-deconv_pCO2_S <- data_frame(date=d$date,
-                     deconv_pCO2_S=carb(flag=15, var1=d$mAT, var2=d$mCT, S=d$S, T=d$mT, P=d$P, Pt=d$Pt, 
-                                      Sit=d$Sit, k1k2 = "l", kf = "pf", pHscale = "T", b="l10")$pCO2
-                     )
-d <- filter(deconv_dat, !is.na(AT), !is.na(mCT), !is.na(mS), !is.na(mT)) # we eliminate date with NAs
-deconv_pCO2_AT <- data_frame(date=d$date,
-                     deconv_pCO2_AT=carb(flag=15, var1=d$AT, var2=d$mCT, S=d$mS, T=d$mT, P=d$P, Pt=d$Pt, Sit=d$Sit, k1k2 = "l", kf = "pf", pHscale = "T", b="l10")$pCO2
-)
-d <- filter(deconv_dat, !is.na(mAT), !is.na(CT), !is.na(mS), !is.na(mT)) # we eliminate date with NAs
-deconv_pCO2_CT <- data_frame(date=d$date,
-                     deconv_pCO2_CT=carb(flag=15, var1=d$mAT, var2=d$CT, S=d$mS, T=d$mT, P=d$P, Pt=d$Pt, Sit=d$Sit, k1k2 = "l", kf = "pf", pHscale = "T", b="l10")$pCO2
-)
-
-# Bring all results together
-deconv <- deconv %>%
-  left_join(deconv_pCO2_T) %>%
-  left_join(deconv_pCO2_S) %>%
-  left_join(deconv_pCO2_AT) %>%
-  left_join(deconv_pCO2_CT)
-
-# Regressions and tables of key parameters
-var_list <-
-  c(
-  "deconv_pCO2_T",
-  "deconv_pCO2_S",
-  "deconv_pCO2_AT",
-  "deconv_pCO2_CT"
-  )
-lms <- lapply(var_list, function(x) {
-  summary(lm(substitute(i ~ decimal_date(date), list(i = as.name(x))), data = deconv))
-  })
-reg <- NULL
-for (i in 1:length(var_list)) {
-  #one loops through all anomalies
-  # calculate probability of fstatistic because it cannot be extracted from lms above
-  # see http://stats.stackexchange.com/questions/92824/extracting-the-model-p-value-for-a-multiple-regression-in-r
-  # slope returned by lm is per second
-  prob <-
-  pf(lms[[i]]$fstatistic[1],
-  lms[[i]]$fstatistic[2],
-  lms[[i]]$fstatistic[3],
-  lower.tail = FALSE)
-  reg <-
-  rbind(reg, as.numeric(
-  c(
-    lms[[i]]$coefficients[2, 1],
-    lms[[i]]$coefficients[2, 2],
-  lms[[i]]$coefficients[2, 4],
-  lms[[i]]$coefficients[1, 1],
-  lms[[i]]$coefficients[1, 2],
-  lms[[i]]$coefficients[1, 4],
-  lms[[i]]$r.squared,
-  prob
-  )
-  ))
-}
-colnames(reg) <-
-  c("Slope",
-  "SE Slope",
-  "P Slope",
-  "Intercept",
-  "SE int.",
-  "P int.",
-  "R2",
-  "P value")
-row.names(reg) <- var_list
-reg_deconv <- reg
-
-# Plot
-#deconv_melt <- melt(deconv, id="date")
-deconv_melt <-  gather(data = deconv, key = variable, value=value, -date)
-fig_deconv_pCO2 <- ggplot(deconv_melt) + geom_point(aes(x=date, y=value, color=variable), size=0.5) +
-  facet_grid(variable ~., scales="free_y") + 
-  xlab("Time") + ylab("pCO2 (uatm")+
-  Mytheme() +
-  scale_colour_discrete(guide="none")
-ggsave(file="../figures/fig_deconv_pCO2.png", fig_deconv, width = 18, height = 20, units = "cm")
-```
 ## Maintenance
 <div style="text-align: justify"> 
 
