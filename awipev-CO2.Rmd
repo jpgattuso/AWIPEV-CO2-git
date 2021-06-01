@@ -2785,27 +2785,29 @@ deconv_monthly <-  deconv_tmp %>%
   ) %>% 
   dplyr::ungroup()
   
-deconv_dat <- tibble(sampling_date=deconv_tmp$sampling_date, mAT=deconv_monthly$at_calc[deconv_tmp$monthd]*1e-6, mCT=deconv_monthly$ct_calc[deconv_tmp$monthd]*1e-6, mS=deconv_monthly$sal_fb[deconv_tmp$monthd], mT=deconv_monthly$temp_fb[deconv_tmp$monthd], P=deconv_tmp$depth/10, Pt=rep("NA", length.out=nrow(deconv_tmp)), Sit=mean0m$mean_Sit, AT=mean0m$mean_ta*1e-6, CT=mean0m$mean_dic*1e-6, S=mean0m$mean_salinity, T=mean0m$mean_temperature)
-
+deconv_dat <- tibble(sampling_date=deconv_tmp$datetime,
+                     date=as.POSIXct(deconv_tmp$datetime),
+                     mAT=deconv_monthly$at_calc[deconv_tmp$monthd]*1e-6, mCT=deconv_monthly$ct_calc[deconv_tmp$monthd]*1e-6, mS=deconv_monthly$sal_fb[deconv_tmp$monthd], mT=deconv_monthly$temp_fb[deconv_tmp$monthd], P=11/10, Pt=rep(0, length.out=nrow(deconv_tmp)), Sit=rep(0, length.out=nrow(deconv_tmp)), AT=deconv_tmp$at_calc*1e-6, CT=deconv_tmp$ct_calc*1e-6, S=deconv_tmp$sal_fb, T=deconv_tmp$temp_fb)
 
 d <- NULL; deconv <- NULL # d is for the data to use in carb, deconv is to store the results
-deconv <- data_frame(date=as.POSIXct(mean0m$sampling_date))
+deconv <- tibble(date=as.POSIXct(deconv_tmp$datetime))
 d <- filter(deconv_dat, !is.na(mAT), !is.na(mCT), !is.na(mS), !is.na(T)) # we eliminate date with NAs
-deconv_pCO2_T <- data_frame(date=d$date,
-                     deconv_pCO2_T=carb(flag=15, var1=d$mAT, var2=d$mCT, S=d$mS, T=d$T, P=d$P, Pt=d$Pt, Sit=d$Sit, k1k2 = "l", kf = "pf", pHscale = "T", b="l10")$pCO2
+
+deconv_pCO2_T <- tibble(date = d$date,
+                        deconv_pCO2_T=carb(flag=15, var1=d$mAT, var2=d$mCT, S=d$mS, T=d$T, P=d$P, Pt=d$Pt, Sit=d$Sit, k1k2="l", kf="dg", ks="d", pHscale="T", b="u74")$pCO2
 )
 d <- filter(deconv_dat, !is.na(mAT), !is.na(mCT), !is.na(S), !is.na(mT)) # we eliminate date with NAs
 deconv_pCO2_S <- data_frame(date=d$date,
                      deconv_pCO2_S=carb(flag=15, var1=d$mAT, var2=d$mCT, S=d$S, T=d$mT, P=d$P, Pt=d$Pt, 
-                                      Sit=d$Sit, k1k2 = "l", kf = "pf", pHscale = "T", b="l10")$pCO2
+                                      Sit=d$Sit, k1k2="l", kf="dg", ks="d", pHscale="T", b="u74")$pCO2
                      )
 d <- filter(deconv_dat, !is.na(AT), !is.na(mCT), !is.na(mS), !is.na(mT)) # we eliminate date with NAs
 deconv_pCO2_AT <- data_frame(date=d$date,
-                     deconv_pCO2_AT=carb(flag=15, var1=d$AT, var2=d$mCT, S=d$mS, T=d$mT, P=d$P, Pt=d$Pt, Sit=d$Sit, k1k2 = "l", kf = "pf", pHscale = "T", b="l10")$pCO2
+                     deconv_pCO2_AT=carb(flag=15, var1=d$AT, var2=d$mCT, S=d$mS, T=d$mT, P=d$P, Pt=d$Pt, Sit=d$Sit, k1k2="l", kf="dg", ks="d", pHscale="T", b="u74")$pCO2
 )
 d <- filter(deconv_dat, !is.na(mAT), !is.na(CT), !is.na(mS), !is.na(mT)) # we eliminate date with NAs
 deconv_pCO2_CT <- data_frame(date=d$date,
-                     deconv_pCO2_CT=carb(flag=15, var1=d$mAT, var2=d$CT, S=d$mS, T=d$mT, P=d$P, Pt=d$Pt, Sit=d$Sit, k1k2 = "l", kf = "pf", pHscale = "T", b="l10")$pCO2
+                     deconv_pCO2_CT=carb(flag=15, var1=d$mAT, var2=d$CT, S=d$mS, T=d$mT, P=d$P, Pt=d$Pt, Sit=d$Sit, k1k2="l", kf="dg", ks="d", pHscale="T", b="u74")$pCO2
 )
 
 # Bring all results together
@@ -2871,7 +2873,7 @@ fig_deconv_pCO2 <- ggplot(deconv_melt) + geom_point(aes(x=date, y=value, color=v
   xlab("Time") + ylab("pCO2 (uatm")+
   Mytheme() +
   scale_colour_discrete(guide="none")
-ggsave(file="../figures/fig_deconv_pCO2.png", fig_deconv, width = 18, height = 20, units = "cm")
+ggsave(file="figures/fig_deconv_pCO2.png", fig_deconv_pCO2, width = 18, height = 20, units = "cm")
 ```
 
 ## Air-sea CO2 flux
@@ -3299,11 +3301,11 @@ deconv_monthly <-  d_all %>%
 
 # We follow the method of Garcia-Ibanez described above.
 # construct a dataframe with monthly means for the entire series (mXX) as well as real data (without prefix m)
+# we do not consider nutrients
 
 
 
 deconv_dat <- tibble(date=as.POSIXct(mean0m$sampling_date), mAT=means_month0m$AT[mean0m$monthd]*1e-6, mCT=means_month0m$CT[mean0m$monthd]*1e-6, mS=means_month0m$Salinity[mean0m$monthd], mT=means_month0m$Temperature[mean0m$monthd], P=mean0m$mean_P, Pt=mean0m$mean_Pt, Sit=mean0m$mean_Sit, AT=mean0m$mean_ta*1e-6, CT=mean0m$mean_dic*1e-6, S=mean0m$mean_salinity, T=mean0m$mean_temperature)
-)
 
 d <- NULL; deconv <- NULL # d is for the data to use in carb, deconv is to store the results
 deconv <- data_frame(date=as.POSIXct(mean0m$sampling_date))
