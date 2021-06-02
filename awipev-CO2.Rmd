@@ -2700,6 +2700,17 @@ p <- tmp %>%
   facet_wrap(vars(montht), scale = "free_y")
 print(p)
 
+sal_delta_plt <- tmp_delta %>% 
+  ggplot(aes(x=montht, y=sal_delta)) +
+  labs(y = "Difference in median salinity", x = "Month") +
+  geom_col(fill="blue") +
+  geom_hline(yintercept = 0) +
+  annotate("text", x = 1.5, y = 0.65, label = substitute("S"["surface"] ~ "> S"["deep"])) +
+  annotate("text", x = 1.5, y = -0.9, label = substitute("S"["surface"] ~ "< S"["deep"])) +
+  Mytheme(size_labs = 12) +
+  theme(panel.grid.major.x = element_blank(), panel.grid.major.y = element_blank(),
+        panel.grid.minor.y = element_blank())
+
 # we look at temperature all depths
 tmp <- d_all %>% 
   dplyr::mutate(depth_group = depth_group_pressure) %>% 
@@ -2737,6 +2748,17 @@ p <- tmp %>%
   facet_wrap(vars(montht), scale = "free_y")
 print(p)
 
+temp_delta_plt <- tmp_delta %>% 
+  ggplot(aes(x=montht, y=temp_delta)) +
+  labs(y = "Difference in median temperature", x = "Month") +
+  geom_col(fill="blue") +
+  geom_hline(yintercept = 0) +
+  annotate("text", x = 1.5, y = 2.5, label = substitute("T"["surface"] ~ "> T"["deep"])) +
+  annotate("text", x = 1.5, y = -2.5, label = substitute("T"["surface"] ~ "< T"["deep"])) +
+  Mytheme(size_labs = 12) +
+  theme(panel.grid.major.x = element_blank(), panel.grid.major.y = element_blank(),
+        panel.grid.minor.y = element_blank())
+
 # we look at density 0 to 4 m vs more than 8 m
 tmp <- d_all %>% 
   dplyr::mutate(depth_group = depth_group_pressure) %>% 
@@ -2758,7 +2780,6 @@ tmp_delta <- tmp %>%
   dplyr::mutate(den_delta = median0_4m - median8_12m)
 kable(tmp_delta, digits = 2, caption = "Median density with (median0_4m - median8_12m)")
 
-
 p <- tmp %>% 
   ggplot(aes(x=as.factor(depth), y = density)) +
   geom_boxplot(notch=FALSE, size=0.2, fill="grey50", outlier.color = "blue", outlier.size = 0.3) +
@@ -2766,6 +2787,20 @@ p <- tmp %>%
   scale_x_discrete(labels = c("0-4", "8-12")) +
   facet_wrap(vars(montht), scale = "free_y")
 print(p)
+
+den_delta_plt <- tmp_delta %>% 
+  ggplot(aes(x=montht, y=den_delta)) +
+  labs(y = "Difference in median density", x = "Month") +
+  geom_col(fill="blue") +
+  geom_hline(yintercept = 0) +
+  annotate("text", x = 1.5, y = 0.1, label = substitute("D"["surface"] ~ "> D"["deep"])) +
+  annotate("text", x = 1.5, y = -1.2, label = substitute("D"["surface"] ~ "< D"["deep"])) +
+  Mytheme(size_labs = 12) +
+  theme(panel.grid.major.x = element_blank(), panel.grid.major.y = element_blank(),
+        panel.grid.minor.y = element_blank())
+
+deltas <- sal_delta_plt / temp_delta_plt / den_delta_plt
+ggsave(filename = "figures/deltas.png", plot = deltas, width = 15, height = 20, units = "cm")
 ```
 
 Using the medians because data are missing.
