@@ -2702,7 +2702,7 @@ print(p)
 
 sal_delta_plt <- tmp_delta %>% 
   ggplot(aes(x=montht, y=sal_delta)) +
-  labs(y = "Difference in median salinity", x = "Month") +
+  labs(y = "Difference in median salinity", x = "") +
   geom_col(fill="blue") +
   geom_hline(yintercept = 0) +
   annotate("text", x = 1.5, y = 0.65, label = substitute("S"["surface"] ~ "> S"["deep"])) +
@@ -2750,7 +2750,7 @@ print(p)
 
 temp_delta_plt <- tmp_delta %>% 
   ggplot(aes(x=montht, y=temp_delta)) +
-  labs(y = "Difference in median temperature", x = "Month") +
+  labs(y = "Difference in median temperature", x = "") +
   geom_col(fill="blue") +
   geom_hline(yintercept = 0) +
   annotate("text", x = 1.5, y = 2.5, label = substitute("T"["surface"] ~ "> T"["deep"])) +
@@ -2790,11 +2790,47 @@ print(p)
 
 den_delta_plt <- tmp_delta %>% 
   ggplot(aes(x=montht, y=den_delta)) +
-  labs(y = "Difference in median density", x = "Month") +
+  labs(y = "Difference in median density", x = "") +
   geom_col(fill="blue") +
   geom_hline(yintercept = 0) +
   annotate("text", x = 1.5, y = 0.1, label = substitute("D"["surface"] ~ "> D"["deep"])) +
   annotate("text", x = 1.5, y = -1.2, label = substitute("D"["surface"] ~ "< D"["deep"])) +
+  Mytheme(size_labs = 12) +
+  theme(panel.grid.major.x = element_blank(), panel.grid.major.y = element_blank(),
+        panel.grid.minor.y = element_blank())
+
+# we look at pHint_tot_sf 0 to 4 m vs more than 8 m
+tmp <- d_all %>% 
+  dplyr::mutate(depth_group = depth_group_pressure) %>% 
+  dplyr::select(montht, pHint_tot_sf, depth_group) %>%
+  dplyr::mutate(depth = as.factor(ifelse(depth_group == 1 | depth_group == 3, 2, depth_group))) %>% 
+  dplyr::filter(depth == 2 | depth == 10) %>% 
+  group_by(depth, montht)
+summary(aov(tmp$pHint_tot_sf ~ tmp$depth * tmp$montht))
+
+tmp_delta <- tmp %>% 
+  group_by(depth, montht) %>% 
+  dplyr::summarise(pH_tot_sf_med = median(pHint_tot_sf, na.rm = TRUE)) %>% 
+  tidyr::pivot_wider(names_from = depth, values_from = pH_tot_sf_med) %>% 
+  dplyr::rename(median0_4m = "2",
+                median8_12m = "10") %>% 
+  dplyr::mutate(pH_tot_sf_med_delta = median0_4m - median8_12m)
+kable(tmp_delta, digits = 3, caption = "Median seafet pH with (median0_4m - median8_12m)")
+
+p <- tmp %>% 
+  ggplot(aes(x=as.factor(depth), y = pHint_tot_sf)) +
+  geom_boxplot(notch=FALSE, size=0.2, fill="grey50", outlier.color = "blue", outlier.size = 0.3) +
+  labs(title = "pH vs depth", x = "Depth (m)", y= "pHint_tot_sf") +
+  facet_wrap(vars(montht), scale = "free_y")
+print(p)
+
+pH_delta_plt <- tmp_delta %>% 
+  ggplot(aes(x=montht, y=pH_tot_sf_med_delta)) +
+  labs(y = "Difference in median pH at in situ temperature", x = "Month") +
+  geom_col(fill="blue") +
+  geom_hline(yintercept = 0) +
+  annotate("text", x = 1.5, y = 0.1, label = substitute("pH"["surface"] ~ "> pH"["deep"])) +
+  annotate("text", x = 1.5, y = -0.1, label = substitute("pH"["surface"] ~ "< pH"["deep"])) +
   Mytheme(size_labs = 12) +
   theme(panel.grid.major.x = element_blank(), panel.grid.major.y = element_blank(),
         panel.grid.minor.y = element_blank())
