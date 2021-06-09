@@ -2702,7 +2702,8 @@ print(p)
 
 sal_delta_plt <- tmp_delta %>% 
   ggplot(aes(x=montht, y=sal_delta)) +
-  labs(y = "Difference in median salinity", x = "") +
+  scale_x_discrete(expand = c(0, 0)) +
+  scale_y_continuous("Salinity", limits = c(-1.1, 0.8), expand = c(0, 0)) +
   geom_col(fill="blue") +
   geom_hline(yintercept = 0) +
   annotate("text", x = 1.5, y = 0.65, label = substitute("S"["surface"] ~ "> S"["deep"])) +
@@ -2750,7 +2751,8 @@ print(p)
 
 temp_delta_plt <- tmp_delta %>% 
   ggplot(aes(x=montht, y=temp_delta)) +
-  labs(y = "Difference in median temperature", x = "") +
+  scale_x_discrete(expand = c(0, 0)) +
+  scale_y_continuous("Temperature", limits = c(-3, 3), expand = c(0, 0)) +
   geom_col(fill="blue") +
   geom_hline(yintercept = 0) +
   annotate("text", x = 1.5, y = 2.5, label = substitute("T"["surface"] ~ "> T"["deep"])) +
@@ -2790,7 +2792,8 @@ print(p)
 
 den_delta_plt <- tmp_delta %>% 
   ggplot(aes(x=montht, y=den_delta)) +
-  labs(y = "Difference in median density", x = "") +
+  scale_x_discrete(expand = c(0, 0)) +
+  scale_y_continuous("Density", limits = c(-1.5, 0.5), expand = c(0, 0)) +
   geom_col(fill="blue") +
   geom_hline(yintercept = 0) +
   annotate("text", x = 1.5, y = 0.1, label = substitute("D"["surface"] ~ "> D"["deep"])) +
@@ -2826,16 +2829,19 @@ print(p)
 
 pH_delta_plt <- tmp_delta %>% 
   ggplot(aes(x=montht, y=pH_tot_sf_med_delta)) +
-  labs(y = "Difference in median pH at in situ temperature", x = "Month") +
+  #labs(y = substitute("pH"["T"] ~ "at in situ temp."), x = "Month") +
+  scale_x_discrete("Month", expand = c(0, 0)) +
+  scale_y_continuous(substitute("pH"["T"] ~ "at in situ temp."), limits = c(-0.2, 0.1), expand = c(0, 0)) +
   geom_col(fill="blue") +
   geom_hline(yintercept = 0) +
-  annotate("text", x = 1.5, y = 0.1, label = substitute("pH"["surface"] ~ "> pH"["deep"])) +
-  annotate("text", x = 1.5, y = -0.1, label = substitute("pH"["surface"] ~ "< pH"["deep"])) +
+  annotate("text", x = 1.5, y = 0.8, label = substitute("pH"["surface"] ~ "> pH"["deep"])) +
+  annotate("text", x = 1.5, y = -0.15, label = substitute("pH"["surface"] ~ "< pH"["deep"])) +
   Mytheme(size_labs = 12) +
   theme(panel.grid.major.x = element_blank(), panel.grid.major.y = element_blank(),
         panel.grid.minor.y = element_blank())
 
-deltas <- sal_delta_plt / temp_delta_plt / den_delta_plt
+deltas <- sal_delta_plt / temp_delta_plt / den_delta_plt / pH_delta_plt
+deltas <- deltas + plot_annotation(tag_levels = 'a')
 ggsave(filename = "figures/deltas.png", plot = deltas, width = 15, height = 20, units = "cm")
 ```
 
