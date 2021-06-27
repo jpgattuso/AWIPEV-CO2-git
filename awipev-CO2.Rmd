@@ -9,7 +9,6 @@ output:
   odt_document: default
 ---
 ![ ](Images/AWIPEV-Logo.jpg){width=250px}
-#test
 
 ```{r set-up, echo=FALSE, warning=FALSE, message=FALSE, include=FALSE}
 Sys.setlocale("LC_ALL", "en_US.UTF-8")
@@ -2850,6 +2849,21 @@ Using the medians because data are missing.
 + Salinity 
 + Temperature is always colder at 0-4 m than below 8 m (0.15 to 2°C).
 
+## Takahashi thermal vs biological
+```{r Takahashi thermal vs biological, include=FALSE}
+# Select data
+taka <- d_all %>% # just for this chunk
+  dplyr::select(datetime, monthd, sal_fb, temp_insitu_11m, pco2_fb_insi_temp) 
+
+# In order to remove the temperature effect from the observed pCO2 , the observed pCO2 values are normalized to a constant temperature (annual mean) -- Takahashi et al. (2002)
+temp_mean <- mean(taka$temp_insitu_11m, na.rm = TRUE)
+taka <- taka %>% 
+  dplyr::mutate(pco2_mean_temp = pco2_fb_insi_temp * exp(0.0423 * (temp_mean - temp_insitu_11m)))
+d_pco2_bio <- max(taka$pco2_mean_temp, na.rm = TRUE) - min(taka$pco2_mean_temp, na.rm = TRUE)
+d_pco2_temp <- max(taka$pco2_fb_insi_temp, na.rm = TRUE) - min(taka$pco2_fb_insi_temp, na.rm = TRUE)
+temp_bio <- d_pco2_temp / d_pco2_bio
+```
+
 ## Deconvolution of pCO2 changes
 ```{r pCO2 changes due to changes in T, S, AT and CT, include=FALSE}
 # First we prepare data. CT is needed for deconvolution
@@ -2986,7 +3000,7 @@ Let's look first at the stratification (salinity, temperature and density).
 # value:units : ppm
 # value:long_name : measured_mole_fraction_of_trace_gas_in_dry_air
 atm_co2_old <-
-  read_delim(file = paste0(path, "atmospheric_co2_zeppelin/co2_zep_surface-insitu_54_9999-9999_hourly.txt"),
+  read_delim(file = paste0(path, "atmospheric_co2_zeppelin_old/co2_zep_surface-insitu_54_9999-9999_hourly.txt"),
   delim = " ",
   comment = "#",
   #skip = 182,
