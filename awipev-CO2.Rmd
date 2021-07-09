@@ -3,12 +3,12 @@ title: "Carbonate chemistry at Ny-Ålesund"
 author: "Jean-Pierre Gattuso and Samir Alliouane"
 date: '`r format(Sys.Date(), "%d %B %Y")`'
 output:
-  rmarkdown::html_document:
-    theme: paper
-    number_sections: false
+  html_document: default
+  word_document: default
+  pdf_document: default
+  odt_document: default
 ---
 ![ ](Images/AWIPEV-Logo.jpg){width=250px}
-
 
 ```{r set-up, echo=FALSE, warning=FALSE, message=FALSE, include=FALSE}
 Sys.setlocale("LC_ALL", "en_US.UTF-8")
@@ -16,18 +16,12 @@ Sys.setenv(TZ='UTC') # on utilise UTC
 rm(list = ls())
 if (!require("tidyverse")) install.packages("tidyverse")
 library(tidyverse)
-if (!require("robfilter")) install.packages("robfilter")
-library("robfilter")
 if (!require("seacarb")) install.packages("seacarb")
 library("seacarb")
 if (!require("gridExtra")) install.packages("gridExtra")
 library("gridExtra")
-if (!require("reshape2")) install.packages("reshape2")
-library("reshape2")
 if (!require("lubridate")) install.packages("lubridate")
 library("lubridate")
-if (!require("lmtest")) install.packages("lmtest")
-library("lmtest")
 if (!require("grid")) install.packages("grid")
 library(grid)
 if (!require("viridis")) install.packages("viridis")
@@ -42,18 +36,8 @@ if (!require("captioner")) install.packages("captioner")
 library("captioner")
 if (!require("xts")) install.packages("xts")
 library("xts")
-if (!require("seismicRoll")) install.packages("seismicRoll")
-library("seismicRoll")
 if (!require("scales")) install.packages("scales")
 library("scales")
-if (!require("cowplot")) install.packages("cowplot")
-library(cowplot)
-if (!require("htmlwidgets")) install.packages("htmlwidgets")
-library("htmlwidgets")
-if (!require("hms")) install.packages("hms")
-library("hms")
-if (!require("ragg")) install.packages("ragg")
-library("ragg")
 if (!require("skimr")) install.packages("skimr")
 library("skimr")
 if (!require("FNN")) install.packages("FNN")
@@ -62,6 +46,12 @@ if (!require("patchwork")) install.packages("patchwork")
 library("patchwork")
 if (!require("pander")) install.packages("pander")
 library("pander")
+if (!require("tsibble")) install.packages("tsibble")
+library("tsibble")
+if (!require("slider")) install.packages("slider")
+library("slider")
+if (!require("kableExtra")) install.packages("kableExtra")
+library("kableExtra")
 
 knitr::opts_chunk$set(echo = TRUE)
 
@@ -77,9 +67,15 @@ which.closest <- function(x, table, ...) {
   round(approx(x=table, y=1:length(table), xout=x, ...)$y)
 }
 
+######## function to calculate min, max 3 quantiles
+qq <- function (data, digits) { 
+  as.numeric(formatC(quantile(x = data, probs = c(0, 0.025, 0.50, 0.975, 1), na.rm = TRUE),
+                     format = "f", digits = digits))
+}
+
 #################### Regression function
 # function regression plot with equation (MA or OLS) in title
-ggreg <- function (xdata, ydata, type = "OLS", plot = TRUE, title = "title") { # x and y are the names of the variables
+ggreg <- function (xdata, ydata, type = "OLS", plot = TRUE, title = "title", subtitle = "subtitle", xlab = "x", ylab = "y") { # x and y are the names of the variables
   fit_data <- tibble(xdata, ydata)
   colnames(fit_data) = c("xdata", "ydata")
   fit <- print(lmodel2::lmodel2(ydata ~ xdata))
@@ -97,11 +93,14 @@ if (plot == TRUE) {
                      "\n R2 = ", round(fit$rsquare, digits = 2),
                      "; Intercept =", signif(intercept, 3),
                      "; Slope =", signif(slope, 3),
-                     "; P =", signif(fit$P.param, 3)))
+                     "; P =", signif(fit$P.param, 3)),
+       subtitle = subtitle,
+       x = xlab,
+       y = ylab)
   return(plt)
-  } else {
-  return(fit)
-}
+  } #else {
+  #return(fit)
+#}
 }
 
 #################### Function RMSE for model 2 regression root mean square error
@@ -121,14 +120,14 @@ fit <- lmodel2(col_y ~ col_x, nperm = 99)
   my_list <- list(fit = print(fit), rmse = sqrt(mean(error^2, na.rm=TRUE)))
   return(my_list)
 }
-#z <- lm2(x = d_all$pco2_calc_fb, y = d_all$pco2_fb)
-#z <- lmodel2(d_all$pco2_fb ~ d_all$pco2_calc_fb)
-#z <- lm2(data = d_all, x = pco2_calc_fb, y = pco2_fb)
 
 #################### Mytheme
 Mytheme <- function(size_labs = 7, face_font="plain") {
   theme_bw() +
-  theme(axis.text.x = element_text(face=face_font, size=size_labs, color="black"),
+  theme(title = element_text(face=face_font, size=size_labs, color="black"),
+        legend.title = element_text(face=face_font, size=size_labs, color="black"),
+        legend.text = element_text(face=face_font, size=size_labs, color="black"),
+        axis.text.x = element_text(face=face_font, size=size_labs, color="black"),
         axis.title.x = element_text(face=face_font, size=size_labs),
         axis.text.y = element_text(face=face_font, color="black", size=size_labs),
         axis.title.y = element_text(face=face_font, size=size_labs),
@@ -136,7 +135,7 @@ Mytheme <- function(size_labs = 7, face_font="plain") {
         axis.ticks.y = element_line(size=0.1),
         axis.ticks.length = unit(1.1, "mm"),
         panel.grid.major = element_line(size = 0.25, color="black", linetype="dashed"),
-        aspect.ratio = 1 / 2,
+        #aspect.ratio = 1 / 2,
         plot.margin = margin(t = 0, r = 0, b = 0, l = 0, unit = "cm")
   )
 }
@@ -151,9 +150,6 @@ ggplot(fit$model, aes_string(x = names(fit$model)[2], y = names(fit$model)[1])) 
                      " P =",signif(summary(fit)$coef[2,4], 5)))
 }
 
-#################### MySkim
-# myskim <- skim_with(numeric = sfl(min = ~min(., na.rm = TRUE),
-#                                   max = ~max(., na.rm = TRUE)))
 ```
 
 ```{r read observatory data, cleanup and prepare ferrybox data, echo=FALSE, warning=FALSE, message=FALSE}
@@ -162,7 +158,10 @@ d_hour <-
     path,
     "fb_awipev-co2_server/ny-alesund/data/NRT_data/nydata_hour.rds"
   ))
+
 d_hour <- d_hour %>%
+  dplyr::filter(datetime <= as.POSIXct("2021-01-10")) %>% #cutoff date
+  dplyr::select(-pco2_inst) %>% # this is the serial number of pCO2 sensor, not needed
   dplyr::rename(
     pco2_fb = pco2_corr_filtered,
     temp_dur = temp_dur_filtered,
@@ -173,22 +172,67 @@ d_hour <- d_hour %>%
     ph_dur = ph_dur_filtered
   ) %>% 
   arrange(datetime)
-d_all <- as_tibble(d_hour) #d_all will be the merger
+# read a file provided by Philipp on 2021-04-09 which fills most gaps of pressure data
+# depth_complete replaces all other depth and pressure variables
+svl_remos_depth <- tibble(
+  readRDS(file = paste0(
+    path,
+    "fb_data/svl_remos_depth.rds"
+  )))
+d_hour <- dplyr::left_join(d_hour, svl_remos_depth, by = 'datetime') %>% 
+  dplyr::select(-adcp_fill, -ctd_fill) %>% 
+  dplyr::rename(depth = depth_complete)
+# check_plot <- d_hour %>% 
+#   ggplot() + geom_point(aes(x=datetime, y=depth, col='blue', alpha = 0.7)) +
+#   geom_point(aes(x=datetime, y=depth, col='red', alpha = 0.3))
+
+# # read a file provided by Philipp on 2021-04-13 in the hope that it contains
+# # in situ CTD salinity data for any month of June. IT DOES NOT
+# sal_2021_04_13 <-
+#   readRDS(file = paste0(
+#     path,
+#     "fb_data/remos_2021-04-13/svl_remos_ctd_salinity_2017_2020.rds"
+#   )) %>% 
+#   dplyr::rename(sal_new = svl_ctd_salinity_mean)
+# zz <- dplyr::left_join(d_hour, sal_2021_04_13, by = 'datetime') %>%
+#   dplyr::mutate(month = month(date)) %>%
+#   dplyr::filter(depth < 4, month(date) == 6, datetime > as.POSIXct("2017-07-01 11:00:00"))
+# pp <- ggplot(zz, aes(x=datetime, y=sal_new)) +
+#     geom_point()
+
+d_all <- as_tsibble(d_hour, index = datetime) #d_all will be the merger
 d_all <- d_all %>%
   dplyr::mutate_all(function(x) ifelse(is.nan(x), NA, x)) %>% # replace all NaN by NA
-  dplyr::mutate(depth = ifelse( # create new variable depth
+  dplyr::mutate(depth_group_pressure = ifelse( # create new variable depth
       pressure_insitu_ctd <= 2,
       1,
       ifelse(
-        pressure_insitu_ctd > 2 & pressure_insitu_ctd <= 4,
+        pressure_insitu_ctd > 2 & depth <= 4,
         3,
         ifelse(
-          pressure_insitu_ctd > 4 & pressure_insitu_ctd <= 6,
+          pressure_insitu_ctd > 4 & depth <= 6,
           5,
           ifelse(
-            pressure_insitu_ctd > 6 & pressure_insitu_ctd <= 8,
+            pressure_insitu_ctd > 6 & depth <= 8,
             7,
-            ifelse(pressure_insitu_ctd > 8, 9, NA)
+            ifelse(pressure_insitu_ctd > 8, 10, NA)
+          )
+        )
+      )
+    ),
+    depth_group_philipp = ifelse( # create new variable depth
+      depth <= 2,
+      1,
+      ifelse(
+        depth > 2 & depth <= 4,
+        3,
+        ifelse(
+          depth > 4 & depth <= 6,
+          5,
+          ifelse(
+            depth > 6 & depth <= 8,
+            7,
+            ifelse(depth > 8, 10, NA)
           )
         )
       )
@@ -212,6 +256,7 @@ d_all <- d_all %>%
                 monthd = lubridate::month(d_hour$datetime), # month as a number
                 montht = lubridate::month(d_hour$datetime, label = TRUE, abbr = TRUE) # abbreviated months
   )
+rm(d_hour)
 ```
 
 ```{r Sal filter, fig.width=10, fig.height=4, echo=FALSE, message= FALSE}
@@ -307,47 +352,79 @@ d$closest_datetime[abs(d$datetime - d_all$datetime[closest]) > 30*60] <- NA
 d_all$closest_datetime <- d_all$datetime
 d <- left_join(d, d_all %>%
                  dplyr::select(
-                   c(
-                     closest_datetime,
+                   c(closest_datetime,
                      sal_fb,
                      temp_fb,
                      temp_mix,
                      sal_mix,
                      temp_insitu_11m,
                      temp_insitu_ctd,
-                     pressure_insitu_ctd
+                     depth
                    )
                  ), by = "closest_datetime") %>% 
   dplyr::select(-closest_datetime)
 
-# Conversion of spec pH of in situ samples to in situ temp
+# Conversion of spec pH of in situ samples to in situ temp and 4 °C
 pH_seafet <- d %>%
   dplyr::filter(!is.na(ph_s_sf) & !is.na(temp_insitu_ctd))
 pH_seafet <- pH_seafet %>% 
-  dplyr::mutate(ph_s_sf_temp_insi = 
-                  pHinsi(pH = pH_seafet$ph_s_sf, 
+  dplyr::mutate(
+    ph_s_sf_temp_insi = pHinsi(pH = pH_seafet$ph_s_sf, 
                          ALK = pH_seafet$at_mean_interp*1e-6, Tinsi = pH_seafet$temp_insitu_ctd, 
-                         Tlab = pH_seafet$temp_s_lab, Pinsi = pH_seafet$pressure_insitu_ctd/10, 
-                         S = pH_seafet$sal_mix, Pt = 0, Sit = 0))
-
+                         Tlab = pH_seafet$temp_s_lab, Pinsi = pH_seafet$depth/10, 
+                         S = pH_seafet$sal_mix, Pt = 0, Sit = 0, k1k2 = "l", kf = "dg", ks="d", 
+                         pHscale = "T", b="u74"),
+   ph_s_sf_temp_4 = pHinsi(pH = pH_seafet$ph_s_sf, 
+                         ALK = pH_seafet$at_mean_interp*1e-6, Tinsi = 4, 
+                         Tlab = pH_seafet$temp_s_lab, Pinsi = pH_seafet$depth/10, 
+                         S = pH_seafet$sal_mix, Pt = 0, Sit = 0, k1k2 = "l", kf = "dg", ks="d", 
+                         pHscale = "T", b="u74")
+  )
 # Conversion of spec pH of FerryBox samples to FerryBox temp
 pH_durafet <- d %>%
-  dplyr::filter(!is.na(ph_s_dur) & !is.na(sal_fb) & !is.na(temp_fb))
+  tidyr::drop_na(ph_s_dur, sal_fb, temp_fb)
 pH_durafet <- pH_durafet %>% 
-  dplyr::mutate(ph_s_dur_temp_fb = pHinsi(pH = pH_durafet$ph_s_dur, ALK = pH_durafet$at_mean_interp*1e-6, Tinsi = pH_durafet$temp_fb, Tlab = pH_durafet$temp_s_lab, Pinsi = 0, S = pH_durafet$sal_fb, Pt = 0, Sit = 0))
+  dplyr::mutate(
+    ph_s_dur_temp_fb = pHinsi(pH = pH_durafet$ph_s_dur, 
+                              ALK = pH_durafet$at_mean_interp*1e-6, Tinsi = pH_durafet$temp_fb, 
+                              Tlab = pH_durafet$temp_s_lab, Pinsi = 0, S = pH_durafet$sal_fb, 
+                              Pt = 0, Sit = 0, k1k2 = "l", kf = "dg", ks="d", pHscale = "T", b="u74"),
+   ph_s_dur_temp_4_l = pHinsi(pH = pH_durafet$ph_s_dur, # lueker
+                         ALK = pH_durafet$at_mean_interp*1e-6, Tinsi = 4, 
+                         Tlab = pH_durafet$temp_s_lab, Pinsi = 0, 
+                         S = pH_durafet$sal_fb, Pt = 0, Sit = 0, k1k2 = "l", kf = "dg", ks="d", 
+                         pHscale = "T", b="u74"),
+   ph_s_dur_temp_4_s20 = pHinsi(pH = pH_durafet$ph_s_dur, # Sulpis
+                         ALK = pH_durafet$at_mean_interp*1e-6, Tinsi = 4, 
+                         Tlab = pH_durafet$temp_s_lab, Pinsi = 0, 
+                         S = pH_durafet$sal_fb, Pt = 0, Sit = 0, k1k2 = "s20", kf = "dg", ks="d", 
+                         pHscale = "T", b="u74"),       # Millero 02
+   ph_s_dur_temp_4_p18 = pHinsi(pH = pH_durafet$ph_s_dur, # Papadimitriou
+                         ALK = pH_durafet$at_mean_interp*1e-6, Tinsi = 4, 
+                         Tlab = pH_durafet$temp_s_lab, Pinsi = 0, 
+                         S = pH_durafet$sal_fb, Pt = 0, Sit = 0, k1k2 = "p18", kf = "dg", ks="d", 
+                         pHscale = "T", b="u74"),
+   ph_s_dur_temp_4_m02 = pHinsi(pH = pH_durafet$ph_s_dur,  # Millero 02
+                         ALK = pH_durafet$at_mean_interp*1e-6, Tinsi = 4, 
+                         Tlab = pH_durafet$temp_s_lab, Pinsi = 0, 
+                         S = pH_durafet$sal_fb, Pt = 0, Sit = 0, k1k2 = "m02", kf = "dg", ks="d", 
+                         pHscale = "T", b="u74")
 
+   )
 # Make mean for replicates + SD
-pH_seafet_mean <- pH_seafet%>%
-  dplyr::select(date, ph_s_sf_temp_insi)%>% 
+pH_seafet_mean <- pH_seafet %>%
+  dplyr::select(date, ph_s_sf_temp_insi, ph_s_sf_temp_4) %>% 
   dplyr::group_by(date) %>% 
   dplyr::summarise(ph_s_sf_temp_insi_mean = mean(ph_s_sf_temp_insi, na.rm = TRUE),
-                   ph_s_sf_temp_insi_sd= sd(ph_s_sf_temp_insi, na.rm = TRUE)
+                   #ph_s_sf_temp_insi_sd = sd(ph_s_sf_temp_insi, na.rm = TRUE),
+                   ph_s_sf_temp_4_mean = mean(ph_s_sf_temp_4, na.rm = TRUE)
                    )
-
-pH_durafet_mean <- pH_durafet%>%
-  dplyr::select(date, ph_s_dur_temp_fb)%>% 
+pH_durafet_mean <- pH_durafet %>%
+  dplyr::select(date, ph_s_dur_temp_fb, ph_s_dur_temp_4_l, ph_s_dur_temp_4_s20,
+                ph_s_dur_temp_4_p18, ph_s_dur_temp_4_m02) %>% 
   dplyr::group_by(date) %>% 
   dplyr::summarize(ph_s_dur_temp_fb_mean = mean(ph_s_dur_temp_fb, na.rm = TRUE),
+<<<<<<< HEAD
                    ph_s_dur_temp_fb_sd = sd(ph_s_dur_temp_fb, na.rm = TRUE))
 
 #bind all spectro measurements, vhange name of dataframe only to do the rbind.
@@ -360,6 +437,14 @@ pH_seafet_durafet <- rbind(seafetph,durafetph)
 sd_min <- min(pH_seafet_durafet$sd)
 sd_max <- max(pH_seafet_durafet$sd)
 sd_mean <- mean(pH_seafet_durafet$sd)
+=======
+                   #ph_s_dur_temp_fb_sd = sd(ph_s_dur_temp_fb, na.rm = TRUE),
+                   ph_s_dur_temp_4_l_mean = mean(ph_s_dur_temp_4_l, na.rm = TRUE),
+                   ph_s_dur_temp_4_s20_mean = mean(ph_s_dur_temp_4_s20, na.rm = TRUE),
+                   ph_s_dur_temp_4_p18_mean = mean(ph_s_dur_temp_4_p18, na.rm = TRUE),
+                   ph_s_dur_temp_4_m02_mean = mean(ph_s_dur_temp_4_m02, na.rm = TRUE)
+                   )
+>>>>>>> 0d3b58ee3abb01c904f165290b5c76bfe7270c1f
 
 #put back the right column name for the following script
 pH_durafet_mean$ph_s_dur_temp_fb <- pH_durafet_mean$ph_s_dur_temp_fb_mean
@@ -369,7 +454,7 @@ discrete <- d %>%
   dplyr::group_by(date) %>%
   dplyr::summarize(
     datetime = mean(datetime, na.rm = TRUE),
-      sal_fb = mean(sal_fb, na.rm = TRUE),
+    sal_fb = mean(sal_fb, na.rm = TRUE),
     sal_mix = mean(sal_mix, na.rm = TRUE),
     temp_fb = mean(temp_fb, na.rm = TRUE),
     at_mean_interp = mean(at_mean_interp, na.rm = TRUE),
@@ -395,11 +480,11 @@ discrete_no_na <- discrete %>%
 discrete_is_na <- discrete %>%
   dplyr::filter(is.na(sal_fb)  | is.na(temp_fb) | is.na(at) | is.na(ct))
 carb <- carb(15, discrete_no_na$at*1e-6, discrete_no_na$ct*1e-6, S = discrete_no_na$sal_fb, T = discrete_no_na$temp_fb, P = 0, Pt = 0, Sit = 0, k1k2 = "l", kf = "dg", ks = "d", pHscale = "T", b = "u74")
-discrete_no_na$phcalc_fb <- carb$pH # pH to compare with durafet pH (at Ferrybox temp and sal)
+discrete_no_na$ph_calc_fb <- carb$pH # pH to compare with durafet pH (at Ferrybox temp and sal)
 discrete_no_na$pco2_calc_fb <- carb$pCO2
 
 # create new variable in "discrete_is_na" to bind "discrete_no_na"
-discrete_is_na$phcalc_fb <- NA
+discrete_is_na$ph_calc_fb <- NA
 discrete_is_na$pco2_calc_fb <- NA
 discrete <- bind_rows(discrete_no_na, discrete_is_na) %>% 
   dplyr::arrange(date)
@@ -464,14 +549,16 @@ d_all <- full_join(d_all, discrete2merge, by="datetime")
 # pH calculated ferrybox
 discrete2merge <- discrete %>%
   #drop_na() %>%
-  dplyr::select(closest_datetime, phcalc_fb) %>%
+  dplyr::select(closest_datetime, ph_calc_fb) %>%
   dplyr::filter(!is.na(closest_datetime)) %>%
   rename(datetime=closest_datetime)
 d_all <- full_join(d_all, discrete2merge, by="datetime")
 
 # seaFET pH 
 discrete2merge <- discrete %>%
-  dplyr::select(closest_datetime, ph_s_sf_temp_insi) %>%
+  dplyr::select(closest_datetime, ph_s_sf_temp_insi_mean, ph_s_sf_temp_4_mean) %>%
+  dplyr::rename(ph_s_sf_temp_insi = ph_s_sf_temp_insi_mean,
+                ph_s_sf_temp_4 = ph_s_sf_temp_4_mean) %>%
   dplyr::filter(!is.na(closest_datetime)) %>%
   rename(datetime=closest_datetime)
 d_all <- full_join(d_all, discrete2merge, by="datetime")
@@ -483,7 +570,14 @@ d_all <- d_all %>%
 
 # durafet pH 
 discrete2merge <- discrete %>%
-  dplyr::select(closest_datetime, ph_s_dur_temp_fb) %>%
+  dplyr::select(closest_datetime, ph_s_dur_temp_fb_mean, ph_s_dur_temp_4_l_mean,
+                ph_s_dur_temp_4_s20_mean, ph_s_dur_temp_4_p18_mean, ph_s_dur_temp_4_m02_mean) %>%
+  dplyr::rename(ph_s_dur_temp_fb = ph_s_dur_temp_fb_mean,
+                ph_s_dur_temp_4 = ph_s_dur_temp_4_l_mean, # lueker by default
+                ph_s_dur_temp_4_l = ph_s_dur_temp_4_l_mean,
+                ph_s_dur_temp_4_s20 = ph_s_dur_temp_4_s20_mean,
+                ph_s_dur_temp_4_p18 = ph_s_dur_temp_4_p18_mean,
+                ph_s_dur_temp_4_m02 = ph_s_dur_temp_4_m02_mean,) %>%
   dplyr::filter(!is.na(closest_datetime)) %>%
   rename(datetime=closest_datetime)
 d_all <- full_join(d_all, discrete2merge, by="datetime")
@@ -601,7 +695,7 @@ labels <- c("Good", "Not usable", "Outside regional range", "Outliers (despike)"
 colnames(z) <- c("Flag", "pCO2", "Salinity FerryBox", "In situ salinity", 
                  "Temperature FerryBox", "In situ temperature", "Durafet pH", "seaFET pH")
 zz <- pivot_longer(z, -Flag)
-p <- ggplot(data = zz, aes(x = name, y = value, fill = Flag)) +
+p_avail <- ggplot(data = zz, aes(x = name, y = value, fill = Flag)) +
   geom_bar(position = position_stack(reverse = TRUE), stat="identity", width = 0.3) +
   #scale_y_reverse() +
   scale_fill_discrete(labels = labels) + 
@@ -609,18 +703,45 @@ p <- ggplot(data = zz, aes(x = name, y = value, fill = Flag)) +
   #geom_text(aes(label=round(value, digits = 0)), position = position_stack((hjust = 0.5)), size = 3) +
   labs(x="", y="", title = "Distribution (%) of quality flags", color = "Quality flag") +
   Mytheme(size_labs = 8) +
-  theme(plot.margin = margin(t = 0, r = 0.0, b = 0, l = 0.0, unit = "cm"))
-ggsave(filename = "figures/availability.png", plot = p, width = 20, units = "cm")
+  theme(plot.margin = margin(t = -8, r = 0.0, b = -8, l = 0.0, unit = "cm"))
+#ggsave(filename = "figures/availability.png", plot = p_avail, width = 15, height = 8, units = "cm")
 kable(z, digits = 1)
 
-# Good data per year
+# Monthly distribution of hourly data
+d2 <- d_all %>% 
+  dplyr::select(montht, pco2_fb, phINT)
+count_pco2_fb_no_NA <- sum(!is.na(d2$pco2_fb)) # total non-NA pCO2 values
+count_phINT_no_NA <-  sum(!is.na(d2$phINT)) # total non-NA pH seafet values
+# calculate the distribution of non-NA pCO2 and pH values per month
+d2_summary <- d2 %>% 
+  dplyr::group_by(montht) %>% 
+  dplyr::summarise(pco2_pc = round(100 * sum(!is.na(pco2_fb))/count_pco2_fb_no_NA, digits = 1),
+                   pH_pc = round(100 * sum(!is.na(phINT))/count_phINT_no_NA, digits = 1)
+                   )
+# plot the distribution of non-NA pCO2 and pH values per month
+d2_summary_long <- d2_summary %>% 
+  tidyr::pivot_longer(cols = c(pco2_pc, pH_pc))
+p_avail_month <- ggplot(data = d2_summary_long) +
+  geom_col(aes(x = montht, y = value, fill = name), position = "dodge", width = 0.75) +
+  scale_fill_discrete(name = "", labels = c("pCO2", "pH")) + 
+  labs(x="Month", y="Percent of total number of data", title = "") +
+  Mytheme(size_labs = 8) +
+  theme(plot.margin = margin(t = 0, r = 0, b = 0, l = 0.5, unit = "cm"))
+#ggsave(filename = "figures/monthly_availability.png", plot = p_avail_month, width = 15, height = 8, units = "cm")
 
-#rm(d_min)
+# Combine plots
+p <- (p_avail / p_avail_month)
+p <- p + plot_annotation(tag_levels = 'A')
+p
+ggsave(filename = "figures/availability.png", plot = p, width = 20, height = 15, units = "cm")
+
+# deleted uneeded data
+rm(x, d_min, list=ls(pattern="^d2"))
 ```
 
 
 ## Salinities
-Several salinity sensors are on site, 1 inside the Ferrybox (SBE45) and 5 outside (ctd183, ctd181, ctd578, ctd964/964b and ctd103) that are switched periodically. Salinity from FB is taken in consideration. If data gaps are encountered, they are filled with bottom salinty data from ctd (> 8 m). New column "sal_mix" is created and is the one used in ESSD paper.
+Several salinity sensors are on site, 1 inside the Ferrybox (SBE45) and 5 outside (ctd183, ctd181, ctd578, ctd964/964b and ctd103) that are switched periodically. Salinity from FB is taken in consideration. If data gaps are encountered, they are filled with bottom salinity data from ctd (> 8 m). New column "sal_mix" is created and is the one used in ESSD paper.
 
 + 1 SBE45 inside the Ferrybox (sal_fb)
 + 5 CTD > 8 m depth (sal_insitu_ctd)
@@ -688,6 +809,7 @@ p_sal_range <- ggplot(data = df) +
 p_sal_range
 
 kable(quantile(x = df$range, na.rm = TRUE), digits = 2, col.names = "Sal. unit", caption = "Quantiles salinity gradient between 0-2 m and > 8 m")
+rm(sal_xts)
 ```
 There are `r sum(!is.na(df$range))` days with salinity values at both 1 m (0-2 m) and 9 m (> 8 m). The salinity difference between 1 and 9 m ranges between `r min(df$range, na.rm=TRUE)` and `r max(df$range, na.rm=TRUE)` (mean: `r mean(df$range, na.rm=TRUE)`; `r median(df$range, na.rm=TRUE)`). The difference with depth is therefore significant.
 
@@ -748,6 +870,7 @@ dygraph(temp_insitu_xts, group = "awipev", main="Temperature (in situ 11 m)", yl
       dyOptions(drawGrid = TRUE, drawPoints = TRUE, pointSize = 2,useDataTimezone = TRUE) %>%
       dyLegend(show = "follow")   %>%
       dyRangeSelector(height = 30, dateWindow= NULL)
+rm(temp_fb_xts, temp_insitu_xts)
 ```
       
 ### **Temperature profiles**
@@ -774,6 +897,7 @@ df <- d_all %>%
             mean9m = mean(temp_insitu_ctd_9m, na.rm = TRUE),
             range = mean(temp_insitu_ctd_1m, na.rm = TRUE)-mean(temp_insitu_ctd_9m, na.rm = TRUE)) %>% 
   ungroup()
+rm(temp_xts)
 ```
 There are `r sum(!is.na(df$range))` days with temperature values at both 1 m (0-2 m) and 9 m (> 8 m). The temperature difference between 1 and 9 m ranges between `r min(df$range, na.rm=TRUE)`°C and `r max(df$range, na.rm=TRUE)`°C (mean: `r mean(df$range, na.rm=TRUE)`°C; `r median(df$range, na.rm=TRUE)`°C). The difference with depth is therefore significant.
 
@@ -851,268 +975,6 @@ The mean difference between temperature Ferrybox and in situ at 11 m is: `r mean
 
 Since we bought the AT analyser (February 2016), numerous problems happened due to a leak of the degassing unit in each analyser and sudden step changes. Last analyser repaired by Contros was installed back in the FB on 2018-07-31. This was the 3rd analyser on site. Even with this instrument, data collection didn't show satisfaction.
 
-<!-- We identify four periods (see plot at the end of this page with dark and ligth grey): -->
-
-<!-- - from the set-up of the instrument on **2016-02-23** to **2017-02-09** during which we try to correct for the drift -->
-<!-- - from **2017-02-09** to **2017-03-10** during which no drift correction is made, just an offset is applied to correct for the sudden shift in the data -->
-<!-- - from the set-up of a new instrument on **2018-01-08** to **2018-06-20**, during which another correction using the discrete samples will be performed. In this period and before to stop it, continuous leakages in the degasing unit happened. -->
-<!-- - from the set-up of a repaired unit on **2018-07-31** to **2018-10-31**. Here, the instrument took wrong salinity to perform AT measurements. The cause is not clear yet but Steffen sent to Samir a protocol on 2018-08-24 to correct those data with right salinity. Also, after this issue, since 2018-08-20, bad data were still measured. Steffen diagnosed a "bubble issue" in the indicator tubbings. Steps will be sent to Marine to solve this issue. After this, it was not a bubble. We decided to switch off the instrument to save reagents and wait until the comming of Steffen in NYA with a new instrument. -->
-
-<!-- A new instrument was installed with Steffen on **2018-10-31**. This new instrument has a complete new designed membrane which will solve the problem. Steffen also developped a TA web interface to communicate remotly with the analyser. Samir has all the passwords and ID to connect. -->
-
-<!-- The instrument is usually calibrated against CRM standards after deployment, CRMs are run after 3 months as samples (measurement mode, not calibration mode), an then immediately calibrated again. This procedure is repeated every 3 months. -->
-
-<!-- ### **Filtration of AT data: outliers removing** -->
-
-<!-- Outliers are present because of the cleaning operations made on the FerryBox everydays at 12:00am and 12:00pm. We first removed the outliers using a filter and decided, after a Skype conference with Steffen on September 2016, to: -->
-
-<!--   - Remove existing filters ( > 2350 µmol/kg). -->
-<!--   - Filter using salinity flag. -->
-<!--   - Filter using pH flag. -->
-<!--   - Not to filter on temperature flag. -->
-<!--   - Apply a 3 data points median filter (no longer used; see despike function in "oce" package) -->
-
-<!-- We decided to use "despike" function as data filter. This filter is done in "ny-alesund_cc.R". Length of runing median is: k = 121 days and the indicator (n times the sd between x and the reference) to consider a data from an outlier is: n = 0.5. -->
-
-<!-- ### **Correction of AT data** -->
-
-<!-- Calibration was initially performed twice a year since the analyser was supposed to be stable. Calibration was performed using the internal "calibration mode" against a CRM from A.Dickson (Batch #145, 2016-02-24) right after the instrument was installed and a second time on 2016-09-16. This approch is not longer used since September 2016 (Skype with Contros). -->
-
-<!-- Since this date, the analyser is calibrated by measuring a CRM with the "measurement mode" in order to measure the offset of the instrument. Additionally, discrete seawater are sampled weekly and TA is analysed by SNAPO-CO2. -->
-
-<!--   - Two methods to correct the drift are available: -->
-<!--     - based on CRMs  -->
-<!--     - based on AT measurement of discrete samples ("references"). -->
-
-<!-- #### **Calibration** -->
-
-<!-- - **2019-01-29 14:10**: Calibration started by Philipp Fisher using CRM 145 (2226.16 umol/kg, 33.572). The three previous measurements were 2314.5, 233.8, 2313.7 (analyser stable) and the six subsequent measurements were 2211.8, 2277.5, 2305.4, 2316.6, 2317.9. Error was done with CRM salinity (Analyser was not unplugged from the FB).  -->
-<!-- Steffen's response: -->
-<!-- > Hence, the serial connection should be cut off or the FB module feeding the analyzer with salinity data should be stopped during calibration. The calibration can be recalculated afterwards in the data post-processing. However, I see that the calibration resulted in very similar pH values 3.540 (September calibration) and 3.543 (January calibration) with very similar correction factors 1.2371 and 1.2365. Also the TA values are very similar to the baseline measurements from before at approx. 2316 µM. So for now, it should be fine.   -->
-
-
-<!-- #### **CRM measurements** -->
-
-<!-- The calibration of the sensor is made against a CRM standard from A. Dickson. We run a standard on the analyser as a regular measurement (measurement mode). Result sof calibrations are shown on the following plot.Dashed lines represent the theoritical value of AT (CRM) and hard lines represent CRM measured AT by the instrument. -->
-
-<!-- ```{r CRM measurements, echo=FALSE, warning=FALSE, message=FALSE, out.width="80%",fig.show='hold', fig.align="center"} -->
-<!-- calib_analyser <-  read.table(paste0(path, "fb_data/Calibration_TA/TA_#1215/measure_CRM_TA.txt"), header = T, dec = ".", as.is = T, sep = ",", fill = TRUE) -->
-
-<!-- # To make the mean  -->
-<!-- # Keep dates as Character to plot without date gaps. -->
-<!-- calib_analyser3 <- calib_analyser %>% -->
-<!--   dplyr::filter(analyser == "TA3")  -->
-<!-- meanTA3 <- calib_analyser3 %>%  -->
-<!--   group_by(day) %>%  -->
-<!--   summarise (meanTA = mean(TA)) -->
-
-<!-- melt_calib <- melt(calib_analyser, id.vars=c("analyser", "TA_theo", "datetime", "CRM"), measure.vars=c("TA")) -->
-<!-- calib_p <- ggplot()+  -->
-<!--           geom_point(data= melt_calib, aes(x=datetime, y=value, color=factor(CRM), shape= factor(analyser)) , size=3) + -->
-<!--           scale_color_manual(values=c("blue","red"))+ -->
-<!--          # set dashed lines for theoritical CRM -->
-<!--           geom_segment(aes(x=1,xend=20,y=2226.16,yend=2226.16), linetype="dashed", color="blue")+ -->
-<!--           annotate("text", x = 11, y = 2228, label = "Batch #145 = 2226.16", color="blue")+ -->
-<!--           geom_segment(aes(x=20,xend=23,y=2213.59,yend=2213.59), linetype="dashed", color="red")+ -->
-<!--           annotate("text", x = 15.5, y = 2213.59, label = "Batch #159 = 2213.59", color="red")+ -->
-<!--         # set hard lines for measured CRM -->
-<!--           geom_segment(aes(x=1,xend=5,y=2254,yend=2254), color="blue") + -->
-<!--           annotate("text", x = 3, y = 2249, label = "2254", color="blue")+ -->
-<!--           geom_segment(aes(x=6,xend=10,y=2251.6,yend=2251.6), color="blue") + -->
-<!--           annotate("text", x = 8, y = 2247, label = "2251.6", color="blue")+ -->
-<!--           geom_segment(aes(x=11,xend=15,y=2190.4,yend=2190.4), color="blue")+ -->
-<!--           annotate("text", x = 14, y = 2195, label = "2190.4", color="blue")+ -->
-<!--           geom_segment(aes(x=16,xend=20,y=2203.5,yend=2203.5), color="blue")+ -->
-<!--           annotate("text", x = 18, y = 2200, label = "2203.5", color="blue")+ -->
-<!--           geom_segment(aes(x=21,xend=23,y=2224.20,yend=2224.20), color="red")+ -->
-<!--           annotate("text", x = 22, y = 2230, label = "2224.2", color="red") + -->
-<!--   theme_bw() + theme(axis.text.x = element_text(angle = 45, hjust = 1))+  -->
-<!--   labs(title= "",y=expression(paste("Total alkalinity (µmoles.",kg^-1,")")), x="Date", color= "CRM",shape= "Deployed instrument") -->
-
-<!-- ggsave("figures/TA_calibration_CRM.png", calib_p, units="cm") -->
-<!-- print(calib_p) -->
-<!-- ``` -->
-
-
-<!-- #### **Discrete samples ("references")**  -->
-
-<!-- On 2018-04-19, Steffen sent his answer concerning the drift correction during the period February 2016 to March 2017. Within this one year period, the analyser was running, except the first week of May 2016. Discrete samples were collected and 3 CRMs were measured which was deemed not enough (see below). He suggested to base the correction on the AT of discrete ("reference") samples. -->
-
-<!-- > "I chose the discrete reference samples due to the fact that those cover the entire working range including time, salinity and also provide a broader data basis for this kind of correction. Also, when looking at the uncertainty below, I fear that the three CRM measurements over 5 month are not sufficient enough for such a drift determination." -->
-
-<!-- A linear regression was performed based on the difference between the measured (analyzer) and discrete samples. Discrete samples were matched with the AT measured by the analyser. If there is no measurement coincident with a discrete sample, a linear interpolation was made between the two data surrounding the discrete sample data. The differences between the measured (analyzer) and analysed ("reference") data was plotted as a function of time. -->
-
-<!-- This approach was performed: -->
-
-<!--   - on the same period than in Steffen email's (**First period**, 2016-02-23 to 2017-02-09) -->
-<!--   - and during the **third period**, with the new analyzer (2018-01-07 to 2018-06-20) -->
-
-<!-- ##### **First period**  -->
-
-<!-- ```{r First period, echo=FALSE, warning=FALSE, message=FALSE, out.width="50%",fig.show='hold', fig.align="center"} -->
-<!-- #Interpolation of continuous sensor data to match a maximum of reference data. -->
-<!-- TAinterp_all <-approx(d_all$datetime, d_all$AT, xout=d_all$datetime, method="linear", rule=2) -->
-<!-- names(TAinterp_all) <- c("datetime", "AT_interp") -->
-<!-- TAinterp_all <- as.data.frame(TAinterp_all) -->
-<!-- d_all$AT_interp <- TAinterp_all$AT_interp -->
-
-<!-- # create a column with difference between sensor and ref -->
-<!-- d_all <- d_all%>% -->
-<!--   dplyr::mutate(diff_ta =  at-AT_interp ) -->
-<!-- # create colum with instrument number -->
-<!-- d_all <- d_all %>% -->
-<!--   dplyr::mutate(TA_period= ifelse(datetime >= "2016-02-26 00:00:00" & datetime < "2017-02-09 12:00:00", "TA1", -->
-<!--                             ifelse(datetime >= "2017-02-09 12:00:00" & datetime < "2017-03-10 12:00:00", "TA2", -->
-<!--                             ifelse(datetime >= "2018-01-07 00:00:00" & datetime < "2018-06-20 00:00:00", "TA3", -->
-<!--                             ifelse(datetime >= "2018-07-31 00:00:00" & datetime < "2018-10-30 18:00:00", "TA4", -->
-<!--                             ifelse(datetime >= "2018-10-31 09:00:00" & datetime < "2019-01-16 09:00:00", "TA5", -->
-<!--                             ifelse(datetime >= "2019-01-26 13:25:00" , "TA6", "TA0"))))))) -->
-
-<!-- #remove outliers -->
-<!-- calib_ta_first <- d_all%>% -->
-<!--   dplyr::select(datetime, closest_datetime,AT, AT_interp, at,diff_ta,TA_period)%>% -->
-<!--   dplyr::filter(TA_period =="TA1" & !is.na(at)) -->
-<!--   #dplyr::filter( !is.na(at))#, diff_ta > -40 & diff_ta < 20 ) -->
-<!-- # & datetime != "2016-08-18 08:00:00" & datetime != "2016-12-29 12:00:00 ",!is.na(at)) -->
-
-<!-- # Parameters of regression -->
-<!-- fit <- lm( data=calib_ta_first%>%filter(diff_ta <= 50), diff_ta ~ datetime) -->
-<!-- at_slope_TA1 <- round(fit$coefficients[[2]] , digits=6) -->
-<!-- at_slope1 <- round(at_slope_TA1 * 3600 *24 * 365.24, digits=2) -->
-<!-- at_intercept1 <- round(fit$coefficients[[1]], digits= 2) -->
-<!-- ``` -->
-
-<!-- The slope is: `r #at_slope_TA1` x 3600 x 24 x 365.24 = `r #at_slope1` µmoles.kg-1.yr-1. Regression is: R2 = `r #round(signif(summary(fit)$adj.r.squared, 5), digits =4)`. Outliers are in red. -->
-
-
-<!-- ```{r First period plot, echo=FALSE, warning=FALSE, message=FALSE, out.width="50%",fig.show='hold', fig.align="center"} -->
-<!--  # Plot of regression -->
-<!--  p <- ggplot(calib_ta_first%>%filter(diff_ta <= 50),aes(datetime,diff_ta)) + -->
-<!--      geom_point() + geom_smooth(method='lm', se=FALSE)+ -->
-<!--      geom_point(data= calib_ta_first%>%filter(diff_ta >= 50), aes(x=datetime, y=diff_ta), color="red")  + -->
-<!--    geom_hline(yintercept = 0, linetype="dashed" )+ -->
-<!--    labs(title = paste("Adj R2 = ",signif(summary(fit)$adj.r.squared, 5), -->
-<!--                       "Intercept =",signif(fit$coef[[1]],5 ), -->
-<!--                       "Slope =",signif(fit$coef[[2]], 5), -->
-<!--                       "P =",signif(summary(fit)$coef[2,4], 5))) + -->
-<!--    ylab("Difference: Reference - Analyser") + xlab("Time") + scale_x_datetime(date_labels = "%b %Y", date_minor_breaks = "month", timezone="UTC") -->
-<!--  print(p) -->
-<!--  ggsave(paste0("figures/Diff_ref_TA_first_period.png"), p, units="cm") -->
-<!-- ``` -->
-
-<!-- ##### **Third period** -->
-
-<!-- ```{r Third period, echo=FALSE, warning=FALSE, message=FALSE, out.width="50%",fig.show='hold',fig.align="center"} -->
-
-<!--  #remove outliers and remove period without TA measurements -->
-<!--  calib_ta_third <- d_all%>% -->
-<!--    dplyr::select(datetime, closest_datetime,AT, AT_interp, at,diff_ta, TA_period)%>% -->
-<!--    dplyr::filter(TA_period == "TA3" & !is.na(at)) -->
-
-<!--  # Parameters of regression -->
-<!--  fit <- lm( data=calib_ta_third, diff_ta ~ datetime) -->
-<!--  at_slope_TA3 <- round(fit$coefficients[[2]] , digits=8) -->
-<!--  at_slope3 <- round(at_slope_TA3 * 3600 *24 * 365.24, digits=2) -->
-<!--  at_intercept3 <- round(fit$coefficients[[1]], digits= 2) # pas besoin ici. -->
-<!-- ``` -->
-
-<!-- The slope is in days: `r #at_slope_TA3` x 3600 x 24 x 365.24 = `r #at_slope3` µmoles.kg-1.an-1. Regression is: R2 = `r #round(signif(summary(fit)$adj.r.squared, 5), digits =4)`. No outliers. -->
-
-
-<!-- ```{r Third period plot, echo=FALSE, warning=FALSE, message=FALSE, out.width="50%",fig.show='hold', fig.align="center"} -->
-<!-- # # Plot of regression -->
-<!--  p <- ggplot(calib_ta_third,aes(x=datetime, y=diff_ta) )+ -->
-<!--      geom_point() + geom_smooth(method='lm', se=FALSE)+ -->
-<!--      #geom_point(data= calib_ta_third%>%filter(diff_ta < -40 & diff_ta<20), aes(x=datetime, y=diff_ta), color="red")  + -->
-<!--     geom_hline(yintercept = 0, linetype="dashed" )+ -->
-<!--    geom_vline(xintercept = as.POSIXct("2018-01-08 12:55:00", tz="UTC"), colour="red", linetype = "longdash") + -->
-<!--    #geom_text(aes(xintercept=as.POSIXct("2018-01-01 12:55:00"),label="TA "), colour="red", vjust=1.2)+ -->
-<!--    labs(title = paste("Adj R2 = ",signif(summary(fit)$adj.r.squared, 5), -->
-<!--                       "Intercept =",signif(fit$coef[[1]],5 ), -->
-<!--                       " Slope =",signif(fit$coef[[2]], 5), -->
-<!--                       " P =",signif(summary(fit)$coef[2,4], 5))) + ylab("Difference: Reference - Analyser") + xlab("Time") + -->
-<!--    scale_x_datetime( date_labels = "%b %Y", date_minor_breaks = "month", timezone="UTC") -->
-<!--  print(p) -->
-<!--  ggsave(paste0("figures/Diff_ref_TA_third_period.png"), p, units="cm") -->
-<!-- ``` -->
-
-<!-- ##### **Second period** -->
-
-<!-- ```{r Second period, echo=FALSE, warning=FALSE, message=FALSE, out.width="100%",fig.show='hold'} -->
-
-<!-- #remove outliers and remove period without TA measurements -->
-<!-- calib_ta_second <- d_all%>% -->
-<!--   dplyr::select(datetime, closest_datetime, AT, AT_interp, at, diff_ta, TA_period)%>% -->
-<!--   dplyr::filter(TA_period == "TA2" & !is.na(at)) -->
-
-<!-- mean_offset <- mean(calib_ta_second$diff_ta) -->
-
-<!-- ```  -->
-
-<!-- For the second period, the average difference between 5 discrete samples "references" and TA analyser measurements (`r #mean_offset` µmoles.kg~-1~) was added to TA value as an offset. -->
-
-
-<!-- #### **Final TA corrected data (Regression)** -->
-
-
-<!-- The following plot shows the corrected TA data with regressions (Periods 1 and 3) and with offset (Period 2) applied according to Steffen's proposition. -->
-<!-- It is clear that these corrected data (in green) cannot be used for periods 1 to 3. The jury is still out for period 4. The issue of salinity must be clarified before an assessment can be made.  -->
-
-
-<!-- ```{r Correction applied, echo=FALSE, warning=FALSE, message=FALSE, out.width="100%",fig.show='hold'} -->
-<!-- # Correction for the 3 periods is apply -->
-<!-- d_all <- d_all%>% -->
-<!--   dplyr::mutate(datetime_reg = as.numeric(datetime), -->
-<!--                 at_intercept = ifelse(TA_period == "TA1", at_intercept1, -->
-<!--                                ifelse(TA_period == "TA3", at_intercept3, NA)), -->
-<!--                 at_slope = ifelse(TA_period == "TA1", at_slope_TA1, -->
-<!--                            ifelse(TA_period == "TA3", at_slope_TA3, NA)) -->
-<!--                 ) -->
-
-<!-- d_all <- d_all%>% -->
-<!--  dplyr::mutate(TA_reg_corrected = ifelse(TA_period == "TA1", (AT + (d_all$datetime_reg * d_all$at_slope + at_intercept)), -->
-<!--                                         ifelse(TA_period == "TA2", (AT + mean_offset), -->
-<!--                                         ifelse(TA_period == "TA3", (AT + (datetime_reg * at_slope)+ at_intercept), NA)))) -->
-
-<!-- at_contros_cleaned_xts <- dplyr::select(d_all, datetime,AT,at,TA_reg_corrected) -->
-<!-- at_contros_cleaned_xts <-  as.xts(at_contros_cleaned_xts, order.by = d_all$datetime) -->
-<!-- dygraph(at_contros_cleaned_xts, group = "awipev", main=" Total Alkalinity (in Ferrybox)", ylab="Total alkalinity") %>% -->
-<!--    #dySeries("at_contros", color = RColorBrewer::brewer.pal(3, "Set2"), strokeWidth = 0, pointSize=2) %>% -->
-<!--   dySeries("AT", label= "Raw TA", color = "blue", strokeWidth = 0, pointSize=2) %>% -->
-<!--   dySeries("TA_reg_corrected", label= "Corrected TA", color = RColorBrewer::brewer.pal(3, "Dark2")[1], strokeWidth = 0, pointSize=2) %>% -->
-<!--   dySeries("at", label="TA reference",color = "red", strokeWidth = 0, pointSize=4) %>% -->
-<!--   dyEvent(as.POSIXct("2016-05-31 10:00:00", tz="UTC"), "HCl Changed", labelLoc = "bottom") %>% -->
-<!--   dyEvent(as.POSIXct("2016-06-24 10:00:00", tz="UTC"), "BCG Changed", labelLoc = "bottom") %>% -->
-<!--   dyEvent(as.POSIXct("2016-02-24 14:00:00", tz="UTC"), "Calibration 1", labelLoc = "bottom") %>% -->
-<!--   dyEvent(as.POSIXct("2016-09-16 10:00:00", tz="UTC"), "Calibration 2", labelLoc = "bottom") %>% -->
-<!--   dyEvent(as.POSIXct("2017-03-21 12:00:00", tz="UTC"), "TA analyser changed", labelLoc = "top", color="red") %>% -->
-<!--   dyEvent(as.POSIXct("2018-01-08 12:55:00", tz="UTC"), "TA analyser changed #TA-0317-001", labelLoc = "top", color="red") %>% -->
-<!--   dyEvent(as.POSIXct("2018-07-31 00:00:00", tz="UTC"), "TA analyser changed #TA-1215-001", labelLoc = "top", color="red") %>% -->
-<!--   dyEvent(as.POSIXct("2018-10-30 18:00:00", tz="UTC"), "TA analyser changed #TA-0317-001", labelLoc = "top", color="red") %>% -->
-<!--   dyEvent(as.POSIXct("2016-11-15 09:00:00", tz="UTC"), "CRM measurement", labelLoc = "bottom") %>% -->
-<!--   dyEvent(as.POSIXct("2017-02-09 12:20:00", tz="UTC"), "CRM measurement", labelLoc = "bottom") %>% -->
-<!--   dyEvent(as.POSIXct("2017-04-11 06:20:00", tz="UTC"), "CRM measurement", labelLoc = "bottom") %>% -->
-<!--   dyEvent(as.POSIXct("2018-01-22 13:00:12", tz="UTC"), "CRM measurement", labelLoc = "bottom") %>% -->
-<!--   dyEvent(as.POSIXct("2018-05-16 12:39:39", tz="UTC"), "CRM measurement", labelLoc = "bottom") %>% -->
-<!--   dyEvent(as.POSIXct("2018-10-31 10:29:27", tz="UTC"), "CRM measurement", labelLoc = "bottom") %>% -->
-<!--   dyEvent(as.POSIXct("2019-01-26 13:25:20", tz="UTC"), "Calibration mode - CRM", labelLoc = "bottom") %>% -->
-<!--   #dyOptions(colors = RColorBrewer::brewer.pal(3, "Dark2"), pointSize = 4) %>% -->
-<!--   dyShading(from = TAevents[1], to = TAevents[2], color = "#EDEDED") %>% -->
-<!--   dyShading(from = TAevents[3], to = TAevents[4], color = "#C2C2C2") %>% -->
-<!--   dyShading(from = TAevents[5], to = TAevents[6], color = "#EDEDED") %>% -->
-<!--   dyShading(from = TAevents[7], to = TAevents[8], color = "#C2C2C2") %>% -->
-<!--   dyShading(from = TAevents[9], to = TAevents[10], color = "#EDEDED") %>% -->
-<!--   dyShading(from = TAevents[11], to = TAevents[12], color = "#C2C2C2") %>% -->
-<!--   dyAxis("y",valueRange = c(1600, 2650)) %>% -->
-<!--   dyHighlight(highlightCircleSize = 8,highlightSeriesBackgroundAlpha = 0.5,hideOnMouseOut = TRUE) %>% -->
-<!--   dyOptions( strokeWidth= 0) %>% -->
-<!--   dyLegend(show = "follow")   %>% -->
-<!--   dyOptions(drawGrid = TRUE, drawPoints = TRUE,useDataTimezone = TRUE) %>% -->
-<!--     dyRangeSelector(height = 30, dateWindow= NULL) -->
-
-<!-- ``` -->
-
-
 ### **Discrete total alkalinity (reference) vs salinity relationship**
 
 In the previous part, missing TA were interpolated with a linear model. This does not reflect the natural variability of TA. For this reason, missing TA is now calculated from salinity data by making a relationship between the same reference TA samples as in the previous part and salinity data.
@@ -1142,6 +1004,22 @@ at_s <- ggplot(d_all_at_discrete,aes(x=sal_mix, y= at, label = monthd))+
         axis.title.x= element_text(size =7),
         plot.margin = unit(c(0.5,1,1,1), "cm"),
         plot.title = element_text(size=7, hjust=0.05,margin = margin(l = 10, b = -70)))
+ggsave(filename = "figures/at_s.png", plot = at_s, width = 25, height = 20, units = "cm")
+
+# Same plot for paper
+p_at_s <- ggplot(d_all_at_discrete,aes(x=sal_mix, y= at)) +
+  geom_point(col="blue", size = 0.2) +
+  labs(x="Salinity", y="Discrete AT")  +
+  stat_smooth(method = "lm", col = "blue", size = 0.3) +
+  theme_bw(base_size = 9) +
+  theme(aspect.ratio=1#,
+        #axis.text=element_text(size=7),
+        #axis.title.y= element_text(size =7),
+        #axis.title.x= element_text(size =7),
+        #plot.margin = unit(c(0.5,1,1,1), "cm"),
+        #plot.title = element_text(size=7, hjust=0.05,margin = margin(l = 10, b = -70))
+        )
+ggsave(filename = "figures/p_at_s.png", plot = p_at_s, width = 7, height = 7, units = "cm")
 
 # Salinity is a predictor of AT -> using the regression defined above
 d_all$at_calc <- slope_s_at * d_all$sal_mix + intercept_s_at
@@ -1154,6 +1032,7 @@ The relationship between titrated total alkalinity (references) and salinity is 
 ```{r plot Discrete salinity vs TA, echo=FALSE, warning=FALSE, message=FALSE, out.width="100%", fig.align="center"}
  # PLOT
  print(at_s)
+rm(at_s)
 ```
 
 #### **Final TA re-calculated data (Salinity relationship)**
@@ -1197,7 +1076,7 @@ dygraph(at_contros_calc_xts, group = "awipev", main="TA, calculated from sal_mix
   dyLegend(show = "follow")   %>%
   dyOptions(drawGrid = TRUE, drawPoints = TRUE,useDataTimezone = TRUE) %>%
     dyRangeSelector(height = 30, dateWindow= NULL)
-
+rm(at_contros_calc_xts)
 ```
 
 There are a lot of outliers in the 4th period (since the new analyzer was set up in Nov. 2018). We use the desplike function to remove them.
@@ -1237,9 +1116,13 @@ During those steps (except zeroing) the sensor runs normally. Equilibration betw
 
 ### **Corrected Contros vs calculated *p*CO~2~ data**
 
-```{r pco2 to fco2, echo=FALSE, warning=FALSE, message=FALSE}
+```{r pco2 and fco2 at in situ temp, echo=FALSE, warning=FALSE, message=FALSE}
 d_all <- d_all %>%
   dplyr::mutate(
+    pco2_fb_insi_temp = seacarb::pCO2insi(
+      pCO2lab = pco2_fb,
+      Tlab = temp_fb,
+      SST = temp_insitu_11m),
     fco2_fb = seacarb::p2fCO2(
       pCO2 = pco2_fb,
       T = temp_fb,
@@ -1248,14 +1131,28 @@ d_all <- d_all %>%
     fco2_fb_insi_temp = seacarb::fCO2insi(
       fCO2lab = fco2_fb,
       Tlab = temp_fb,
+      SST = temp_insitu_11m),
+    pco2_calc_fb_insi_temp = seacarb::pCO2insi(
+      pCO2lab = pco2_calc_fb,
+      Tlab = temp_fb,
+      SST = temp_insitu_11m),
+    fco2_calc_fb = seacarb::p2fCO2(
+      pCO2 = pco2_calc_fb,
+      T = temp_fb,
+      Patm = 1,
+      P = 0),
+    fco2_calc_fb_insi_temp = seacarb::fCO2insi(
+      fCO2lab = fco2_calc_fb,
+      Tlab = temp_fb,
       SST = temp_insitu_11m)
-)
+) %>% 
+  dplyr::select(sort(current_vars()))
 
 set.caption("Difference fco2_fb - fco2_fb_insi_temp")
 pander(summary(d_all$fco2_fb - d_all$fco2_fb_insi_temp))
 ```
 
-We first calculate fCO2 from pCO2 and then express fCO2 at in situ temperature. Ideally, this should be done with SST as the goal is to estimate air-sea CO2 fluxes. I therefore use the in situ temperature at 11 m and we will need to speculate on stratification.
+We first calculate fCO2 from pCO2 and then express both pCO2 and fCO2 at in situ temperature. Ideally, this should be done with SST as the goal is to estimate air-sea CO2 fluxes. I therefore use the in situ temperature at 11 m and we will need to speculate on stratification.
 
 
 ```{r measured vs calculated pCO2, echo=FALSE, warning=FALSE, message=FALSE}
@@ -1348,7 +1245,7 @@ dygraph(pco2_contros_xts,
     useDataTimezone = TRUE
   ) %>%
   dyRangeSelector(height = 30, dateWindow = NULL)
-
+rm(pco2_contros_xts)
 # now remove outliers
 d_all <- d_all %>%
   dplyr::mutate(
@@ -1723,9 +1620,9 @@ names(calib_spectro) <- c("deployment_sf", "E0int25_sf", "E0ext25_sf")
 d_all <-left_join(d_all, calib_spectro,by="deployment_sf" )
 
 #### plot
-kk <- melt(calib_spectro, id.vars="deployment_sf")
+kk <- tidyr::pivot_longer(calib_spectro, cols = starts_with("E0"), names_to = "variable", values_to = "value")
 p_calib <- ggplot(kk) + geom_point(aes(x=deployment_sf, y=value, color=variable), size=2) +
-  facet_grid(variable~., scales="free_y") + theme_bw() +
+  facet_grid(variable ~ ., scales="free_y") + theme_bw() +
   scale_colour_discrete(guide="none")
 print(p_calib)
 ```
@@ -1756,15 +1653,34 @@ d_all <- dplyr::bind_cols(d_all, seafet_calib )
 d_all <- d_all %>%
   #dplyr::mutate(pHint_tot_sf = despike(d_all$pHint_tot_sf, reference= "median", n=2, k=5761, replace="NA")) %>%
   dplyr::mutate(pHint_tot_sf = seafet_calib$pHint_tot_sf) %>%
-  dplyr::mutate(pHint_tot_sf_1m = ifelse(pressure_insitu_ctd > 0 & pressure_insitu_ctd < 2, pHint_tot_sf, NA),
-                pHint_tot_sf_3m = ifelse(pressure_insitu_ctd >= 2 & pressure_insitu_ctd < 4, pHint_tot_sf, NA),
-                pHint_tot_sf_5m = ifelse(pressure_insitu_ctd >= 4 & pressure_insitu_ctd < 6, pHint_tot_sf, NA),
-                pHint_tot_sf_7m = ifelse(pressure_insitu_ctd >= 6 & pressure_insitu_ctd < 8, pHint_tot_sf, NA),
-                pHint_tot_sf_9m = ifelse(pressure_insitu_ctd >= 8 , pHint_tot_sf, NA)
+  dplyr::mutate(pHint_tot_sf_1m = ifelse(depth > 0 & depth < 2, pHint_tot_sf, NA),
+                pHint_tot_sf_3m = ifelse(depth >= 2 & depth < 4, pHint_tot_sf, NA),
+                pHint_tot_sf_5m = ifelse(depth >= 4 & depth < 6, pHint_tot_sf, NA),
+                pHint_tot_sf_7m = ifelse(depth >= 6 & depth < 8, pHint_tot_sf, NA),
+                pHint_tot_sf_9m = ifelse(depth >= 8 , pHint_tot_sf, NA),
+                depth_discrete = case_when(
+      !is.na(pHint_tot_sf_1m) ~ 1,
+      !is.na(pHint_tot_sf_3m) ~ 3,
+      !is.na(pHint_tot_sf_5m) ~ 5,
+      !is.na(pHint_tot_sf_7m) ~ 7,
+      !is.na(pHint_tot_sf_9m) ~ 9
+      ),
+      depth_discrete = as.factor(depth_discrete)
   )
+
+
+# d_all <- d_all %>%
+#   dplyr::mutate(ph_s_sf_temp_4 = ifelse(!is.na(pH_seafet$ph_s_sf),
+#                                               pHinsi(pH = pH_seafet$ph_s_sf, 
+#                          ALK = pH_seafet$at_mean_interp*1e-6, Tinsi = 4, 
+#                          Tlab = pH_seafet$temp_s_lab, Pinsi = pH_seafet$depth/10, 
+#                          S = pH_seafet$sal_mix, Pt = 0, Sit = 0, k1k2 = "l", kf = "dg", ks="d", 
+#                          pHscale = "T", b="u74"), NA
+#   ))
                  
-# add spectro points that cannot be taken into consideration (some ancillary data T and/or S not available)
-# shown as white triangles on the plot
+# add spectro points that cannot be taken into consideration (some ancillary data T and/or S not available) shown as white triangles on the plot
+# ALSO Conversion of spec pH of FerryBox samples at 4°C
+
 d_all <- d_all %>%
   dplyr::mutate(
     pH_s_sf_no_calb = ifelse(
@@ -1773,15 +1689,17 @@ d_all <- d_all %>%
         datetime == as.POSIXct("2019-01-18 11:00:00"),
       ph_s_sf_temp_insi,
       NA
-    )
-  )
+    ))
 
-seafet_depth_xts <- dplyr::select(d_all, datetime, ph_s_sf_temp_insi, pHint_tot_sf_7m, pHint_tot_sf_9m)
+seafet_depth_xts <- dplyr::select(d_all, datetime, ph_s_sf_temp_insi, pHint_tot_sf_1m, pHint_tot_sf_3m, pHint_tot_sf_5m, pHint_tot_sf_7m, pHint_tot_sf_9m)
 seafet_depth_xts <- as.xts(seafet_depth_xts, order.by = d_all$datetime)
 dygraph(seafet_depth_xts, group = "depth", main="pH seaFET", ylab="pHT") %>%
 dySeries("ph_s_sf_temp_insi", label = "pH spectro", color =  "red", strokeWidth = 0, pointSize = 4 ) %>%
 dySeries("pHint_tot_sf_9m", label = "pHT 9m", color =  RColorBrewer::brewer.pal(3, "Dark2")[1], strokeWidth = 0, pointSize = 1) %>%
 dySeries("pHint_tot_sf_7m", label = "pHT 7m", color =  RColorBrewer::brewer.pal(3, "Dark2")[2], strokeWidth = 0, pointSize = 1) %>%
+dySeries("pHint_tot_sf_5m", label = "pHT 5m", color =  RColorBrewer::brewer.pal(3, "Dark2")[3], strokeWidth = 0, pointSize = 1) %>%
+dySeries("pHint_tot_sf_3m", label = "pHT 3m", color =  RColorBrewer::brewer.pal(3, "Dark2")[4], strokeWidth = 0, pointSize = 1) %>%
+dySeries("pHint_tot_sf_1m", label = "pHT 1m", color =  RColorBrewer::brewer.pal(3, "Dark2")[5], strokeWidth = 0, pointSize = 1) %>%
 dyEvent(as.POSIXct("2017-08-24 12:00:00", tz="UTC"), "seaFET #1005 installed", labelLoc = "bottom", color="red") %>%
   dyEvent(as.POSIXct("2018-02-02 09:00:00", tz="UTC"), "seaFET settings changed to every 1H", labelLoc = "bottom", color="red") %>% 
   dyEvent(as.POSIXct("2018-04-17 12:00:00", tz="UTC"), "seaFET #0007 installed + continuous mode set", labelLoc = "bottom", color="red") %>%
@@ -1794,14 +1712,15 @@ dyEvent(as.POSIXct("2017-08-24 12:00:00", tz="UTC"), "seaFET #1005 installed", l
   dyHighlight(highlightCircleSize = 8,highlightSeriesBackgroundAlpha = 0.5,hideOnMouseOut = TRUE) %>%
   dyOptions(drawGrid = TRUE, drawPoints = TRUE, pointSize = c(1,8,1),useDataTimezone = TRUE, digitsAfterDecimal=4) %>%
   dyRangeSelector(height = 30, dateWindow= NULL)
+rm(seafet_depth_xts)
 ```
 
 
 ### **seaFET pH profiles**
 
-```{r seafet profile, echo=FALSE, message= FALSE, warning=FALSE, out.width="80%",fig.show='hold', fig.align="center"}
+```{r seafet profiles, echo=FALSE, message= FALSE, warning=FALSE, out.width="80%",fig.show='hold', fig.align="center"}
 # range <- d_all %>%
-#   dplyr::mutate(pH_range_more_6m = ifelse(pressure_insitu_ctd > 6, pHint_tot_sf, NA)) %>%
+#   dplyr::mutate(pH_range_more_6m = ifelse(depth > 6, pHint_tot_sf, NA)) %>%
 #   group_by(montht) %>%
 #   summarize(pH_range = max(pHint_tot_sf, na.rm = TRUE) - min(pHint_tot_sf, na.rm = TRUE),
 #             pH_range_more_6m = max(pH_range_more_6m, na.rm = TRUE) - min(pH_range_more_6m, na.rm = TRUE),
@@ -1811,8 +1730,8 @@ dyEvent(as.POSIXct("2017-08-24 12:00:00", tz="UTC"), "seaFET #1005 installed", l
 
 # # datetime when pH values are in but no pressure data. File sent to send to Philipp
 # no_pressure <- d_all %>% 
-#   dplyr::select(datetime, pressure_insitu_ctd, pHint_tot_sf) %>% 
-#   dplyr::filter(is.na(pressure_insitu_ctd) & !is.na(pHint_tot_sf))
+#   dplyr::select(datetime, depth, pHint_tot_sf) %>% 
+#   dplyr::filter(is.na(depth) & !is.na(pHint_tot_sf))
 # readr::write_csv(x = no_pressure, path=paste0(path,"/fb_awipev-co2_server/ny-alesund/data//no_pressure.csv"))
 
 
@@ -1831,7 +1750,7 @@ print(p)
 tmp <- d_all %>% 
   dplyr::select(montht, pHint_tot_sf, depth) %>%
   dplyr::mutate(depth = as.factor(ifelse(depth == 1 | depth == 3, 2, depth))) %>% 
-  dplyr::filter(depth == 2 | depth == 9) %>% 
+  dplyr::filter(depth == 2 | depth == 10) %>% 
   group_by(depth, montht)
 summary(aov(tmp$pHint_tot_sf ~ tmp$depth * tmp$montht))
 
@@ -2063,6 +1982,7 @@ p <-
   Mytheme() +
   theme(panel.grid.major.x = element_blank())
 print(p) # plot_range_dur
+rm(durafet_contros_xts)
 ```
 
 The average offset between durafet and references (spectro) data is `r average_offset_dur` pH unit (sd = `r sd_offset_dur`, n = `r n_offset_dur`).
@@ -2121,19 +2041,19 @@ pH_sf <- d_all %>%
   dplyr::filter(!is.na(pHint_tot_sf), !is.na(temp_insitu_ctd_9m), !is.na(sal_insitu_ctd_9m)) %>%
   dplyr::filter(datetime < as.POSIXct("2018-01-01") | datetime > as.POSIXct("2018-02-03"))
 
-pH_sf$pHint_tot_sf_norm4 <- pHinsi(pH=pH_sf$pHint_tot_sf, ALK=mean(d_all$at, na.rm=TRUE), Tinsi=4, Tlab=pH_sf$temp_insitu_ctd_9m, Pinsi=11/10, S=pH_sf$sal_insitu_ctd_9m, Pt=0, Sit=0, k1k2 = "x", kf = "x", ks="d", pHscale = "T", b="u74")
+pH_sf$pHint_tot_sf_temp_4 <- pHinsi(pH=pH_sf$pHint_tot_sf, ALK=mean(d_all$at, na.rm=TRUE), Tinsi=4, Tlab=pH_sf$temp_insitu_ctd_9m, Pinsi=11/10, S=pH_sf$sal_insitu_ctd_9m, Pt=0, Sit=0, k1k2 = "l", kf = "dg", ks="d", pHscale = "T", b="u74")
 
 pH_dur <- d_all %>%
   dplyr::select(datetime, sal_fb,temp_fb, ph_dur_corr)%>%
   dplyr::filter(!is.na(ph_dur_corr), !is.na(temp_fb), !is.na(sal_fb))
-pH_dur$pH_durafet_norm4 <- pHinsi(pH=pH_dur$ph_dur_corr, ALK=mean(d_all$at, na.rm=TRUE), Tinsi=4, Tlab=pH_dur$temp_fb, Pinsi=11/10, S=pH_dur$sal_fb, Pt=0, Sit=0, k1k2 = "x", kf = "x", ks="d", pHscale = "T", b="u74")
+pH_dur$pH_durafet_temp_4 <- pHinsi(pH=pH_dur$ph_dur_corr, ALK=mean(d_all$at, na.rm=TRUE), Tinsi=4, Tlab=pH_dur$temp_fb, Pinsi=11/10, S=pH_dur$sal_fb, Pt=0, Sit=0, k1k2 = "l", kf = "dg", ks="d", pHscale = "T", b="u74")
 
 # join pH sf norm + pH dur norm
-d_all <- left_join(d_all, pH_sf%>%dplyr::select(datetime, pHint_tot_sf_norm4 ), by="datetime")
-d_all <- left_join(d_all, pH_dur%>%dplyr::select(datetime, pH_durafet_norm4 ), by="datetime")
+d_all <- left_join(d_all, pH_sf%>%dplyr::select(datetime, pHint_tot_sf_temp_4 ), by="datetime")
+d_all <- left_join(d_all, pH_dur%>%dplyr::select(datetime, pH_durafet_temp_4 ), by="datetime")
 
-fit <- lmodel2(data = d_all,  pHint_tot_sf_norm4 ~ pH_durafet_norm4 , nperm = 99)
-pdur_sf_norm_text <-  ggplot(d_all,aes(x=pH_durafet_norm4, y= pHint_tot_sf_norm4, label = monthd))+
+fit <- lmodel2(data = d_all,  pHint_tot_sf_temp_4 ~ pH_durafet_temp_4 , nperm = 99)
+pdur_sf_norm_text <-  ggplot(d_all,aes(x=pH_durafet_temp_4, y= pHint_tot_sf_temp_4, label = monthd))+
   geom_point( aes(color=factor(monthd)), size =1, alpha=0.5) + 
   facet_wrap( ~ factor(monthd), ncol = 3) +
   geom_abline(slope = 1, intercept = 0, linetype = "dashed") +
@@ -2142,54 +2062,58 @@ pdur_sf_norm_text <-  ggplot(d_all,aes(x=pH_durafet_norm4, y= pHint_tot_sf_norm4
   labs( x="pH durafet, 4°C", y="pH seaFET, 4°C ", color = "Month ")  +theme_bw()
 
 print(pdur_sf_norm_text)
+rm(pdur_sf_norm_text)
 
-durafet_sf_contros_xts <- dplyr::select(d_all, datetime, pH_durafet_norm4, pHint_tot_sf_norm4)
+durafet_sf_contros_xts <- dplyr::select(d_all, datetime, pH_durafet_temp_4, pHint_tot_sf_temp_4)
 durafet_sf_contros_xts <- as.xts(durafet_sf_contros_xts, order.by = d_all$datetime)
 dygraph(durafet_sf_contros_xts, group = "awipev", main="pH durafet vs pH seaFET at 4°C", ylab="pHT") %>%
-    dySeries("pH_durafet_norm4", label = "pH durafet", color ="blue", strokeWidth=0, pointSize=2) %>%
-    dySeries("pHint_tot_sf_norm4", label = "pH seaFET", color =  "red", strokeWidth = 0, pointSize = 2 ) %>%
+    dySeries("pH_durafet_temp_4", label = "pH durafet", color ="blue", strokeWidth=0, pointSize=2) %>%
+    dySeries("pHint_tot_sf_temp_4", label = "pH seaFET", color =  "red", strokeWidth = 0, pointSize = 2 ) %>%
     # dyOptions(colors = RColorBrewer::brewer.pal(3, "Dark2"), pointSize = 4) %>%
     dyHighlight(highlightCircleSize = 8,highlightSeriesBackgroundAlpha = 0.5,hideOnMouseOut = TRUE) %>%
        dyLegend(show = "follow")   %>%
     dyOptions(drawGrid = TRUE, drawPoints = TRUE, pointSize = c(1,8,1),useDataTimezone = TRUE, digitsAfterDecimal=4) %>%
     dyRangeSelector(height = 30, dateWindow= NULL) 
+rm(durafet_sf_contros_xts, pdur_sf_norm_text)
 ```
 
 ### **Calculated / Durafet pHs**
 ```{r pHs comparaison dur calc, echo=FALSE, message= FALSE, warning=FALSE}
-# Normalize phcalc from AT/CT to 4°c
+# Normalize ph_calc from AT/CT to 4°c
 pH_calc <- discrete %>%
-  dplyr::select(datetime, sal_fb, temp_fb, phcalc_fb, at)%>%
-  dplyr::filter(!is.na(phcalc_fb), !is.na(temp_fb), !is.na(sal_fb))
-pH_calc$pH_calc_fb_norm4 <- pHinsi(pH = pH_calc$phcalc_fb, ALK=pH_calc$at*1e-6, Tinsi=4, Tlab=pH_calc$temp_fb, Pinsi=11/10, S=pH_calc$sal_fb, Pt=0, Sit=0, k1k2 = "x", kf = "x", ks="d", pHscale = "T", b="u74")
+  dplyr::select(datetime, sal_fb, temp_fb, ph_calc_fb, at)%>%
+  dplyr::filter(!is.na(ph_calc_fb), !is.na(temp_fb), !is.na(sal_fb))
+pH_calc$pH_calc_fb_temp_4 <- pHinsi(pH = pH_calc$ph_calc_fb, ALK=pH_calc$at*1e-6, Tinsi=4, Tlab=pH_calc$temp_fb, Pinsi=11/10, S=pH_calc$sal_fb, Pt=0, Sit=0, k1k2 = "l", kf = "dg", ks="d", pHscale = "T", b="u74")
 
 # join pH calc norm + pH dur/sf norm in d_all
-d_all <- left_join(d_all, pH_calc %>% dplyr::select(datetime, pH_calc_fb_norm4), by="datetime")
+d_all <- left_join(d_all, pH_calc %>% dplyr::select(datetime, pH_calc_fb_temp_4), by="datetime")
 
-durafet_calc_contros_xts <- dplyr::select(d_all, datetime, pH_durafet_norm4, pH_calc_fb_norm4)
+durafet_calc_contros_xts <- dplyr::select(d_all, datetime, pH_durafet_temp_4, pH_calc_fb_temp_4)
 durafet_calc_contros_xts <- as.xts(durafet_calc_contros_xts, order.by = d_all$datetime)
 dygraph(durafet_calc_contros_xts, group = "awipev", main="pH calculated vs pH durafet, normalized at 4°C", ylab="pHT") %>%
-    dySeries("pH_durafet_norm4", label = "pH durafet", color ="blue", strokeWidth=0, pointSize=2) %>%
-    dySeries("pH_calc_fb_norm4", label = "pH calculated", color =  "red", strokeWidth = 0, pointSize = 4 ) %>%
+    dySeries("pH_durafet_temp_4", label = "pH durafet", color ="blue", strokeWidth=0, pointSize=2) %>%
+    dySeries("pH_calc_fb_temp_4", label = "pH calculated", color =  "red", strokeWidth = 0, pointSize = 4 ) %>%
     # dyOptions(colors = RColorBrewer::brewer.pal(3, "Dark2"), pointSize = 4) %>%
     dyHighlight(highlightCircleSize = 8,highlightSeriesBackgroundAlpha = 0.5,hideOnMouseOut = TRUE) %>%
        dyLegend(show = "follow")   %>%
     dyOptions(drawGrid = TRUE, drawPoints = TRUE, pointSize = c(1,8,1),useDataTimezone = TRUE, digitsAfterDecimal=4) %>%
     dyRangeSelector(height = 30, dateWindow= NULL)
+rm(durafet_calc_contros_xts)
 ```
 
 ### **Calculated / seaFET pHs**
 ```{r pHs comparaison sf calc, echo=FALSE, message= FALSE, warning=FALSE}
-seafet_calc_contros_xts <- dplyr::select(d_all, datetime, pHint_tot_sf_norm4, pH_calc_fb_norm4)
+seafet_calc_contros_xts <- dplyr::select(d_all, datetime, pHint_tot_sf_temp_4, pH_calc_fb_temp_4)
 seafet_calc_contros_xts <- as.xts(seafet_calc_contros_xts, order.by = d_all$datetime)
 dygraph(seafet_calc_contros_xts, group = "awipev", main="pH calculated vs pH seaFET, normalized at 4°C", ylab="pHT") %>%
-    dySeries("pHint_tot_sf_norm4", label = "pH seaFET", color ="blue", strokeWidth=0, pointSize=2) %>%
-    dySeries("pH_calc_fb_norm4", label = "pH calculated", color =  "red", strokeWidth = 0, pointSize = 4 ) %>%
+    dySeries("pHint_tot_sf_temp_4", label = "pH seaFET", color ="blue", strokeWidth=0, pointSize=2) %>%
+    dySeries("pH_calc_fb_temp_4", label = "pH calculated", color =  "red", strokeWidth = 0, pointSize = 4 ) %>%
     # dyOptions(colors = RColorBrewer::brewer.pal(3, "Dark2"), pointSize = 4) %>%
     dyHighlight(highlightCircleSize = 8,highlightSeriesBackgroundAlpha = 0.5,hideOnMouseOut = TRUE) %>%
        dyLegend(show = "follow")   %>%
 dyOptions(drawGrid = TRUE, drawPoints = TRUE, pointSize = c(1,8,1),useDataTimezone = TRUE, digitsAfterDecimal=4) %>%
     dyRangeSelector(height = 30, dateWindow= NULL)
+rm(seafet_calc_contros_xts)
 ```
 
 ### **Spectro / durafet**
@@ -2204,7 +2128,7 @@ p <-  ggplot(d_all, aes(x=ph_s_dur_temp_fb, y= ph_dur_corr, label = monthd)) +
   geom_abline(slope=1, intercept =0, linetype = "dashed") +
   geom_abline(aes(intercept = lm$fit$regression.results[2,2], slope = lm$fit$regression.results[2,3]),
               colour = "blue") +
-  labs(title = paste("pH spectro vs pH durafet","\n Adj R2 = ", signif(lm$fit$rsquare, 3),
+  labs(title = paste("pH spectro vs pH durafet (both at FB temperature","\n Adj R2 = ", signif(lm$fit$rsquare, 3),
                      "; Intercept =", signif(lm$fit$regression.results[2,2], 3),
                      "; Slope =", signif(lm$fit$regression.results[2,3], 3),
                      "; P =", signif(lm$fit$P.param, 3),
@@ -2226,7 +2150,7 @@ p <-  ggplot(d_all, aes(x=ph_s_sf_temp_insi, y= pHint_tot_sf, label = monthd)) +
   geom_abline(slope=1, intercept =0, linetype = "dashed") +
   geom_abline(aes(intercept = lm$fit$regression.results[2,2], slope = lm$fit$regression.results[2,3]),
               colour = "blue") +
-  labs(title = paste("pH spectro vs pH seafet","\n Adj R2 = ", signif(lm$fit$rsquare, 3),
+  labs(title = paste("pH spectro vs pH seafet (at in situ temperature)","\n Adj R2 = ", signif(lm$fit$rsquare, 3),
                      "; Intercept =", signif(lm$fit$regression.results[2,2], 3),
                      "; Slope =", signif(lm$fit$regression.results[2,3], 3),
                      "; P =", signif(lm$fit$P.param, 3),
@@ -2364,9 +2288,10 @@ p_at_ts
 pdelta_ct_snapo
 pdelta_ct_snapo_dygraph
 p_ct_ts
+rm(at_diff_xts, ct_diff_xts)
 ```
 
-## Impact of nutrients
+## Nutrients   {.tabset .tabset-pills}
 ```{r impact of nutrients, echo=FALSE, warning=FALSE, message=FALSE}
 # boxplot
 ts_po4_bp <- d_all %>%
@@ -2384,7 +2309,7 @@ ts_Si_bp <- d_all %>%
   labs(y = "si", x=NULL, title=NULL) +
   Mytheme() +
   theme(panel.grid.major.x = element_blank())
-ts_Si_bp + ts_Si_bp
+ts_po4_bp + ts_Si_bp
 # Effects of changes in po4 and si
 # 1st cakculate mean values
 means <- d_all %>% 
@@ -2400,145 +2325,679 @@ mean_at_calc <-  mean(means$mean_at_calc)
 mean_pco2_calc <-  mean(means$mean_pco2_calc)
 mean_sal <-  mean(means$mean_sal)
 mean_temp <-  mean(means$mean_temp)
-# then check impacts using pco2 and AT
+# then check impacts of 0, min and max nutrient values using pco2 and AT
 carb_po4_1 <- carb(24, mean_pco2_calc, mean_at_calc*1e-6, S = mean_sal, T = mean_temp, P = 0, 
-                 Pt = c(min(d_all$po4/1e6, na.rm=TRUE), max(d_all$po4/1e6, na.rm=TRUE)), Sit = 0,
+                 Pt = c(0, min(d_all$po4/1e6, na.rm=TRUE), max(d_all$po4/1e6, na.rm=TRUE)), Sit = 0,
                  k1k2 = "l", kf = "dg", ks = "d", pHscale = "T", b = "u74")
-diff_po4_1 <- carb_po4_1[1,] - carb_po4_1[2,]
+diff_po4_0a <- carb_po4_1[1,] - carb_po4_1[3,] # diff between no PO4 and max PO4
+diff_po4_1a <- carb_po4_1[2,] - carb_po4_1[3,] # diff between min PO4 and max PO4
 carb_Si_1 <- carb(24, mean_pco2_calc, mean_at_calc*1e-6, S = mean_sal, T = mean_temp, P = 0,
-                Pt = 0, Sit = c(min(d_all$si/1e6, na.rm=TRUE), max(d_all$si/1e6, na.rm=TRUE)), 
+                Pt = 0, Sit = c(0, min(d_all$si/1e6, na.rm=TRUE), max(d_all$si/1e6, na.rm=TRUE)), 
                 k1k2 = "l", kf = "dg", ks = "d", pHscale = "T", b = "u74")
-diff_Si_1 <- carb_Si_1[1,] - carb_Si_1[2,]
-
-# then check impacts using AT-DIC pair
+diff_Si_0a <- carb_Si_1[1,] - carb_Si_1[3,] # diff between no Si and max Si
+diff_Si_1a <- carb_Si_1[2,] - carb_Si_1[3,] # diff between no Si and max Si
+# then check impacts of O, min and max nutrient values using AT-DIC pair
 carb_po4_2 <- carb(15, mean_at_calc*1e-6, mean_ct*1e-6, S = mean_sal, T = mean_temp, P = 0, 
-                 Pt = c(min(d_all$po4/1e6, na.rm=TRUE), max(d_all$po4/1e6, na.rm=TRUE)), Sit = 0,
+                 Pt = c(0, min(d_all$po4/1e6, na.rm=TRUE), max(d_all$po4/1e6, na.rm=TRUE)), Sit = 0,
                  k1k2 = "l", kf = "dg", ks = "d", pHscale = "T", b = "u74")
-diff_po4_2 <- carb_po4_2[1,] - carb_po4_2[2,]
+diff_po4_0b <- carb_po4_2[1,] - carb_po4_2[3,] # diff between no PO4 and max PO4
+diff_po4_1b <- carb_po4_2[2,] - carb_po4_2[3,] # diff between min PO4 and max PO4
 carb_Si_2 <- carb(15, mean_at_calc*1e-6, mean_ct*1e-6, S = mean_sal, T = mean_temp, P = 0,
-                Pt = 0, Sit = c(min(d_all$si/1e6, na.rm=TRUE), max(d_all$si/1e6, na.rm=TRUE)), 
+                Pt = 0, Sit = c(0, min(d_all$si/1e6, na.rm=TRUE), max(d_all$si/1e6, na.rm=TRUE)), 
                 k1k2 = "l", kf = "dg", ks = "d", pHscale = "T", b = "u74")
-diff_Si_2 <- carb_Si_2[1,] - carb_Si_2[2,]
+diff_Si_0b <- carb_Si_2[1,] - carb_Si_2[3,] # diff between no Si and max Si
+diff_Si_1b <- carb_Si_2[2,] - carb_Si_2[3,] # diff between no Si and max Si
+# then check impacts of O, max PO4 and NO3 values using pCO2 and AT as well as AT-DIC pair
+carb_1 <- carb(24, mean_pco2_calc, mean_at_calc*1e-6, S = mean_sal, T = mean_temp, P = 0, 
+                 Pt = c(0, max(d_all$po4/1e6, na.rm=TRUE)), Sit = c(0, max(d_all$si/1e6, na.rm=TRUE)),
+                 k1k2 = "l", kf = "dg", ks = "d", pHscale = "T", b = "u74")
+carb_2 <- carb(15, mean_at_calc*1e-6, mean_ct*1e-6, S = mean_sal, T = mean_temp, P = 0, 
+                 Pt = c(0, max(d_all$po4/1e6, na.rm=TRUE)), Sit = c(0, max(d_all$si/1e6, na.rm=TRUE)),
+                 k1k2 = "l", kf = "dg", ks = "d", pHscale = "T", b = "u74")
+diff_max_0a <- carb_1[1,] - carb_1[2,] # pco2-AT: diff between (0 PO4 and Si) and (max PO4 and Si)
+diff_max_0b <- carb_2[1,] - carb_2[2,] # AT-CT: diff between (0 PO4 and Si) and (max PO4 and Si)
+
+#nuts <- tibble(Pair = "pCO2-AT", "CT-AT",
+#)
+nuts_table <- bind_rows(diff_po4_0a, diff_Si_0a, diff_po4_0b, diff_Si_0b, diff_max_0a, diff_max_0b) %>% 
+  dplyr::mutate(flag = c("pCO2 and ALK", "pCO2 and ALK", "ALK and DIC", "ALK and DIC", "pCO2 and AT", "ALK and DIC"),
+                nutrients = c("No PO4-max PO4", "No Si-max Si", "No PO4-max PO4", 
+                              "No Si-max Si", "No nuts-max nuts", "No nuts-max nuts")) %>% 
+  dplyr::select(flag, nutrients, pH, pCO2, DIC, OmegaAragonite)
+rm(ts_po4_bp, ts_Si_bp)
 ```
+`r knitr::kable(nuts_table, digits = c(1, 1, 4, 2, 7, 3), caption = "Impact of PO4 and Si.", format = "simple")`
 
 The concentration of po4 and si varies with a factor 10 along a composite year. The ranges are respectively, `r round(range(d_all$po4, na.rm = TRUE), digits = 2)` for po4 and `r round(range(d_all$si, na.rm = TRUE), digits = 2)` for si. 
 
 ### Using the pCO2-AT pair (hourly data)
-The impact of the min max changes of po4 on pH, DIC, and Omega_a are small:  `r round(1000*diff_po4_1$pH, digits=2)` mpH units, `r round(1e6*diff_po4_1$DIC, digits=2)` umol/kg for CT and `r round(diff_po4_1$OmegaAragonite, digits=2)` for OmegaAragonite.
+The difference between no PO4 and its maximum value on pH, DIC, and Omega_a are small:  `r round(1000*diff_po4_0a$pH, digits=2)` mpH units, `r round(1e6*diff_po4_0a$DIC, digits=2)` umol/kg for CT and `r round(diff_po4_0a$OmegaAragonite, digits=2)` for OmegaAragonite.
 
-The impact of the min max changes of si on pH, DIC, and Omega_a are small:  `r round(1000*diff_Si_1$pH, digits=2)` mpH units, `r round(1e6*diff_Si_1$DIC, digits=2)` umol/kg for CT and `r round(diff_Si_1$OmegaAragonite, digits=2)` for OmegaAragonite.
+The impact of the min max changes of po4 on pH, DIC, and Omega_a are small:  `r round(1000*diff_po4_1a$pH, digits=2)` mpH units, `r round(1e6*diff_po4_1a$DIC, digits=2)` umol/kg for CT and `r round(diff_po4_1a$OmegaAragonite, digits=2)` for OmegaAragonite.
+
+The difference between no Si and its maximum value on pH, DIC, and Omega_a are small:  `r round(1000*diff_Si_0a$pH, digits=2)` mpH units, `r round(1e6*diff_Si_0a$DIC, digits=2)` umol/kg for CT and `r round(diff_Si_0a$OmegaAragonite, digits=2)` for OmegaAragonite.
+
+The impact of the min max changes of si on pH, DIC, and Omega_a are small:  `r round(1000*diff_Si_1a$pH, digits=2)` mpH units, `r round(1e6*diff_Si_1a$DIC, digits=2)` umol/kg for CT and `r round(diff_Si_1a$OmegaAragonite, digits=2)` for OmegaAragonite.
 
 ### Using the CT-AT pair (discrete data)
-The impact of the min max changes of po4 on pH, pCO2, and Omega_a are small:  `r round(1000*diff_po4_2$pH, digits=2)` mpH units, `r round(diff_po4_2$pCO2, digits=2)` uatm for pCO2 and `r round(diff_po4_2$OmegaAragonite, digits=2)` for OmegaAragonite.
+The difference between no PO4 and its maximum value on pH, pCO2, and Omega_a are small:  `r round(1000*diff_po4_0b$pH, digits=2)` mpH units, `r round(diff_po4_0b$pCO2, digits=2)` uatm for pCO2 and `r round(diff_po4_0b$OmegaAragonite, digits=2)` for OmegaAragonite.
 
-The impact of the min max changes of po4 on pH, pCO2, and Omega_a are small:  `r round(1000*diff_Si_2$pH, digits=2)` mpH units, `r round(diff_Si_2$pCO2, digits=2)` uatm for pCO2 and `r round(diff_Si_2$OmegaAragonite, digits=2)` for OmegaAragonite.
+The impact of the min max changes of po4 on pH, pCO2, and Omega_a are small:  `r round(1000*diff_po4_1b$pH, digits=2)` mpH units, `r round(diff_po4_1b$pCO2, digits=2)` uatm for pCO2 and `r round(diff_po4_1b$OmegaAragonite, digits=2)` for OmegaAragonite.
 
-## Impact of choice of constants
-### Using mean values
-```{r impact of constants 1, echo=FALSE, warning=FALSE, message=FALSE}
-# Compare Lueker and Sulpis
-# use mean values calculated for impacts of nutrients above
-means <- d_all %>% 
-  group_by(montht) %>% 
-  summarize(mean_ct = mean(ct, na.rm = TRUE),
-            mean_at_calc = mean(at_calc, na.rm = TRUE),
-            mean_pco2_calc = mean(pco2_calc_fb, na.rm = TRUE),
-            mean_sal = mean(sal_fb, na.rm = TRUE),
-            mean_temp = mean(temp_fb, na.rm = TRUE)) %>% 
-  ungroup()
-mean_ct <-  mean(means$mean_ct)
-mean_at_calc <-  mean(means$mean_at_calc)
-mean_pco2_calc <-  mean(means$mean_pco2_calc)
-mean_sal <-  mean(means$mean_sal)
-mean_temp <-  mean(means$mean_temp)
-# impacts using pco2 and AT
-carb_l_1 <- carb(24, mean_pco2_calc, mean_at_calc*1e-6, S = mean_sal, T = mean_temp, P = 0, 
+The difference between no Si and its maximum value on pH, pCO2, and Omega_a are small:  `r round(1000*diff_Si_0b$pH, digits=2)` mpH units, `r round(diff_Si_0b$pCO2, digits=2)` uatm for pCO2 and `r round(diff_Si_0b$OmegaAragonite, digits=2)` for OmegaAragonite.
+
+The impact of the min max changes of Si on pH, pCO2, and Omega_a are small:  `r round(1000*diff_Si_1b$pH, digits=2)` mpH units, `r round(diff_Si_1b$pCO2, digits=2)` uatm for pCO2 and `r round(diff_Si_1b$OmegaAragonite, digits=2)` for OmegaAragonite.
+
+## K1K2  {.tabset .tabset-pills}
+```{r impact of constants discrete, echo=FALSE, warning=FALSE, message=FALSE}
+# Compare Lueker and Sulpis using mean discrete values
+# first, order columns
+d_all <- d_all %>% 
+  dplyr::select(order(colnames(d_all))) %>% 
+  dplyr::select(datetime, date, year, monthd, montht, everything())
+# calculate means of discrete values
+mean_ct <- mean(discrete$ct, na.rm = TRUE)
+mean_at <- mean(discrete$at, na.rm = TRUE)
+mean_pco2 <- mean(discrete$pco2_calc_fb, na.rm = TRUE)
+mean_sal <- mean(discrete$sal_fb, na.rm = TRUE)
+mean_temp <- mean(discrete$temp_fb, na.rm = TRUE)
+mean_discrete <- tibble(mean_ct = mean_ct, mean_at = mean_at, mean_pco2 = mean_pco2, mean_sal = mean_sal, mean_temp = mean_temp)
+
+# calculate typical uncertainty assuming uncertainties of 3 uatm for pCO2 and 4 umol/kg for AT and CT
+errors_pco2_at <- seacarb::errors(flag=24, var1=mean_pco2, var2=1e-6*mean_at, S=mean_sal,
+                          T=mean_temp, P=0, Pt=0, Sit=0, k1k2="l", kf="dg", ks="d", pHscale="T",
+                          b="u74", evar1=3, evar2 = 4e-6)
+errors_at_ct <- seacarb::errors(flag=15, var1=1e-6*mean_at, var2=1e-6*mean_ct, S=mean_sal,
+                          T=mean_temp, P=0, Pt=0, Sit=0, k1k2="l", kf="dg", ks="d", pHscale="T",
+                          b="u74", evar1=4e-6, evar2 = 4e-6)
+errors <- tibble(e_pH = c(errors_pco2_at$pH, errors_at_ct$pH),
+                 e_pCO2 = c(NA, errors_at_ct$pCO2),
+                 e_DIC = c(errors_pco2_at$pH, NA)*1e3,
+                 e_Oa = c(errors_pco2_at$OmegaAragonite, errors_at_ct$OmegaAragonite)
+)
+# impacts using pco2 and AT pair
+carb_l_1 <- carb(24, mean_pco2, mean_at*1e-6, S = mean_sal, T = mean_temp, P = 0, 
                  Pt = 0, Sit = 0,
                  k1k2 = "l", kf = "dg", ks = "d", pHscale = "T", b = "u74")
-carb_s_1 <- carb(24, mean_pco2_calc, mean_at_calc*1e-6, S = mean_sal, T = mean_temp, P = 0, 
+carb_s_1 <- carb(24, mean_pco2, mean_at*1e-6, S = mean_sal, T = mean_temp, P = 0, 
                  Pt = 0, Sit = 0,
                  k1k2 = "s20", kf = "dg", ks = "d", pHscale = "T", b = "u74")
 diff_ls_1 <- carb_l_1 - carb_s_1
-
-# impacts using AT-DIC pair
-carb_l_2 <- carb(15, mean_at_calc*1e-6, mean_ct*1e-6, S = mean_sal, T = mean_temp, P = 0, 
+# impacts using AT-CT pair
+carb_l_2 <- carb(15, mean_at*1e-6, mean_ct*1e-6, S = mean_sal, T = mean_temp, P = 0, 
                  Pt = 0, Sit = 0,
                  k1k2 = "l", kf = "dg", ks = "d", pHscale = "T", b = "u74")
-carb_s_2 <- carb(15, mean_at_calc*1e-6, mean_ct*1e-6, S = mean_sal, T = mean_temp, P = 0,
+carb_s_2 <- carb(15, mean_at*1e-6, mean_ct*1e-6, S = mean_sal, T = mean_temp, P = 0,
                 Pt = 0, Sit = 0, 
                 k1k2 = "s20", kf = "dg", ks = "d", pHscale = "T", b = "u74")
 diff_ls_2 <- carb_l_2 - carb_s_2
-const <- bind_rows(diff_ls_1, diff_ls_2) %>% 
+# summary
+const_choice <- bind_rows(diff_ls_1, diff_ls_2) %>% 
   dplyr::mutate(flag = c("pCO2 and ALK", "ALK and DIC"),
                 S = mean_sal,
                 T = mean_temp,
                 DIC = DIC * 1e6
                 ) %>% 
-  dplyr::select(flag:T, pH, pCO2, DIC, OmegaAragonite)
-#kable(const, digits = c(0, 1, 1, 3, 1, 1, 2))
-pander(const)
-```
-### Using all values pCO2 and at_calc
-
-```{r impact of constants 2, echo=FALSE, warning=FALSE, message=FALSE}
-# Compare Lueker and Sulpis
-d_ls <- d_all %>% 
-  drop_na(pco2_fb, at_calc, sal_fb, temp_fb)
-carb_l <-
-  carb(
-    24,
-    d_ls$pco2_fb,
-    d_ls$at_calc * 1e-6,
-    S = d_ls$sal_fb,
-    T = d_ls$temp_fb,
-    P = 0,
-    Pt = 0,
-    Sit = 0,
-    k1k2 = "l",
-    kf = "dg",
-    ks = "d",
-    pHscale = "T",
-    b = "u74"
-  )
-carb_s <-
-  carb(
-    24,
-    d_ls$pco2_fb,
-    d_ls$at_calc * 1e-6,
-    S = d_ls$sal_fb,
-    T = d_ls$temp_fb,
-    P = 0,
-    Pt = 0,
-    Sit = 0,
-    k1k2 = "s20",
-    kf = "dg",
-    ks = "d",
-    pHscale = "T",
-    b = "u74"
-  )
-diff_ls <- as_tibble(carb_l - carb_s)
-d_ls <- bind_cols(d_ls, diff_ls)
-
-# plot
-lm <- lm2(x = d_all$sal_insitu_ctd_9m, y = d_all$sal_fb)
-p <-  ggplot(d_all,aes(x=sal_insitu_ctd_9m, y= sal_fb))+
-  geom_point( aes(color=factor(monthd))) + 
-  geom_abline(slope=1, intercept=0, linetype = "dashed")+
-  geom_abline(aes(intercept = lm$fit$regression.results[2,2], slope = lm$fit$regression.results[2,3]),colour = "blue") +
-  ylim(c(30.5,35.5)) +xlim(c(28,35.5)) +
-  labs(title = paste("","\n Adj R2 = ", signif(lm$fit$rsquare, 3),
-                     "; Intercept =", signif(lm$fit$regression.results[2,2], 3),
-                     "; Slope =", signif(lm$fit$regression.results[2,3], 3),
-                     "; P =", signif(lm$fit$P.param, 3),
-                     "; RMSE = ", signif(lm$rmse, 3))) +
-  theme(aspect.ratio = 1, plot.title = element_text(size = 7)) + #
-  coord_fixed(ratio = 1 )+
-  labs( x="Salinity CTD 9 m", y="Salinity FB ", color = "Months") + theme_bw()
-
-print(p) #p_sal_fb_ctd
+  dplyr::select(flag, pH, pCO2, DIC, OmegaAragonite) %>% 
+  dplyr::bind_cols(errors)
 ```
 
-The difference induced by the choice of the carbonic acid constants is large for pH, pCO2 and DIC and negligible for OmegaAragonite.
+### K1K2 using pCO2 and AT
+```{r impact of constants using FerryBox pCO2 and at, echo=FALSE, warning=FALSE, message=FALSE}
+tmp <- d_all %>% 
+  tidyr::drop_na(pco2_fb, at, sal_fb, temp_fb) %>% 
+  dplyr::select(datetime, ph_s_dur_temp_4_l, ph_s_dur_temp_4_s20,
+                ph_s_dur_temp_4_p18, ph_s_dur_temp_4_m02, pco2_fb, at, sal_fb, temp_fb) %>% 
+# This is an important adjustement for pco2_fb on 2019-06-07 09:00:00
+# it is too high compared with ph_s_dur. Looking at the dygraph suggests that there has been a peak just before that time and that the values were coming back down. This is this in accordance with pco2_calc_fb calculated from 
+dplyr::mutate(pco2_fb = ifelse(datetime == as.POSIXct("2019-06-07 09:00:00"), 203, pco2_fb))
+# Using Lueker  
+carb_l <- carb(flag = 24, var1 = tmp$pco2_fb, var2 = tmp$at * 1e-6, S = tmp$sal_fb, 
+               T = tmp$temp_fb, P = 0, Pt = 0, Sit = 0, k1k2 = "l", kf = "dg", ks = "d", 
+               pHscale = "T", b = "u74")
+# normalize Lueker-derived pH at 4°C
+carb_l$pH <- pHinsi(pH = carb_l$pH, ALK = carb_l$ALK, Tinsi = 4, Tlab = carb_l$T, Pinsi = 0, 
+                         S = carb_l$S, Pt = 0, Sit = 0, k1k2 = "l", kf = "dg", ks="d", 
+                         pHscale = "T", b="u74")
+# Using Sulpis
+carb_s <- carb(flag = 24, var1 = tmp$pco2_fb, var2 = tmp$at * 1e-6, S = tmp$sal_fb, 
+               T = tmp$temp_fb, P = 0, Pt = 0, Sit = 0, k1k2 = "s20", kf = "dg", ks = "d", 
+               pHscale = "T", b = "u74")
+# normalize Sulpis-derived pH at 4°C
+carb_s$pH <- pHinsi(pH = carb_s$pH, ALK = carb_s$ALK, Tinsi = 4, Tlab = carb_s$T, Pinsi = 0, 
+                         S = carb_s$S, Pt = 0, Sit = 0, k1k2 = "s20", kf = "dg", ks="d", 
+                         pHscale = "T", b="u74")
+# Using Papadimitriou
+carb_p <- carb(flag = 24, var1 = tmp$pco2_fb, var2 = tmp$at * 1e-6, S = tmp$sal_fb, 
+               T = tmp$temp_fb, P = 0, Pt = 0, Sit = 0, k1k2 = "p18", kf = "dg", ks = "d", 
+               pHscale = "T", b = "u74")
+# normalize Papadimitriou-derived pH at 4°C
+carb_p$pH <- pHinsi(pH = carb_p$pH, ALK = carb_p$ALK, Tinsi = 4, Tlab = carb_p$T, Pinsi = 0, 
+                         S = carb_p$S, Pt = 0, Sit = 0, k1k2 = "p18", kf = "dg", ks="d", 
+                         pHscale = "T", b="u74")
+# Using Millero et al. (2002)
+carb_m <- carb(flag = 24, var1 = tmp$pco2_fb, var2 = tmp$at * 1e-6, S = tmp$sal_fb, 
+               T = tmp$temp_fb, P = 0, Pt = 0, Sit = 0, k1k2 = "m02", kf = "dg", ks = "d", 
+               pHscale = "T", b = "u74")
+# normalize Millero et al. (2002)-derived pH at 4°C
+carb_m$pH <- pHinsi(pH = carb_m$pH, ALK = carb_m$ALK, Tinsi = 4, Tlab = carb_m$T, Pinsi = 0, 
+                         S = carb_m$S, Pt = 0, Sit = 0, k1k2 = "m02", kf = "dg", ks="d", 
+                         pHscale = "T", b="u74")
+# calculate difference Lueker - Sulpis
+diff_ls <- as_tibble(carb_l - carb_s) %>% 
+  dplyr::rename(delta_ph = pH, delta_ct = DIC, delta_OmegaAragonite = OmegaAragonite) %>%
+  dplyr::select(delta_ph, delta_ct, delta_OmegaAragonite)
+# calculate descriptive statistics Lueker - Sulpis
+diff_ls_quant <- tibble(pH = as.numeric(summary(diff_ls$delta_ph)),
+                        CT = as.numeric(summary(diff_ls$delta_ct * 1e6)),
+                        OmegaAragonite = as.numeric(summary(diff_ls$delta_OmegaAragonite))) %>%
+  dplyr::mutate(var = c("Min", "Q1", "Median", "Mean", "Q3", "Max"), .before = 1)
+# prepare tibble to compare calculated pH and spec pH
+tmp2 <- tibble(datetime = tmp$datetime, ph_s_dur_temp_4_l = tmp$ph_s_dur_temp_4_l, 
+               ph_s_dur_temp_4_s20 = tmp$ph_s_dur_temp_4_s20,
+               ph_s_dur_temp_4_p18 = tmp$ph_s_dur_temp_4_p18,
+               ph_s_dur_temp_4_m02 = tmp$ph_s_dur_temp_4_m02, 
+               pH_l = carb_l$pH, pH_s = carb_s$pH, 
+               pH_p = carb_p$pH, pH_m = carb_m$pH, temp_fb = tmp$temp_fb) %>% 
+  tidyr::drop_na(ph_s_dur_temp_4_l)
+# summary of differences
+lueker <- as.numeric(summary(tmp2$ph_s_dur_temp_4_l - tmp2$pH_l))
+sulpis <- as.numeric(summary(tmp2$ph_s_dur_temp_4_s20 - tmp2$pH_s))
+papadimitriou <- as.numeric(summary(tmp2$ph_s_dur_temp_4_p18 - tmp2$pH_p))
+millero2002 <- as.numeric(summary(tmp2$ph_s_dur_temp_4_m02 - tmp2$pH_m))
+diff_table_pco2_at <- tibble(var = c("Min", "Q1", "Median", "Mean", "Q3", "Max"), lueker, sulpis, papadimitriou, millero2002)
+# make plots
+p1 <- ggreg(xdata = tmp2$ph_s_dur_temp_4_l, ydata = tmp2$pH_l, type = "MA", plot = TRUE, 
+            title = "Lueker vs measured", subtitle = "both pH normalized at 4°C",
+            xlab = "Spectrophotometric pH normalized @ 4°C",
+            ylab = "pH @ 4°C calculated (pCO2+AT) with Lueker") +
+  lims(x = c(8, 8.4), y = c(8, 8.4)) +
+  theme(plot.title = element_text(size = 10),
+        axis.text = element_text(size = 10)) +
+  coord_fixed(ratio = 1)
+p2 <- ggreg(xdata = tmp2$ph_s_dur_temp_4_l, ydata = tmp2$pH_s, type = "MA", plot = TRUE, 
+            title = "Sulpis vs measured", subtitle = "both pH normalized at 4°C",
+            xlab = "Spectrophotometric pH normalized @ 4°C",
+            ylab = "pH @ 4°C calculated (pCO2+AT) with Sulpis")  +
+  lims(x = c(8, 8.4), y = c(8, 8.4)) +
+  theme(plot.title = element_text(size = 10),
+        axis.text = element_text(size = 10)) +
+  coord_fixed(ratio = 1)
+p3 <- tmp2 %>% 
+  dplyr::mutate(delta_lueker = tmp2$ph_s_dur_temp_4_l - tmp2$pH_l, 
+                delta_sulpis = tmp2$ph_s_dur_temp_4_s20 - tmp2$pH_s, 
+                delta_papadimitriou = tmp2$ph_s_dur_temp_4_p18 - tmp2$pH_p, 
+                delta_millero2002 = tmp2$ph_s_dur_temp_4_m02 - tmp2$pH_m) %>% 
+  dplyr::select(-starts_with("ph_"), -datetime) %>% 
+  tidyr::pivot_longer(!temp_fb, names_to = "delta", values_to = "diff") %>% 
+  ggplot(aes(x = temp_fb, y = diff, col = delta)) +
+  geom_point() + geom_line() +
+  labs(x = "Ferrybox temperature (°C)", y = "Spec pH - calculated pH (units)") +
+  theme(legend.title = element_blank())
+p <- (p1 + p2) / p3
+ggsave(filename = "figures/k1k2_all_pco2_at.png", plot = p, width = 25, height = 20, units = "cm")
+
+# save elements for k1k2 report
+k1k2_pco2_at <- list(mean_discrete = mean_discrete, const_choice = const_choice, tmp2 = tmp2,
+             errors_pco2_at = errors_pco2_at, diff_table_pco2_at = diff_table_pco2_at, 
+             diff_ls_quant = diff_ls_quant)
+save(k1k2_pco2_at, file="reports/k1k2_pco2_at.RData")
+```
+#### Difference Lueker vs Sulpis
+Using the following using mean discrete values:
+`r knitr::kable(mean_discrete, digits = c(1, 1, 0, 1, 1), caption = "Mean discrete values.", format = "simple")`
+
+The differences are:
+`r knitr::kable(const_choice, digits = c(0, 3, 1, 1, 3, 3, 1, 1, 1), caption = "Lueker minus Sulpis. e indicates typical errors estimated with seacarb.", format = "simple")`
+
+The discrete values of pCO2, AT, salinity and temperature in the FerryBox were used to calculate pH using the formulations for K1 and K2 of Lueker et al. (2000) and Sulpis et al. (2020). The differences induced by the choice of the carbonic acid constants are:
+
+- large for pH (`r round(diff_ls_quant[4, 2], digits = 3)` pH units on average; ; median is `r round(diff_ls_quant[3, 2], digits = 3)`) compared with the uncertainty calculated with seacarb (`r round(const_choice[1, 6], digits = 3)`). In general, pH is higher with Sulpis than with Lueker.
+- small for CT (`r round(diff_ls_quant[4, 3], digits = 1)` umol/kg on average; always lower with Sulpis than with Lueker) compared with the uncertainty calculated with seacarb (`r round(const_choice[1, 8], digits = 1)`)
+- negligible for OmegaAragonite
+
+#### Difference between all formulations and measured pH
+`r knitr::kable(diff_ls_quant, digits = c(0, rep(3, 5)), caption = "Lueker minus Sulpis using discrete Ferrybox data.", format = "simple")`
+
+Here we compare pH measured spectrophotometrically with pH calculated from pCO2 and AT using various formulations of K1 and K2. All pH values were normalized to a temperature of 4°C. The absolute differences are generally large, up to `r round(max(abs(diff_table_pco2_at[, 2:5])), digits=3)` pH units. In general, all formulations overestimate spectrophotometric pH. pH calculated using the formulation of Papadimitriou et al. (2018) is closer to measured pH, with a mean difference of `r round(diff_table_pco2_at[4, 4], digits=3)` pH units. This difference is `r abs(round(diff_table_pco2_at[4, 4]/errors_pco2_at$pH, digits=1))` times larger than the uncertainty for pH calculated from pCO2 and AT according to seacarb (`r round(errors_pco2_at$pH, digits=3)`).
+`r knitr::kable(diff_table_pco2_at, digits = 3, caption = "Difference between spectrophotometric pH and pH calculated with pCO2 and AT using different formulations for K1 and K2.", format = "simple")`
+`r include_graphics("figures/k1k2_all_pco2_at.png")`
+
+### K1K2 using CT and AT
+```{r impact of constants using FerryBox ct and at, echo=FALSE, warning=FALSE, message=FALSE}
+tmp <- d_all %>% 
+  tidyr::drop_na(ct, at, sal_fb, temp_fb) %>% 
+  dplyr::select(datetime, ph_s_dur_temp_4_l, ph_s_dur_temp_4_s20,
+                ph_s_dur_temp_4_p18, ph_s_dur_temp_4_m02, ct, at, sal_fb, temp_fb)
+# Using Lueker  
+carb_l2 <- carb(flag = 15, var1 = tmp$at * 1e-6, var2 = tmp$ct * 1e-6, S = tmp$sal_fb, 
+               T = tmp$temp_fb, P = 0, Pt = 0, Sit = 0, k1k2 = "l", kf = "dg", ks = "d", 
+               pHscale = "T", b = "u74")
+# normalize Lueker-derived pH at 4°C
+carb_l2$pH <- pHinsi(pH = carb_l2$pH, ALK = carb_l2$ALK, Tinsi = 4, Tlab = carb_l2$T, Pinsi = 0, 
+                         S = carb_l2$S, Pt = 0, Sit = 0, k1k2 = "l", kf = "dg", ks="d", 
+                         pHscale = "T", b="u74")
+# Using Sulpis
+  carb_s2 <- carb(flag = 15, var1 = tmp$at * 1e-6, var2 = tmp$ct * 1e-6, S = tmp$sal_fb, 
+               T = tmp$temp_fb, P = 0, Pt = 0, Sit = 0, k1k2 = "s20", kf = "dg", ks = "d", 
+               pHscale = "T", b = "u74")
+# normalize Sulpis-derived pH at 4°C
+carb_s2$pH <- pHinsi(pH = carb_s2$pH, ALK = carb_s2$ALK, Tinsi = 4, Tlab = carb_s2$T, Pinsi = 0, 
+                         S = carb_s2$S, Pt = 0, Sit = 0, k1k2 = "s20", kf = "dg", ks="d", 
+                         pHscale = "T", b="u74")
+# Using Papadimitriou
+carb_p2 <- carb(flag = 15, var1 = tmp$at * 1e-6, var2 = tmp$ct * 1e-6, S = tmp$sal_fb, 
+               T = tmp$temp_fb, P = 0, Pt = 0, Sit = 0, k1k2 = "p18", kf = "dg", ks = "d", 
+               pHscale = "T", b = "u74")
+# normalize Papadimitriou-derived pH at 4°C
+carb_p2$pH <- pHinsi(pH = carb_p2$pH, ALK = carb_p2$ALK, Tinsi = 4, Tlab = carb_p2$T, Pinsi = 0, 
+                         S = carb_p2$S, Pt = 0, Sit = 0, k1k2 = "p18", kf = "dg", ks="d", 
+                         pHscale = "T", b="u74")
+# Using Millero et al. (2002)
+carb_m2 <- carb(flag = 15, var1 = tmp$at * 1e-6, var2 = tmp$ct * 1e-6, S = tmp$sal_fb, 
+               T = tmp$temp_fb, P = 0, Pt = 0, Sit = 0, k1k2 = "m02", kf = "dg", ks = "d", 
+               pHscale = "T", b = "u74")
+# normalize Millero et al. (2002)-derived pH at 4°C
+carb_m2$pH <- pHinsi(pH = carb_m2$pH, ALK = carb_m2$ALK, Tinsi = 4, Tlab = carb_m2$T, Pinsi = 0, 
+                         S = carb_m2$S, Pt = 0, Sit = 0, k1k2 = "m02", kf = "dg", ks="d", 
+                         pHscale = "T", b="u74")
+# calculate difference Lueker - Sulpis
+diff_ls2 <- as_tibble(carb_l2 - carb_s2) %>% 
+  dplyr::rename(delta_ph = pH, delta_ct = DIC, delta_OmegaAragonite = OmegaAragonite) %>%
+  dplyr::select(delta_ph, delta_ct, delta_OmegaAragonite)
+# calculate descriptive statistics Lueker - Sulpis
+diff_ls_quant <- tibble(pH = as.numeric(summary(diff_ls2$delta_ph)),
+                        CT = as.numeric(summary(diff_ls2$delta_ct * 1e6)),
+                        OmegaAragonite = as.numeric(summary(diff_ls2$delta_OmegaAragonite))) %>%
+  dplyr::mutate(var = c("Min", "Q1", "Median", "Mean", "Q3", "Max"), .before = 1)
+# prepare tibble to compare calculated pH and spec pH
+tmp2 <- tibble(datetime = tmp$datetime, ph_s_dur_temp_4_l = tmp$ph_s_dur_temp_4_l, 
+               ph_s_dur_temp_4_s20 = tmp$ph_s_dur_temp_4_s20,
+               ph_s_dur_temp_4_p18 = tmp$ph_s_dur_temp_4_p18,
+               ph_s_dur_temp_4_m02 = tmp$ph_s_dur_temp_4_m02, 
+               pH_l2 = carb_l2$pH, pH_s2 = carb_s2$pH, 
+               pH_p2 = carb_p2$pH, pH_m2 = carb_m2$pH, temp_fb = tmp$temp_fb) %>% 
+  tidyr::drop_na(ph_s_dur_temp_4_l)
+# summary of differences
+lueker <- as.numeric(summary(tmp2$ph_s_dur_temp_4_l - tmp2$pH_l2))
+sulpis <- as.numeric(summary(tmp2$ph_s_dur_temp_4_s20 - tmp2$pH_s2))
+papadimitriou <- as.numeric(summary(tmp2$ph_s_dur_temp_4_p18 - tmp2$pH_p2))
+millero2002 <- as.numeric(summary(tmp2$ph_s_dur_temp_4_m02 - tmp2$pH_m2))
+diff_table_at_ct <- tibble(var = c("Min", "Q1", "Median", "Mean", "Q3", "Max"), lueker, sulpis, papadimitriou, millero2002)
+# make plots
+p1 <- ggreg(xdata = tmp2$ph_s_dur_temp_4_l, ydata = tmp2$pH_l2, type = "MA", plot = TRUE, 
+            title = "Lueker vs measured", subtitle = "both pH normalized at 4°C",
+            xlab = "Spectrophotometric pH normalized @ 4°C",
+            ylab = "pH @ 4°C calculated (AT+CT) with Lueker") +
+  lims(x = c(8, 8.4), y = c(8, 8.4)) +
+  theme(plot.title = element_text(size = 10),
+        axis.text = element_text(size = 10)) +
+  coord_fixed(ratio = 1)
+p2 <- ggreg(xdata = tmp2$ph_s_dur_temp_4_l, ydata = tmp2$pH_s2, type = "MA", plot = TRUE, 
+            title = "Sulpis vs measured", subtitle = "both pH normalized at 4°C",
+            xlab = "Spectrophotometric pH normalized @ 4°C",
+            ylab = "pH @ 4°C calculated (AT+CT) with Sulpis")  +
+  lims(x = c(8, 8.4), y = c(8, 8.4)) +
+  theme(plot.title = element_text(size = 10),
+        axis.text = element_text(size = 10)) +
+  coord_fixed(ratio = 1)
+p3 <- tmp2 %>% 
+  dplyr::mutate(delta_lueker = tmp2$ph_s_dur_temp_4_l - tmp2$pH_l2, 
+                delta_sulpis = tmp2$ph_s_dur_temp_4_s20 - tmp2$pH_s2, 
+                delta_papadimitriou = tmp2$ph_s_dur_temp_4_p18 - tmp2$pH_p2, 
+                delta_millero2002 = tmp2$ph_s_dur_temp_4_m02 - tmp2$pH_m2) %>% 
+  dplyr::select(-starts_with("ph_"), -datetime) %>% 
+  tidyr::pivot_longer(!temp_fb, names_to = "delta", values_to = "diff") %>% 
+  ggplot(aes(x = temp_fb, y = diff, col = delta)) +
+  geom_point() + geom_line() +
+  labs(x = "Ferrybox temperature (°C)", y = "Spec pH - calculated pH (units)") +
+  theme(legend.title = element_blank())
+p <- (p1 + p2) / p3
+ggsave(filename = "figures/k1k2_all_at_ct.png", plot = p, width = 25, height = 20, units = "cm")
+
+# save elements for k1k2 report
+k1k2_at_ct <- list(errors_at_ct = errors_at_ct,
+                   diff_table_at_ct = diff_table_at_ct)
+save(k1k2_at_ct, file="reports/k1k2_at_ct.RData")
+```
+#### Difference Lueker vs Sulpis
+Using the following using mean discrete values:
+`r knitr::kable(mean_discrete, digits = c(1, 1, 0, 1, 1), caption = "Mean discrete values.", format = "simple")`
+
+The differences are:
+`r knitr::kable(const_choice, digits = c(0, 3, 1, 1, 3, 3, 1, 1, 1), caption = "Lueker minus Sulpis. e indicates typical errors estimated with seacarb.", format = "simple")`
+
+#### Difference between all formulations and measured pH
+`r knitr::kable(diff_table_at_ct, digits = 3, caption = "Difference between spectrophotometric pH and pH calculated with AT and CT using different formulations for K1 and K2.", format = "simple")`
+`r include_graphics("figures/k1k2_all_at_ct.png")`
+
+Here we compare pH measured spectrophotometrically with pH calculated from AT and CT using various formulations of K1 and K2. All pH values were normalized to a temperature of 4°C. The absolute differences are generally large, up to `r round(max(abs(diff_table_at_ct[, 2:5])), digits=3)` pH units. In general, all formulations overestimate spectrophotometric pH. pH calculated using the formulation of Papadimitriou et al. (2018) is closer to measured pH, with a mean difference of `r round(diff_table_at_ct[4, 4], digits=3)` pH units. This difference is `r abs(round(diff_table_at_ct[4, 4]/errors_at_ct$pH, digits=1))` times the uncertainty for pH calculated from AT and CT according to seacarb (`r round(errors_at_ct$pH, digits=3)`). The differences found with the other formulations are, on average, slightly lower than the uncertainty for pH calculated from AT and CT according to seacarb.
+
+## Stratification
+```{r stratification, echo=FALSE, message= FALSE, warning=FALSE}
+# we look at the distribution of data
+tmp <- d_all %>% 
+  dplyr::select(date, depth, pressure_insitu_ctd) %>% 
+  dplyr::mutate(month=month(d_all$date, label = TRUE)) %>% 
+  group_by(month)
+depth_labels <- c("0-2", "2-4", "4-6", "6-8", "8-12")
+# we look at salinity all depths
+tmp <- d_all %>% 
+  dplyr::mutate(depth_group = depth_group_pressure) %>% 
+  dplyr::select(montht, sal_insitu_ctd, depth_group) %>%
+  group_by(depth_group, montht)
+p <- tmp %>% 
+  ggplot(aes(x=as.factor(depth_group), y = sal_insitu_ctd)) +
+  geom_boxplot(notch=FALSE, size=0.2, fill="grey50", outlier.color = "blue", outlier.size = 0.3) +
+  labs(title = "Salinity vs depth", x = "Depth (m)", y= "Salinity") +
+  scale_x_discrete(labels = depth_labels) +
+  facet_wrap(vars(montht), scale = "free_y")
+print(p)
+
+summary(aov(tmp$sal_insitu_ctd ~ tmp$depth_group * tmp$montht))
+
+# we look at salinity 0 to 4 m vs more than 8 m
+tmp <- d_all %>% 
+  dplyr::mutate(depth_group = depth_group_pressure) %>% 
+  dplyr::select(montht, sal_insitu_ctd, depth_group) %>%
+  dplyr::mutate(depth = as.factor(ifelse(depth_group == 1 | depth_group == 3, 2, depth_group))) %>% 
+  dplyr::filter(depth == 2 | depth == 10)
+tmp_delta <- tmp %>% 
+  group_by(depth, montht) %>% 
+  dplyr::summarise(sal_med = median(sal_insitu_ctd, na.rm = TRUE)) %>% 
+  tidyr::pivot_wider(names_from = depth, values_from = sal_med) %>% 
+  dplyr::rename(median0_4m = "2",
+                median8_12m = "10") %>% 
+  dplyr::mutate(sal_delta = median0_4m - median8_12m)
+kable(tmp_delta, digits = 2, caption = "Median salinity with (median0_4m - median8_12m)")
+
+p <- tmp %>% 
+  ggplot(aes(x=as.factor(depth), y = sal_insitu_ctd)) +
+  geom_boxplot(notch=FALSE, size=0.2, fill="grey50", outlier.color = "blue", outlier.size = 0.3) +
+  labs(title = "Salinity vs depth", x = "Depth (m)", y= "Salinity") +
+  facet_wrap(vars(montht), scale = "free_y")
+print(p)
+
+sal_delta_plt <- tmp_delta %>% 
+  ggplot(aes(x=montht, y=sal_delta)) +
+  scale_x_discrete(expand = c(0, 0)) +
+  scale_y_continuous("Salinity", limits = c(-1.1, 0.8), expand = c(0, 0)) +
+  geom_col(fill="blue") +
+  geom_hline(yintercept = 0) +
+  annotate("text", x = 1.5, y = 0.65, label = substitute("S"["surface"] ~ "> S"["deep"])) +
+  annotate("text", x = 1.5, y = -0.9, label = substitute("S"["surface"] ~ "< S"["deep"])) +
+  Mytheme(size_labs = 12) +
+  theme(panel.grid.major.x = element_blank(), panel.grid.major.y = element_blank(),
+        panel.grid.minor.y = element_blank())
+
+# we look at temperature all depths
+tmp <- d_all %>% 
+  dplyr::mutate(depth_group = depth_group_pressure) %>% 
+  dplyr::select(montht, temp_insitu_ctd, depth_group) %>%
+  group_by(depth_group, montht)
+p <- tmp %>% 
+  ggplot(aes(x=as.factor(depth_group), y = temp_insitu_ctd)) +
+  geom_boxplot(notch=FALSE, size=0.2, fill="grey50", outlier.color = "blue", outlier.size = 0.3) +
+  labs(title = "Temperature vs depth", x = "Depth (m)", y= "Temperature") +
+  facet_wrap(vars(montht), scale = "free_y")
+print(p)
+
+# we look at temperature 0 to 4 m vs more than 8 m
+tmp <- d_all %>% 
+  dplyr::mutate(depth_group = depth_group_pressure) %>% 
+  dplyr::select(montht, temp_insitu_ctd, depth_group) %>%
+  dplyr::mutate(depth = as.factor(ifelse(depth_group == 1 | depth_group == 3, 2, depth_group))) %>% 
+  dplyr::filter(depth == 2 | depth == 10) %>% 
+  group_by(depth, montht)
+summary(aov(tmp$temp_insitu_ctd ~ tmp$depth * tmp$montht))
+
+tmp_delta <- tmp %>% 
+  group_by(depth, montht) %>% 
+  dplyr::summarise(temp_med = median(temp_insitu_ctd, na.rm = TRUE)) %>% 
+  tidyr::pivot_wider(names_from = depth, values_from = temp_med) %>% 
+  dplyr::rename(median0_4m = "2",
+                median8_12m = "10") %>% 
+  dplyr::mutate(temp_delta = median0_4m - median8_12m)
+kable(tmp_delta, digits = 2, caption = "Median temperature with (median0_4m - median8_12m)")
+
+p <- tmp %>% 
+  ggplot(aes(x=as.factor(depth), y = temp_insitu_ctd)) +
+  geom_boxplot(notch=FALSE, size=0.2, fill="grey50", outlier.color = "blue", outlier.size = 0.3) +
+  labs(title = "Temperature vs depth", x = "Depth (m)", y= "Temperature") +
+  facet_wrap(vars(montht), scale = "free_y")
+print(p)
+
+temp_delta_plt <- tmp_delta %>% 
+  ggplot(aes(x=montht, y=temp_delta)) +
+  scale_x_discrete(expand = c(0, 0)) +
+  scale_y_continuous("Temperature", limits = c(-3, 3), expand = c(0, 0)) +
+  geom_col(fill="blue") +
+  geom_hline(yintercept = 0) +
+  annotate("text", x = 1.5, y = 2.5, label = substitute("T"["surface"] ~ "> T"["deep"])) +
+  annotate("text", x = 1.5, y = -2.5, label = substitute("T"["surface"] ~ "< T"["deep"])) +
+  Mytheme(size_labs = 12) +
+  theme(panel.grid.major.x = element_blank(), panel.grid.major.y = element_blank(),
+        panel.grid.minor.y = element_blank())
+
+# we look at density 0 to 4 m vs more than 8 m
+tmp <- d_all %>% 
+  dplyr::mutate(depth_group = depth_group_pressure) %>% 
+  dplyr::select(montht, sal_insitu_ctd, temp_insitu_ctd, depth_group, pressure_insitu_ctd) %>%
+  dplyr::mutate(density = seacarb::rho(S = sal_insitu_ctd, T = temp_insitu_ctd, P = pressure_insitu_ctd),
+                depth = as.factor(ifelse(depth_group == 1 | depth_group == 3, 2, depth_group))) %>% 
+  dplyr::filter(depth == 2 | depth == 10) %>% 
+  dplyr::select(montht, depth, density) %>% 
+  group_by(depth, montht) 
+summary(tmp)
+summary(aov(tmp$density ~ tmp$depth * tmp$montht))
+
+tmp_delta <- tmp %>% 
+  group_by(depth, montht) %>% 
+  dplyr::summarise(den_med = median(density, na.rm = TRUE)) %>% 
+  tidyr::pivot_wider(names_from = depth, values_from = den_med) %>% 
+  dplyr::rename(median0_4m = "2",
+                median8_12m = "10") %>% 
+  dplyr::mutate(den_delta = median0_4m - median8_12m)
+kable(tmp_delta, digits = 2, caption = "Median density with (median0_4m - median8_12m)")
+
+p <- tmp %>% 
+  ggplot(aes(x=as.factor(depth), y = density)) +
+  geom_boxplot(notch=FALSE, size=0.2, fill="grey50", outlier.color = "blue", outlier.size = 0.3) +
+  labs(title = "Density vs depth", x = "Depth (m)", y= "Density") +
+  scale_x_discrete(labels = c("0-4", "8-12")) +
+  facet_wrap(vars(montht), scale = "free_y")
+print(p)
+
+den_delta_plt <- tmp_delta %>% 
+  ggplot(aes(x=montht, y=den_delta)) +
+  scale_x_discrete(expand = c(0, 0)) +
+  scale_y_continuous("Density", limits = c(-1.5, 0.5), expand = c(0, 0)) +
+  geom_col(fill="blue") +
+  geom_hline(yintercept = 0) +
+  annotate("text", x = 1.5, y = 0.1, label = substitute("D"["surface"] ~ "> D"["deep"])) +
+  annotate("text", x = 1.5, y = -1.2, label = substitute("D"["surface"] ~ "< D"["deep"])) +
+  Mytheme(size_labs = 12) +
+  theme(panel.grid.major.x = element_blank(), panel.grid.major.y = element_blank(),
+        panel.grid.minor.y = element_blank())
+
+# we look at pHint_tot_sf 0 to 4 m vs more than 8 m
+tmp <- d_all %>% 
+  dplyr::mutate(depth_group = depth_group_pressure) %>% 
+  dplyr::select(montht, pHint_tot_sf, depth_group) %>%
+  dplyr::mutate(depth = as.factor(ifelse(depth_group == 1 | depth_group == 3, 2, depth_group))) %>% 
+  dplyr::filter(depth == 2 | depth == 10) %>% 
+  group_by(depth, montht)
+summary(aov(tmp$pHint_tot_sf ~ tmp$depth * tmp$montht))
+
+tmp_delta <- tmp %>% 
+  group_by(depth, montht) %>% 
+  dplyr::summarise(pH_tot_sf_med = median(pHint_tot_sf, na.rm = TRUE)) %>% 
+  tidyr::pivot_wider(names_from = depth, values_from = pH_tot_sf_med) %>% 
+  dplyr::rename(median0_4m = "2",
+                median8_12m = "10") %>% 
+  dplyr::mutate(pH_tot_sf_med_delta = median0_4m - median8_12m)
+kable(tmp_delta, digits = 3, caption = "Median seafet pH with (median0_4m - median8_12m)")
+
+p <- tmp %>% 
+  ggplot(aes(x=as.factor(depth), y = pHint_tot_sf)) +
+  geom_boxplot(notch=FALSE, size=0.2, fill="grey50", outlier.color = "blue", outlier.size = 0.3) +
+  labs(title = "pH vs depth", x = "Depth (m)", y= "pHint_tot_sf") +
+  facet_wrap(vars(montht), scale = "free_y")
+print(p)
+
+pH_delta_plt <- tmp_delta %>% 
+  ggplot(aes(x=montht, y=pH_tot_sf_med_delta)) +
+  #labs(y = substitute("pH"["T"] ~ "at in situ temp."), x = "Month") +
+  scale_x_discrete("Month", expand = c(0, 0)) +
+  scale_y_continuous(substitute("pH"["T"] ~ "at in situ temp."), limits = c(-0.2, 0.1), expand = c(0, 0)) +
+  geom_col(fill="blue") +
+  geom_hline(yintercept = 0) +
+  annotate("text", x = 1.5, y = 0.8, label = substitute("pH"["surface"] ~ "> pH"["deep"])) +
+  annotate("text", x = 1.5, y = -0.15, label = substitute("pH"["surface"] ~ "< pH"["deep"])) +
+  Mytheme(size_labs = 12) +
+  theme(panel.grid.major.x = element_blank(), panel.grid.major.y = element_blank(),
+        panel.grid.minor.y = element_blank())
+
+deltas <- sal_delta_plt / temp_delta_plt / den_delta_plt / pH_delta_plt
+deltas <- deltas + plot_annotation(tag_levels = 'a')
+ggsave(filename = "figures/deltas.png", plot = deltas, width = 15, height = 20, units = "cm")
+```
+
+Using the medians because data are missing.
+
++ Salinity 
++ Temperature is always colder at 0-4 m than below 8 m (0.15 to 2°C).
+
+## Takahashi thermal vs biological
+```{r Takahashi thermal vs biological, include=FALSE}
+# Select data
+taka <- d_all %>% # just for this chunk
+  dplyr::select(datetime, monthd, sal_fb, temp_insitu_11m, pco2_fb_insi_temp) 
+
+# In order to remove the temperature effect from the observed pCO2 , the observed pCO2 values are normalized to a constant temperature (annual mean) -- Takahashi et al. (2002)
+temp_mean <- mean(taka$temp_insitu_11m, na.rm = TRUE)
+taka <- taka %>% 
+  dplyr::mutate(pco2_mean_temp = pco2_fb_insi_temp * exp(0.0423 * (temp_mean - temp_insitu_11m)))
+d_pco2_bio <- max(taka$pco2_mean_temp, na.rm = TRUE) - min(taka$pco2_mean_temp, na.rm = TRUE)
+d_pco2_temp <- max(taka$pco2_fb_insi_temp, na.rm = TRUE) - min(taka$pco2_fb_insi_temp, na.rm = TRUE)
+temp_bio <- d_pco2_temp / d_pco2_bio
+```
+
+## Deconvolution of pCO2 changes
+```{r pCO2 changes due to changes in T, S, AT and CT, include=FALSE}
+# First we prepare data. CT is needed for deconvolution
+# we calculate it from at_calc and pCO2
+# nuts are not taken into consideration
+deconv_tmp <- d_all %>% # just for this chunk
+  dplyr::select(datetime, monthd, sal_fb, temp_fb, pco2_fb, at_calc) %>% 
+  tidyr::drop_na()
+deconv_tmp <- deconv_tmp %>% 
+  dplyr::mutate(ct_calc = seacarb::carb(
+    flag = 24, var1 = deconv_tmp$pco2_fb, var2 = deconv_tmp$at_calc*1e-6, S=deconv_tmp$sal_fb, T=deconv_tmp$temp_fb, 
+    Patm=1, P=1.1, Pt=0, Sit=0, 
+    k1k2="l", kf="dg", ks="d", pHscale="T", b="u74")$DIC * 1e6
+    )
+deconv_monthly <-  deconv_tmp %>% 
+  dplyr::group_by(monthd) %>% 
+  dplyr::summarise(
+    sal_fb = mean(sal_fb, na.rm = TRUE),
+    temp_fb = mean(temp_fb, na.rm = TRUE),
+    pco2_fb = mean(pco2_fb, na.rm = TRUE),
+    at_calc = mean(at_calc, na.rm = TRUE),
+    ct_calc = mean(ct_calc, na.rm = TRUE)
+  ) %>% 
+  dplyr::ungroup()
+  
+deconv_dat <- tibble(sampling_date=deconv_tmp$datetime,
+                     date=as.POSIXct(deconv_tmp$datetime),
+                     mAT=deconv_monthly$at_calc[deconv_tmp$monthd]*1e-6, mCT=deconv_monthly$ct_calc[deconv_tmp$monthd]*1e-6, mS=deconv_monthly$sal_fb[deconv_tmp$monthd], mT=deconv_monthly$temp_fb[deconv_tmp$monthd], P=11/10, Pt=rep(0, length.out=nrow(deconv_tmp)), Sit=rep(0, length.out=nrow(deconv_tmp)), AT=deconv_tmp$at_calc*1e-6, CT=deconv_tmp$ct_calc*1e-6, S=deconv_tmp$sal_fb, T=deconv_tmp$temp_fb)
+
+d <- NULL; deconv <- NULL # d is for the data to use in carb, deconv is to store the results
+deconv <- tibble(date=as.POSIXct(deconv_tmp$datetime))
+d <- filter(deconv_dat, !is.na(mAT), !is.na(mCT), !is.na(mS), !is.na(T)) # we eliminate date with NAs
+
+deconv_pCO2_T <- tibble(date = d$date,
+                        deconv_pCO2_T=carb(flag=15, var1=d$mAT, var2=d$mCT, S=d$mS, T=d$T, P=d$P, Pt=d$Pt, Sit=d$Sit, k1k2="l", kf="dg", ks="d", pHscale="T", b="u74")$pCO2
+)
+d <- filter(deconv_dat, !is.na(mAT), !is.na(mCT), !is.na(S), !is.na(mT)) # we eliminate date with NAs
+deconv_pCO2_S <- data_frame(date=d$date,
+                     deconv_pCO2_S=carb(flag=15, var1=d$mAT, var2=d$mCT, S=d$S, T=d$mT, P=d$P, Pt=d$Pt, 
+                                      Sit=d$Sit, k1k2="l", kf="dg", ks="d", pHscale="T", b="u74")$pCO2
+                     )
+d <- filter(deconv_dat, !is.na(AT), !is.na(mCT), !is.na(mS), !is.na(mT)) # we eliminate date with NAs
+deconv_pCO2_AT <- data_frame(date=d$date,
+                     deconv_pCO2_AT=carb(flag=15, var1=d$AT, var2=d$mCT, S=d$mS, T=d$mT, P=d$P, Pt=d$Pt, Sit=d$Sit, k1k2="l", kf="dg", ks="d", pHscale="T", b="u74")$pCO2
+)
+d <- filter(deconv_dat, !is.na(mAT), !is.na(CT), !is.na(mS), !is.na(mT)) # we eliminate date with NAs
+deconv_pCO2_CT <- data_frame(date=d$date,
+                     deconv_pCO2_CT=carb(flag=15, var1=d$mAT, var2=d$CT, S=d$mS, T=d$mT, P=d$P, Pt=d$Pt, Sit=d$Sit, k1k2="l", kf="dg", ks="d", pHscale="T", b="u74")$pCO2
+)
+
+# Bring all results together
+deconv <- deconv %>%
+  left_join(deconv_pCO2_T) %>%
+  left_join(deconv_pCO2_S) %>%
+  left_join(deconv_pCO2_AT) %>%
+  left_join(deconv_pCO2_CT)
+
+# Regressions and tables of key parameters
+var_list <-
+  c(
+  "deconv_pCO2_T",
+  "deconv_pCO2_S",
+  "deconv_pCO2_AT",
+  "deconv_pCO2_CT"
+  )
+lms <- lapply(var_list, function(x) {
+  summary(lm(substitute(i ~ decimal_date(date), list(i = as.name(x))), data = deconv))
+  })
+reg <- NULL
+for (i in 1:length(var_list)) {
+  #one loops through all anomalies
+  # calculate probability of fstatistic because it cannot be extracted from lms above
+  # see http://stats.stackexchange.com/questions/92824/extracting-the-model-p-value-for-a-multiple-regression-in-r
+  # slope returned by lm is per second
+  prob <-
+  pf(lms[[i]]$fstatistic[1],
+  lms[[i]]$fstatistic[2],
+  lms[[i]]$fstatistic[3],
+  lower.tail = FALSE)
+  reg <-
+  rbind(reg, as.numeric(
+  c(
+    lms[[i]]$coefficients[2, 1],
+    lms[[i]]$coefficients[2, 2],
+  lms[[i]]$coefficients[2, 4],
+  lms[[i]]$coefficients[1, 1],
+  lms[[i]]$coefficients[1, 2],
+  lms[[i]]$coefficients[1, 4],
+  lms[[i]]$r.squared,
+  prob
+  )
+  ))
+}
+colnames(reg) <-
+  c("Slope",
+  "SE Slope",
+  "P Slope",
+  "Intercept",
+  "SE int.",
+  "P int.",
+  "R2",
+  "P value")
+row.names(reg) <- var_list
+reg_deconv <- reg
+
+# Plot
+#deconv_melt <- melt(deconv, id="date")
+deconv_melt <-  gather(data = deconv, key = variable, value=value, -date)
+fig_deconv_pCO2 <- ggplot(deconv_melt) + geom_point(aes(x=date, y=value, color=variable), size=0.5) +
+  facet_grid(variable ~., scales="free_y") + 
+  xlab("Time") + ylab("pCO2 (uatm")+
+  Mytheme() +
+  scale_colour_discrete(guide="none")
+ggsave(file="figures/fig_deconv_pCO2.png", fig_deconv_pCO2, width = 18, height = 20, units = "cm")
+```
 
 ## Air-sea CO2 flux
 
@@ -2546,7 +3005,7 @@ To calculate the air-sea CO2 flux, we use:
 
 + seawater pCO2 measured in the FerryBox on water pumped from 11 m depth.
 + atmospheric CO2 measured at the Zeppelin station and downloaded on 2020-08-19 from https://gaw.kishou.go.jp/search/file/0054-6001-1001-01-01-9999 
-+ wind spreed data collected by the AWI at 10 m height (sent to JPG by P. Fischer, Aug. 2020)
++ wind speed data collected by the AWI at 10 m height (sent to JPG by P. Fischer, Aug. 2020)
 
 Since there are many gaps, a climatological year is used: air-sea flux calculated by day, then by month, then by year.
 
@@ -2554,164 +3013,83 @@ seaFET pH is significantly different at the surface and depth. It should therefo
 
 Let's look first at the stratification (salinity, temperature and density).
 
-```{r stratification, echo=FALSE, message= FALSE, warning=FALSE}
-# we look at salinity all depths
-tmp <- d_all %>% 
-  dplyr::select(montht, sal_insitu_ctd, depth) %>%
-  group_by(depth, montht)
-p <- tmp %>% 
-  ggplot(aes(x=as.factor(depth), y = sal_insitu_ctd)) +
-  geom_boxplot(notch=FALSE, size=0.2, fill="grey50", outlier.color = "blue", outlier.size = 0.3) +
-  labs(title = "Salinity vs depth", x = "Depth (m)", y= "Salinity") +
-  facet_wrap(vars(montht), scale = "free_y")
-print(p)
-
-# heatmap
-tmp <- d_all %>%
-  dplyr::filter(!is.na(depth)) %>%
-  dplyr::select(montht, sal_insitu_ctd, depth) %>%
-  group_by(montht, depth)
-sal_median <- skim(tmp) %>%
-  dplyr::select(depth, montht, numeric.p50) %>%
-  pivot_wider(names_from = depth, values_from = c(numeric.p50))
-
-plt <- sal_median %>%
-  ggplot(aes(
-    x = montht,
-    y = as.factor(depth),
-    fill = median(sal_insitu_ctd)
-  ), color = "white") +
-  geom_tile() +
-  scale_fill_gradientn(colors = viridis(5), breaks = seq(31, 36, by = 1), na.value = "grey") +
-  labs(x = "", y = "", fill = "Salinity") +
-  scale_x_discrete(position = "top") +
-  scale_y_discrete(name = "", limits = rev(levels(as.factor(tmp$depth)))) +
-  # scale_y_discrete(name = "", limits = rev(levels(as.factor(tmp$depth))),
-  #                  rev(levels(tmp$depth))[c(1,3,5,7,9)]) +
-  # coord_equal() +
-  theme(legend.position = "top",
-        axis.text.y = element_text(size = 13),
-        axis.text.x = element_text(size = 13),
-        legend.text = element_text(size = 13),
-        legend.title = element_text(size = 14),
-        #legend.key.size = unit(1.5, "cm"),
-        legend.key.height = unit(0.8, "cm"),
-        legend.key.width  = unit(2, "cm"))
-#plt
-
-# we look at salinity 0 to 4 m vs more than 8 m
-tmp <- d_all %>% 
-  dplyr::select(montht, sal_insitu_ctd, depth) %>%
-  dplyr::mutate(depth = as.factor(ifelse(depth == 1 | depth == 3, 2, depth))) %>% 
-  dplyr::filter(depth == 2 | depth == 9) %>% 
-  group_by(depth, montht)
-sal_range <- skim(tmp) %>% 
-  dplyr::select(depth, montht, numeric.p50) %>% 
-  pivot_wider(names_from = depth, values_from = c(numeric.p50)) %>% 
-  dplyr::rename(median2m = "2",
-                median9m = "9") %>% 
-  dplyr::mutate(sal_range = median2m - median9m)
-kable(sal_range, digits = 2, caption = "Median salinity")
-
-summary(aov(tmp$sal_insitu_ctd ~ tmp$depth * tmp$montht))
-
-p <- tmp %>% 
-  ggplot(aes(x=as.factor(depth), y = sal_insitu_ctd)) +
-  geom_boxplot(notch=FALSE, size=0.2, fill="grey50", outlier.color = "blue", outlier.size = 0.3) +
-  labs(title = "Salinity vs depth", x = "Depth (m)", y= "Salinity") +
-  facet_wrap(vars(montht), scale = "free_y")
-print(p)
-
-# we look at temperature all depths
-tmp <- d_all %>% 
-  dplyr::select(montht, temp_insitu_ctd, depth) %>%
-  group_by(depth, montht)
-p <- tmp %>% 
-  ggplot(aes(x=as.factor(depth), y = temp_insitu_ctd)) +
-  geom_boxplot(notch=FALSE, size=0.2, fill="grey50", outlier.color = "blue", outlier.size = 0.3) +
-  labs(title = "Temperature vs depth", x = "Depth (m)", y= "Salinity") +
-  facet_wrap(vars(montht), scale = "free_y")
-print(p)
-
-# we look at temperature 0 to 4 m vs more than 8 m
-tmp <- d_all %>% 
-  dplyr::select(montht, temp_insitu_ctd, depth) %>%
-  dplyr::mutate(depth = as.factor(ifelse(depth == 1 | depth == 3, 2, depth))) %>% 
-  dplyr::filter(depth == 2 | depth == 9) %>% 
-  group_by(depth, montht)
-temp_range <- skim(tmp) %>% 
-  dplyr::select(depth, montht, numeric.p50) %>% 
-  pivot_wider(names_from = depth, values_from = c(numeric.p50)) %>% 
-  dplyr::rename(median2m = "2",
-                median9m = "9") %>% 
-  dplyr::mutate(temp_range = median2m - median9m)
-kable(temp_range, digits = 2, caption = "Median temperature")
-summary(aov(tmp$temp_insitu_ctd ~ tmp$depth * tmp$montht))
-
-p <- tmp %>% 
-  ggplot(aes(x=as.factor(depth), y = temp_insitu_ctd)) +
-  geom_boxplot(notch=FALSE, size=0.2, fill="grey50", outlier.color = "blue", outlier.size = 0.3) +
-  labs(title = "Temperature vs depth", x = "Depth (m)", y= "Salinity") +
-  facet_wrap(vars(montht), scale = "free_y")
-print(p)
-
-# we look at density 0 to 4 m vs more than 8 m
-tmp <- d_all %>% 
-  dplyr::select(montht, sal_insitu_ctd, temp_insitu_ctd, depth) %>%
-  dplyr::mutate(density = seacarb::rho(S = sal_insitu_ctd, T = temp_insitu_ctd, P = 0),
-                depth = as.factor(ifelse(depth == 1 | depth == 3, 2, depth))) %>% 
-  dplyr::filter(depth == 2 | depth == 9) %>% 
-  dplyr::select(montht, depth, density) %>% 
-  group_by(depth, montht) 
-den_range <- skim(tmp) %>% 
-  dplyr::select(depth, montht, numeric.p50) %>% 
-  pivot_wider(names_from = depth, values_from = c(numeric.p50)) %>% 
-  dplyr::rename(median2m = "2",
-                median9m = "9") %>% 
-  dplyr::mutate(den_range = median2m - median9m)
-kable(den_range, digits = 2, caption = "Median density")
-summary(aov(tmp$density ~ tmp$depth * tmp$montht))
-
-p <- tmp %>% 
-  ggplot(aes(x=as.factor(depth), y = density)) +
-  geom_boxplot(notch=FALSE, size=0.2, fill="grey50", outlier.color = "blue", outlier.size = 0.3) +
-  labs(title = "Density vs depth", x = "Depth (m)", y= "Salinity") +
-  facet_wrap(vars(montht), scale = "free_y")
-print(p)
-```
-Using the medians because data are missing.
-
-+ Salinity 
-+ Temperature is always colder at 0-4 m than below 8 m (0.15 to 2°C).
-
-
 ```{r atmospheric CO2 Zeppelin, echo=FALSE, message= FALSE, warning=FALSE}
 ## Atmospheric CO2 Zeppelin
 # downloaded 2020-08-19 from https://gaw.kishou.go.jp/search/file/0054-6001-1001-01-01-9999
 # value:units : ppm
 # value:long_name : measured_mole_fraction_of_trace_gas_in_dry_air
-atm_co2 <-
-  read_delim(file = paste0(path, "atmospheric_co2_zeppelin/co2_zep_surface-insitu_54_9999-9999_hourly.txt"),
+atm_co2_old <-
+  read_delim(file = paste0(path, "atmospheric_co2_zeppelin_old/co2_zep_surface-insitu_54_9999-9999_hourly.txt"),
   delim = " ",
   comment = "#",
   #skip = 182,
   col_names = TRUE,
   na = "-999.999",
   ) %>%
-  dplyr::mutate(pco2_air = value,
+  dplyr::mutate(co2_air = value,
   datetime = as_datetime(paste(paste(year, month, day, sep="-"), paste(hour, minute, second, sep="-"), sep = " "))) %>%
-  dplyr::select(datetime, pco2_air)
-d_all <- dplyr::left_join(d_all, atm_co2, by = "datetime")
-p_atm_co2 <- ggplot(data=atm_co2) +
-  geom_point(aes(x = datetime, y = pco2_air), col = "blue", size = 0.15, na.rm = TRUE) +
+  dplyr::select(datetime, co2_air)
+
+# downloaded 2021-04-14
+# http://ebas.nilu.no/Pages/DataSetList.aspx?key=3673A72690B343B1AEC0F1673FE8C09D
+file_names <- c("atmospheric_co2_zeppelin/NO0042G.20160101000000.20180420115103.online_crds.carbon_dioxide.air.1y.1h.NO01L_picarro2_G2401.NO01L_picarro.lev2.nas", "atmospheric_co2_zeppelin/NO0042G.20170101000000.20180413180000.online_crds.carbon_dioxide.air.7mo.1h.NO01L_picarro2_G2401.NO01L_picarro.lev2.nas", 
+"atmospheric_co2_zeppelin/NO0042G.20180101000000.20210413133953.online_crds.carbon_dioxide.air.1y.1h.NO01L_picarro2_G2401.NO01L_picarro.lev2.nas", "atmospheric_co2_zeppelin/NO0042G.20190101000000.20210413133953.online_crds.carbon_dioxide.air.1y.1h.NO01L_picarro2_G2401.NO01L_picarro.lev2.nas", "atmospheric_co2_zeppelin/NO0042G.20200101000000.20210413000000.online_crds.carbon_dioxide.air.1y.1h.NO01L_picarro2_G2401.NO01L_picarro.lev2.nas")
+atm_co2_new <- NULL
+year_co2 <- ymd_hm(paste0(c(2016:2020), "-01-01 00:00"))
+for (i in 1:5) {
+tmp <-
+  read_table2(file = paste0(path, file_names[i]),
+  comment = "#",
+  #skip = 182,
+  col_names = FALSE,
+  na = c("9999.999", "99.999", "9999.990", "9999.99"),
+  ) %>%
+  dplyr::mutate(co2_air = X3,
+  datetime = year_co2[i] + X1*24*3600) %>% 
+  dplyr::select(datetime, co2_air)
+  tmp$datetime <- lubridate::round_date(tmp$datetime, unit="1 minutes")
+atm_co2_new <- bind_rows(atm_co2_new, tmp)
+  }
+# combine the two sources of CO2 data
+# the new source has missing data in 2018, so the data from the old source
+# are used for 2018
+atm_co2 <- dplyr::full_join(atm_co2_new, atm_co2_old, by = "datetime")
+atm_co2 <- atm_co2 %>% 
+  dplyr::rename(co2_air_new = co2_air.x, co2_air_old = co2_air.y) %>%
+  dplyr::mutate(co2_air = ifelse(year(atm_co2$datetime) == 2020, co2_air_new, co2_air_old))
+# Below was an attempt to smooth but
+# zz <- as_tsibble(atm_co2) %>% 
+#   mutate(smoothed_co2_air = slide_dbl(co2_air, .f = mean, .before = 12, .after = 12, .complete = TRUE))
+# ggplot(zz) +
+#   geom_line(aes(x = datetime, y = smoothed_co2_air))
+d_all <- dplyr::left_join(d_all, dplyr::select(atm_co2, datetime, co2_air), by = "datetime") %>% 
+  dplyr::select(sort(current_vars()))
+
+
+p_atm_co2 <- d_all %>% 
+  #tidyr::pivot_longer(cols = c(pco2_air, pco2_air_old), names_to = "dataset", values_to = "pco2") %>% 
+  ggplot() +
+  geom_point(aes(x = datetime, y = co2_air), col = "blue", size = 0.15, na.rm = TRUE) +
+  #facet_grid(rows = vars(dataset)) +
+  #geom_point(aes(x = datetime, y = pco2_air_old), col = "grey", size = 0.15, na.rm = TRUE) +
   labs(title = "Atmospheric CO2 at Zeppelin", x = "Time", y = "CO2 (ppm)") +
   Mytheme(size_labs = 8)
+#p_atm_co2
 ggsave(filename = "figures/atm_co2.png", plot = p_atm_co2, width = 20, units = "cm")
 ```
 
 ```{r meteo data, echo=FALSE, message= FALSE, warning=FALSE}
 #[1] "Year"               "Month"              "Day"                "Hour"              
 #[5] "Temperature[degC]"  "Pressure[hPa]"      "WindSpeed[m/s]"     "WindDirection[deg]"
+wind_2020 <-
+  readRDS(file = paste0(
+    path,
+    "meteo_awi/svl_wind10_2020_hour.rds"
+  )) %>% 
+  dplyr::rename(datetime = 'Date/Time',
+                ws = mean_speed,
+                wd = mean_direction) %>% 
+  dplyr::mutate(datetime = as.POSIXct(datetime, format = "%d-%m-%Y %H"))
 
 load(file = paste0(path, "meteo_awi/wind_nyalesund.RData")) 
 meteo <- tibble(windnyalesund) %>%
@@ -2722,7 +3100,8 @@ meteo <- tibble(windnyalesund) %>%
          wd = `WindDirection[deg]`
         ) %>%
   dplyr::select(datetime, temp_air, p_air, ws, wd)
-d_all <- dplyr::left_join(d_all, meteo, by = "datetime")
+d_all <- dplyr::left_join(d_all, meteo, by = "datetime") %>% 
+  select(sort(current_vars()))
 ```
 
 ```{r air-sea CO2, echo=FALSE, message= FALSE, warning=FALSE}
@@ -2732,7 +3111,7 @@ d_all <- dplyr::left_join(d_all, meteo, by = "datetime")
 
 ##TO DO: check calculations by Miller et al. (2020); use formulation of Wanninkhof 2014?
 d_all <- d_all %>%
-  dplyr::mutate(delta_pco2 = pco2_fb - pco2_air, # ppm
+  dplyr::mutate(delta_pco2 = pco2_fb - co2_air, # ppm
                 k600 = 0.266 * ws^2, #cm/hr Ho et al. (2006)
                 Sc = 2073.1 - (125.62*temp_insitu_11m) + (3.6276*temp_insitu_11m^2) - (0.043219*temp_insitu_ctd^3), #dimensionless
                 k = k600 * (Sc/600)^-0.5, #cm/h
@@ -2741,7 +3120,7 @@ d_all <- d_all %>%
                 f_air_sea = k * alp * delta_pco2 # mmol/(m2 h)
                 )
 
-p_f_air_sea <- ggplot(data=d_all) +
+p_f_air_sea <- ggplot(data = d_all) +
   geom_point(aes(x = datetime, y = f_air_sea), col = "blue", size = 0.15, na.rm = TRUE) +
   labs(title = "Air-sea CO2 flux (all data)", x = "Time", y = "CO2 (mmol/(m2 h))") +
   Mytheme(size_labs = 8)
@@ -2757,7 +3136,7 @@ air_sea_day <- d_all %>%
   
 p_f_air_sea_d <- ggplot(data = air_sea_day) +
   geom_point(aes(x = day, y = f_air_sea), col = "blue", size = 0.15, na.rm = TRUE) +
-  labs(title = "Air-sea CO2 flux (per day)", x = "Time", y = "CO2 (mmol/(m2 d))") +
+  labs(title = "Air-sea CO2 flux (per day)", x = "Julian day", y = "CO2 (mmol/(m2 d))") +
   Mytheme(size_labs = 8)
 #p_f_air_sea_d
 #ggsave(filename = "figures/f_air_sea_d.png", plot = p_f_air_sea_d, width = 20, units = "cm")
@@ -2767,32 +3146,37 @@ air_sea_month <- d_all %>%
   dplyr::group_by(monthd) %>%
   dplyr::summarise(f_air_sea = 24 * mean(f_air_sea, na.rm=TRUE)/1000) %>% #mol/(m2 d)
   ungroup() %>%
-  dplyr::mutate(f_air_sea = days_in_month(monthd) * f_air_sea)
+  dplyr::mutate(f_air_sea = days_in_month(monthd) * f_air_sea) %>% 
+  dplyr::mutate(montht = month(monthd, label = TRUE, abbr = TRUE))
 #air_sea_month
 p_f_air_sea_m <- ggplot(data = air_sea_month) +
-  geom_point(aes(x = monthd, y = f_air_sea), col = "blue", size = 2, na.rm = TRUE) +
-  scale_x_discrete(breaks=c("Jan", "", "Mar", "", "May", "", "Jul", "", "Sep", "", "Nov", "")) +
-  lims(y = c(-30, 0)) +
-  labs(title = "Air-sea CO2 flux (per month)", x = "Julian day", y = "CO2 (mmol/(m2 month))") +
+  geom_point(aes(x = montht, y = f_air_sea), col = "blue", size = 2, na.rm = TRUE) +
+  #scale_x_discrete(breaks=c("Jan", "", "Mar", "", "May", "", "Jul", "", "Sep", "", "Nov", "")) +
+  #lims(y = c(-30, 0)) +
+  labs(title = "Air-sea CO2 flux (per month)", x = "Month", y = "CO2 (mmol/(m2 month))") +
   Mytheme(size_labs = 8)
 #p_f_air_sea_m
 #ggsave(filename = "figures/f_air_sea_m.png", plot = p_f_air_sea_m, width = 20, units = "cm")
 
-p <- cowplot::plot_grid(p_f_air_sea, p_f_air_sea_d, p_f_air_sea_m, ncol = 1)
-pngfile <- "figures/air-sea_CO2_flux.png"
-ggsave(
-  pngfile, 
-  p, 
-  device = agg_png, 
-  width = 6.6, height = 10, units = "cm", res = 300,
-  scaling = 0.4
-)
-knitr::include_graphics(pngfile)
+p <- p_f_air_sea / p_f_air_sea_d / p_f_air_sea_m
+ggsave(filename = "figures/air-sea_CO2_flux.png", plot = p, width = 20, units = "cm")
+#p <- cowplot::plot_grid(p_f_air_sea, p_f_air_sea_d, p_f_air_sea_m, ncol = 1)
+#pngfile <- "figures/air-sea_CO2_flux.png"
+# ggsave(
+#   pngfile, 
+#   p, 
+#   device = agg_png, 
+#   width = 6.6, height = 10, units = "cm", res = 300,
+#   scaling = 0.4
+# )
+knitr::include_graphics("figures/air-sea_CO2_flux.png")
+#rm(p, p_f_air_sea, p_f_air_sea_d, p_f_air_sea_m)
 ```
 
-The annual air-sea CO2 flux is `r round(sum(air_sea_month), digits = 0)` mol/(m2 year).
+The annual air-sea CO2 flux is `r round(sum(air_sea_month$f_air_sea), digits = 0)` mol/(m2 year).
 
-
+## Miscellaneous
+###Save all
 ```{r save all, echo=FALSE, message= FALSE, warning=FALSE}
 # d_hour is the real data set that is read at the beginning of the script
 # d_all comprises additional columns calculated in this script
@@ -2808,8 +3192,8 @@ d_all <- d_all %>%
 saveRDS(file= paste0(path, "fb_data/d_all.rds"), d_all)
 
 pangaea <- as_tibble(d_all) %>% 
-  dplyr::select(datetime, pressure_insitu_ctd, sal_insitu_ctd, sal_fb, sal_mix, temp_insitu_11m, temp_insitu_ctd, temp_fb, temp_sf, temp_dur, at, ct, ph_s_sf_temp_insi, ph_s_dur_temp_fb, phcalc_fb, pco2_fb, pco2_calc_fb, at_calc, ph_dur_corr, pHint_tot_sf) %>%
-  dplyr::rename(pressure = pressure_insitu_ctd,
+  dplyr::select(datetime, depth, sal_insitu_ctd, sal_fb, sal_mix, temp_insitu_11m, temp_insitu_ctd, temp_fb, temp_sf, temp_dur, at, ct, ph_s_sf_temp_insi, ph_s_dur_temp_fb, ph_calc_fb, pco2_fb, pco2_calc_fb, at_calc, ph_dur_corr, pHint_tot_sf) %>%
+  dplyr::rename(pressure = depth,
                 s_insitu = sal_insitu_ctd,
                 s_fb = sal_fb, 
                 s_mix = sal_mix,
@@ -2827,7 +3211,7 @@ pangaea <- as_tibble(d_all) %>%
                 pco2_calc = pco2_calc_fb,
                 pH_sf = pHint_tot_sf,
                 ph_dur = ph_dur_corr,
-                ph_calc = phcalc_fb
+                ph_calc = ph_calc_fb
                 )
 saveRDS(file= paste0(path, "fb_data/pangaea.rds"), pangaea)
 write_csv(pangaea, path = paste0(path, "fb_data/pangaea.csv"))
@@ -2852,6 +3236,168 @@ write_csv(pangaea, path = paste0(path, "fb_data/pangaea.csv"))
 # ph_dur = pH Durafet at FerryBox temperature (FerryBox)
 # ph_calc = pH at fb temp calculated from CT and AT samples collected at the FerryBox
 ```
+
+### Whole time series plot
+```{r whole time series plot, fig.width=10, fig.height=10, echo=FALSE, message= FALSE}
+size_point <- 0.3 # size of data points
+alpha <- 1 #transparency
+size_labs <- 6 # font size labels
+
+ts_sal <- d_all %>%
+  ggplot(aes(x = datetime, y = sal_fb), na.rm=TRUE) +
+  scale_x_datetime(breaks = date_breaks("1 year"), labels = date_format("%Y")) +
+  geom_point(colour="blue", alpha=alpha, na.rm=TRUE, size=size_point) + 
+  labs(title="Salinity FerryBox",x="", y="Salinity") +
+  Mytheme(size_labs = size_labs)
+
+# temp_insitu_11m
+ts_temp <- d_all %>%
+  ggplot(aes(x = datetime, y = temp_insitu_11m), na.rm=TRUE) +
+  scale_x_datetime(breaks = date_breaks("1 year"), labels = date_format("%Y")) +
+  geom_point(colour="blue", alpha=alpha, na.rm=TRUE, size=size_point) + 
+  labs(title="In situ temperature 11 m",x="", y="Temperature (°C)") +
+  Mytheme(size_labs = size_labs)
+
+# PAR
+ts_par_air <- d_all %>%
+  ggplot(aes(x = datetime, y = par_air), na.rm=TRUE) +
+  scale_x_datetime(breaks = date_breaks("1 year"), labels = date_format("%Y")) +
+  geom_point(colour="blue", alpha=alpha, na.rm=TRUE, size=size_point) + 
+  labs(title="Atmospheric PAR",x="", y="PAR (umol m-2 s-1)") +
+  Mytheme(size_labs = size_labs)
+
+# PCO2 
+ts_pCO2 <- d_all %>%
+  ggplot() +
+  scale_x_datetime(breaks = date_breaks("1 year"), labels = date_format("%Y")) +
+  geom_point(aes(x = datetime, y = pco2_fb), 
+             colour="blue", alpha=alpha, na.rm=TRUE, size=size_point) + 
+  geom_point(aes(x = datetime, y = pco2_calc_fb), colour="red", alpha=alpha, na.rm=TRUE, size=size_point*3) + 
+  labs(title="Measured (blue) and calculated (CT+AT; red) pCO2",x="", y="pCO2 (uatm)") +
+  Mytheme(size_labs = size_labs)
+
+# SEAFET pH
+ts_pH <- d_all %>% 
+  ggplot() +
+  scale_x_datetime(breaks = date_breaks("1 year"), labels = date_format("%Y")) +
+  geom_point(aes(x = datetime, y = pHint_tot_sf, col = depth), alpha=alpha, na.rm=TRUE, size=size_point) + 
+  scale_colour_gradient(name = "Depth (m)", low = "#56B1F7", high = "#132B43") + # reverse colors
+  guides(colour = guide_colourbar(reverse = TRUE)) + # reverse colour bar
+  geom_point(aes(x = datetime, y = ph_s_sf_temp_insi), colour="red", alpha=alpha, na.rm=TRUE, size=size_point*3) + 
+  labs(title="In situ pH, spectrophotometric pH in red))",x="", y=expression(paste(pH[T]))) +
+  Mytheme(size_labs = size_labs) +
+  theme(legend.position = c(0.1, 0.5),
+        legend.key.height = unit(0.5, 'cm'))
+
+# AT
+ts_at <- d_all %>%
+  ggplot(aes(x = datetime, y = at_calc), na.rm=TRUE) +
+  scale_x_datetime(breaks = date_breaks("1 year"), labels = date_format("%Y")) +
+  geom_point(colour="blue", alpha=alpha, na.rm=TRUE, size=size_point) + 
+  geom_point(aes(x = datetime, y = at), colour="red", alpha=alpha, na.rm=TRUE, size=size_point*3) + 
+  labs(title="Total alkalinity calculated from salinity (blue) and discrete measurements (red)", x="", y="AT (umol/kg)") +
+  Mytheme(size_labs = size_labs)
+
+# Combine plots
+g <- (ts_sal / ts_temp / ts_par_air / ts_pCO2 / ts_pH / ts_at)
+g <- g + plot_annotation(tag_levels = 'A')
+ggsave(filename = "figures/time_series.png", plot = g, width = 15, height = 30, units = "cm")
+rm(list = ls(pattern = "ts_")) #delete big ggplot objects
+gc() #garbage collection
+
+#save_plot(filename = "figures/time_series.png", plot = g)
+#g_cw <- cowplot::plot_grid(ts_sal, ts_temp, ts_par_air, ts_pCO2, ts_pH, ts_at, align='v', ncol=1)
+```
+
+### Whole time series monthly box plots and stats
+```{r whole time series monthly box plots and stats, fig.width=10, fig.height=10, echo=FALSE, message= FALSE}
+size_point <- 0.5 # size of data points
+alpha <- 1 #transparency
+d_bp <- d_all %>% # just for this chunk
+  dplyr::select(datetime, sal_fb, temp_insitu_11m, pco2_fb, pHint_tot_sf, at_calc)
+
+# Quantiles table
+Salinity <- round(quantile(d_bp$sal_fb, na.rm =TRUE), digits=1)
+Temperature <- round(quantile(d_bp$temp_insitu_11m, na.rm =TRUE), digits=1)
+pco2 <- round(quantile(d_bp$pco2_fb, na.rm =TRUE), digits=1)
+pH <- round(quantile(d_bp$pHint_tot_sf, na.rm =TRUE), digits=3)
+AT <- round(quantile(d_bp$at_calc, na.rm =TRUE), digits=1)
+tab_quartiles <- as_tibble(rbind(Salinity, Temperature, pco2, pH, AT)) %>%
+  #rename("2.5%"=V1, "50%"=V2, "97.5%"=V3) %>%
+  mutate(Variable=c("Salinity", "Temperature", "pCO2", "pH", "AT")) %>%
+  dplyr::select(Variable, everything())
+kable(tab_quartiles, caption = "Key quantiles") %>%
+  kable_styling(full_width= FALSE, bootstrap_options = c("striped", "hover", "condensed", "responsive"))
+
+# detection of extremes
+# calculate 1st and 9th deciles 
+dec_sal_fb <- quantile(d_bp$sal_fb, na.rm =TRUE, probs = c(0.1, 0.9))
+dec_temp_insitu_11m <- quantile(d_bp$temp_insitu_11m, na.rm =TRUE, probs = c(0.1, 0.9))
+dec_pco2_fb <- quantile(d_bp$pco2_fb, na.rm =TRUE, probs = c(0.1, 0.9))
+dec_pHint_tot_sf <- quantile(d_bp$pHint_tot_sf, na.rm =TRUE, probs = c(0.1, 0.9))
+dec_at_calc <- quantile(d_bp$at_calc, na.rm =TRUE, probs = c(0.1, 0.9))
+
+# identify extremes
+d_bp <- d_bp %>% 
+  dplyr::mutate(ext_sal_fb = ifelse(sal_fb < dec_sal_fb[1] |
+                                            sal_fb > dec_sal_fb[2], sal_fb, NA),
+                ext_temp_insitu_11m = ifelse(temp_insitu_11m < dec_temp_insitu_11m[1] |
+                                            temp_insitu_11m > dec_temp_insitu_11m[2],
+                                            temp_insitu_11m, NA),
+                ext_pco2_fb = ifelse(pco2_fb < dec_pco2_fb[1] |
+                                            pco2_fb > dec_pco2_fb[2], pco2_fb, NA),
+                ext_pHint_tot_sf = ifelse(pHint_tot_sf < dec_pHint_tot_sf[1] |
+                                            pHint_tot_sf > dec_pHint_tot_sf[2], pHint_tot_sf, NA),
+                ext_at_calc = ifelse(at_calc < dec_at_calc[1] |
+                                            at_calc > dec_at_calc[2], at_calc, NA))
+ts_sal_bp <- d_bp %>%
+  ggplot(aes(x = month(x = datetime, label = TRUE, abbr = TRUE), y = sal_fb)) +
+  geom_boxplot(notch=FALSE, size=0.2, fill="blue", outlier.shape = NA, na.rm=TRUE) +
+  geom_point(aes(x = month(x = datetime, label = TRUE, abbr = TRUE), y = ext_sal_fb), col = "lightblue", size = size_point) +
+  labs(y = "Salinity", x=NULL, title=NULL) +
+  Mytheme() +
+  theme(panel.grid.major.x = element_blank(),
+        aspect.ratio=0.5)
+ts_temp_bp <- d_bp %>%
+  ggplot(aes(x = month(x = datetime, label = TRUE, abbr = TRUE), y = temp_insitu_11m)) +
+  geom_boxplot(notch=FALSE, size=0.2, fill="blue", outlier.shape = NA, na.rm=TRUE) +
+  geom_point(aes(x = month(x = datetime, label = TRUE, abbr = TRUE), y = ext_temp_insitu_11m), col = "lightblue", size = size_point) +
+  labs(y = "Temperature", x=NULL, title=NULL) +
+  Mytheme() +
+  theme(panel.grid.major.x = element_blank(),
+        aspect.ratio=0.5)
+ts_pco2_bp <- d_bp %>%
+  ggplot(aes(x = month(x = datetime, label = TRUE, abbr = TRUE), y = pco2_fb)) +
+  geom_boxplot(notch=FALSE, size=0.2, fill="blue", outlier.shape = NA, na.rm=TRUE) +
+  geom_point(aes(x = month(x = datetime, label = TRUE, abbr = TRUE), y = ext_pco2_fb), col = "lightblue", size = size_point) +
+  labs(y = expression(paste(pCO[2])), x=NULL, title=NULL) +
+  Mytheme() +
+  theme(panel.grid.major.x = element_blank(),
+        aspect.ratio=0.5)
+ts_pH_bp <- d_bp %>%
+  ggplot(aes(x = month(x = datetime, label = TRUE, abbr = TRUE), y = pHint_tot_sf)) +
+  geom_boxplot(notch=FALSE, size=0.2, fill="blue", outlier.shape = NA, na.rm=TRUE) +
+  geom_point(aes(x = month(x = datetime, label = TRUE, abbr = TRUE), y = ext_pHint_tot_sf), col = "lightblue", size = size_point) +
+  labs(y = expression(paste(pH[T])), x=NULL, title=NULL) +
+  Mytheme() +
+  theme(panel.grid.major.x = element_blank(),
+        aspect.ratio=0.5)
+ts_at_bp <- d_bp %>%
+  ggplot(aes(x = month(x = datetime, label = TRUE, abbr = TRUE), y = at_calc)) +
+  geom_boxplot(notch=FALSE, size=0.2, fill="blue", outlier.shape = NA, na.rm=TRUE) +
+  geom_point(aes(x = month(x = datetime, label = TRUE, abbr = TRUE), y = ext_at_calc), col = "lightblue", size = size_point) +
+  labs(y = "Total alkalinity", x=NULL, title=NULL) +
+  Mytheme() +
+  theme(panel.grid.major.x = element_blank(),
+        aspect.ratio=0.5)
+# Combine plots
+g <- ts_sal_bp / ts_temp_bp / ts_pco2_bp / ts_pH_bp / ts_at_bp
+g <- g + plot_annotation(tag_levels = 'A')
+ggsave(filename = "figures/ts_boxplots.png", plot = g)
+rm(list = ls(pattern = "ts_"), d_bp) #delete big ggplot objects and temp data
+gc() #garbage collection
+```
+
 ## Maintenance
 <div style="text-align: justify"> 
 
@@ -2945,7 +3491,7 @@ write_csv(pangaea, path = paste0(path, "fb_data/pangaea.csv"))
  
 ### **pH seaFET**
 - **2019-09-02**: Out from the water for maintenance and cleaning only.
-- **2018-04-17**: seaFET #1005 was changed on the REMOS and seaFET #007 (from Villefranche) was installed. Continuous mode with external power supply was set and internal pack of baterries was removed. Old seaFET will be brought back to France with Samir.
+- **2018-04-17**: seaFET #1005 was changed on the REMOS and seaFET #007 (from Villefranche) was installed. Continuous mode with external power supply was set and internal pack of bateries was removed. Old seaFET will be brought back to France with Samir.
 - **2018-03-09**: #007 seaFET currently in USA will be sent by seabird to NYA. #1005 seaFET currently in NYA will be sent to USA for update, following all external issues, for free.
 - **2017-08-24**: seaFET #1005 was installed on the REMOS into the field.
  
