@@ -276,8 +276,8 @@ d_all <- d_all %>%
 d <- tibble(
   read.table(paste0(path, "fb_data/Discrete_analyses_AT_CT/Discrete_sampling_AWIPEV.csv"), header = T, dec = ".", as.is = T, sep = ";", fill = TRUE)
 ) %>% 
-  dplyr::mutate(datetime = dmy_hm(sampling_date, tz="UTC"),
-                measure_date = dmy(measure_date, tz="UTC"),
+  dplyr::mutate(datetime = ymd_hm(sampling_date, tz="UTC"),
+                measure_date = ymd(measure_date, tz="UTC"),
                 date = as.Date(datetime)) %>% 
   dplyr::rename(ph_s_sf = pH_s_seafet,
                 ph_s_dur = pH_s_durafet,
