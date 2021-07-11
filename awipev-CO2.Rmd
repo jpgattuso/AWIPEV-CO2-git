@@ -276,8 +276,8 @@ d_all <- d_all %>%
 d <- tibble(
   read.table(paste0(path, "fb_data/Discrete_analyses_AT_CT/Discrete_sampling_AWIPEV.csv"), header = T, dec = ".", as.is = T, sep = ";", fill = TRUE)
 ) %>% 
-  dplyr::mutate(datetime = dmy_hm(sampling_date, tz="UTC"),
-                measure_date = dmy(measure_date, tz="UTC"),
+  dplyr::mutate(datetime = ymd_hm(sampling_date, tz="UTC"),
+                measure_date = ymd(measure_date, tz="UTC"),
                 date = as.Date(datetime)) %>% 
   dplyr::rename(ph_s_sf = pH_s_seafet,
                 ph_s_dur = pH_s_durafet,
@@ -424,13 +424,31 @@ pH_durafet_mean <- pH_durafet %>%
                 ph_s_dur_temp_4_p18, ph_s_dur_temp_4_m02) %>% 
   dplyr::group_by(date) %>% 
   dplyr::summarize(ph_s_dur_temp_fb_mean = mean(ph_s_dur_temp_fb, na.rm = TRUE),
+<<<<<<< HEAD
+                   ph_s_dur_temp_fb_sd = sd(ph_s_dur_temp_fb, na.rm = TRUE))
+
+#bind all spectro measurements, vhange name of dataframe only to do the rbind.
+seafetph <- pH_seafet_mean
+colnames(seafetph) <- c("date", "mean", "sd")
+durafetph <- pH_durafet_mean
+colnames(durafetph) <- c("date", "mean", "sd")
+pH_seafet_durafet <- rbind(seafetph,durafetph)
+#calculations for all pH spectro measurement for sd
+sd_min <- min(pH_seafet_durafet$sd)
+sd_max <- max(pH_seafet_durafet$sd)
+sd_mean <- mean(pH_seafet_durafet$sd)
+=======
                    #ph_s_dur_temp_fb_sd = sd(ph_s_dur_temp_fb, na.rm = TRUE),
                    ph_s_dur_temp_4_l_mean = mean(ph_s_dur_temp_4_l, na.rm = TRUE),
                    ph_s_dur_temp_4_s20_mean = mean(ph_s_dur_temp_4_s20, na.rm = TRUE),
                    ph_s_dur_temp_4_p18_mean = mean(ph_s_dur_temp_4_p18, na.rm = TRUE),
                    ph_s_dur_temp_4_m02_mean = mean(ph_s_dur_temp_4_m02, na.rm = TRUE)
                    )
+>>>>>>> 0d3b58ee3abb01c904f165290b5c76bfe7270c1f
 
+#put back the right column name for the following script
+pH_durafet_mean$ph_s_dur_temp_fb <- pH_durafet_mean$ph_s_dur_temp_fb_mean
+pH_seafet_mean$ph_s_sf_temp_insi <- pH_seafet_mean$ph_s_sf_temp_insi_mean
 #  make means in "d" to have same format and call it "discrete"
 discrete <- d %>%
   dplyr::group_by(date) %>%
@@ -471,6 +489,7 @@ discrete_is_na$pco2_calc_fb <- NA
 discrete <- bind_rows(discrete_no_na, discrete_is_na) %>% 
   dplyr::arrange(date)
 ```
+
 ```{r read and prepare nutrient data, echo=FALSE, warning=TRUE, message=FALSE}
 # File "Ferrybox nutrients 2014-2018.xlsx" provided by 
 # Willem van de Poll <w.h.van.de.poll@rug.nl> on 2020-01-16
