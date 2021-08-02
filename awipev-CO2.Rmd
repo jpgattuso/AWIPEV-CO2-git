@@ -279,6 +279,7 @@ d <- tibble(
   dplyr::mutate(datetime = ymd_hm(sampling_date, tz="UTC"),
                 measure_date = ymd(measure_date, tz="UTC"),
                 date = as.Date(datetime)) %>% 
+#  dplyr::filter(datetime < as.POSIXct("2021-01-01 00:00:00")) %>% #eliminate 2021 data
   dplyr::rename(ph_s_sf = pH_s_seafet,
                 ph_s_dur = pH_s_durafet,
                 qflag_ph_s_sf = qflag_pH_s_seafet,
@@ -389,26 +390,32 @@ pH_durafet <- pH_durafet %>%
                               ALK = pH_durafet$at_mean_interp*1e-6, Tinsi = pH_durafet$temp_fb, 
                               Tlab = pH_durafet$temp_s_lab, Pinsi = 0, S = pH_durafet$sal_fb, 
                               Pt = 0, Sit = 0, k1k2 = "l", kf = "dg", ks="d", pHscale = "T", b="u74"),
-   ph_s_dur_temp_4_l = pHinsi(pH = pH_durafet$ph_s_dur, # lueker
+   ph_s_dur_temp_4 = pHinsi(pH = pH_durafet$ph_s_dur, # lueker
                          ALK = pH_durafet$at_mean_interp*1e-6, Tinsi = 4, 
                          Tlab = pH_durafet$temp_s_lab, Pinsi = 0, 
                          S = pH_durafet$sal_fb, Pt = 0, Sit = 0, k1k2 = "l", kf = "dg", ks="d", 
                          pHscale = "T", b="u74"),
-   ph_s_dur_temp_4_s20 = pHinsi(pH = pH_durafet$ph_s_dur, # Sulpis
-                         ALK = pH_durafet$at_mean_interp*1e-6, Tinsi = 4, 
-                         Tlab = pH_durafet$temp_s_lab, Pinsi = 0, 
-                         S = pH_durafet$sal_fb, Pt = 0, Sit = 0, k1k2 = "s20", kf = "dg", ks="d", 
-                         pHscale = "T", b="u74"),       # Millero 02
-   ph_s_dur_temp_4_p18 = pHinsi(pH = pH_durafet$ph_s_dur, # Papadimitriou
-                         ALK = pH_durafet$at_mean_interp*1e-6, Tinsi = 4, 
-                         Tlab = pH_durafet$temp_s_lab, Pinsi = 0, 
-                         S = pH_durafet$sal_fb, Pt = 0, Sit = 0, k1k2 = "p18", kf = "dg", ks="d", 
-                         pHscale = "T", b="u74"),
-   ph_s_dur_temp_4_m02 = pHinsi(pH = pH_durafet$ph_s_dur,  # Millero 02
-                         ALK = pH_durafet$at_mean_interp*1e-6, Tinsi = 4, 
-                         Tlab = pH_durafet$temp_s_lab, Pinsi = 0, 
-                         S = pH_durafet$sal_fb, Pt = 0, Sit = 0, k1k2 = "m02", kf = "dg", ks="d", 
-                         pHscale = "T", b="u74")
+
+   # ph_s_dur_temp_4_l = pHinsi(pH = pH_durafet$ph_s_dur, # lueker
+   #                       ALK = pH_durafet$at_mean_interp*1e-6, Tinsi = 4, 
+   #                       Tlab = pH_durafet$temp_s_lab, Pinsi = 0, 
+   #                       S = pH_durafet$sal_fb, Pt = 0, Sit = 0, k1k2 = "l", kf = "dg", ks="d", 
+   #                       pHscale = "T", b="u74"),
+   # ph_s_dur_temp_4_s20 = pHinsi(pH = pH_durafet$ph_s_dur, # Sulpis
+   #                       ALK = pH_durafet$at_mean_interp*1e-6, Tinsi = 4, 
+   #                       Tlab = pH_durafet$temp_s_lab, Pinsi = 0, 
+   #                       S = pH_durafet$sal_fb, Pt = 0, Sit = 0, k1k2 = "s20", kf = "dg", ks="d", 
+   #                       pHscale = "T", b="u74"),       # Millero 02
+   # ph_s_dur_temp_4_p18 = pHinsi(pH = pH_durafet$ph_s_dur, # Papadimitriou
+   #                       ALK = pH_durafet$at_mean_interp*1e-6, Tinsi = 4, 
+   #                       Tlab = pH_durafet$temp_s_lab, Pinsi = 0, 
+   #                       S = pH_durafet$sal_fb, Pt = 0, Sit = 0, k1k2 = "p18", kf = "dg", ks="d", 
+   #                       pHscale = "T", b="u74"),
+   # ph_s_dur_temp_4_m02 = pHinsi(pH = pH_durafet$ph_s_dur,  # Millero 02
+   #                       ALK = pH_durafet$at_mean_interp*1e-6, Tinsi = 4, 
+   #                       Tlab = pH_durafet$temp_s_lab, Pinsi = 0, 
+   #                       S = pH_durafet$sal_fb, Pt = 0, Sit = 0, k1k2 = "m02", kf = "dg", ks="d", 
+   #                       pHscale = "T", b="u74")
 
    )
 # Make mean for replicates + SD
@@ -416,18 +423,17 @@ pH_seafet_mean <- pH_seafet %>%
   dplyr::select(date, ph_s_sf_temp_insi, ph_s_sf_temp_4) %>% 
   dplyr::group_by(date) %>% 
   dplyr::summarise(ph_s_sf_temp_insi_mean = mean(ph_s_sf_temp_insi, na.rm = TRUE),
-                   #ph_s_sf_temp_insi_sd = sd(ph_s_sf_temp_insi, na.rm = TRUE),
+                   ph_s_sf_temp_insi_sd = sd(ph_s_sf_temp_insi, na.rm = TRUE),
                    ph_s_sf_temp_4_mean = mean(ph_s_sf_temp_4, na.rm = TRUE)
                    )
 pH_durafet_mean <- pH_durafet %>%
-  dplyr::select(date, ph_s_dur_temp_fb, ph_s_dur_temp_4_l, ph_s_dur_temp_4_s20,
-                ph_s_dur_temp_4_p18, ph_s_dur_temp_4_m02) %>% 
+  dplyr::select(date, ph_s_dur_temp_fb, ph_s_dur_temp_4) %>% 
   dplyr::group_by(date) %>% 
   dplyr::summarize(ph_s_dur_temp_fb_mean = mean(ph_s_dur_temp_fb, na.rm = TRUE),
-<<<<<<< HEAD
-                   ph_s_dur_temp_fb_sd = sd(ph_s_dur_temp_fb, na.rm = TRUE))
+                   ph_s_dur_temp_fb_sd = sd(ph_s_dur_temp_fb, na.rm = TRUE),
+                   ph_s_dur_temp_4_mean = sd(ph_s_dur_temp_4, na.rm = TRUE))
 
-#bind all spectro measurements, vhange name of dataframe only to do the rbind.
+#bind all spectro measurements, just to assess sd, change name of dataframe only to do the rbind.
 seafetph <- pH_seafet_mean
 colnames(seafetph) <- c("date", "mean", "sd")
 durafetph <- pH_durafet_mean
@@ -437,14 +443,14 @@ pH_seafet_durafet <- rbind(seafetph,durafetph)
 sd_min <- min(pH_seafet_durafet$sd)
 sd_max <- max(pH_seafet_durafet$sd)
 sd_mean <- mean(pH_seafet_durafet$sd)
-=======
-                   #ph_s_dur_temp_fb_sd = sd(ph_s_dur_temp_fb, na.rm = TRUE),
-                   ph_s_dur_temp_4_l_mean = mean(ph_s_dur_temp_4_l, na.rm = TRUE),
-                   ph_s_dur_temp_4_s20_mean = mean(ph_s_dur_temp_4_s20, na.rm = TRUE),
-                   ph_s_dur_temp_4_p18_mean = mean(ph_s_dur_temp_4_p18, na.rm = TRUE),
-                   ph_s_dur_temp_4_m02_mean = mean(ph_s_dur_temp_4_m02, na.rm = TRUE)
-                   )
->>>>>>> 0d3b58ee3abb01c904f165290b5c76bfe7270c1f
+# =======
+#                    #ph_s_dur_temp_fb_sd = sd(ph_s_dur_temp_fb, na.rm = TRUE),
+#                    ph_s_dur_temp_4_l_mean = mean(ph_s_dur_temp_4_l, na.rm = TRUE),
+#                    ph_s_dur_temp_4_s20_mean = mean(ph_s_dur_temp_4_s20, na.rm = TRUE),
+#                    ph_s_dur_temp_4_p18_mean = mean(ph_s_dur_temp_4_p18, na.rm = TRUE),
+#                    ph_s_dur_temp_4_m02_mean = mean(ph_s_dur_temp_4_m02, na.rm = TRUE)
+#                    )
+# >>>>>>> 0d3b58ee3abb01c904f165290b5c76bfe7270c1f
 
 #put back the right column name for the following script
 pH_durafet_mean$ph_s_dur_temp_fb <- pH_durafet_mean$ph_s_dur_temp_fb_mean
@@ -570,14 +576,10 @@ d_all <- d_all %>%
 
 # durafet pH 
 discrete2merge <- discrete %>%
-  dplyr::select(closest_datetime, ph_s_dur_temp_fb_mean, ph_s_dur_temp_4_l_mean,
-                ph_s_dur_temp_4_s20_mean, ph_s_dur_temp_4_p18_mean, ph_s_dur_temp_4_m02_mean) %>%
+  dplyr::select(closest_datetime, ph_s_dur_temp_fb_mean, ph_s_dur_temp_4_mean) %>%
   dplyr::rename(ph_s_dur_temp_fb = ph_s_dur_temp_fb_mean,
-                ph_s_dur_temp_4 = ph_s_dur_temp_4_l_mean, # lueker by default
-                ph_s_dur_temp_4_l = ph_s_dur_temp_4_l_mean,
-                ph_s_dur_temp_4_s20 = ph_s_dur_temp_4_s20_mean,
-                ph_s_dur_temp_4_p18 = ph_s_dur_temp_4_p18_mean,
-                ph_s_dur_temp_4_m02 = ph_s_dur_temp_4_m02_mean,) %>%
+                ph_s_dur_temp_4 = ph_s_dur_temp_4_mean # lueker by default
+                ) %>%
   dplyr::filter(!is.na(closest_datetime)) %>%
   rename(datetime=closest_datetime)
 d_all <- full_join(d_all, discrete2merge, by="datetime")
@@ -2874,7 +2876,7 @@ Using the medians because data are missing.
 taka <- d_all %>% # just for this chunk
   dplyr::select(datetime, monthd, sal_fb, temp_insitu_11m, pco2_fb_insi_temp) 
 
-# In order to remove the temperature effect from the observed pCO2 , the observed pCO2 values are normalized to a constant temperature (annual mean) -- Takahashi et al. (2002)
+# In order to remove the temperature effect from the observed pCO2, the observed pCO2 values are normalized to a constant temperature (annual mean) -- Takahashi et al. (2002)
 temp_mean <- mean(taka$temp_insitu_11m, na.rm = TRUE)
 taka <- taka %>% 
   dplyr::mutate(pco2_mean_temp = pco2_fb_insi_temp * exp(0.0423 * (temp_mean - temp_insitu_11m)))
