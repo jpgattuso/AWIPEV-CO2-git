@@ -375,7 +375,7 @@ pH_seafet <- pH_seafet %>%
                          Tlab = pH_seafet$temp_s_lab, Pinsi = pH_seafet$depth/10, 
                          S = pH_seafet$sal_mix, Pt = 0, Sit = 0, k1k2 = "l", kf = "dg", ks="d", 
                          pHscale = "T", b="u74"),
-   ph_s_sf_temp_4 = pHinsi(pH = pH_seafet$ph_s_sf, # with Lueker
+   ph_s_sf_temp_4 = pHinsi(pH = pH_seafet$ph_s_sf, 
                          ALK = pH_seafet$at_mean_interp*1e-6, Tinsi = 4, 
                          Tlab = pH_seafet$temp_s_lab, Pinsi = pH_seafet$depth/10, 
                          S = pH_seafet$sal_mix, Pt = 0, Sit = 0, k1k2 = "l", kf = "dg", ks="d", 
@@ -391,29 +391,30 @@ pH_durafet <- pH_durafet %>%
                               Tlab = pH_durafet$temp_s_lab, Pinsi = 0, S = pH_durafet$sal_fb, 
                               Pt = 0, Sit = 0, k1k2 = "l", kf = "dg", ks="d", pHscale = "T", b="u74"),
    ph_s_dur_temp_4 = pHinsi(pH = pH_durafet$ph_s_dur, # lueker
-                         ALK = pH_durafet$at_mean_interp*1e-6, Tinsi = 4,
-                         Tlab = pH_durafet$temp_s_lab, Pinsi = 0,
-                         S = pH_durafet$sal_fb, Pt = 0, Sit = 0, k1k2 = "l", kf = "dg", ks="d",
-                         pHscale = "T", b="u74")#,
+                         ALK = pH_durafet$at_mean_interp*1e-6, Tinsi = 4, 
+                         Tlab = pH_durafet$temp_s_lab, Pinsi = 0, 
+                         S = pH_durafet$sal_fb, Pt = 0, Sit = 0, k1k2 = "l", kf = "dg", ks="d", 
+                         pHscale = "T", b="u74"),
+
    # ph_s_dur_temp_4_l = pHinsi(pH = pH_durafet$ph_s_dur, # lueker
-   #                       ALK = pH_durafet$at_mean_interp*1e-6, Tinsi = 4,
-   #                       Tlab = pH_durafet$temp_s_lab, Pinsi = 0,
-   #                       S = pH_durafet$sal_fb, Pt = 0, Sit = 0, k1k2 = "l", kf = "dg", ks="d",
+   #                       ALK = pH_durafet$at_mean_interp*1e-6, Tinsi = 4, 
+   #                       Tlab = pH_durafet$temp_s_lab, Pinsi = 0, 
+   #                       S = pH_durafet$sal_fb, Pt = 0, Sit = 0, k1k2 = "l", kf = "dg", ks="d", 
    #                       pHscale = "T", b="u74"),
    # ph_s_dur_temp_4_s20 = pHinsi(pH = pH_durafet$ph_s_dur, # Sulpis
-   #                       ALK = pH_durafet$at_mean_interp*1e-6, Tinsi = 4,
-   #                       Tlab = pH_durafet$temp_s_lab, Pinsi = 0,
-   #                       S = pH_durafet$sal_fb, Pt = 0, Sit = 0, k1k2 = "s20", kf = "dg", ks="d",
+   #                       ALK = pH_durafet$at_mean_interp*1e-6, Tinsi = 4, 
+   #                       Tlab = pH_durafet$temp_s_lab, Pinsi = 0, 
+   #                       S = pH_durafet$sal_fb, Pt = 0, Sit = 0, k1k2 = "s20", kf = "dg", ks="d", 
    #                       pHscale = "T", b="u74"),       # Millero 02
    # ph_s_dur_temp_4_p18 = pHinsi(pH = pH_durafet$ph_s_dur, # Papadimitriou
-   #                       ALK = pH_durafet$at_mean_interp*1e-6, Tinsi = 4,
-   #                       Tlab = pH_durafet$temp_s_lab, Pinsi = 0,
-   #                       S = pH_durafet$sal_fb, Pt = 0, Sit = 0, k1k2 = "p18", kf = "dg", ks="d",
+   #                       ALK = pH_durafet$at_mean_interp*1e-6, Tinsi = 4, 
+   #                       Tlab = pH_durafet$temp_s_lab, Pinsi = 0, 
+   #                       S = pH_durafet$sal_fb, Pt = 0, Sit = 0, k1k2 = "p18", kf = "dg", ks="d", 
    #                       pHscale = "T", b="u74"),
    # ph_s_dur_temp_4_m02 = pHinsi(pH = pH_durafet$ph_s_dur,  # Millero 02
-   #                       ALK = pH_durafet$at_mean_interp*1e-6, Tinsi = 4,
-   #                       Tlab = pH_durafet$temp_s_lab, Pinsi = 0,
-   #                       S = pH_durafet$sal_fb, Pt = 0, Sit = 0, k1k2 = "m02", kf = "dg", ks="d",
+   #                       ALK = pH_durafet$at_mean_interp*1e-6, Tinsi = 4, 
+   #                       Tlab = pH_durafet$temp_s_lab, Pinsi = 0, 
+   #                       S = pH_durafet$sal_fb, Pt = 0, Sit = 0, k1k2 = "m02", kf = "dg", ks="d", 
    #                       pHscale = "T", b="u74")
 
    )
@@ -430,18 +431,26 @@ pH_durafet_mean <- pH_durafet %>%
   dplyr::group_by(date) %>% 
   dplyr::summarize(ph_s_dur_temp_fb_mean = mean(ph_s_dur_temp_fb, na.rm = TRUE),
                    ph_s_dur_temp_fb_sd = sd(ph_s_dur_temp_fb, na.rm = TRUE),
-                   ph_s_dur_temp_4_mean = mean(ph_s_dur_temp_4, na.rm = TRUE))
+                   ph_s_dur_temp_4_mean = sd(ph_s_dur_temp_4, na.rm = TRUE))
 
 #bind all spectro measurements, just to assess sd, change name of dataframe only to do the rbind.
 seafetph <- pH_seafet_mean
 colnames(seafetph) <- c("date", "mean", "sd")
 durafetph <- pH_durafet_mean
 colnames(durafetph) <- c("date", "mean", "sd")
-#pH_seafet_durafet <- rbind(seafetph, durafetph)
-# #calculations for all pH spectro measurement for sd
-# sd_min <- min(pH_seafet_durafet$sd)
-# sd_max <- max(pH_seafet_durafet$sd)
-# sd_mean <- mean(pH_seafet_durafet$sd)
+pH_seafet_durafet <- rbind(seafetph,durafetph)
+#calculations for all pH spectro measurement for sd
+sd_min <- min(pH_seafet_durafet$sd)
+sd_max <- max(pH_seafet_durafet$sd)
+sd_mean <- mean(pH_seafet_durafet$sd)
+# =======
+#                    #ph_s_dur_temp_fb_sd = sd(ph_s_dur_temp_fb, na.rm = TRUE),
+#                    ph_s_dur_temp_4_l_mean = mean(ph_s_dur_temp_4_l, na.rm = TRUE),
+#                    ph_s_dur_temp_4_s20_mean = mean(ph_s_dur_temp_4_s20, na.rm = TRUE),
+#                    ph_s_dur_temp_4_p18_mean = mean(ph_s_dur_temp_4_p18, na.rm = TRUE),
+#                    ph_s_dur_temp_4_m02_mean = mean(ph_s_dur_temp_4_m02, na.rm = TRUE)
+#                    )
+# >>>>>>> 0d3b58ee3abb01c904f165290b5c76bfe7270c1f
 
 #put back the right column name for the following script
 pH_durafet_mean$ph_s_dur_temp_fb <- pH_durafet_mean$ph_s_dur_temp_fb_mean
@@ -2439,31 +2448,8 @@ const_choice <- bind_rows(diff_ls_1, diff_ls_2) %>%
 ```{r impact of constants using FerryBox pCO2 and at, echo=FALSE, warning=FALSE, message=FALSE}
 tmp <- d_all %>% 
   tidyr::drop_na(pco2_fb, at, sal_fb, temp_fb) %>% 
-  dplyr::select(datetime, ph_s_dur_temp_fb, pco2_fb, at, sal_fb, temp_fb) %>% 
-  dplyr::mutate(
-    ph_s_dur_temp_4_l = pHinsi(pH = ph_s_dur_temp_fb, # lueker
-                         ALK = at*1e-6, Tinsi = 4,
-                         Tlab = temp_fb, Pinsi = 0,
-                         S = sal_fb, Pt = 0, Sit = 0, k1k2 = "l", kf = "dg", ks="d",
-                         pHscale = "T", b="u74"),
-   ph_s_dur_temp_4_s20 = pHinsi(pH = ph_s_dur_temp_fb, # Sulpis
-                         ALK = at*1e-6, Tinsi = 4,
-                         Tlab = temp_fb, Pinsi = 0,
-                         S = sal_fb, Pt = 0, Sit = 0, k1k2 = "s20", kf = "dg", ks="d",
-                         pHscale = "T", b="u74"),       # Millero 02
-   ph_s_dur_temp_4_p18 = pHinsi(pH = ph_s_dur_temp_fb, # Papadimitriou
-                         ALK = at*1e-6, Tinsi = 4,
-                         Tlab = temp_fb, Pinsi = 0,
-                         S = sal_fb, Pt = 0, Sit = 0, k1k2 = "p18", kf = "dg", ks="d",
-                         pHscale = "T", b="u74"),
-   ph_s_dur_temp_4_m02 = pHinsi(pH = ph_s_dur_temp_fb,  # Millero 02
-                         ALK = at*1e-6, Tinsi = 4,
-                         Tlab = temp_fb, Pinsi = 0,
-                         S = sal_fb, Pt = 0, Sit = 0, k1k2 = "m02", kf = "dg", ks="d",
-                         pHscale = "T", b="u74")
-   ) %>% 
-  # dplyr::select(datetime, ph_s_dur_temp_4_l, ph_s_dur_temp_4_s20,
-  #               ph_s_dur_temp_4_p18, ph_s_dur_temp_4_m02, pco2_fb, at, sal_fb, temp_fb) %>%
+  dplyr::select(datetime, ph_s_dur_temp_4_l, ph_s_dur_temp_4_s20,
+                ph_s_dur_temp_4_p18, ph_s_dur_temp_4_m02, pco2_fb, at, sal_fb, temp_fb) %>% 
 # This is an important adjustement for pco2_fb on 2019-06-07 09:00:00
 # it is too high compared with ph_s_dur. Looking at the dygraph suggests that there has been a peak just before that time and that the values were coming back down. This is this in accordance with pco2_calc_fb calculated from 
 dplyr::mutate(pco2_fb = ifelse(datetime == as.POSIXct("2019-06-07 09:00:00"), 203, pco2_fb))
@@ -2583,29 +2569,8 @@ Here we compare pH measured spectrophotometrically with pH calculated from pCO2 
 ```{r impact of constants using FerryBox ct and at, echo=FALSE, warning=FALSE, message=FALSE}
 tmp <- d_all %>% 
   tidyr::drop_na(ct, at, sal_fb, temp_fb) %>% 
-  dplyr::select(datetime, ph_s_dur_temp_fb, ct, at, sal_fb, temp_fb) %>% 
-  dplyr::mutate(
-    ph_s_dur_temp_4_l = pHinsi(pH = ph_s_dur_temp_fb, # lueker
-                         ALK = at*1e-6, Tinsi = 4,
-                         Tlab = temp_fb, Pinsi = 0,
-                         S = sal_fb, Pt = 0, Sit = 0, k1k2 = "l", kf = "dg", ks="d",
-                         pHscale = "T", b="u74"),
-   ph_s_dur_temp_4_s20 = pHinsi(pH = ph_s_dur_temp_fb, # Sulpis
-                         ALK = at*1e-6, Tinsi = 4,
-                         Tlab = temp_fb, Pinsi = 0,
-                         S = sal_fb, Pt = 0, Sit = 0, k1k2 = "s20", kf = "dg", ks="d",
-                         pHscale = "T", b="u74"),       # Millero 02
-   ph_s_dur_temp_4_p18 = pHinsi(pH = ph_s_dur_temp_fb, # Papadimitriou
-                         ALK = at*1e-6, Tinsi = 4,
-                         Tlab = temp_fb, Pinsi = 0,
-                         S = sal_fb, Pt = 0, Sit = 0, k1k2 = "p18", kf = "dg", ks="d",
-                         pHscale = "T", b="u74"),
-   ph_s_dur_temp_4_m02 = pHinsi(pH = ph_s_dur_temp_fb,  # Millero 02
-                         ALK = at*1e-6, Tinsi = 4,
-                         Tlab = temp_fb, Pinsi = 0,
-                         S = sal_fb, Pt = 0, Sit = 0, k1k2 = "m02", kf = "dg", ks="d",
-                         pHscale = "T", b="u74")
-   )
+  dplyr::select(datetime, ph_s_dur_temp_4_l, ph_s_dur_temp_4_s20,
+                ph_s_dur_temp_4_p18, ph_s_dur_temp_4_m02, ct, at, sal_fb, temp_fb)
 # Using Lueker  
 carb_l2 <- carb(flag = 15, var1 = tmp$at * 1e-6, var2 = tmp$ct * 1e-6, S = tmp$sal_fb, 
                T = tmp$temp_fb, P = 0, Pt = 0, Sit = 0, k1k2 = "l", kf = "dg", ks = "d", 
