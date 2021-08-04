@@ -2905,20 +2905,50 @@ Using the medians because data are missing.
 + Salinity 
 + Temperature is always colder at 0-4 m than below 8 m (0.15 to 2°C).
 
-## Takahashi thermal vs biological
-```{r Takahashi thermal vs biological, include=FALSE}
+## Takahashi thermal vs non-thermal
+```{r Takahashi thermal vs non-thermal, include=FALSE}
+# According to Takahashi et al. (2002) and McCutcheon et al. (2021)
 # Select data
 taka <- d_all %>% # just for this chunk
-  dplyr::select(datetime, monthd, sal_fb, temp_insitu_11m, pco2_fb_insi_temp) 
+  dplyr::select(datetime, monthd, sal_fb, temp_insitu_11m, pco2_fb_insi_temp) %>% 
+  dplyr::mutate(year = lubridate::year(datetime),
+                season = dplyr::case_when(monthd %in% c(12, 1, 2) ~ "winter",
+                                          monthd %in% c(3, 4, 5) ~ "spring",
+                                          monthd %in% c(6, 7, 8) ~ "summer",
+                                          monthd %in% c(9, 10, 11) ~ "fall")) %>% 
+  # eliminate years 2015 and 2021 which are  incomplete
+  dplyr::filter(datetime > as.POSIXct("2016-01-01 00:00:00") &
+                  datetime < as.POSIXct("2021-01-01 00:00:00")) 
 
-# In order to remove the temperature effect from the observed pCO2, the observed pCO2 values are normalized to a constant temperature (annual mean) -- Takahashi et al. (2002)
-temp_mean <- mean(taka$temp_insitu_11m, na.rm = TRUE)
-taka <- taka %>% 
-  dplyr::mutate(pco2_mean_temp = pco2_fb_insi_temp * exp(0.0423 * (temp_mean - temp_insitu_11m)))
-d_pco2_bio <- max(taka$pco2_mean_temp, na.rm = TRUE) - min(taka$pco2_mean_temp, na.rm = TRUE)
-d_pco2_temp <- max(taka$pco2_fb_insi_temp, na.rm = TRUE) - min(taka$pco2_fb_insi_temp, na.rm = TRUE)
-temp_bio <- d_pco2_temp / d_pco2_bio
+# annual 
+taka_year <- taka %>% 
+  group_by(year) %>% 
+  dplyr::mutate(pco2_thermal = 
+                  mean(pco2_fb_insi_temp, na.rm = TRUE) * exp(0.0423 * (temp_insitu_11m - mean(temp_insitu_11m, na.rm = TRUE))),
+                  pco2_nonthermal = pco2_fb_insi_temp * exp(0.0423 * (mean(temp_insitu_11m, na.rm = TRUE) - temp_insitu_11m))) %>% 
+  dplyr::summarise(thermal = max(pco2_thermal, na.rm = TRUE) - min(pco2_thermal, na.rm = TRUE),
+                   nonthermal = max(pco2_nonthermal, na.rm = TRUE) - min(pco2_nonthermal, na.rm = TRUE),
+                   thermal_nonthermal = thermal / nonthermal) %>% 
+  ungroup()
+
+# season 
+taka_season <- taka %>% 
+  group_by(season) %>% 
+  dplyr::mutate(pco2_thermal = 
+                  mean(pco2_fb_insi_temp, na.rm = TRUE) * exp(0.0423 * (temp_insitu_11m - mean(temp_insitu_11m, na.rm = TRUE))),
+                  pco2_nonthermal = pco2_fb_insi_temp * exp(0.0423 * (mean(temp_insitu_11m, na.rm = TRUE) - temp_insitu_11m))) %>% 
+  dplyr::summarise(thermal = max(pco2_thermal, na.rm = TRUE) - min(pco2_thermal, na.rm = TRUE),
+                   nonthermal = max(pco2_nonthermal, na.rm = TRUE) - min(pco2_nonthermal, na.rm = TRUE),
+                   thermal_nonthermal = thermal / nonthermal) %>% 
+  ungroup()
 ```
+`r knitr::kable(taka_year, digits = c(0, 1, 1, 2), caption = "Thermal vs non-thermal control of pCO2. Yearly estimate.", format = "simple")`
+`r knitr::kable(taka_season, digits = c(0, 1, 1, 2), caption = "Thermal vs non-thermal control of pCO2. Seasonal estimate.", format = "simple")`
+For seasonal analysis, December to February was considered winter, March to May was considered spring, June to August was considered summer, and September to November was considered fall. 
+
+The control of pCO2 by non-thermal (physical and biological processes) drivers is always greater than the control from temperature on both annual and seasonal basis. Thermal control is highest in winter and lowest in summer.
+
+
 
 ## Deconvolution of pCO2 changes
 ```{r pCO2 changes due to changes in T, S, AT and CT, include=FALSE}
