@@ -117,7 +117,11 @@ fit <- lmodel2(col_y ~ col_x, nperm = 99)
   slope_OLS <- fit$regression.results[1,3]
   predicted <- intercept_OLS + col_x * slope_OLS
   error <- col_x - predicted
-  my_list <- list(fit = print(fit), rmse = sqrt(mean(error^2, na.rm=TRUE)))
+  my_list <- list(intercept_MA = intercept_MA, 
+                  slope_MA = slope_MA,
+                  intercept_OLS = intercept_MA, 
+                  slope_OLS = slope_MA,
+                  rmse = sqrt(mean(error^2, na.rm=TRUE)))
   return(my_list)
 }
 
@@ -1148,29 +1152,36 @@ pander(summary(d_all$fco2_fb - d_all$fco2_fb_insi_temp))
 We first calculate fCO2 from pCO2 and then express both pCO2 and fCO2 at in situ temperature. Ideally, this should be done with SST as the goal is to estimate air-sea CO2 fluxes. I therefore use the in situ temperature at 11 m and we will need to speculate on stratification.
 
 
-```{r measured vs calculated pCO2, echo=FALSE, warning=FALSE, message=FALSE}
-title <- "Contros vs calculated pCO2"
-fit <- lmodel2(data = d_all,  pco2_fb ~ pco2_calc_fb , nperm = 99)
-
-p <-  ggplot(d_all,aes(x=pco2_calc_fb, y= pco2_fb, label = monthd))+
-   geom_text(aes(color = factor(monthd)))+
+```{r measured vs calculated pCO2, echo=FALSE, warning=FALSE, message=FALSE, out.width='100%', fig.align="center"}
+title <- "pCO2 normalized at in situ temperature"
+fit <- lmodel2(data = d_all,   pco2_calc_fb_insi_temp ~ pco2_fb_insi_temp, nperm = 99)
+print(fit)
+p <-  ggplot(d_all,aes(x = pco2_fb, y = pco2_calc_fb))+
+  geom_point()+
   scale_color_discrete(guide="none")+
   geom_abline(slope = 1, intercept = 0, linetype = "dashed") +
   geom_abline(aes(intercept = fit$regression.results[2,2], slope = fit$regression.results[2,3]),colour = "blue") +
-  labs(title = paste(title,"\n Adj R2 = ", signif(fit$rsquare, 3),
-                     "; Intercept =", signif(fit$regression.results[2,2], 3),
-                     "; Slope =", signif( fit$regression.results[2,3], 3),
-                     "; P =", signif(fit$P.param, 3))) +
-  theme(aspect.ratio=1,plot.title = element_text(size=7)) + 
-  coord_fixed(ratio = 1 ,xlim=c(200,460) , ylim=c(200,460))+
-  labs(x="Calculated pCO2", y="Contros pCO2") + theme_bw()  
-```
-The relationship between the Contros and calculated *p*CO~2~ is not good at all in the sense that it is far from the 1:1 line, despite a good r2 (`r round(fit$rsquare, digits=2)`).
-```{r plot measured vs calculated pCO2, echo=FALSE, warning=FALSE, message=FALSE, out.width='100%', fig.align="center"}
-print(p) # pco2_calc_fb_pco2_corr_text
+  # labs(title = paste(title,"\n Adj R2 = ", signif(fit$rsquare, 3),
+  #                    "; Intercept =", signif(fit$regression.results[2,2], 3),
+  #                    "; Slope =", signif( fit$regression.results[2,3], 3),
+  #                    "; P =", signif(fit$P.param, 3))) +
+  theme(aspect.ratio=1, plot.title = element_text(size=7)) + 
+  coord_fixed(ratio = 1, xlim=c(200,420), ylim=c(200,420))+
+  labs(title = "", x="Measured pCO2", y="Calculated pCO2") + theme_bw()  
+print(p)
+ggsave(filename = "figures/pco2_calc_meas.png", plot = p)
 ```
 
-### **Final *p*CO~2~ data**
+The relationship between the measured (Contros) and calculated pCO2 (blue line) is relatively poor. It is far from the 1:1 relationship (black dashed line). The slope is `r signif(fit$regression.results[2,3], 3)`) and its 95% confidence interval does include 1; r2 is `r round(fit$rsquare, digits=2)`.
+
+**Figure legend**: pCO2 calculated from AT and CT as a function of pCO2 measured using a Contros sensor. All data are normalized at in situ temperature. The black dotted line is the 1:1 line while the blue solid line shows the line obtained by a major axis regression (Legendre, 2018- Pierre Legendre (2018). lmodel2: Model II Regression. R package version 1.7-3. https://CRAN.R-project.org/package=lmodel2
+
+```{r plot measured vs calculated pCO2, echo=FALSE, warning=FALSE, message=FALSE, out.width='100%', fig.align="center"}
+# print(p)
+# 
+```
+
+### **pCO~2~ time series**
 
 ```{r Final pCO2, echo=FALSE, warning=FALSE, message=FALSE, out.width='100%', fig.align="center"}
 pco2_contros_xts <-
