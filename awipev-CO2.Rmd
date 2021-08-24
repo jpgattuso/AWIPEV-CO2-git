@@ -1983,42 +1983,20 @@ The average offset between durafet and references (spectro) data is `r average_o
 ## Range per months
 
 ```{r Range per month, echo=FALSE, message= FALSE, warning=FALSE}
+my_skim <- skim_with(numeric = sfl(ave = ~ mean(., na.rm = TRUE),
+                                   med = ~ median(., na.rm = TRUE),
+                                   min = ~ min(., na.rm = TRUE),
+                                   max = ~ max(., na.rm = TRUE),
+                                   q5 = ~ quantile(., 0.05, na.rm = TRUE),
+                                   q95 = ~ quantile(., 0.95, na.rm = TRUE)
+                                   ), 
+                     append = FALSE)
+
 range_month <-
   d_all %>%
+  dplyr::select(montht, sal_mix, temp_mix, temp_insitu_11m, pHint_tot_sf_9m) %>% 
   group_by(montht) %>%
-  #summarize(pH_range_month = mean(pH_range, na.rm=TRUE))%>%
-  summarize(temp_mix_max = round( max(temp_mix, na.rm=TRUE), digits = 2),
-            temp_mix_min = round(min(temp_mix, na.rm=TRUE), digits = 2),
-            temp_ctd_1m_max = round( max(temp_insitu_ctd_1m, na.rm=TRUE), digits = 2),
-            temp_ctd_1m_min = round(min(temp_insitu_ctd_1m, na.rm=TRUE), digits = 2),
-            temp_ctd_3m_max = round( max(temp_insitu_ctd_3m, na.rm=TRUE), digits = 2),
-            temp_ctd_3m_min = round(min(temp_insitu_ctd_3m, na.rm=TRUE), digits = 2),
-            temp_ctd_5m_max = round( max(temp_insitu_ctd_5m, na.rm=TRUE), digits = 2),
-            temp_ctd_5m_min = round(min(temp_insitu_ctd_5m, na.rm=TRUE), digits = 2),
-            temp_ctd_7m_max = round( max(temp_insitu_ctd_7m, na.rm=TRUE), digits = 2),
-            temp_ctd_7m_min = round(min(temp_insitu_ctd_7m, na.rm=TRUE), digits = 2),
-            temp_ctd_9m_max = round( max(temp_insitu_ctd_9m, na.rm=TRUE), digits = 2),
-            temp_ctd_9m_min = round(min(temp_insitu_ctd_9m, na.rm=TRUE), digits = 2),
-            temp_11m_max = round( max(temp_insitu_11m, na.rm=TRUE), digits = 2),
-            temp_11m_min = round(min(temp_insitu_11m, na.rm=TRUE), digits = 2),
-            temp_fb_max = round(max(temp_fb, na.rm=TRUE), digits = 2),
-            temp_fb_min = round( min(temp_fb, na.rm=TRUE), digits = 2),
-            sal_mix_max = round(max(sal_mix, na.rm=TRUE), digits = 2),
-            sal_mix_min = round(min(sal_mix, na.rm=TRUE), digits = 2),
-            sal_ctd_1m_max = round( max(sal_insitu_ctd_1m, na.rm=TRUE), digits = 2),
-            sal_ctd_1m_min = round(min(sal_insitu_ctd_1m, na.rm=TRUE), digits = 2),
-            sal_ctd_3m_max = round( max(sal_insitu_ctd_3m, na.rm=TRUE), digits = 2),
-            sal_ctd_3m_min = round(min(sal_insitu_ctd_3m, na.rm=TRUE), digits = 2),
-            sal_ctd_5m_max = round( max(sal_insitu_ctd_5m, na.rm=TRUE), digits = 2),
-            sal_ctd_5m_min = round(min(sal_insitu_ctd_5m, na.rm=TRUE), digits = 2),
-            sal_ctd_7m_max = round( max(sal_insitu_ctd_7m, na.rm=TRUE), digits = 2),
-            sal_ctd_7m_min = round(min(sal_insitu_ctd_7m, na.rm=TRUE), digits = 2),
-            sal_ctd_9m_max = round( max(sal_insitu_ctd_9m, na.rm=TRUE), digits = 2),
-            sal_ctd_9m_min = round(min(sal_insitu_ctd_9m, na.rm=TRUE), digits = 2),
-            sal_fb_max = round(max(sal_fb, na.rm=TRUE), digits = 2),
-            sal_fb_min = round(min(sal_fb, na.rm=TRUE), digits = 2),
-            pH_sf_max = round(max(pHint_tot_sf_9m, na.rm=TRUE), digits = 4),
-            pH_sf_min = round(min(pHint_tot_sf_9m, na.rm=TRUE), digits = 4))
+  my_skim()
 kable(range_month, caption = "")
 ```
 
