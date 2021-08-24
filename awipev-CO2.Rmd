@@ -1149,28 +1149,30 @@ We first calculate fCO2 from pCO2 and then express both pCO2 and fCO2 at in situ
 
 
 ```{r measured vs calculated pCO2, echo=FALSE, warning=FALSE, message=FALSE}
-title <- "Contros vs calculated pCO2"
-fit <- lmodel2(data = d_all,  pco2_fb ~ pco2_calc_fb , nperm = 99)
-
-p <-  ggplot(d_all,aes(x=pco2_calc_fb, y= pco2_fb, label = monthd))+
-   geom_text(aes(color = factor(monthd)))+
+title <- "Calculated vs Contros pCO2"
+fit <- lmodel2(data = d_all,   pco2_calc_fb ~ pco2_fb, nperm = 99)
+print(fit)
+p <-  ggplot(d_all,aes(x = pco2_fb, y = pco2_calc_fb))+
+  geom_point()+
   scale_color_discrete(guide="none")+
   geom_abline(slope = 1, intercept = 0, linetype = "dashed") +
   geom_abline(aes(intercept = fit$regression.results[2,2], slope = fit$regression.results[2,3]),colour = "blue") +
-  labs(title = paste(title,"\n Adj R2 = ", signif(fit$rsquare, 3),
-                     "; Intercept =", signif(fit$regression.results[2,2], 3),
-                     "; Slope =", signif( fit$regression.results[2,3], 3),
-                     "; P =", signif(fit$P.param, 3))) +
+  # labs(title = paste(title,"\n Adj R2 = ", signif(fit$rsquare, 3),
+  #                    "; Intercept =", signif(fit$regression.results[2,2], 3),
+  #                    "; Slope =", signif( fit$regression.results[2,3], 3),
+  #                    "; P =", signif(fit$P.param, 3))) +
   theme(aspect.ratio=1,plot.title = element_text(size=7)) + 
   coord_fixed(ratio = 1 ,xlim=c(200,460) , ylim=c(200,460))+
-  labs(x="Calculated pCO2", y="Contros pCO2") + theme_bw()  
+  labs(x="Contros pCO2", y="Calculated pCO2") + theme_bw()  
 ```
-The relationship between the Contros and calculated *p*CO~2~ is not good at all in the sense that it is far from the 1:1 line, despite a good r2 (`r round(fit$rsquare, digits=2)`).
+
+The relationship between the Contros and calculated pCO2 is not good at all in the sense that it is far from the 1:1 line, despite a good r2 (`r round(fit$rsquare, digits=2)`).
+
 ```{r plot measured vs calculated pCO2, echo=FALSE, warning=FALSE, message=FALSE, out.width='100%', fig.align="center"}
 print(p) # pco2_calc_fb_pco2_corr_text
 ```
 
-### **Final *p*CO~2~ data**
+### **pCO~2~ time series**
 
 ```{r Final pCO2, echo=FALSE, warning=FALSE, message=FALSE, out.width='100%', fig.align="center"}
 pco2_contros_xts <-
