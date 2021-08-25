@@ -1175,6 +1175,14 @@ ggsave(filename = "figures/pco2_calc_meas.png", plot = p)
 The relationship between the measured (Contros) and calculated pCO2 (blue line) is relatively poor. It is far from the 1:1 relationship (black dashed line). The slope is `r signif(fit$regression.results[2,3], 3)`) and its 95% confidence interval does include 1; r2 is `r round(fit$rsquare, digits=2)`.
 
 **Figure legend**: pCO2 calculated from AT and CT as a function of pCO2 measured using a Contros sensor. All data are normalized at in situ temperature. The black dotted line is the 1:1 line while the blue solid line shows the line obtained by a major axis regression (Legendre, 2018- Pierre Legendre (2018). lmodel2: Model II Regression. R package version 1.7-3. https://CRAN.R-project.org/package=lmodel2
+=======
+  theme(aspect.ratio=1,plot.title = element_text(size=7)) + 
+  coord_fixed(ratio = 1 ,xlim=c(200,460) , ylim=c(200,460))+
+  labs(x="Contros pCO2", y="Calculated pCO2") + theme_bw()  
+```
+
+The relationship between the Contros and calculated pCO2 is not good at all in the sense that it is far from the 1:1 line, despite a good r2 (`r round(fit$rsquare, digits=2)`).
+>>>>>>> cb6a0f5891d0a4e43735bed5507c62760ae133cb
 
 ```{r plot measured vs calculated pCO2, echo=FALSE, warning=FALSE, message=FALSE, out.width='100%', fig.align="center"}
 # print(p)
