@@ -117,10 +117,14 @@ fit <- lmodel2(col_y ~ col_x, nperm = 99)
   slope_OLS <- fit$regression.results[1,3]
   predicted <- intercept_OLS + col_x * slope_OLS
   error <- col_x - predicted
+  rsquare <- fit$rsquare
+  P.param <- fit$P.param
   my_list <- list(intercept_MA = intercept_MA, 
                   slope_MA = slope_MA,
                   intercept_OLS = intercept_MA, 
                   slope_OLS = slope_MA,
+                  rsquare = rsquare,
+                  P = P.param,
                   rmse = sqrt(mean(error^2, na.rm=TRUE)))
   return(my_list)
 }
@@ -818,12 +822,12 @@ lm <- lm2(x = d_all$sal_insitu_ctd_9m, y = d_all$sal_fb)
 p <-  ggplot(d_all,aes(x=sal_insitu_ctd_9m, y= sal_fb))+
   geom_point( aes(color=factor(monthd))) + 
   geom_abline(slope=1, intercept=0, linetype = "dashed")+
-  geom_abline(aes(intercept = lm$fit$regression.results[2,2], slope = lm$fit$regression.results[2,3]),colour = "blue") +
+  geom_abline(aes(intercept = lm$intercept_MA, slope = lm$slope_MA),colour = "blue") +
   ylim(c(30.5,35.5)) +xlim(c(28,35.5)) +
-  labs(title = paste("","\n Adj R2 = ", signif(lm$fit$rsquare, 3),
-                     "; Intercept =", signif(lm$fit$regression.results[2,2], 3),
-                     "; Slope =", signif(lm$fit$regression.results[2,3], 3),
-                     "; P =", signif(lm$fit$P.param, 3),
+  labs(title = paste("","\n Adj R2 = ", signif(lm$rsquare, 3),
+                     "; Intercept =", signif(lm$intercept_MA, 3),
+                     "; Slope =", signif(lm$slope_MA, 3),
+                     "; P =", signif(lm$P, 3),
                      "; RMSE = ", signif(lm$rmse, 3))) +
   theme(aspect.ratio = 1, plot.title = element_text(size = 7)) + #
   coord_fixed(ratio = 1 )+
