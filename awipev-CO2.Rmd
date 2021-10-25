@@ -922,12 +922,11 @@ p <-  ggplot(d_all,aes(x=temp_insitu_11m, y= temp_fb, label = monthd))+
   geom_text( aes(color=factor(monthd))) + 
  # scale_color_viridis_d(option = "C", guide="none")+
   geom_abline(slope = 1, intercept = 0, linetype = "dashed") +
-  geom_abline(aes(intercept = lm$fit$regression.results[2,2], slope = lm$fit$regression.results[2,3]),
-              colour = "blue") +
-  labs(title = paste("T FB vs T 11 m","\n Adj R2 = ", signif(lm$fit$rsquare, 3),
-                     "; Intercept =", signif(lm$fit$regression.results[2,2], 3),
-                     "; Slope =", signif(lm$fit$regression.results[2,3], 3),
-                     "; P =", signif(lm$fit$P.param, 3),
+  geom_abline(aes(intercept = lm$intercept_MA, slope = lm$slope_MA),colour = "blue")  +
+  labs(title = paste("T FB vs T 11 m","\n Adj R2 = ", signif(lm$rsquare, 3),
+                     "; Intercept =", signif(lm$intercept_MA, 3),
+                     "; Slope =", signif(lm$slope_MA, 3),
+                     "; P =", signif(lm$P, 3),
                      "; RMSE = ", signif(lm$rmse, 3))) +
   theme_bw() +
   theme(aspect.ratio = 1, plot.title = element_text(size = 7)) + 
@@ -950,12 +949,10 @@ p <-  ggplot(d_all, aes(x=temp_insitu_ctd_9m, y= temp_insitu_11m, label = monthd
   geom_text( aes(color=factor(monthd))) + 
  # scale_color_viridis_d(option = "C", guide="none")+
   geom_abline(slope = 1, intercept = 0, linetype = "dashed") +
-  geom_abline(aes(intercept = lm$fit$regression.results[2,2], slope = lm$fit$regression.results[2,3]),
-              colour = "blue") +
-  labs(title = paste("T CTD 9 m vs T 11 m","\n Adj R2 = ", signif(lm$fit$rsquare, 3),
-                     "; Intercept =", signif(lm$fit$regression.results[2,2], 3),
-                     "; Slope =", signif(lm$fit$regression.results[2,3], 3),
-                     "; P =", signif(lm$fit$P.param, 3),
+  geom_abline(aes(intercept = lm$intercept_MA, slope = lm$slope_MA),colour = "blue")  +  labs(title = paste("T CTD 9 m vs T 11 m","\n Adj R2 = ", signif(lm$rsquare, 3),
+                     "; Intercept =", signif(lm$intercept_MA, 3),
+                     "; Slope =", signif(lm$slope_MA, 3),
+                     "; P =", signif(lm$P, 3),
                      "; RMSE = ", signif(lm$rmse, 3))) +
   theme_bw() +
   theme(aspect.ratio = 1,plot.title = element_text(size = 7)) + 
@@ -1179,14 +1176,14 @@ ggsave(filename = "figures/pco2_calc_meas.png", plot = p)
 The relationship between the measured (Contros) and calculated pCO2 (blue line) is relatively poor. It is far from the 1:1 relationship (black dashed line). The slope is `r signif(fit$regression.results[2,3], 3)`) and its 95% confidence interval does include 1; r2 is `r round(fit$rsquare, digits=2)`.
 
 **Figure legend**: pCO2 calculated from AT and CT as a function of pCO2 measured using a Contros sensor. All data are normalized at in situ temperature. The black dotted line is the 1:1 line while the blue solid line shows the line obtained by a major axis regression (Legendre, 2018- Pierre Legendre (2018). lmodel2: Model II Regression. R package version 1.7-3. https://CRAN.R-project.org/package=lmodel2
-=======
-  theme(aspect.ratio=1,plot.title = element_text(size=7)) + 
-  coord_fixed(ratio = 1 ,xlim=c(200,460) , ylim=c(200,460))+
-  labs(x="Contros pCO2", y="Calculated pCO2") + theme_bw()  
-```
+<!-- ======= -->
+<!--   theme(aspect.ratio=1,plot.title = element_text(size=7)) +  -->
+<!--   coord_fixed(ratio = 1 ,xlim=c(200,460) , ylim=c(200,460))+ -->
+<!--   labs(x="Contros pCO2", y="Calculated pCO2") + theme_bw()   -->
+<!-- ``` -->
 
 The relationship between the Contros and calculated pCO2 is not good at all in the sense that it is far from the 1:1 line, despite a good r2 (`r round(fit$rsquare, digits=2)`).
->>>>>>> cb6a0f5891d0a4e43735bed5507c62760ae133cb
+<!-- >>>>>>> cb6a0f5891d0a4e43735bed5507c62760ae133cb -->
 
 ```{r plot measured vs calculated pCO2, echo=FALSE, warning=FALSE, message=FALSE, out.width='100%', fig.align="center"}
 # print(p)
@@ -2120,12 +2117,12 @@ p <-  ggplot(d_all, aes(x=ph_s_dur_temp_fb, y= ph_dur_corr, label = monthd)) +
   geom_text( aes(color=factor(monthd))) + 
   scale_color_discrete(guide = "none")+
   geom_abline(slope=1, intercept =0, linetype = "dashed") +
-  geom_abline(aes(intercept = lm$fit$regression.results[2,2], slope = lm$fit$regression.results[2,3]),
+  geom_abline(aes(intercept = lm$intercept_MA, slope = lm$slope_MA),
               colour = "blue") +
-  labs(title = paste("pH spectro vs pH durafet (both at FB temperature","\n Adj R2 = ", signif(lm$fit$rsquare, 3),
-                     "; Intercept =", signif(lm$fit$regression.results[2,2], 3),
-                     "; Slope =", signif(lm$fit$regression.results[2,3], 3),
-                     "; P =", signif(lm$fit$P.param, 3),
+  labs(title = paste("pH spectro vs pH durafet (both at FB temperature","\n Adj R2 = ", signif(lm$rsquare, 3),
+                     "; Intercept =", signif(lm$intercept_MA, 3),
+                     "; Slope =", signif(lm$slope_MA, 3),
+                     "; P =", signif(lm$P, 3),
                      "; RMSE = ", signif(lm$rmse, 3))) +
   theme_bw() +
   theme(aspect.ratio = 1, plot.title = element_text(size=7)) + 
@@ -2142,12 +2139,12 @@ p <-  ggplot(d_all, aes(x=ph_s_sf_temp_insi, y= pHint_tot_sf, label = monthd)) +
   geom_text( aes(color=factor(monthd))) + 
   scale_color_discrete(guide = "none")+
   geom_abline(slope=1, intercept =0, linetype = "dashed") +
-  geom_abline(aes(intercept = lm$fit$regression.results[2,2], slope = lm$fit$regression.results[2,3]),
+  geom_abline(aes(intercept = lm$intercept_MA, slope = lm$slope_MA),
               colour = "blue") +
-  labs(title = paste("pH spectro vs pH seafet (at in situ temperature)","\n Adj R2 = ", signif(lm$fit$rsquare, 3),
-                     "; Intercept =", signif(lm$fit$regression.results[2,2], 3),
-                     "; Slope =", signif(lm$fit$regression.results[2,3], 3),
-                     "; P =", signif(lm$fit$P.param, 3),
+  labs(title = paste("pH spectro vs pH seafet (at in situ temperature)","\n Adj R2 = ", signif(lm$rsquare, 3),
+                     "; Intercept =", signif(lm$intercept_MA, 3),
+                     "; Slope =", signif(lm$slope_MA, 3),
+                     "; P =", signif(lm$P, 3),
                      "; RMSE = ", signif(lm$rmse, 1))) +
   theme_bw() +
   theme(aspect.ratio = 1, plot.title = element_text(size=7)) + 
@@ -2439,7 +2436,7 @@ const_choice <- bind_rows(diff_ls_1, diff_ls_2) %>%
 ### K1K2 using pCO2 and AT
 ```{r impact of constants using FerryBox pCO2 and at, echo=FALSE, warning=FALSE, message=FALSE}
 tmp <- d_all %>% 
-  tidyr::drop_na(pco2_fb, at, sal_fb, temp_fb) %>% 
+  tidyr::drop_na(ph_s_dur_temp_fb, pco2_fb, at, sal_fb, temp_fb) %>% 
   dplyr::select(datetime, ph_s_dur_temp_fb, pco2_fb, at, sal_fb, temp_fb) %>% 
   dplyr::mutate(
     ph_s_dur_temp_4_l = pHinsi(pH = ph_s_dur_temp_fb, # lueker
@@ -2583,7 +2580,7 @@ Here we compare pH measured spectrophotometrically with pH calculated from pCO2 
 ### K1K2 using CT and AT
 ```{r impact of constants using FerryBox ct and at, echo=FALSE, warning=FALSE, message=FALSE}
 tmp <- d_all %>% 
-  tidyr::drop_na(ct, at, sal_fb, temp_fb) %>% 
+  tidyr::drop_na(ph_s_dur_temp_fb, ct, at, sal_fb, temp_fb) %>% 
   dplyr::select(datetime, ph_s_dur_temp_fb, ct, at, sal_fb, temp_fb) %>% 
   dplyr::mutate(
     ph_s_dur_temp_4_l = pHinsi(pH = ph_s_dur_temp_fb, # lueker
