@@ -14,6 +14,7 @@ output:
 Sys.setlocale("LC_ALL", "en_US.UTF-8")
 Sys.setenv(TZ='UTC') # on utilise UTC
 rm(list = ls())
+
 if (!require("tidyverse")) install.packages("tidyverse")
 library(tidyverse)
 if (!require("seacarb")) install.packages("seacarb")
