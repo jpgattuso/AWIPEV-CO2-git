@@ -52,6 +52,8 @@ if (!require("slider")) install.packages("slider")
 library("slider")
 if (!require("kableExtra")) install.packages("kableExtra")
 library("kableExtra")
+if (!require("readxl")) install.packages("readxl")
+library("readxl")
 
 knitr::opts_chunk$set(echo = TRUE)
 
@@ -281,9 +283,11 @@ d_all <- d_all %>%
 ```
 
 ```{r read and prepare discrete AT+CT, echo=FALSE, warning=FALSE, message=FALSE}
-d <- tibble(
-  read.table(paste0(path, "fb_data/Discrete_analyses_AT_CT/Discrete_sampling_AWIPEV.csv"), header = T, dec = ".", as.is = T, sep = ";", fill = TRUE)
-) %>% 
+d <- read_excel(paste0(path, "fb_data/Discrete_analyses_AT_CT/Discrete_sampling_AWIPEV.xlsx"),
+                col_names = TRUE) %>% 
+#   d <- tibble(
+#   read.table(paste0(path, "fb_data/Discrete_analyses_AT_CT/Discrete_sampling_AWIPEV.csv"), header = T, dec = ".", as.is = T, sep = ";", fill = TRUE)
+# ) %>% 
   dplyr::mutate(datetime = ymd_hm(sampling_date, tz="UTC"),
                 measure_date = ymd(measure_date, tz="UTC"),
                 date = as.Date(datetime)) %>% 
@@ -312,7 +316,7 @@ d <- d %>%
                                          datetime == as.POSIXct("2018-03-02 14:10:00") |
                                          datetime == as.POSIXct("2019-05-31 11:45:00"), 
                                        1, 0))
-d <- d %>%
+tmp <- d %>%
   dplyr::filter(location_flag == 0)
 
 # Keep only flag = 2 for at/ct analysis 
