@@ -317,7 +317,7 @@ d <- d %>%
                                          datetime == as.POSIXct("2018-03-02 14:10:00") |
                                          datetime == as.POSIXct("2019-05-31 11:45:00"), 
                                        1, 0))
-tmp <- d %>%
+d <- d %>%
   dplyr::filter(location_flag == 0)
 
 # Keep only flag = 2 for at/ct analysis 
