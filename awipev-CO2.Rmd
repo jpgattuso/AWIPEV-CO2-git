@@ -289,7 +289,7 @@ d <- read_excel(paste0(path, "fb_data/Discrete_analyses_AT_CT/Discrete_sampling_
 #   d <- tibble(
 #   read.table(paste0(path, "fb_data/Discrete_analyses_AT_CT/Discrete_sampling_AWIPEV.csv"), header = T, dec = ".", as.is = T, sep = ";", fill = TRUE)
 # ) %>% 
-  dplyr::mutate(datetime = ymd_hm(sampling_date, tz="UTC"),
+  dplyr::mutate(datetime = dmy_hm(sampling_date, tz="UTC"),
                 measure_date = ymd(measure_date, tz="UTC"),
                 date = as.Date(datetime)) %>% 
   #dplyr::filter(datetime < as.POSIXct("2021-01-01 00:00:00")) %>% #eliminate 2021 data
@@ -329,8 +329,9 @@ d <- d%>%
                 ph_s_dur = replace(ph_s_dur, qflag_ph_s_dur != 2, NA))
 
 # Mercuric chloride correction (Dickson et al. 2007, SOP3a)
-d$at <- d$at * 1.0002
-d$ct <- d$ct * 1.0002
+
+d$at <- as.numeric(d$at) * 1.0002
+d$ct <- as.numeric(d$ct) * 1.0002
 
 # mean at and ct
 at_ct_mean <- d %>% 
