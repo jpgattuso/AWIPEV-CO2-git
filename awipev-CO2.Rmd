@@ -78,7 +78,8 @@ qq <- function (data, digits) {
 
 #################### Regression function
 # function regression plot with equation (MA or OLS) in title
-ggreg <- function (xdata, ydata, type = "OLS", plot = TRUE, title = "title", subtitle = "subtitle", xlab = "x", ylab = "y") { # x and y are the names of the variables
+ggreg <- function (xdata, ydata, type = "OLS", plot = TRUE, title = "title", subtitle = "subtitle", xlab = "x", ylab = "y", proplot = TRUE) 
+  { # x and y are the names of the variables
   fit_data <- tibble(xdata, ydata)
   colnames(fit_data) = c("xdata", "ydata")
   fit <- print(lmodel2::lmodel2(ydata ~ xdata))
@@ -87,19 +88,30 @@ if (type == "MA") ty = 2 #one selects MA only
 #reg <- fit$regression.results[ty,] #one selects OLS only
 intercept <- fit$regression.results$Intercept[ty]
 slope <- fit$regression.results$Slope[ty]
+predicted <- fit$regression.results$Intercept[1] + xdata * fit$regression.results$Slope[1]
+error <- xdata - predicted
 if (plot == TRUE) {
   plt <- ggplot(data = fit_data, aes(x = xdata, y = ydata)) + 
   geom_point(na.rm = TRUE, size = 2, colour = "blue") +
   geom_abline(aes(intercept = intercept, slope = slope),
               colour = "blue")  + 
-  labs(title = paste(title, "; type: ", type,
-                     "\n R2 = ", round(fit$rsquare, digits = 2),
+  labs(title = paste(title, 
+                     "\ntype: ", type,
+                     "; R2 = ", round(fit$rsquare, digits = 2),
                      "; Intercept =", signif(intercept, 3),
                      "; Slope =", signif(slope, 3),
-                     "; P =", signif(fit$P.param, 3)),
+                     "\nP =", signif(fit$P.param, 3),
+                    "rmse =", signif(sqrt(mean(error^2, na.rm=TRUE)), 3)),
        subtitle = subtitle,
        x = xlab,
-       y = ylab)
+       y = ylab) +
+    theme_bw() +
+    theme(plot.title = element_text(size = 7))
+    if (proplot == TRUE) { # property-property plot
+      plt <- plt +
+        geom_abline(slope = 1, intercept = 0, linetype = "dashed") +
+        theme(aspect.ratio = 1)
+      }
   return(plt)
   } #else {
   #return(fit)
@@ -1161,20 +1173,17 @@ We first calculate fCO2 from pCO2 and then express both pCO2 and fCO2 at in situ
 
 ```{r measured vs calculated pCO2, echo=FALSE, warning=FALSE, message=FALSE, out.width='100%', fig.align="center"}
 title <- "pCO2 normalized at in situ temperature"
-fit <- lmodel2(data = d_all,   pco2_calc_fb_insi_temp ~ pco2_fb_insi_temp, nperm = 99)
-print(fit)
-p <-  ggplot(d_all,aes(x = pco2_fb, y = pco2_calc_fb))+
-  geom_point()+
-  scale_color_discrete(guide="none")+
-  geom_abline(slope = 1, intercept = 0, linetype = "dashed") +
-  geom_abline(aes(intercept = fit$regression.results[2,2], slope = fit$regression.results[2,3]),colour = "blue") +
-  # labs(title = paste(title,"\n Adj R2 = ", signif(fit$rsquare, 3),
-  #                    "; Intercept =", signif(fit$regression.results[2,2], 3),
-  #                    "; Slope =", signif( fit$regression.results[2,3], 3),
-  #                    "; P =", signif(fit$P.param, 3))) +
-  theme(aspect.ratio=1, plot.title = element_text(size=7)) + 
-  coord_fixed(ratio = 1, xlim=c(200,420), ylim=c(200,420))+
-  labs(title = "", x="Measured pCO2", y="Calculated pCO2") + theme_bw()  
+p <- ggreg(
+  xdata = d_all$pco2_fb_insi_temp,
+  ydata = d_all$pco2_calc_fb_insi_temp,
+  type = "MA",
+  plot = TRUE,
+  title = title,
+  subtitle = "",
+  xlab = "Measured pCO2",
+  ylab = "Calculated pCO2",
+  proplot = TRUE
+)
 print(p)
 ggsave(filename = "figures/pco2_calc_meas.png", plot = p)
 ```
