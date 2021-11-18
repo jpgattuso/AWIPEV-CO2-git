@@ -78,7 +78,7 @@ qq <- function (data, digits) {
 
 #################### Regression function
 # function regression plot with equation (MA or OLS) in title
-ggreg <- function (xdata, ydata, type = "OLS", plot = TRUE, title = "title", subtitle = "subtitle", xlab = "x", ylab = "y", proplot = TRUE) 
+ggreg <- function (xdata, ydata, type = "OLS", plot = TRUE, title = "title", subtitle = "subtitle", xlab = "x", ylab = "y", proplot = TRUE, ...) 
   { # x and y are the names of the variables
   fit_data <- tibble(xdata, ydata)
   colnames(fit_data) = c("xdata", "ydata")
@@ -105,17 +105,18 @@ if (plot == TRUE) {
        subtitle = subtitle,
        x = xlab,
        y = ylab) +
+#    lims(x = c(min(fit_data$xdata), max(fit_data$xdata)), y = c(min(fit_data$ydata), max(fit_data$ydata))) +
     theme_bw() +
     theme(plot.title = element_text(size = 7))
     if (proplot == TRUE) { # property-property plot
       plt <- plt +
         geom_abline(slope = 1, intercept = 0, linetype = "dashed") +
         theme(aspect.ratio = 1)
-      }
-  return(plt)
-  } #else {
-  #return(fit)
-#}
+    }
+  return(list(plot = plt, fit = fit))
+  } else {
+  return(fit)
+    }
 }
 
 #################### Function RMSE for model 2 regression root mean square error
@@ -194,6 +195,8 @@ d_hour <- d_hour %>%
     temp_fb = temp_fb_filtered,
     ph_dur = ph_dur_filtered
   ) %>% 
+  # data post 2020-03-01 eliminated because no maintenance and lots of algae
+  dplyr::mutate(pco2_fb = ifelse(datetime >= as.POSIXct("2020-03-01 00:00"), NA, pco2_fb)) %>%
   arrange(datetime)
 # read a file provided by Philipp on 2021-04-09 which fills most gaps of pressure data
 # depth_complete replaces all other depth and pressure variables
@@ -1130,6 +1133,8 @@ The HydroC CO~2~ FT sensor (S/N: CO2FT-0215-001) was bought from Contros (German
 
 During those steps (except zeroing) the sensor runs normally. Equilibration between the gas inside the sensor and the dissolved gas in ambient water takes place. Gas is led to NDIR unit while T control is running.
 
+**Note** that the Contros pCO2 values after 2020-03-01 were not used because the Covid-19 pandemic prevented maintenance and the setup of a freshly calibrated sensor. As the result, algae becalme inceasingly abundant, pulling pCO2 down and further away from values calculated from CT and AT. 
+
 ### **Corrected Contros vs calculated *p*CO~2~ data**
 
 ```{r pco2 and fco2 at in situ temp, echo=FALSE, warning=FALSE, message=FALSE}
@@ -1173,7 +1178,7 @@ We first calculate fCO2 from pCO2 and then express both pCO2 and fCO2 at in situ
 
 ```{r measured vs calculated pCO2, echo=FALSE, warning=FALSE, message=FALSE, out.width='100%', fig.align="center"}
 title <- "pCO2 normalized at in situ temperature"
-p <- ggreg(
+reg <- ggreg(
   xdata = d_all$pco2_fb_insi_temp,
   ydata = d_all$pco2_calc_fb_insi_temp,
   type = "MA",
@@ -1184,24 +1189,17 @@ p <- ggreg(
   ylab = "Calculated pCO2",
   proplot = TRUE
 )
-print(p)
+p <- reg$plot
 ggsave(filename = "figures/pco2_calc_meas.png", plot = p)
 ```
 
-The relationship between the measured (Contros) and calculated pCO2 (blue line) is relatively poor. It is far from the 1:1 relationship (black dashed line). The slope is `r signif(fit$regression.results[2,3], 3)`) and its 95% confidence interval does include 1; r2 is `r round(fit$rsquare, digits=2)`.
+The relationship between the measured (Contros) and calculated pCO2 (blue line) is relatively poor. It is far from the 1:1 relationship (black dashed line). The slope is `r signif(reg$fit$regression.results[2,3], 3)`) and its 95% confidence interval does include 1; r2 is `r round(reg$fit$rsquare, digits=2)`.
 
 **Figure legend**: pCO2 calculated from AT and CT as a function of pCO2 measured using a Contros sensor. All data are normalized at in situ temperature. The black dotted line is the 1:1 line while the blue solid line shows the line obtained by a major axis regression (Legendre, 2018- Pierre Legendre (2018). lmodel2: Model II Regression. R package version 1.7-3. https://CRAN.R-project.org/package=lmodel2
-<!-- ======= -->
-<!--   theme(aspect.ratio=1,plot.title = element_text(size=7)) +  -->
-<!--   coord_fixed(ratio = 1 ,xlim=c(200,460) , ylim=c(200,460))+ -->
-<!--   labs(x="Contros pCO2", y="Calculated pCO2") + theme_bw()   -->
-<!-- ``` -->
 
-The relationship between the Contros and calculated pCO2 is not good at all in the sense that it is far from the 1:1 line, despite a good r2 (`r round(fit$rsquare, digits=2)`).
-<!-- >>>>>>> cb6a0f5891d0a4e43735bed5507c62760ae133cb -->
 
 ```{r plot measured vs calculated pCO2, echo=FALSE, warning=FALSE, message=FALSE, out.width='100%', fig.align="center"}
-# print(p)
+print(p$plot)
 # 
 ```
 
@@ -2537,21 +2535,21 @@ millero2002 <- as.numeric(summary(tmp2$ph_s_dur_temp_4_m02 - tmp2$pH_m))
 diff_table_pco2_at <- tibble(var = c("Min", "Q1", "Median", "Mean", "Q3", "Max"), lueker, sulpis, papadimitriou, millero2002)
 # make plots
 p1 <- ggreg(xdata = tmp2$ph_s_dur_temp_4_l, ydata = tmp2$pH_l, type = "MA", plot = TRUE, 
-            title = "Lueker vs measured", subtitle = "both pH normalized at 4°C",
+            title = "Lueker vs measured", subtitle = "both pH normalized at 4°C", 
             xlab = "Spectrophotometric pH normalized @ 4°C",
-            ylab = "pH @ 4°C calculated (pCO2+AT) with Lueker") +
+            ylab = "pH @ 4°C calculated (pCO2+AT) with Lueker", 
+            proplot = TRUE)$plot +
   lims(x = c(8, 8.4), y = c(8, 8.4)) +
   theme(plot.title = element_text(size = 10),
-        axis.text = element_text(size = 10)) +
-  coord_fixed(ratio = 1)
+        axis.text = element_text(size = 10))
 p2 <- ggreg(xdata = tmp2$ph_s_dur_temp_4_l, ydata = tmp2$pH_s, type = "MA", plot = TRUE, 
             title = "Sulpis vs measured", subtitle = "both pH normalized at 4°C",
             xlab = "Spectrophotometric pH normalized @ 4°C",
-            ylab = "pH @ 4°C calculated (pCO2+AT) with Sulpis")  +
+            ylab = "pH @ 4°C calculated (pCO2+AT) with Sulpis",
+            proplot = TRUE)$plot +
   lims(x = c(8, 8.4), y = c(8, 8.4)) +
   theme(plot.title = element_text(size = 10),
-        axis.text = element_text(size = 10)) +
-  coord_fixed(ratio = 1)
+        axis.text = element_text(size = 10))
 p3 <- tmp2 %>% 
   dplyr::mutate(delta_lueker = tmp2$ph_s_dur_temp_4_l - tmp2$pH_l, 
                 delta_sulpis = tmp2$ph_s_dur_temp_4_s20 - tmp2$pH_s, 
@@ -2678,15 +2676,16 @@ diff_table_at_ct <- tibble(var = c("Min", "Q1", "Median", "Mean", "Q3", "Max"), 
 p1 <- ggreg(xdata = tmp2$ph_s_dur_temp_4_l, ydata = tmp2$pH_l2, type = "MA", plot = TRUE, 
             title = "Lueker vs measured", subtitle = "both pH normalized at 4°C",
             xlab = "Spectrophotometric pH normalized @ 4°C",
-            ylab = "pH @ 4°C calculated (AT+CT) with Lueker") +
+            ylab = "pH @ 4°C calculated (AT+CT) with Lueker",
+            proplot = TRUE)$plot +
   lims(x = c(8, 8.4), y = c(8, 8.4)) +
   theme(plot.title = element_text(size = 10),
-        axis.text = element_text(size = 10)) +
-  coord_fixed(ratio = 1)
+        axis.text = element_text(size = 10))
 p2 <- ggreg(xdata = tmp2$ph_s_dur_temp_4_l, ydata = tmp2$pH_s2, type = "MA", plot = TRUE, 
             title = "Sulpis vs measured", subtitle = "both pH normalized at 4°C",
             xlab = "Spectrophotometric pH normalized @ 4°C",
-            ylab = "pH @ 4°C calculated (AT+CT) with Sulpis")  +
+            ylab = "pH @ 4°C calculated (AT+CT) with Sulpis",
+            proplot = TRUE)$plot  +
   lims(x = c(8, 8.4), y = c(8, 8.4)) +
   theme(plot.title = element_text(size = 10),
         axis.text = element_text(size = 10)) +
