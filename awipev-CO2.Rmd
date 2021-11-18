@@ -2999,16 +2999,16 @@ deconv_pCO2_T <- tibble(date = d$date,
                         deconv_pCO2_T=carb(flag=15, var1=d$mAT, var2=d$mCT, S=d$mS, T=d$T, P=d$P, Pt=d$Pt, Sit=d$Sit, k1k2="l", kf="dg", ks="d", pHscale="T", b="u74")$pCO2
 )
 d <- filter(deconv_dat, !is.na(mAT), !is.na(mCT), !is.na(S), !is.na(mT)) # we eliminate date with NAs
-deconv_pCO2_S <- data_frame(date=d$date,
+deconv_pCO2_S <- tibble(date=d$date,
                      deconv_pCO2_S=carb(flag=15, var1=d$mAT, var2=d$mCT, S=d$S, T=d$mT, P=d$P, Pt=d$Pt, 
                                       Sit=d$Sit, k1k2="l", kf="dg", ks="d", pHscale="T", b="u74")$pCO2
                      )
 d <- filter(deconv_dat, !is.na(AT), !is.na(mCT), !is.na(mS), !is.na(mT)) # we eliminate date with NAs
-deconv_pCO2_AT <- data_frame(date=d$date,
+deconv_pCO2_AT <- tibble(date=d$date,
                      deconv_pCO2_AT=carb(flag=15, var1=d$AT, var2=d$mCT, S=d$mS, T=d$mT, P=d$P, Pt=d$Pt, Sit=d$Sit, k1k2="l", kf="dg", ks="d", pHscale="T", b="u74")$pCO2
 )
 d <- filter(deconv_dat, !is.na(mAT), !is.na(CT), !is.na(mS), !is.na(mT)) # we eliminate date with NAs
-deconv_pCO2_CT <- data_frame(date=d$date,
+deconv_pCO2_CT <- tibble(date=d$date,
                      deconv_pCO2_CT=carb(flag=15, var1=d$mAT, var2=d$CT, S=d$mS, T=d$mT, P=d$P, Pt=d$Pt, Sit=d$Sit, k1k2="l", kf="dg", ks="d", pHscale="T", b="u74")$pCO2
 )
 
