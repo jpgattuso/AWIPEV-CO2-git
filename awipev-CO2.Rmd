@@ -1790,7 +1790,7 @@ print(p)
 **Conclusion**:
 The range is significantly larger during some months when the data deeper than 8 m are considered. Also, pH is sometimes higher at the surface, at other times it is higher on the bottom (June). No data are available at 1 m (actually 0 to 2 m). So, to compare surface and bottom, I combine 1 and 3 m (0 to 4 m) and 9 m (below 8 m).
 
-Depth and month of the year have a statistically significant effet on pH. The interaxction is also significant, indicating that the effect of depth differs depending on the month.
+Depth and month of the year have a statistically significant effect on pH. The interaction is also significant, indicating that the effect of depth differs depending on the month.
 
  + To compare with pCO2/pCO2 measured in the Ferrybox seems therefore better to stick with pH_9m, that is at depths deeper than 8 m.
   + pCO2 would have the same behaviour as pH. For air-sea CO2 fluxes, one should use data from 0 to 4 m.
@@ -2036,7 +2036,7 @@ kable(range_month, caption = "")
 ## pHs 
 Comparaison is done here with **corrected pHs** (**seaFET**, **durafet** and **calculated** (from AT/CT)) and normalized at 4°C with a total alkalinity of `r mean(d_all$at, na.rm=TRUE)` µmoles kg-1 (mean data). For information, mean temperatures in Ferrybox and *in situ* are repectively 3.5°C and 2.5°C.
 
-### **seaFET / durafet pHs**
+### **seaFET / durafet pHs (all at 9 m)**
 
 ```{r pHs comparaison, echo=FALSE, message= FALSE, warning=FALSE}
 # prepare data and remove sf biofouling period
