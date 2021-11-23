@@ -1761,23 +1761,53 @@ rm(seafet_depth_xts)
 # readr::write_csv(x = no_pressure, path=paste0(path,"/fb_awipev-co2_server/ny-alesund/data//no_pressure.csv"))
 
 
+# tmp <- d_all %>% 
+#   dplyr::select(montht, pHint_tot_sf, depth, depth_discrete) %>%
+#   dplyr::group_by(depth, montht)
+# p <- tmp %>% 
+#   ggplot(aes(x=as.factor(depth), y = pHint_tot_sf)) +
+#   geom_boxplot(notch=FALSE, size=0.2, fill="grey50", outlier.color = "blue", outlier.size = 0.3) +
+#   labs(title = "pHT", x = "Depth (m)", y= "pHT") +
+#   facet_wrap(vars(montht), scale = "free_y")
+# print(p)
+# 
+# 
+# p <- tmp %>% 
+#   ggplot(aes(x=depth_discrete, y = pHint_tot_sf)) +
+#   geom_boxplot(notch=FALSE, size=0.2, fill="grey50", outlier.color = "blue", outlier.size = 0.3) +
+#   labs(title = "pHT", x = "Depth (m)", y= "pHT") +
+#   facet_wrap(vars(montht), scale = "free_y")
+# print(p)
+
 # we look at all depths
 tmp <- d_all %>% 
-  dplyr::select(montht, pHint_tot_sf, depth) %>%
-  group_by(depth, montht)
-p <- tmp %>% 
-  ggplot(aes(x=as.factor(depth), y = pHint_tot_sf)) +
-  geom_boxplot(notch=FALSE, size=0.2, fill="grey50", outlier.color = "blue", outlier.size = 0.3) +
+  dplyr::select(year, montht, pHint_tot_sf, depth_discrete) %>%
+  tidyr::drop_na(pHint_tot_sf, depth_discrete) %>%
+  dplyr::group_by(depth_discrete, year, montht)
+summary(aov(tmp$pHint_tot_sf ~ tmp$depth_discrete * tmp$montht))
+
+# remove outliers
+quantile(tmp$pHint_tot_sf, na.rm =TRUE, probs = c(0.01, 0.99))
+
+p <- tmp %>%
+  ggplot(aes(x=depth_discrete, y = pHint_tot_sf)) +
+  geom_boxplot(notch=FALSE, size=0.2, fill="grey50", outlier.color = "blue", outlier.size = 0.3, coef = 1.5) +
   labs(title = "pHT", x = "Depth (m)", y= "pHT") +
-  facet_wrap(vars(montht), scale = "free_y")
+  lims(y = c(7.4, 8.3)) +
+  coord_cartesian() +
+  facet_wrap(vars(montht), scale = "fixed")
 print(p)
+
+pp <- tmp %>%
+  ggplot(aes(x=depth_discrete, y = pHint_tot_sf)) +
+  stat_boxplot(notch=FALSE, size=0.2, fill="grey50", outlier.color = "blue", outlier.size = 0.3, coef = 3)
 
 # we look at 0 to 4 m vs more than 8 m
 tmp <- d_all %>% 
   dplyr::select(montht, pHint_tot_sf, depth) %>%
   dplyr::mutate(depth = as.factor(ifelse(depth == 1 | depth == 3, 2, depth))) %>% 
   dplyr::filter(depth == 2 | depth == 10) %>% 
-  group_by(depth, montht)
+  dplyr::group_by(depth, montht)
 summary(aov(tmp$pHint_tot_sf ~ tmp$depth * tmp$montht))
 
 p <- tmp %>% 
