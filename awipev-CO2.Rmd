@@ -57,6 +57,8 @@ if (!require("kableExtra")) install.packages("kableExtra")
 library("kableExtra")
 if (!require("readxl")) install.packages("readxl")
 library("readxl")
+if (!require("oce")) install.packages("oce")
+library(oce)
 
 knitr::opts_chunk$set(echo = TRUE)
 
@@ -1705,7 +1707,12 @@ seafet_calib <- sf_calc(calEint = d_all$voltINT, calEext = d_all$voltEXT, E0int2
 
 # bind new calibrated pH data to the seafet data set.
 names(seafet_calib) <- c("pHint_tot_sf", "pHext_tot_sf")
-d_all <- dplyr::bind_cols(d_all, seafet_calib )
+
+##########  Despike() ###########
+d_all <- d_all %>%   
+  dplyr::mutate(pHint_tot_sf = oce::despike(seafet_calib$pHint_tot_sf, reference= "median", n=1, k=5000, replace="NA"),
+                pHext_tot_sf = oce::despike(seafet_calib$pHext_tot_sf, reference= "median", n=1, k=5000, replace="NA")
+  )
 
 # pH seaFET Final
 # add despike with n=2 k = 5762 to the final ph corrected data
@@ -3751,7 +3758,9 @@ All documents concerning maintenance, tasks to do, calibration... are accessible
 #### Script awipev-co2.Rmd which runs locally
 * reads locally fb_awipev-co2_server/ny-alesund/data/NRT_data/nydata_hour.rds
 * sal_mix: when ferrybox data (sal_fb) are missing, they are replaced by data from the profiling ctd for depths > 8 m (sal_insitu_ctd_9m)
+* sal_mix_interp: interpolated salinity sal_mix. It is used to have as many spec pH to display (some are during missing data)
 * temp_mix: when data of in situ temperature at 11 m (temp_insitu_11m) are missing, they are replaced by data from the profiling ctd for depths > 8 m
+* temp_mix_interp: interpolated temperature temp_mix. It is used to have as many spec pH to display (some are during missing data)
 * pco2_calc_fb: pco2 calc from AT/CT ferrybox = carb avec temp_fb +sal_fb
 * calibrate seafet pH
     - ph_s_sf_temp_insi: pH spectro seaFET pH insi calculé avec AT interpolée + temp_mix +sal_mix
