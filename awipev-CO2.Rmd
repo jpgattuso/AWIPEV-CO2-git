@@ -264,8 +264,7 @@ d_all <- d_all %>%
       )
     )) %>%
   dplyr::rowwise() %>% 
-  dplyr::mutate(n_depth_ctd = sum(is.na( # create new variable to identify the hours 
-    # for which there are CTD data at more than 1 depth 
+  dplyr::mutate(n_depth_ctd = sum(is.na( # create new variable to identify the hours for which there are CTD data at more than 1 depth 
   c(
     sal_insitu_ctd_1m,
     sal_insitu_ctd_3m,
@@ -1784,15 +1783,11 @@ rm(seafet_depth_xts)
 tmp <- d_all %>% 
   dplyr::select(year, montht, pHint_tot_sf, depth_discrete) %>%
   tidyr::drop_na(pHint_tot_sf, depth_discrete) %>%
-  dplyr::group_by(depth_discrete, year, montht) %>% 
-  dplyr::mutate(quant_01 = quantile(pHint_tot_sf, na.rm =TRUE, probs = c(0.05)),
-                quant_99 = quantile(pHint_tot_sf, na.rm =TRUE, probs = c(0.95)),
-                mean = mean(pHint_tot_sf, na.rm =TRUE),
-                sd = sd(pHint_tot_sf, na.rm =TRUE)
-                ) %>% 
-  dplyr::filter(pHint_tot_sf < mean + sd, pHint_tot_sf > mean - sd) # remove outliers
-#  dplyr::filter(pHint_tot_sf < quant_99, pHint_tot_sf > quant_01) # remove outliers
+  dplyr::group_by(depth_discrete, year, montht)
 summary(aov(tmp$pHint_tot_sf ~ tmp$depth_discrete * tmp$montht))
+
+# remove outliers
+quantile(tmp$pHint_tot_sf, na.rm =TRUE, probs = c(0.01, 0.99))
 
 p <- tmp %>%
   ggplot(aes(x=depth_discrete, y = pHint_tot_sf)) +
@@ -1832,7 +1827,7 @@ Depth and month of the year have a statistically significant effect on pH. The i
 
 ## pH durafet
 
-pH is measured continuously by an autonomous durafet pH sensor. Final calibrated durafet pHT data (green dots) are shown here after calibration with spectro measurements (red dots) according to each period of deployement, defined between 2 spectro measurements (shading grey). Calibration was done appliying an offset of pH between measured and spectro data per periods.
+pH is measured continuously by an autonomous durafet pH sensor. Final calibrated durafet pHT data (green doibb) are shown here after calibration with spectro measurements (red dots) according to each period of deployement, defined between 2 spectro measurements (shading grey). Calibration was done appliying an offset of pH between measured and spectro data per periods.
 
 ### **Durafet calibration**
 
