@@ -264,7 +264,8 @@ d_all <- d_all %>%
       )
     )) %>%
   dplyr::rowwise() %>% 
-  dplyr::mutate(n_depth_ctd = sum(is.na( # create new variable to identify the hours for which there are CTD data at more than 1 depth 
+  dplyr::mutate(n_depth_ctd = sum(is.na( # create new variable to identify the hours 
+    # for which there are CTD data at more than 1 depth 
   c(
     sal_insitu_ctd_1m,
     sal_insitu_ctd_3m,
@@ -1783,7 +1784,7 @@ rm(seafet_depth_xts)
 tmp <- d_all %>% 
   dplyr::select(year, montht, pHint_tot_sf, depth_discrete) %>%
   tidyr::drop_na(pHint_tot_sf, depth_discrete) %>%
-  dplyr::group_by(depth_discrete, montht) %>% 
+  dplyr::group_by(depth_discrete, year, montht) %>% 
   dplyr::mutate(quant_01 = quantile(pHint_tot_sf, na.rm =TRUE, probs = c(0.05)),
                 quant_99 = quantile(pHint_tot_sf, na.rm =TRUE, probs = c(0.95)),
                 mean = mean(pHint_tot_sf, na.rm =TRUE),
