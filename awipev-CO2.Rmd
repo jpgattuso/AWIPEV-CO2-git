@@ -1746,39 +1746,6 @@ rm(seafet_depth_xts)
 ### **seaFET pH profiles**
 
 ```{r seafet profiles, echo=FALSE, message= FALSE, warning=FALSE, out.width="80%",fig.show='hold', fig.align="center"}
-# range <- d_all %>%
-#   dplyr::mutate(pH_range_more_6m = ifelse(depth > 6, pHint_tot_sf, NA)) %>%
-#   group_by(montht) %>%
-#   summarize(pH_range = max(pHint_tot_sf, na.rm = TRUE) - min(pHint_tot_sf, na.rm = TRUE),
-#             pH_range_more_6m = max(pH_range_more_6m, na.rm = TRUE) - min(pH_range_more_6m, na.rm = TRUE),
-#             pH_range_more_9m = max(pHint_tot_sf_9m, na.rm = TRUE) - min(pHint_tot_sf_9m, na.rm = TRUE)) %>%
-#   ungroup()
-# print(kable(range, digits = 2))
-
-# # datetime when pH values are in but no pressure data. File sent to send to Philipp
-# no_pressure <- d_all %>% 
-#   dplyr::select(datetime, depth, pHint_tot_sf) %>% 
-#   dplyr::filter(is.na(depth) & !is.na(pHint_tot_sf))
-# readr::write_csv(x = no_pressure, path=paste0(path,"/fb_awipev-co2_server/ny-alesund/data//no_pressure.csv"))
-
-
-# tmp <- d_all %>% 
-#   dplyr::select(montht, pHint_tot_sf, depth, depth_discrete) %>%
-#   dplyr::group_by(depth, montht)
-# p <- tmp %>% 
-#   ggplot(aes(x=as.factor(depth), y = pHint_tot_sf)) +
-#   geom_boxplot(notch=FALSE, size=0.2, fill="grey50", outlier.color = "blue", outlier.size = 0.3) +
-#   labs(title = "pHT", x = "Depth (m)", y= "pHT") +
-#   facet_wrap(vars(montht), scale = "free_y")
-# print(p)
-# 
-# 
-# p <- tmp %>% 
-#   ggplot(aes(x=depth_discrete, y = pHint_tot_sf)) +
-#   geom_boxplot(notch=FALSE, size=0.2, fill="grey50", outlier.color = "blue", outlier.size = 0.3) +
-#   labs(title = "pHT", x = "Depth (m)", y= "pHT") +
-#   facet_wrap(vars(montht), scale = "free_y")
-# print(p)
 
 # we look at all depths
 tmp <- d_all %>% 
