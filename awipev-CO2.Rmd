@@ -7,6 +7,8 @@ output:
   word_document: default
   pdf_document: default
   odt_document: default
+editor_options: 
+  chunk_output_type: console
 ---
 ![ ](Images/AWIPEV-Logo.jpg){width=250px}
 
@@ -55,6 +57,8 @@ if (!require("kableExtra")) install.packages("kableExtra")
 library("kableExtra")
 if (!require("readxl")) install.packages("readxl")
 library("readxl")
+if (!require("oce")) install.packages("oce")
+library(oce)
 
 knitr::opts_chunk$set(echo = TRUE)
 
@@ -182,6 +186,10 @@ d_hour <-
     path,
     "fb_awipev-co2_server/ny-alesund/data/NRT_data/nydata_hour.rds"
   ))
+d_hour <- as_tsibble(d_hour, index = datetime) %>%#d_all will be the merger
+  tsibble::fill_gaps(.full=TRUE)
+d_hour$date <-  as.Date(d_hour$datetime, format="%Y-%m-%d")
+
 
 d_hour <- d_hour %>%
   dplyr::filter(datetime <= as.POSIXct("2021-01-10")) %>% #cutoff date
@@ -226,8 +234,7 @@ d_hour <- dplyr::left_join(d_hour, svl_remos_depth, by = 'datetime') %>%
 # pp <- ggplot(zz, aes(x=datetime, y=sal_new)) +
 #     geom_point()
 
-d_all <- as_tsibble(d_hour, index = datetime) #d_all will be the merger
-d_all <- d_all %>%
+d_all <- d_hour %>%
   dplyr::mutate_all(function(x) ifelse(is.nan(x), NA, x)) %>% # replace all NaN by NA
   dplyr::mutate(depth_group_pressure = ifelse( # create new variable depth
       pressure_insitu_ctd <= 2,
@@ -264,14 +271,13 @@ d_all <- d_all %>%
       )
     )) %>%
   dplyr::rowwise() %>% 
-  dplyr::mutate(n_depth_ctd = sum(is.na( # create new variable to identify the hours 
-    # for which there are CTD data at more than 1 depth 
+  dplyr::mutate(n_depth_ctd = sum(is.na( # create new variable to identify the hours for which there are CTD data at more than 1 depth 
   c(
-    sal_insitu_ctd_1m,
-    sal_insitu_ctd_3m,
-    sal_insitu_ctd_5m,
-    sal_insitu_ctd_7m,
-    sal_insitu_ctd_9m
+    temp_insitu_ctd_1m,
+    temp_insitu_ctd_3m,
+    temp_insitu_ctd_5m,
+    temp_insitu_ctd_7m,
+    temp_insitu_ctd_9m
   )
 ), na.rm = TRUE)) %>% 
   ungroup()
@@ -284,6 +290,7 @@ d_all <- d_all %>%
                 montht = lubridate::month(d_hour$datetime, label = TRUE, abbr = TRUE) # abbreviated months
   )
 rm(d_hour)
+
 ```
 
 ```{r Sal filter, fig.width=10, fig.height=4, echo=FALSE, message= FALSE}
@@ -368,10 +375,35 @@ names(TAinterp) <- c("datetime", "at_mean_interp")
 TAinterp <- as.data.frame(TAinterp)
 d$at_mean_interp <- TAinterp$at_mean_interp
 
+
+
 CTinterp <-approx(d$datetime, d$ct_mean, xout=d$datetime, method="linear", rule=2)
 names(CTinterp) <- c("datetime", "ct_mean_interp")
 CTinterp <- as.data.frame(CTinterp)
 d$ct_mean_interp <- CTinterp$ct_mean_interp
+
+# interpolation of temp_mix/sal_mix in d_all in order to have a full temperature for pHinsi()
+# We take temp_mix/sal_mix because of the depth (temp11m insitu + temp9m ctd)
+tempmixinterp <-approx(d_all$datetime, d_all$temp_mix, xout=d_all$datetime, method="linear", rule=2)
+names(tempmixinterp) <- c("datetime", "temp_mix_interp")
+tempmixinterp <- as.data.frame(tempmixinterp)
+d_all$temp_mix_interp <- tempmixinterp$temp_mix_interp
+
+salmixinterp <-approx(d_all$datetime, d_all$sal_mix, xout=d_all$datetime, method="linear", rule=2)
+names(salmixinterp) <- c("datetime", "sal_mix_interp")
+salmixinterp <- as.data.frame(salmixinterp)
+d_all$sal_mix_interp <- salmixinterp$sal_mix_interp
+
+# ta_xts <- dplyr::select(d_all, datetime, sal_mix, sal_mix_interp)
+# ta_xts <- as.xts(ta_xts, order.by = ta_xts$datetime)
+# dygraph(ta_xts, group = "awipev", main="sal mix", ylab="temp") %>%
+#   dySeries("sal_mix", color = "black", pointSize =4, strokeWidth = 1, label = "ta") %>%
+#   dySeries("sal_mix_interp", color = "blue", strokeWidth = 1, label = "ta interp") %>%
+#   dyHighlight(highlightCircleSize = 8,highlightSeriesBackgroundAlpha =0.2,hideOnMouseOut =TRUE) %>%
+#       dyOptions( drawGrid = TRUE, drawPoints = TRUE,useDataTimezone = TRUE) %>%
+#     dyAxis("y",valueRange = c(33, 36)) %>%
+#     dyLegend(show = "follow")   %>%
+#       dyRangeSelector(height = 30, dateWindow= NULL)
 
 # add sal_fb + sal_insitu_ctd + temp_fb + temp_insitu_ctd from d_all into d, to use pHinsi
 # use the closest time to add them
@@ -387,9 +419,12 @@ d <- left_join(d, d_all %>%
                      sal_fb,
                      temp_fb,
                      temp_mix,
+                     temp_mix_interp,
                      sal_mix,
+                     sal_mix_interp,
                      temp_insitu_11m,
                      temp_insitu_ctd,
+                     temp_sf,
                      depth
                    )
                  ), by = "closest_datetime") %>% 
@@ -397,18 +432,19 @@ d <- left_join(d, d_all %>%
 
 # Conversion of spec pH of in situ samples to in situ temp and 4 °C
 pH_seafet <- d %>%
-  dplyr::filter(!is.na(ph_s_sf) & !is.na(temp_insitu_ctd))
+  dplyr::filter(!is.na(ph_s_sf) & !is.na(temp_mix_interp))
+
 pH_seafet <- pH_seafet %>% 
   dplyr::mutate(
     ph_s_sf_temp_insi = pHinsi(pH = pH_seafet$ph_s_sf, 
-                         ALK = pH_seafet$at_mean_interp*1e-6, Tinsi = pH_seafet$temp_insitu_ctd, 
-                         Tlab = pH_seafet$temp_s_lab, Pinsi = pH_seafet$depth/10, 
-                         S = pH_seafet$sal_mix, Pt = 0, Sit = 0, k1k2 = "l", kf = "dg", ks="d", 
+                         ALK = pH_seafet$at_mean_interp*1e-6, Tinsi = pH_seafet$temp_mix_interp, 
+                         Tlab = pH_seafet$temp_s_lab, Pinsi = 11/10, 
+                         S = pH_seafet$sal_mix_interp, Pt = 0, Sit = 0, k1k2 = "l", kf = "dg", ks="d", 
                          pHscale = "T", b="u74"),
    ph_s_sf_temp_4 = pHinsi(pH = pH_seafet$ph_s_sf, # with Lueker
                          ALK = pH_seafet$at_mean_interp*1e-6, Tinsi = 4, 
-                         Tlab = pH_seafet$temp_s_lab, Pinsi = pH_seafet$depth/10, 
-                         S = pH_seafet$sal_mix, Pt = 0, Sit = 0, k1k2 = "l", kf = "dg", ks="d", 
+                         Tlab = pH_seafet$temp_s_lab, Pinsi = 11/10, 
+                         S = pH_seafet$sal_mix_interp, Pt = 0, Sit = 0, k1k2 = "l", kf = "dg", ks="d", 
                          pHscale = "T", b="u74")
   )
 # Conversion of spec pH of FerryBox samples to FerryBox temp
@@ -1671,7 +1707,12 @@ seafet_calib <- sf_calc(calEint = d_all$voltINT, calEext = d_all$voltEXT, E0int2
 
 # bind new calibrated pH data to the seafet data set.
 names(seafet_calib) <- c("pHint_tot_sf", "pHext_tot_sf")
-d_all <- dplyr::bind_cols(d_all, seafet_calib )
+
+##########  Despike() ###########
+d_all <- d_all %>%   
+  dplyr::mutate(pHint_tot_sf = oce::despike(seafet_calib$pHint_tot_sf, reference= "median", n=1, k=5000, replace="NA"),
+                pHext_tot_sf = oce::despike(seafet_calib$pHext_tot_sf, reference= "median", n=1, k=5000, replace="NA")
+  )
 
 # pH seaFET Final
 # add despike with n=2 k = 5762 to the final ph corrected data
@@ -1751,15 +1792,11 @@ rm(seafet_depth_xts)
 tmp <- d_all %>% 
   dplyr::select(year, montht, pHint_tot_sf, depth_discrete) %>%
   tidyr::drop_na(pHint_tot_sf, depth_discrete) %>%
-  dplyr::group_by(depth_discrete, year, montht) %>% 
-  dplyr::mutate(quant_01 = quantile(pHint_tot_sf, na.rm =TRUE, probs = c(0.05)),
-                quant_99 = quantile(pHint_tot_sf, na.rm =TRUE, probs = c(0.95)),
-                mean = mean(pHint_tot_sf, na.rm =TRUE),
-                sd = sd(pHint_tot_sf, na.rm =TRUE)
-                ) %>% 
-  dplyr::filter(pHint_tot_sf < mean + sd, pHint_tot_sf > mean - sd) # remove outliers
-#  dplyr::filter(pHint_tot_sf < quant_99, pHint_tot_sf > quant_01) # remove outliers
+  dplyr::group_by(depth_discrete, year, montht)
 summary(aov(tmp$pHint_tot_sf ~ tmp$depth_discrete * tmp$montht))
+
+# remove outliers
+quantile(tmp$pHint_tot_sf, na.rm =TRUE, probs = c(0.01, 0.99))
 
 p <- tmp %>%
   ggplot(aes(x=depth_discrete, y = pHint_tot_sf)) +
@@ -1799,7 +1836,7 @@ Depth and month of the year have a statistically significant effect on pH. The i
 
 ## pH durafet
 
-pH is measured continuously by an autonomous durafet pH sensor. Final calibrated durafet pHT data (green dots) are shown here after calibration with spectro measurements (red dots) according to each period of deployement, defined between 2 spectro measurements (shading grey). Calibration was done appliying an offset of pH between measured and spectro data per periods.
+pH is measured continuously by an autonomous durafet pH sensor. Final calibrated durafet pHT data (green doibb) are shown here after calibration with spectro measurements (red dots) according to each period of deployement, defined between 2 spectro measurements (shading grey). Calibration was done appliying an offset of pH between measured and spectro data per periods.
 
 ### **Durafet calibration**
 
@@ -3688,7 +3725,9 @@ All documents concerning maintenance, tasks to do, calibration... are accessible
 #### Script awipev-co2.Rmd which runs locally
 * reads locally fb_awipev-co2_server/ny-alesund/data/NRT_data/nydata_hour.rds
 * sal_mix: when ferrybox data (sal_fb) are missing, they are replaced by data from the profiling ctd for depths > 8 m (sal_insitu_ctd_9m)
+* sal_mix_interp: interpolated salinity sal_mix. It is used to have as many spec pH to display (some are during missing data)
 * temp_mix: when data of in situ temperature at 11 m (temp_insitu_11m) are missing, they are replaced by data from the profiling ctd for depths > 8 m
+* temp_mix_interp: interpolated temperature temp_mix. It is used to have as many spec pH to display (some are during missing data)
 * pco2_calc_fb: pco2 calc from AT/CT ferrybox = carb avec temp_fb +sal_fb
 * calibrate seafet pH
     - ph_s_sf_temp_insi: pH spectro seaFET pH insi calculé avec AT interpolée + temp_mix +sal_mix
