@@ -1788,6 +1788,9 @@ Quality control plots :
 
 - Offset between calibrated seaFET data and pH spectro. The offset must fit between -0.2/0.2 pH units.
 
+“differences between calibrated sensor pH values and values obtained from discrete, check samples can be expected to be as small as 0.02 pH units, and perhaps less.” (McLaughlin et al. 2017).
+
+
 ```{r seaFET quality control pH, echo=FALSE, warning = FALSE, message = FALSE, out.width='100%'}
 #Offset between seafet pH and spec pH (Fig. 2 Kapsenberg et al.)
 
