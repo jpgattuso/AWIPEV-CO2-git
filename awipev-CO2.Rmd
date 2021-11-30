@@ -514,7 +514,7 @@ pH_durafet_mean$ph_s_dur_temp_fb <- pH_durafet_mean$ph_s_dur_temp_fb_mean
 pH_seafet_mean$ph_s_sf_temp_insi <- pH_seafet_mean$ph_s_sf_temp_insi_mean
 #  make means in "d" to have same format and call it "discrete"
 discrete <- d %>%
-  dplyr::group_by(date) %>%
+  dplyr::group_by(datetime) %>%
   dplyr::summarize(
     datetime = mean(datetime, na.rm = TRUE),
     sal_fb = mean(sal_fb, na.rm = TRUE),
@@ -530,8 +530,8 @@ discrete <- d %>%
     temp_insitu_11m = mean(temp_insitu_11m, na.rm = TRUE)
   )
 # join discrete + seafet/durafet
-discrete <- left_join(discrete, pH_seafet_mean, by='date')
-discrete <- left_join(discrete, pH_durafet_mean, by='date')
+discrete <- left_join(discrete, pH_seafet_mean, by='datetime')
+discrete <- left_join(discrete, pH_durafet_mean, by='datetime')
 
 ##   *****Attention, temp noted by logisticians in d is FB temp with SBE45 ******
 ##   *****Attention, I asked to the logisticians to log insitu temp from 9 june 2019
@@ -1782,6 +1782,37 @@ dyEvent(as.POSIXct("2017-08-24 12:00:00", tz="UTC"), "seaFET #1005 installed", l
   dyOptions(drawGrid = TRUE, drawPoints = TRUE, pointSize = c(1,8,1),useDataTimezone = TRUE, digitsAfterDecimal=4) %>%
   dyRangeSelector(height = 30, dateWindow= NULL)
 rm(seafet_depth_xts)
+```
+
+Quality control plots :
+
+- Offset between calibrated seaFET data and pH spectro. The offset must fit between -0.2/0.2 pH units.
+
+```{r seaFET quality control pH, echo=FALSE, warning = FALSE, message = FALSE, out.width='100%'}
+#Offset between seafet pH and spec pH (Fig. 2 Kapsenberg et al.)
+
+ph_sf <- d_all%>%
+  mutate( diff_pH = ph_s_sf_temp_insi - pHint_tot_sf)
+average_offset <- mean(abs(ph_sf$diff_pH), na.rm=TRUE)
+
+offset_xts <- dplyr::select(ph_sf%>%dplyr::filter(!is.na(diff_pH)), datetime, diff_pH)
+offset_xts <- as.xts(offset_xts, order.by=offset_xts$datetime)
+
+dygraph(offset_xts, ylab = "") %>%
+dySeries("diff_pH", drawPoints = TRUE, pointSize=3, label = "delta pHINT", color="green")%>%
+    dyLimit(0,strokePattern = "dashed", color = "black") %>% 
+  dyLimit(-0.02,strokePattern = "dashed", color = "red") %>% 
+    dyLimit(0.02,strokePattern = "dashed", color = "red") %>% 
+ # dyAxis("y",valueRange = c(-0.04, 0.04))%>%
+  dyAxis("x",valueRange = c(as.POSIXct("2021-09-28"), as.POSIXct("2021-10-19")
+))%>%
+dyOptions(
+    drawGrid = TRUE,
+    strokeWidth= 0,
+    drawPoints = TRUE,
+    useDataTimezone = TRUE,
+    digitsAfterDecimal = 4) %>%
+  dyRangeSelector(height = 30)
 ```
 
 
