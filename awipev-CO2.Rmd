@@ -492,17 +492,17 @@ pH_seafet_mean <- pH_seafet %>%
                    ph_s_sf_temp_4_mean = mean(ph_s_sf_temp_4, na.rm = TRUE)
                    )
 pH_durafet_mean <- pH_durafet %>%
-  dplyr::select(date, ph_s_dur_temp_fb, ph_s_dur_temp_4) %>% 
-  dplyr::group_by(date) %>% 
+  dplyr::select(datetime, ph_s_dur_temp_fb, ph_s_dur_temp_4) %>% 
+  dplyr::group_by(datetime) %>% 
   dplyr::summarize(ph_s_dur_temp_fb_mean = mean(ph_s_dur_temp_fb, na.rm = TRUE),
                    ph_s_dur_temp_fb_sd = sd(ph_s_dur_temp_fb, na.rm = TRUE),
                    ph_s_dur_temp_4_mean = mean(ph_s_dur_temp_4, na.rm = TRUE))
 
 #bind all spectro measurements, just to assess sd, change name of dataframe only to do the rbind.
-seafetph <- pH_seafet_mean
-colnames(seafetph) <- c("date", "mean", "sd")
-durafetph <- pH_durafet_mean
-colnames(durafetph) <- c("date", "mean", "sd")
+# seafetph <- pH_seafet_mean
+# colnames(seafetph) <- c("date", "mean", "sd")
+# durafetph <- pH_durafet_mean
+# colnames(durafetph) <- c("date", "mean", "sd")
 #pH_seafet_durafet <- rbind(seafetph, durafetph)
 # #calculations for all pH spectro measurement for sd
 # sd_min <- min(pH_seafet_durafet$sd)
@@ -550,7 +550,7 @@ discrete_no_na$pco2_calc_fb <- carb$pCO2
 discrete_is_na$ph_calc_fb <- NA
 discrete_is_na$pco2_calc_fb <- NA
 discrete <- bind_rows(discrete_no_na, discrete_is_na) %>% 
-  dplyr::arrange(date)
+  dplyr::arrange(datetime)
 ```
 
 ```{r read and prepare nutrient data, echo=FALSE, warning=TRUE, message=FALSE}
@@ -626,7 +626,7 @@ discrete2merge <- discrete %>%
   rename(datetime=closest_datetime)
 d_all <- full_join(d_all, discrete2merge, by="datetime")
 d_all <- d_all %>% 
-  dplyr::mutate(ph_s_sf_temp_insi = ifelse(n_depth_ctd == 4, ph_s_sf_temp_insi, NA)) # eliminate ph spec data when the profiler was at several depth during the same hour
+  dplyr::mutate(ph_s_sf_temp_insi = ifelse(n_depth_ctd >= 4, ph_s_sf_temp_insi, NA)) # eliminate ph spec data when the profiler was at several depth during the same hour
   #dplyr::mutate(ph_s_sf_temp_insi = ifelse(!is.na(temp_insitu_ctd_7m) |
   #                                           !is.na(temp_insitu_ctd_9m), 
    #                                        ph_s_sf_temp_insi, NA)) # only use ph spec data when profiler was below 6 m
