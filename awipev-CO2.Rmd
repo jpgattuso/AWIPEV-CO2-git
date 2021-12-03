@@ -514,7 +514,7 @@ pH_durafet_mean$ph_s_dur_temp_fb <- pH_durafet_mean$ph_s_dur_temp_fb_mean
 pH_seafet_mean$ph_s_sf_temp_insi <- pH_seafet_mean$ph_s_sf_temp_insi_mean
 #  make means in "d" to have same format and call it "discrete"
 discrete <- d %>%
-  dplyr::group_by(datetime) %>%
+  dplyr::group_by(date) %>%
   dplyr::summarize(
     datetime = mean(datetime, na.rm = TRUE),
     sal_fb = mean(sal_fb, na.rm = TRUE),
@@ -1668,7 +1668,7 @@ d_all <- d_all %>%
 ## calculation of E0INT25/E0EXT25 ##
 ##     new sf_calib function      ##
 ####
-calib_spectro <- sf_calib(calEint = d_all$voltINT, calEext = d_all$voltEXT, calpH = d_all$ph_s_sf_temp_insi, calT = d_all$temp_sf, calSal = d_all$sal_insitu_ctd)
+calib_spectro <- sf_calib(calEint = d_all$voltINT, calEext = d_all$voltEXT, calpH = d_all$ph_s_sf_temp_insi, calT = d_all$temp_sf, calSal = d_all$sal_insitu_ctd_interp)
 # put number of deployment 
 calib_spectro$deployment_sf <- d_all$deployment_sf 
 
@@ -1775,9 +1775,9 @@ dyEvent(as.POSIXct("2017-08-24 12:00:00", tz="UTC"), "seaFET #1005 installed", l
     dyEvent(as.POSIXct("2019-09-02 12:00:00", tz="UTC"), "seaFET #0007 out of water for cleaning", labelLoc = "bottom", color="red") %>%
   dyShading(from =  sfinterv[1], to= sfinterv[2], color = "#CCCCCC") %>%
   dyShading(from =  sfinterv[2], to= sfinterv[3], color = "#E0E0E0") %>%
-  dyShading(from = sfinterv[3], to= Sys.Date(), color = "#E0E0E0") %>%
+  dyShading(from = sfinterv[3], to= Sys.Date(), color = "#CCCCCC") %>%
   dyLegend(show = "auto")   %>%
-  dyAxis("y2",valueRange = c(-2, 2)) %>%
+  dyAxis("y2",valueRange = c(-3, 9)) %>%
   dyHighlight(highlightCircleSize = 8,highlightSeriesBackgroundAlpha = 0.5,hideOnMouseOut = TRUE) %>%
   dyOptions(drawGrid = TRUE, drawPoints = TRUE, pointSize = c(1,8,1),useDataTimezone = TRUE, digitsAfterDecimal=4) %>%
   dyRangeSelector(height = 30, dateWindow= NULL)
