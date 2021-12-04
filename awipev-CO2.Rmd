@@ -485,24 +485,24 @@ pH_durafet <- pH_durafet %>%
    )
 # Make mean for replicates + SD
 pH_seafet_mean <- pH_seafet %>%
-  dplyr::select(date, ph_s_sf_temp_insi, ph_s_sf_temp_4) %>% 
-  dplyr::group_by(date) %>% 
+  dplyr::select(datetime, ph_s_sf_temp_insi, ph_s_sf_temp_4) %>% 
+  dplyr::group_by(datetime) %>% 
   dplyr::summarise(ph_s_sf_temp_insi_mean = mean(ph_s_sf_temp_insi, na.rm = TRUE),
                    ph_s_sf_temp_insi_sd = sd(ph_s_sf_temp_insi, na.rm = TRUE),
                    ph_s_sf_temp_4_mean = mean(ph_s_sf_temp_4, na.rm = TRUE)
                    )
 pH_durafet_mean <- pH_durafet %>%
-  dplyr::select(date, ph_s_dur_temp_fb, ph_s_dur_temp_4) %>% 
-  dplyr::group_by(date) %>% 
+  dplyr::select(datetime, ph_s_dur_temp_fb, ph_s_dur_temp_4) %>% 
+  dplyr::group_by(datetime) %>% 
   dplyr::summarize(ph_s_dur_temp_fb_mean = mean(ph_s_dur_temp_fb, na.rm = TRUE),
                    ph_s_dur_temp_fb_sd = sd(ph_s_dur_temp_fb, na.rm = TRUE),
                    ph_s_dur_temp_4_mean = mean(ph_s_dur_temp_4, na.rm = TRUE))
 
 #bind all spectro measurements, just to assess sd, change name of dataframe only to do the rbind.
-seafetph <- pH_seafet_mean
-colnames(seafetph) <- c("date", "mean", "sd")
-durafetph <- pH_durafet_mean
-colnames(durafetph) <- c("date", "mean", "sd")
+# seafetph <- pH_seafet_mean
+# colnames(seafetph) <- c("date", "mean", "sd")
+# durafetph <- pH_durafet_mean
+# colnames(durafetph) <- c("date", "mean", "sd")
 #pH_seafet_durafet <- rbind(seafetph, durafetph)
 # #calculations for all pH spectro measurement for sd
 # sd_min <- min(pH_seafet_durafet$sd)
@@ -530,8 +530,8 @@ discrete <- d %>%
     temp_insitu_11m = mean(temp_insitu_11m, na.rm = TRUE)
   )
 # join discrete + seafet/durafet
-discrete <- left_join(discrete, pH_seafet_mean, by='date')
-discrete <- left_join(discrete, pH_durafet_mean, by='date')
+discrete <- left_join(discrete, pH_seafet_mean, by='datetime')
+discrete <- left_join(discrete, pH_durafet_mean, by='datetime')
 
 ##   *****Attention, temp noted by logisticians in d is FB temp with SBE45 ******
 ##   *****Attention, I asked to the logisticians to log insitu temp from 9 june 2019
@@ -550,7 +550,7 @@ discrete_no_na$pco2_calc_fb <- carb$pCO2
 discrete_is_na$ph_calc_fb <- NA
 discrete_is_na$pco2_calc_fb <- NA
 discrete <- bind_rows(discrete_no_na, discrete_is_na) %>% 
-  dplyr::arrange(date)
+  dplyr::arrange(datetime)
 ```
 
 ```{r read and prepare nutrient data, echo=FALSE, warning=TRUE, message=FALSE}
@@ -626,7 +626,7 @@ discrete2merge <- discrete %>%
   rename(datetime=closest_datetime)
 d_all <- full_join(d_all, discrete2merge, by="datetime")
 d_all <- d_all %>% 
-  dplyr::mutate(ph_s_sf_temp_insi = ifelse(n_depth_ctd == 4, ph_s_sf_temp_insi, NA)) # eliminate ph spec data when the profiler was at several depth during the same hour
+  dplyr::mutate(ph_s_sf_temp_insi = ifelse(n_depth_ctd >= 4, ph_s_sf_temp_insi, NA)) # eliminate ph spec data when the profiler was at several depth during the same hour
   #dplyr::mutate(ph_s_sf_temp_insi = ifelse(!is.na(temp_insitu_ctd_7m) |
   #                                           !is.na(temp_insitu_ctd_9m), 
    #                                        ph_s_sf_temp_insi, NA)) # only use ph spec data when profiler was below 6 m
@@ -1668,7 +1668,7 @@ d_all <- d_all %>%
 ## calculation of E0INT25/E0EXT25 ##
 ##     new sf_calib function      ##
 ####
-calib_spectro <- sf_calib(calEint = d_all$voltINT, calEext = d_all$voltEXT, calpH = d_all$ph_s_sf_temp_insi, calT = d_all$temp_sf, calSal = d_all$sal_insitu_ctd)
+calib_spectro <- sf_calib(calEint = d_all$voltINT, calEext = d_all$voltEXT, calpH = d_all$ph_s_sf_temp_insi, calT = d_all$temp_sf, calSal = d_all$sal_insitu_ctd_interp)
 # put number of deployment 
 calib_spectro$deployment_sf <- d_all$deployment_sf 
 
@@ -1762,25 +1762,60 @@ d_all <- d_all %>%
 seafet_depth_xts <- dplyr::select(d_all, datetime, ph_s_sf_temp_insi, pHint_tot_sf_1m, pHint_tot_sf_3m, pHint_tot_sf_5m, pHint_tot_sf_7m, pHint_tot_sf_9m)
 seafet_depth_xts <- as.xts(seafet_depth_xts, order.by = d_all$datetime)
 dygraph(seafet_depth_xts, group = "depth", main="pH seaFET", ylab="pHT") %>%
-dySeries("ph_s_sf_temp_insi", label = "pH spectro", color =  "red", strokeWidth = 0, pointSize = 4 ) %>%
 dySeries("pHint_tot_sf_9m", label = "pHT 9m", color =  RColorBrewer::brewer.pal(3, "Dark2")[1], strokeWidth = 0, pointSize = 1) %>%
 dySeries("pHint_tot_sf_7m", label = "pHT 7m", color =  RColorBrewer::brewer.pal(3, "Dark2")[2], strokeWidth = 0, pointSize = 1) %>%
 dySeries("pHint_tot_sf_5m", label = "pHT 5m", color =  RColorBrewer::brewer.pal(3, "Dark2")[3], strokeWidth = 0, pointSize = 1) %>%
 dySeries("pHint_tot_sf_3m", label = "pHT 3m", color =  RColorBrewer::brewer.pal(3, "Dark2")[4], strokeWidth = 0, pointSize = 1) %>%
 dySeries("pHint_tot_sf_1m", label = "pHT 1m", color =  RColorBrewer::brewer.pal(3, "Dark2")[5], strokeWidth = 0, pointSize = 1) %>%
+  dySeries("ph_s_sf_temp_insi", label = "pH spectro", color =  "red", strokeWidth = 0, pointSize = 5 ) %>%
+
 dyEvent(as.POSIXct("2017-08-24 12:00:00", tz="UTC"), "seaFET #1005 installed", labelLoc = "bottom", color="red") %>%
   dyEvent(as.POSIXct("2018-02-02 09:00:00", tz="UTC"), "seaFET settings changed to every 1H", labelLoc = "bottom", color="red") %>% 
   dyEvent(as.POSIXct("2018-04-17 12:00:00", tz="UTC"), "seaFET #0007 installed + continuous mode set", labelLoc = "bottom", color="red") %>%
     dyEvent(as.POSIXct("2019-09-02 12:00:00", tz="UTC"), "seaFET #0007 out of water for cleaning", labelLoc = "bottom", color="red") %>%
   dyShading(from =  sfinterv[1], to= sfinterv[2], color = "#CCCCCC") %>%
   dyShading(from =  sfinterv[2], to= sfinterv[3], color = "#E0E0E0") %>%
-  dyShading(from = sfinterv[3], to= Sys.Date(), color = "#E0E0E0") %>%
+  dyShading(from = sfinterv[3], to= Sys.Date(), color = "#CCCCCC") %>%
   dyLegend(show = "auto")   %>%
-  dyAxis("y2",valueRange = c(-2, 2)) %>%
+  dyAxis("y2",valueRange = c(-3, 9)) %>%
   dyHighlight(highlightCircleSize = 8,highlightSeriesBackgroundAlpha = 0.5,hideOnMouseOut = TRUE) %>%
   dyOptions(drawGrid = TRUE, drawPoints = TRUE, pointSize = c(1,8,1),useDataTimezone = TRUE, digitsAfterDecimal=4) %>%
   dyRangeSelector(height = 30, dateWindow= NULL)
 rm(seafet_depth_xts)
+```
+
+Quality control plots :
+
+- Offset between calibrated seaFET data and pH spectro. The offset must fit between -0.2/0.2 pH units.
+
+“differences between calibrated sensor pH values and values obtained from discrete, check samples can be expected to be as small as 0.02 pH units, and perhaps less.” (McLaughlin et al. 2017).
+
+
+```{r seaFET quality control pH, echo=FALSE, warning = FALSE, message = FALSE, out.width='100%'}
+#Offset between seafet pH and spec pH (Fig. 2 Kapsenberg et al.)
+
+ph_sf <- d_all%>%
+  mutate( diff_pH = ph_s_sf_temp_insi - pHint_tot_sf)
+average_offset <- mean(abs(ph_sf$diff_pH), na.rm=TRUE)
+
+offset_xts <- dplyr::select(ph_sf%>%dplyr::filter(!is.na(diff_pH)), datetime, diff_pH)
+offset_xts <- as.xts(offset_xts, order.by=offset_xts$datetime)
+
+dygraph(offset_xts, ylab = "") %>%
+dySeries("diff_pH", drawPoints = TRUE, pointSize=3, label = "delta pHINT", color="green")%>%
+    dyLimit(0,strokePattern = "dashed", color = "black") %>% 
+  dyLimit(-0.02,strokePattern = "dashed", color = "red") %>% 
+    dyLimit(0.02,strokePattern = "dashed", color = "red") %>% 
+ # dyAxis("y",valueRange = c(-0.04, 0.04))%>%
+  dyAxis("x",valueRange = c(as.POSIXct("2021-09-28"), as.POSIXct("2021-10-19")
+))%>%
+dyOptions(
+    drawGrid = TRUE,
+    strokeWidth= 0,
+    drawPoints = TRUE,
+    useDataTimezone = TRUE,
+    digitsAfterDecimal = 4) %>%
+  dyRangeSelector(height = 30)
 ```
 
 
