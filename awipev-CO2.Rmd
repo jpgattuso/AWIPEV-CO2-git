@@ -17,6 +17,7 @@ Sys.setlocale("LC_ALL", "en_US.UTF-8")
 Sys.setenv(TZ='UTC') # on utilise UTC
 rm(list = ls())
 
+library("RColorBrewer")
 if (!require("tidyverse")) install.packages("tidyverse")
 library(tidyverse)
 if (!require("seacarb")) install.packages("seacarb")
@@ -276,7 +277,8 @@ d_all <- d_all %>%
                 date = d_hour$date,
                 year = lubridate::year(d_hour$datetime), # year as a number
                 monthd = lubridate::month(d_hour$datetime), # month as a number
-                montht = lubridate::month(d_hour$datetime, label = TRUE, abbr = TRUE) # abbreviated months
+                montht = lubridate::month(d_hour$datetime, label = TRUE, abbr = TRUE) ,
+                hour = lubridate::hour(d_hour$datetime)# abbreviated months
   )
 d_all <- d_all %>% 
   dplyr::select(order(colnames(d_all)))
@@ -367,11 +369,11 @@ TAinterp <- as.data.frame(TAinterp)
 d$at_mean_interp <- TAinterp$at_mean_interp
 
 
-
 CTinterp <-approx(d$datetime, d$ct_mean, xout=d$datetime, method="linear", rule=2)
 names(CTinterp) <- c("datetime", "ct_mean_interp")
 CTinterp <- as.data.frame(CTinterp)
 d$ct_mean_interp <- CTinterp$ct_mean_interp
+
 
 # interpolation of temp_mix/sal_mix in d_all in order to have a full temperature for pHinsi()
 # We take temp_mix/sal_mix because of the depth (temp11m insitu + temp10m ctd)
@@ -404,9 +406,11 @@ d$closest_datetime <- d_all$datetime[closest]
 d$closest_datetime[abs(d$datetime - d_all$datetime[closest]) > 30*60] <- NA
 # create closest_datetime in d_all (copy of datetime)
 d_all$closest_datetime <- d_all$datetime
+
 d <- left_join(d, d_all %>%
                  dplyr::select(
                    c(closest_datetime,
+                     hour,
                      sal_fb,
                      temp_fb,
                      temp_mix,
@@ -503,24 +507,47 @@ pH_durafet_mean <- pH_durafet %>%
 #put back the right column name for the following script
 pH_durafet_mean$ph_s_dur_temp_fb <- pH_durafet_mean$ph_s_dur_temp_fb_mean
 pH_seafet_mean$ph_s_sf_temp_insi <- pH_seafet_mean$ph_s_sf_temp_insi_mean
+
 #  make means in "d" to have same format and call it "discrete"
 discrete <- d %>%
-  dplyr::group_by(date) %>%
-  dplyr::summarize(
-    datetime = mean(datetime, na.rm = TRUE),
+  group_by(datetime) %>%
+#dplyr::select( datetime, date,hour,sal_fb,sal_mix_interp ,sal_mix,temp_fb, at_mean_interp,at ,ct_mean_interp,ct, temp_mix,temp_mix_interp,temp_insitu_11m) %>%
+  summarise(datetime = mean(datetime, na.rm = TRUE),
     sal_fb = mean(sal_fb, na.rm = TRUE),
     sal_mix = mean(sal_mix, na.rm = TRUE),
+    sal_mix_interp = mean(sal_mix_interp, na.rm = TRUE),
     temp_fb = mean(temp_fb, na.rm = TRUE),
+     temp_mix = mean(temp_mix, na.rm = TRUE),
+    temp_mix_interp = mean(temp_mix_interp, na.rm = TRUE),
+        temp_insitu_11m = mean(temp_insitu_11m, na.rm = TRUE),
     at_mean_interp = mean(at_mean_interp, na.rm = TRUE),
     at = mean(at, na.rm = TRUE),
-    #qflag_at = mean(qflag_at, na.rm = TRUE), # already dealt with above
     ct_mean_interp = mean(ct_mean_interp, na.rm = TRUE),
-    ct = mean(ct, na.rm = TRUE),
-    #qflag_ct = mean(qflag_ct, na.rm = TRUE)  # already dealt with above
-    temp_mix = mean(temp_mix, na.rm = TRUE),
-    temp_insitu_11m = mean(temp_insitu_11m, na.rm = TRUE)
+    ct = mean(ct, na.rm = TRUE) ,.groups = 'drop_last'
+   
+
   )
-# join discrete + seafet/durafet
+
+# library("RColorBrewer")
+# d_xts <- dplyr::select(discrete, datetime, sal_fb, sal_mix,temp_fb,temp_mix,temp_insitu_11m, at_mean_interp,at,ct_mean_interp,ct)
+# d_xts <- as.xts(d_xts, order.by = d_xts$datetime)
+# dygraph(d_xts, group = "awipev", main="Salinity (in FerryBox)", ylab="Salinity") %>%
+#             dySeries("sal_mix", color = brewer.pal(n=9, name = "Paired")[1], strokeWidth = 1, pointSize = 4, label = "sal_mix") %>%
+#             dySeries("sal_fb", color = brewer.pal(n=9, name = "Paired")[2], strokeWidth = 1, pointSize = 2, label = "sal_fb") %>%
+#    dySeries("temp_mix", color = brewer.pal(n=9, name = "Paired")[3], strokeWidth = 1, pointSize = 4, label = "temp_mix") %>%
+#    dySeries("temp_fb", color = brewer.pal(n=9, name = "Paired")[4], strokeWidth = 1, pointSize = 2, label = "temp_fb") %>%
+#    dySeries("temp_insitu_11m", color = brewer.pal(n=9, name = "Paired")[5], strokeWidth = 1, pointSize = 2, label = "temp_insitu_11m") %>%
+#     dySeries(axis="y2", "at_mean_interp", color = brewer.pal(n=9, name = "Paired")[6], strokeWidth = 1, pointSize = 4, label = "at_mean_interp") %>%
+#    dySeries(axis="y2","ct_mean_interp", color =brewer.pal(n=9, name = "Paired")[7], strokeWidth = 1, pointSize = 4, label = "ct_mean_interp") %>%
+#  dySeries(axis="y2","at", color = brewer.pal(n=9, name = "Paired")[8], strokeWidth = 1, pointSize = 2, label = "at") %>%
+#    dySeries(axis="y2","ct", color =brewer.pal(n=9, name = "Paired")[9], strokeWidth = 1, pointSize = 2, label = "ct") %>%
+#   dyHighlight(highlightCircleSize = 8,highlightSeriesBackgroundAlpha =0.2,hideOnMouseOut =TRUE) %>%
+#       dyOptions( drawGrid = TRUE, drawPoints = TRUE,useDataTimezone = TRUE) %>%
+#     dyLegend(show = "follow")   %>%
+#    # dyAxis("y",valueRange = c(30, 37)) %>%
+#       dyRangeSelector(height = 30, dateWindow= NULL)
+
+
 discrete <- left_join(discrete, pH_seafet_mean, by='datetime')
 discrete <- left_join(discrete, pH_durafet_mean, by='datetime')
 
@@ -533,7 +560,7 @@ discrete_no_na <- discrete %>%
   dplyr::filter(!is.na(sal_fb)  & !is.na(temp_fb) & !is.na(at) & !is.na(ct))
 discrete_is_na <- discrete %>%
   dplyr::filter(is.na(sal_fb)  | is.na(temp_fb) | is.na(at) | is.na(ct))
-carb <- carb(15, discrete_no_na$at*1e-6, discrete_no_na$ct*1e-6, S = discrete_no_na$sal_fb, T = discrete_no_na$temp_fb, P = 0, Pt = 0, Sit = 0, k1k2 = "l", kf = "dg", ks = "d", pHscale = "T", b = "u74")
+carb <- carb(15, discrete_no_na$at_mean_interp*1e-6, discrete_no_na$ct_mean_interp*1e-6, S = discrete_no_na$sal_fb, T = discrete_no_na$temp_fb, P = 0, Pt = 0, Sit = 0, k1k2 = "l", kf = "dg", ks = "d", pHscale = "T", b = "u74")
 discrete_no_na$ph_calc_fb <- carb$pH # pH to compare with durafet pH (at Ferrybox temp and sal)
 discrete_no_na$pco2_calc_fb <- carb$pCO2
 
@@ -1700,7 +1727,6 @@ seafet_calib <- sf_calc(calEint = d_all$voltINT, calEext = d_all$voltEXT, E0int2
 
 # bind new calibrated pH data to the seafet data set.
 names(seafet_calib) <- c("pHint_tot_sf", "pHext_tot_sf")
-
 ##########  Despike() ###########
 d_all <- d_all %>%   
   dplyr::mutate(pHint_tot_sf = oce::despike(seafet_calib$pHint_tot_sf, reference= "median", n=1, k=5000, replace="NA"),
@@ -1772,8 +1798,8 @@ dyEvent(as.POSIXct("2017-08-24 12:00:00", tz="UTC"), "seaFET #1005 installed", l
   dyLegend(show = "auto")   %>%
   dyAxis("y2",valueRange = c(-3, 9)) %>%
   dyHighlight(highlightCircleSize = 8,highlightSeriesBackgroundAlpha = 0.5,hideOnMouseOut = TRUE) %>%
-  dyOptions(drawGrid = TRUE, drawPoints = TRUE, pointSize = c(1,8,1),useDataTimezone = TRUE, digitsAfterDecimal=4) %>%
-  dyRangeSelector(height = 30, dateWindow= NULL)
+  dyOptions(drawGrid = TRUE, drawPoints = TRUE,useDataTimezone = TRUE, digitsAfterDecimal=4) %>%
+  dyRangeSelector(height = 30, dateWindow= c("2017-08-10 00:00:00","2021-01-20 23:00:00"))
 rm(seafet_depth_xts)
 ```
 
@@ -1784,31 +1810,57 @@ Quality control plots :
 “differences between calibrated sensor pH values and values obtained from discrete, check samples can be expected to be as small as 0.02 pH units, and perhaps less.” (McLaughlin et al. 2017).
 
 
-```{r seaFET quality control pH, echo=FALSE, warning = FALSE, message = FALSE, out.width='100%'}
+```{r seaFET quality control pH 1, echo=FALSE, warning = FALSE, message = FALSE, out.width='100%'}
 #Offset between seafet pH and spec pH (Fig. 2 Kapsenberg et al.)
-
 ph_sf <- d_all%>%
-  mutate( diff_pH = ph_s_sf_temp_insi - pHint_tot_sf)
-average_offset <- mean(abs(ph_sf$diff_pH), na.rm=TRUE)
+  dplyr::select(datetime, ph_s_sf_temp_insi,pHint_tot_sf,pHext_tot_sf)%>%
+    dplyr::mutate( diff_spec_sf = ph_s_sf_temp_insi - pHint_tot_sf,
+                   diff_sf_int_ext = pHint_tot_sf -pHext_tot_sf )
+average_offset <- mean(ph_sf$diff_spec_sf, na.rm=TRUE, digits=4)
 
-offset_xts <- dplyr::select(ph_sf%>%dplyr::filter(!is.na(diff_pH)), datetime, diff_pH)
+offset_xts <- select(ph_sf, datetime, diff_spec_sf)
 offset_xts <- as.xts(offset_xts, order.by=offset_xts$datetime)
 
-dygraph(offset_xts, ylab = "") %>%
-dySeries("diff_pH", drawPoints = TRUE, pointSize=3, label = "delta pHINT", color="green")%>%
-    dyLimit(0,strokePattern = "dashed", color = "black") %>% 
+dygraph(offset_xts, main = "delta spectro - INT calibrated seaFET") %>%
+dySeries("diff_spec_sf", drawPoints = TRUE, pointSize=4, label = "Delta", color="green")%>%
+    dyLimit(0,strokePattern = "solid", color = "black") %>% 
   dyLimit(-0.02,strokePattern = "dashed", color = "red") %>% 
     dyLimit(0.02,strokePattern = "dashed", color = "red") %>% 
- # dyAxis("y",valueRange = c(-0.04, 0.04))%>%
-  dyAxis("x",valueRange = c(as.POSIXct("2021-09-28"), as.POSIXct("2021-10-19")
-))%>%
+  dyAxis("y",valueRange = c(-0.08, 0.14))%>%
+    dyLegend(show = "follow")   %>%
+ # dyAxis("x",valueRange = c(as.POSIXct("2021-09-28"), as.POSIXct("2021-10-19")))%>%
+    dyHighlight(highlightCircleSize = 8,highlightSeriesBackgroundAlpha = 0.5,hideOnMouseOut = TRUE) %>%
 dyOptions(
     drawGrid = TRUE,
     strokeWidth= 0,
     drawPoints = TRUE,
     useDataTimezone = TRUE,
     digitsAfterDecimal = 4) %>%
-  dyRangeSelector(height = 30)
+  dyRangeSelector(height = 30, dateWindow= c("2017-10-21 00:00:00", "2021-01-11 00:00:00"))
+```
+
+- pH INT - pH EXT was plotted here.
+
+```{r seaFET quality control pH 2, echo=FALSE, warning = FALSE, message = FALSE, out.width='100%'}
+                                                                                                                                                                                       ## INT -EXT
+delta_xts <- dplyr::select(ph_sf,datetime, diff_sf_int_ext, pHext_tot_sf, pHint_tot_sf)
+delta_xts <- as.xts(delta_xts, order.by=delta_xts$datetime)
+dygraph(delta_xts, main = "delta pHINT - pH EXT") %>%
+  dySeries(axis ="y2","pHext_tot_sf", drawPoints = TRUE, pointSize=3, label = "pH EXT", color="red")%>%
+dySeries(axis ="y2","pHint_tot_sf", drawPoints = TRUE, pointSize=2, label = "pH INT", color="blue")%>%
+  dySeries( "diff_sf_int_ext", drawPoints = TRUE, pointSize=2, label = "Delta", color="grey")%>%
+    dyLegend(show = "follow")   %>%
+      dyLimit(0,strokePattern = "solid", color = "black") %>% 
+ dyAxis("y",valueRange = c(-0.3,0.3))%>%
+    dyHighlight(highlightCircleSize = 8,highlightSeriesBackgroundAlpha = 0.5,hideOnMouseOut = TRUE) %>%
+dyOptions(
+    drawGrid = TRUE,
+    strokeWidth= 0,
+    drawPoints = TRUE,
+    useDataTimezone = TRUE,
+    digitsAfterDecimal = 4) %>%
+  dyRangeSelector(height = 30, dateWindow= c("2017-10-21 00:00:00", "2021-01-11 00:00:00"))
+
 ```
 
 
