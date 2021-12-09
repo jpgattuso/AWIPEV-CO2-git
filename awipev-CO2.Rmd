@@ -240,13 +240,13 @@ d_hour <- dplyr::left_join(d_hour, svl_remos_depth, by = 'datetime') %>%
 
 d_all <- d_hour %>%
   dplyr::mutate_all(function(x) ifelse(is.nan(x), NA, x)) %>% # replace all NaN by NA
-  dplyr::mutate(depth_group = dplyr::case_when(depth > 0 & depth <= 2 ~ '0-2',
+  dplyr::mutate(depth_group = as.factor(dplyr::case_when(depth > 0 & depth <= 2 ~ '0-2',
                 depth > 2 & depth <= 4 ~ '2-4',
                 depth > 4 & depth <= 6 ~ '4-6',
                 depth > 6 & depth <= 8 ~ '6-8',
                 depth > 8 & depth <= 12 ~ '>8', #8 to 12.4
                 TRUE ~ 'NA'
-                ),
+                )),
                 sal_insitu_ctd_1m = ifelse(depth_group == '0-2', sal_insitu_ctd, NA),
                 sal_insitu_ctd_3m = ifelse(depth_group == '2-4', sal_insitu_ctd, NA),
                 sal_insitu_ctd_5m = ifelse(depth_group == '4-6', sal_insitu_ctd, NA),
@@ -1842,10 +1842,12 @@ pp <- tmp %>%
 # we look at 0 to 4 m vs more than 8 m
 tmp <- d_all %>% 
   dplyr::select(montht, pHint_tot_sf, depth) %>%
-  dplyr::mutate(depth = as.factor(ifelse(depth == 1 | depth == 3, 2, depth))) %>% 
-  dplyr::filter(depth == 2 | depth == 10) %>% 
-  dplyr::group_by(depth, montht)
-summary(aov(tmp$pHint_tot_sf ~ tmp$depth * tmp$montht))
+  dplyr::mutate(depth2 = as.factor(case_when(depth < 4 ~ '0-4', 
+                                             depth > 8~ '8-12',
+                                             TRUE ~ NA_real_))) %>% 
+  dplyr::filter(depth2 == '0-2' | depth2 == '8-12') %>% 
+  dplyr::group_by(depth2, montht)
+summary(aov(tmp$pHint_tot_sf ~ tmp$depth2 * tmp$montht))
 
 p <- tmp %>% 
   ggplot(aes(x=as.factor(depth), y = pHint_tot_sf)) +
@@ -2041,7 +2043,7 @@ print(plot_offset_dur)
 d_all <- d_all %>%
   dplyr::mutate(
     ph_dur_corr = case_when(
-          ph_dur_corr < 8 ~ NA_real_,
+      ph_dur_corr < 8 ~ NA_real_,
       date > as.Date("2018-05-18") &
         date <  as.Date("2018-05-19") & ph_dur_corr < 8.16 ~ NA_real_,
       #date == as.Date("2015-11-19") & sal_mix < 33 ~ NA_real_,
@@ -2792,17 +2794,12 @@ Here we compare pH measured spectrophotometrically with pH calculated from AT an
 ## Stratification
 ```{r stratification, echo=FALSE, message= FALSE, warning=FALSE}
 # # we look at the distribution of data
-# tmp <- d_all %>% 
-#   dplyr::select(date, depth, pressure_insitu_ctd) %>% 
-#   dplyr::mutate(month=month(d_all$date, label = TRUE)) %>% 
-#   group_by(month)
 depth_labels <- c("0-2", "2-4", "4-6", "6-8", ">8")
 # we look at salinity all depths
 tmp <- d_all %>% 
-  #dplyr::mutate(depth_group = depth_group_pressure) %>% 
   dplyr::select(montht, sal_insitu_ctd, depth, depth_group) %>%
   tidyr::drop_na() %>% 
-  #dplyr::filter(!is.na(sal_insitu_ctd), !is.na(depth_group)) %>% 
+  dplyr::filter(depth_group != "NA") %>% 
   group_by(depth_group, montht)
 p <- tmp %>% 
   ggplot(aes(x=as.factor(depth_group), y = sal_insitu_ctd)) +
@@ -2811,15 +2808,17 @@ p <- tmp %>%
   scale_x_discrete(labels = depth_labels) +
   facet_wrap(vars(montht), scale = "free_y")
 print(p)
-
 summary(aov(tmp$sal_insitu_ctd ~ tmp$depth_group * tmp$montht))
 
 # we look at salinity 0 to 4 m vs more than 8 m
 tmp <- d_all %>% 
   dplyr::mutate(depth_group = depth_group_pressure) %>% 
   dplyr::select(montht, sal_insitu_ctd, depth_group) %>%
-  dplyr::mutate(depth = as.factor(ifelse(depth_group == 1 | depth_group == 3, 2, depth_group))) %>% 
-  dplyr::filter(depth == 2 | depth == 10)
+  dplyr::mutate(depth2 = as.factor(case_when(depth < 4 ~ '0-4', 
+                                             depth > 8~ '8-12',
+                                             TRUE ~ NA_real_))) %>% 
+  dplyr::filter(depth2 == '0-4' | depth2 == '8-12') %>% 
+  dplyr::group_by(depth2, montht)
 tmp_delta <- tmp %>% 
   group_by(depth, montht) %>% 
   dplyr::summarise(sal_med = median(sal_insitu_ctd, na.rm = TRUE)) %>% 
