@@ -478,6 +478,7 @@ pH_durafet <- pH_durafet %>%
    #                       pHscale = "T", b="u74")
 
    )
+
 # Make mean for replicates + SD
 pH_seafet_mean <- pH_seafet %>%
   dplyr::select(datetime, ph_s_sf_temp_insi, ph_s_sf_temp_4) %>% 
@@ -524,8 +525,6 @@ discrete <- d %>%
     at = mean(at, na.rm = TRUE),
     ct_mean_interp = mean(ct_mean_interp, na.rm = TRUE),
     ct = mean(ct, na.rm = TRUE) ,.groups = 'drop_last'
-   
-
   )
 
 # library("RColorBrewer")
