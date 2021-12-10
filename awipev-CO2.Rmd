@@ -2848,7 +2848,7 @@ Here we compare pH measured spectrophotometrically with pH calculated from AT an
 depth_labels <- c("0-2", "2-4", "4-6", "6-8", ">8")
 # we look at salinity all depths
 tmp <- d_all %>% 
-  dplyr::select(montht, sal_insitu_ctd, depth, depth_group) %>%
+  dplyr::select(montht, sal_insitu_ctd, depth_group) %>%
   tidyr::drop_na() %>% 
   dplyr::filter(depth_group != "NA") %>% 
   group_by(depth_group, montht)
@@ -2863,24 +2863,22 @@ summary(aov(tmp$sal_insitu_ctd ~ tmp$depth_group * tmp$montht))
 
 # we look at salinity 0 to 4 m vs more than 8 m
 tmp <- d_all %>% 
-  dplyr::mutate(depth_group = depth_group_pressure) %>% 
   dplyr::select(montht, sal_insitu_ctd, depth_group) %>%
-  dplyr::mutate(depth2 = as.factor(case_when(depth < 4 ~ '0-4', 
-                                             depth > 8~ '8-12',
-                                             TRUE ~ NA_real_))) %>% 
-  dplyr::filter(depth2 == '0-4' | depth2 == '8-12') %>% 
-  dplyr::group_by(depth2, montht)
+  dplyr::mutate(depth_group2 = as.factor(case_when(depth_group == '0-2' | depth_group == '2-4' ~ '0-4', 
+                                      depth_group == '>8' ~ '8-12'))) %>% 
+  dplyr::filter(depth_group2 == '0-4' | depth_group2 == '8-12') %>% 
+  dplyr::group_by(depth_group2, montht)
 tmp_delta <- tmp %>% 
-  group_by(depth, montht) %>% 
+  group_by(depth_group2, montht) %>% 
   dplyr::summarise(sal_med = median(sal_insitu_ctd, na.rm = TRUE)) %>% 
-  tidyr::pivot_wider(names_from = depth, values_from = sal_med) %>% 
-  dplyr::rename(median0_4m = "2",
-                median8_12m = "10") %>% 
+  tidyr::pivot_wider(names_from = depth_group2, values_from = sal_med) %>% 
+  dplyr::rename(median0_4m = "0-4",
+                median8_12m = "8-12") %>% 
   dplyr::mutate(sal_delta = median0_4m - median8_12m)
 kable(tmp_delta, digits = 2, caption = "Median salinity with (median0_4m - median8_12m)")
 
 p <- tmp %>% 
-  ggplot(aes(x=as.factor(depth), y = sal_insitu_ctd)) +
+  ggplot(aes(x=depth_group2, y = sal_insitu_ctd)) +
   geom_boxplot(notch=FALSE, size=0.2, fill="grey50", outlier.color = "blue", outlier.size = 0.3) +
   labs(title = "Salinity vs depth", x = "Depth (m)", y= "Salinity") +
   facet_wrap(vars(montht), scale = "free_y")
@@ -2897,39 +2895,41 @@ sal_delta_plt <- tmp_delta %>%
   Mytheme(size_labs = 12) +
   theme(panel.grid.major.x = element_blank(), panel.grid.major.y = element_blank(),
         panel.grid.minor.y = element_blank())
+print(sal_delta_plt)
 
 # we look at temperature all depths
 tmp <- d_all %>% 
-  dplyr::mutate(depth_group = depth_group_pressure) %>% 
   dplyr::select(montht, temp_insitu_ctd, depth_group) %>%
+  tidyr::drop_na() %>% 
+  dplyr::filter(depth_group != "NA") %>% 
   group_by(depth_group, montht)
 p <- tmp %>% 
   ggplot(aes(x=as.factor(depth_group), y = temp_insitu_ctd)) +
   geom_boxplot(notch=FALSE, size=0.2, fill="grey50", outlier.color = "blue", outlier.size = 0.3) +
   labs(title = "Temperature vs depth", x = "Depth (m)", y= "Temperature") +
+  scale_x_discrete(labels = depth_labels) +
   facet_wrap(vars(montht), scale = "free_y")
 print(p)
-
+summary(aov(tmp$temp_insitu_ctd ~ tmp$depth_group * tmp$montht))
 # we look at temperature 0 to 4 m vs more than 8 m
 tmp <- d_all %>% 
-  dplyr::mutate(depth_group = depth_group_pressure) %>% 
   dplyr::select(montht, temp_insitu_ctd, depth_group) %>%
-  dplyr::mutate(depth = as.factor(ifelse(depth_group == 1 | depth_group == 3, 2, depth_group))) %>% 
-  dplyr::filter(depth == 2 | depth == 10) %>% 
-  group_by(depth, montht)
-summary(aov(tmp$temp_insitu_ctd ~ tmp$depth * tmp$montht))
-
+  dplyr::mutate(depth_group2 = as.factor(case_when(depth_group == '0-2' | depth_group == '2-4' ~ '0-4', 
+                                      depth_group == '>8' ~ '8-12'))) %>% 
+  dplyr::filter(depth_group2 == '0-4' | depth_group2 == '8-12') %>% 
+  dplyr::group_by(depth_group2, montht)
 tmp_delta <- tmp %>% 
-  group_by(depth, montht) %>% 
+  group_by(depth_group2, montht) %>% 
   dplyr::summarise(temp_med = median(temp_insitu_ctd, na.rm = TRUE)) %>% 
-  tidyr::pivot_wider(names_from = depth, values_from = temp_med) %>% 
-  dplyr::rename(median0_4m = "2",
-                median8_12m = "10") %>% 
+  tidyr::pivot_wider(names_from = depth_group2, values_from = temp_med) %>% 
+  dplyr::rename(median0_4m = "0-4",
+                median8_12m = "8-12") %>% 
   dplyr::mutate(temp_delta = median0_4m - median8_12m)
 kable(tmp_delta, digits = 2, caption = "Median temperature with (median0_4m - median8_12m)")
 
+# we look at temperature 0 to 4 m vs more than 8 m
 p <- tmp %>% 
-  ggplot(aes(x=as.factor(depth), y = temp_insitu_ctd)) +
+  ggplot(aes(x=depth_group2, y = temp_insitu_ctd)) +
   geom_boxplot(notch=FALSE, size=0.2, fill="grey50", outlier.color = "blue", outlier.size = 0.3) +
   labs(title = "Temperature vs depth", x = "Depth (m)", y= "Temperature") +
   facet_wrap(vars(montht), scale = "free_y")
@@ -2938,38 +2938,54 @@ print(p)
 temp_delta_plt <- tmp_delta %>% 
   ggplot(aes(x=montht, y=temp_delta)) +
   scale_x_discrete(expand = c(0, 0)) +
-  scale_y_continuous("Temperature", limits = c(-3, 3), expand = c(0, 0)) +
+  scale_y_continuous("Temperature", limits = c(-1.3, 0.8), expand = c(0, 0)) +
   geom_col(fill="blue") +
   geom_hline(yintercept = 0) +
-  annotate("text", x = 1.5, y = 2.5, label = substitute("T"["surface"] ~ "> T"["deep"])) +
-  annotate("text", x = 1.5, y = -2.5, label = substitute("T"["surface"] ~ "< T"["deep"])) +
+  annotate("text", x = 1.5, y =0.6, label = substitute("T"["surface"] ~ "> T"["deep"])) +
+  annotate("text", x = 1.5, y = -0.6, label = substitute("T"["surface"] ~ "< T"["deep"])) +
   Mytheme(size_labs = 12) +
   theme(panel.grid.major.x = element_blank(), panel.grid.major.y = element_blank(),
         panel.grid.minor.y = element_blank())
+print(temp_delta_plt)
+# we look at density at all depths
+tmp <- d_all %>% 
+  dplyr::select(montht, sal_insitu_ctd, temp_insitu_ctd, depth_group, pressure_insitu_ctd) %>%
+  tidyr::drop_na() %>% 
+  dplyr::filter(depth_group != "NA") %>% 
+  dplyr::mutate(density = seacarb::rho(S = sal_insitu_ctd, T = temp_insitu_ctd, P = pressure_insitu_ctd)) %>% 
+  group_by(depth_group, montht)
+p <- tmp %>% 
+  ggplot(aes(x=as.factor(depth_group), y = sal_insitu_ctd)) +
+  geom_boxplot(notch=FALSE, size=0.2, fill="grey50", outlier.color = "blue", outlier.size = 0.3) +
+  labs(title = "Density vs depth", x = "Depth (m)", y= "Density") +
+  scale_x_discrete(labels = depth_labels) +
+  facet_wrap(vars(montht), scale = "free_y")
+print(p)
+summary(aov(tmp$density ~ tmp$depth_group * tmp$montht))
 
 # we look at density 0 to 4 m vs more than 8 m
 tmp <- d_all %>% 
-  dplyr::mutate(depth_group = depth_group_pressure) %>% 
-  dplyr::select(montht, sal_insitu_ctd, temp_insitu_ctd, depth_group, pressure_insitu_ctd) %>%
-  dplyr::mutate(density = seacarb::rho(S = sal_insitu_ctd, T = temp_insitu_ctd, P = pressure_insitu_ctd),
-                depth = as.factor(ifelse(depth_group == 1 | depth_group == 3, 2, depth_group))) %>% 
-  dplyr::filter(depth == 2 | depth == 10) %>% 
-  dplyr::select(montht, depth, density) %>% 
-  group_by(depth, montht) 
-summary(tmp)
-summary(aov(tmp$density ~ tmp$depth * tmp$montht))
+  dplyr::select(montht, temp_insitu_ctd, depth_group) %>%
+  dplyr::mutate(depth_group2 = as.factor(case_when(depth_group == '0-2' | depth_group == '2-4' ~ '0-4', 
+                                      depth_group == '>8' ~ '8-12'))) %>% 
+  dplyr::filter(depth_group2 == '0-4' | depth_group2 == '8-12') %>% 
+  dplyr::group_by(depth_group2, montht)
 
 tmp_delta <- tmp %>% 
-  group_by(depth, montht) %>% 
+  dplyr::select(montht, depth_group, density) %>% 
+  dplyr::mutate(depth_group2 = as.factor(case_when(depth_group == '0-2' | depth_group == '2-4' ~ '0-4', 
+                                      depth_group == '>8' ~ '8-12'))) %>% 
+  dplyr::filter(depth_group2 == '0-4' | depth_group2 == '8-12') %>% 
+  group_by(depth_group2, montht) %>% 
   dplyr::summarise(den_med = median(density, na.rm = TRUE)) %>% 
-  tidyr::pivot_wider(names_from = depth, values_from = den_med) %>% 
-  dplyr::rename(median0_4m = "2",
-                median8_12m = "10") %>% 
-  dplyr::mutate(den_delta = median0_4m - median8_12m)
+  tidyr::pivot_wider(names_from = depth_group2, values_from = den_med) %>% 
+  dplyr::rename(median0_4m = "0-4",
+                median8_12m = "8-12") %>% 
+  dplyr::mutate(temp_delta = median0_4m - median8_12m)
 kable(tmp_delta, digits = 2, caption = "Median density with (median0_4m - median8_12m)")
 
 p <- tmp %>% 
-  ggplot(aes(x=as.factor(depth), y = density)) +
+  ggplot(aes(x=montht, y = density)) +
   geom_boxplot(notch=FALSE, size=0.2, fill="grey50", outlier.color = "blue", outlier.size = 0.3) +
   labs(title = "Density vs depth", x = "Depth (m)", y= "Density") +
   scale_x_discrete(labels = c("0-4", "8-12")) +
