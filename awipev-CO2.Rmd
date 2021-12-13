@@ -2927,7 +2927,6 @@ tmp_delta <- tmp %>%
   dplyr::mutate(temp_delta = median0_4m - median8_12m)
 kable(tmp_delta, digits = 2, caption = "Median temperature with (median0_4m - median8_12m)")
 
-# we look at temperature 0 to 4 m vs more than 8 m
 p <- tmp %>% 
   ggplot(aes(x=depth_group2, y = temp_insitu_ctd)) +
   geom_boxplot(notch=FALSE, size=0.2, fill="grey50", outlier.color = "blue", outlier.size = 0.3) +
@@ -2965,9 +2964,13 @@ summary(aov(tmp$density ~ tmp$depth_group * tmp$montht))
 
 # we look at density 0 to 4 m vs more than 8 m
 tmp <- d_all %>% 
-  dplyr::select(montht, temp_insitu_ctd, depth_group) %>%
+  dplyr::select(montht, sal_insitu_ctd, temp_insitu_ctd, depth_group, pressure_insitu_ctd) %>%
+  tidyr::drop_na() %>% 
+  dplyr::filter(depth_group != "NA") %>% 
   dplyr::mutate(depth_group2 = as.factor(case_when(depth_group == '0-2' | depth_group == '2-4' ~ '0-4', 
-                                      depth_group == '>8' ~ '8-12'))) %>% 
+                                      depth_group == '>8' ~ '8-12')), 
+                density = seacarb::rho(S = sal_insitu_ctd, T = temp_insitu_ctd, 
+                                       P = pressure_insitu_ctd)) %>% 
   dplyr::filter(depth_group2 == '0-4' | depth_group2 == '8-12') %>% 
   dplyr::group_by(depth_group2, montht)
 
