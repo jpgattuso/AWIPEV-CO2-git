@@ -306,7 +306,7 @@ d <- read_excel(paste0(path, "fb_data/Discrete_analyses_AT_CT/Discrete_sampling_
 #   read.table(paste0(path, "fb_data/Discrete_analyses_AT_CT/Discrete_sampling_AWIPEV.csv"), header = T, dec = ".", as.is = T, sep = ";", fill = TRUE)
 # ) %>% 
   dplyr::mutate(datetime = dmy_hm(sampling_date, tz="UTC"),
-                measure_date = ymd(measure_date, tz="UTC"),
+                measure_date = dmy(measure_date, tz="UTC"),
                 date = as.Date(datetime)) %>% 
   #dplyr::filter(datetime < as.POSIXct("2021-01-01 00:00:00")) %>% #eliminate 2021 data
   dplyr::rename(ph_s_sf = pH_s_seafet,
@@ -334,7 +334,12 @@ d <- d %>%
                                          datetime == as.POSIXct("2019-05-31 11:45:00"), 
                                        1, 0))
 d <- d %>%
-  dplyr::filter(location_flag == 0)
+  dplyr::filter(location_flag == 0) %>% 
+# below we change the time of 2 discrete samplings during period 1 of seafet deployment
+# This is to enable calibration when the REMOS was at 9 m depth
+  dplyr::mutate(datetime = case_when(datetime == as.POSIXct("2017-08-24 13:30:00") ~ as.POSIXct("2017-08-24 19:00:00"),
+                                     datetime == as.POSIXct("2017-11-28 09:15:00") ~ as.POSIXct("2017-11-28 13:00:00"),
+                   TRUE ~ datetime))
 
 # Keep only flag = 2 for at/ct analysis 
 # Keep only flag = 2 for pH durafet and seaFET.
@@ -1345,81 +1350,24 @@ d_all <- d_all %>%
 
 ## pH seaFET
 
-pH is measured continuously by an autonomous seaFET pH sensor. Because of issue, measurement periodicity was set to 1 hour from 2018-02-02 to 2018-04-17. *Note that the pH sensor is mounted on a profiling structure. Here, only seaFET data recorded with a depth > 8 m are taken in consideration.* pH calibration is based on monthly discrete samples that are analysed with spectrophotometric method in Villefranche by Samir Alliouane. When it is not possible to sample at the vicinity of the sensor for practice reasons (in winter), sampling is done in the harbour and is not taken in consideration for calibration for spatial reasons. 
+pH is measured continuously by an autonomous seaFET pH sensor. Measurement periodicity was set to 1 hour from 2018-02-02 to 2018-04-17 it was then measured once every minute. pH calibration is based on monthly, when possible, discrete samples collected at 11 m that were analysed with spectrophotometric method in Villefranche by Samir Alliouane. Measurments were performed several months after sampling. When sampling was not possible in the vicinity of the sensor for practical reasons (in winter), sampling was done in the harbour and is not taken in consideration for calibration for spatial reasons.  *Note that the pH sensor is mounted on a profiling structure. Here, in principle, only seaFET data recorded with a depth > 8 m should be taken into consideration.* 
 
-Calibration was done following the methods and code described in Bresnahan et al. (2014) and adapted to use in R (seacarb package). Deployment periods are difined so that one spectrophotometric measurement is in the middle of a defined period of calibration (shaded colors in the plot). 
+Calibration was done following the methods and code described in Bresnahan et al. (2014) and adapted to use in R (seacarb package). 3 deployment periods were defined, corresponding to a change of sensors. 
 
-Within this deployment period, calibration is made with E0 calculation (first plot) and final corrected pH is calculated (second plot). To allow calibration, one spectrophotometric pH measurement must match: seaFET voltage, in situ temperature (SBE38) and salinity. When one of these parameters is missing for any reasons (Ferrybox maintenance, breakdown...), the gap is filled with a mean of the 4 previous or next hours when available. If the pH spectrophotometric measurement is too far from the available values, the calibration is not performed (environemental variability reasons). The SBE38 insitu temperature and seaFET temperature are very similar (slope = 0.992, r2 = 0.96, see tab "Temperatures"). These two temperatures were used interchangeably if one is missing.
+Within a deployment period, calibration is made with E0 calculation (first plot) and final corrected pH is calculated (second plot). To allow calibration, one spectrophotometric pH measurement must match: seaFET voltage, in situ temperature (seaFET) and salinity (REMOS CTD). When one of these parameters is missing for any reasons (Ferrybox maintenance, breakdown...), the gap is filled with a mean of the 4 previous or next hours when available. If the pH spectrophotometric measurement is too far from the available values, the calibration is not performed (environemental variability reasons).
 
-Missing data which could be estimated on : 2017-08-24, 2017-09-28, 2019-09-13 x 2.
-Missing data which could not be estimated on : 2018-04-16 , 2018-12-14, 2019-01-18.
+Only 5 spectrophotometric pH which could be used for calibration when seaFET at > 8 m: 2018-11-16, 2019-04-17, 2019-10-11, 2020-01-27. All deployment meriods are covered but we had to alter the sampling time of:
 
-We decided to change the calculation of E0. Before E0 was calculated for each pH spectro measurements. Now, EO is calculated making a mean of several E0 that come from one deployment period (sensor in the water for several months).
+* 2017-08-24 14:00 to 2017-08-24 19:00 (5 h later)
+* 2017-11-28 09:00 to 2017-11-28 13:00 (4 h later)
+
+EO is calculated making a mean of several E0 that come from one deployment period (sensor in the water for several months).
 
 ### **seaFET calibration constant E0**
 
 Plots of E0int25 and E0ext25 returned by the function "pHCalib" for each period of deployement are shown below.
 
 ```{r seaFET calibration sf_calib, echo=FALSE, message= FALSE, warning=FALSE, out.width= "60%"}
-
-# # We decided to calibrate pH data within each pH spectro measurement.
-# # Thus, each pH spectro is taken as one calibration periode. 
-# # We calculate here the day between 2 pH spectro in order to have the start/end of one deployment period.
-# sfPeriod <- d_all%>%
-#   dplyr::select(datetime, ph_s_sf_temp_insi)%>%
-#   dplyr::filter(!is.na(ph_s_sf_temp_insi))
-# # Remove pH spectro that not allow a calibration because of missing calibration value (voltINT, Sal or Temp insi)
-# sfPeriod <- sfPeriod%>%
-# dplyr::filter(datetime != "2018-04-16 07:00:00" & datetime != "2018-12-14 09:00:00" & datetime != "2019-01-18 09:00:00")
-# 
-# sfPeriod <-  sfPeriod %>%
-#   dplyr::arrange(datetime) %>%
-#   dplyr::mutate(middle=  seconds_to_period(c(0,difftime(time1= datetime[-1], time2= datetime[-nrow(sfPeriod)])/2* 3600)))%>%
-#   dplyr::mutate(sf_interval = datetime + middle[2:nrow(sfPeriod)])
-# 
-# #put interval in a list with the start date of seaFET measurements
-# sfinterv <- c( as_datetime("2017-08-24 13:00:00"), sfPeriod[,4])
-# #Change period sfinterv[5]. make the end of this period longer until 2018-03-21 23:59:00 
-# # This is needed in order to take in consideration pH from March 2018 with a calibration E0 lower (-1.4) than the next period (-0.38).
-# sfinterv[5] <- ymd_hms("2018-03-22 23:59:59")
-# #  #Change period sfinterv[6]. Because seafet was off and on on the 2018-04-24 19:00:00
-# # sfinterv[6] <- ymd_hms("2018-04-24 18:00:00")
-# #  #Change period sfinterv[6]. Because seafet was off and on on the 2018-04-24 19:00:00
-# # sfinterv[14] <- ymd_hms("2019-01-29 16:00:00")
-# 
-# #sfinterv <-sort(unlist(sfinterv, use.names=FALSE))
-# # set deployment period between 2 spectro measurements.
-
-# # add here the new periods sfinterv[..]
-# d_all <- d_all %>%
-#   dplyr::mutate(deployment_sf = ifelse(datetime >= sfinterv[1] & datetime <= sfinterv[2], 01, 
-#                                 ifelse(datetime >= sfinterv[2] & datetime <= sfinterv[3], 02, 
-#                                 ifelse(datetime >= sfinterv[3] & datetime <= sfinterv[4], 03, 
-#                                 ifelse(datetime >= sfinterv[4] & datetime <= sfinterv[5], 04,
-#                                 ifelse(datetime >= sfinterv[5] & datetime <= sfinterv[6], 05,
-#                                 ifelse(datetime >= sfinterv[6] & datetime <= sfinterv[7], 06,
-#                                 ifelse(datetime >= sfinterv[7] & datetime <= sfinterv[8], 07,
-#                                 ifelse(datetime >= sfinterv[8] & datetime <= sfinterv[9], 08,
-#                                 ifelse(datetime >= sfinterv[9] & datetime <= sfinterv[10], 09,
-#                                 ifelse(datetime >= sfinterv[10] & datetime <= sfinterv[11], 10,
-#                                 ifelse(datetime >= sfinterv[11] & datetime <= sfinterv[12], 11,
-#                                  ifelse(datetime >= sfinterv[12] & datetime <= sfinterv[13], 12,
-#                                  ifelse(datetime >= sfinterv[13] & datetime <= sfinterv[14], 13,
-#                                  ifelse(datetime >= sfinterv[14] & datetime <= sfinterv[15], 14,
-#                                  ifelse(datetime >= sfinterv[15] & datetime <= sfinterv[16], 15,
-#                                  ifelse(datetime >= sfinterv[16] & datetime <= sfinterv[17], 16,
-#                                  ifelse(datetime >= sfinterv[17] & datetime <= sfinterv[18], 17,
-#                                 ifelse(datetime >= sfinterv[18] & datetime <= sfinterv[19], 18,
-#                                 ifelse(datetime >= sfinterv[19] & datetime <= sfinterv[20], 19,
-#                                 ifelse(datetime >= sfinterv[20] & datetime <= sfinterv[21], 20,
-#                                 ifelse(datetime >= sfinterv[21] & datetime <= sfinterv[22], 21,
-#                                 #ifelse(datetime >= sfinterv[22] & datetime <= sfinterv[23], 22,
-#                                 #ifelse(datetime >= sfinterv[23] & datetime <= sfinterv[24], 23,
-#                                 #ifelse(datetime >= sfinterv[24] & datetime <= sfinterv[25], 24,
-#                                 #ifelse(datetime >= sfinterv[25] & datetime <= sfinterv[26], 25,
-#                                 ifelse(datetime >= sfinterv[22] , 22,NA )))))))))))))))))))))))
-
-# set deployment period when seaFET is in/out of water
 sfinterv <- as.POSIXct(c("2017-08-24 12:00:00","2018-04-17 12:00:00", "2019-09-02 12:00:00"))
 
 # add here the new periods sfinterv[..]
@@ -1427,15 +1375,15 @@ d_all <- d_all %>%
   dplyr::mutate(deployment_sf = ifelse(datetime >= sfinterv[1] & datetime <= sfinterv[2], 01,
                                 ifelse(datetime >= sfinterv[2] & datetime <= sfinterv[3], 02,
                                 ifelse(datetime >= sfinterv[3], 03, NA ))))
-
-# pco2_contros_xts <-
+# dygraph to check seafet data
+# pH_xts <-
 #   dplyr::select(d_all, datetime, voltINT, voltEXT, sal_fb, temp_insitu_ctd, ph_s_sf_temp_insi)
-# pco2_contros_xts <-
-#   as.xts(pco2_contros_xts, order.by = d_all$datetime)
-# dygraph(pco2_contros_xts,
+# pH_xts <-
+#   as.xts(pH_xts, order.by = d_all$datetime)
+# dygraph(pH_xts,
 #         group = "awipev",
-#         main = "<i>p</i>CO<sub>2</sub>",
-#         ylab = "<i>p</i>CO<sub>2</sub>") %>%
+#         main = "pH",
+#         ylab = "pH") %>%
 #   dySeries(
 #     axis = "y2",
 #     "voltINT",
@@ -1490,24 +1438,21 @@ d_all <- d_all %>%
 # To make sf calibration against pH spectro, we need: sal - T insi - voltINT/EXT . If we missed one of these parameters, calibration will not run
 # Here we try to fill the gap when it is possible: make a mean with 4 previous/next hours available in the time serie. 
 # If the pH spectro is too far from a needed value, we decided to skip it for the calibration.
-# we highlighted 7 pH spectro that dont match one of these parameters : 2017-08-24 14:00:00 - 2017-09-28 13:00:00 - 2018-04-16 07:00:00 - 2018-12-14 09:00:00 - 2019-01-18 09:00:00 - 2019-09-13 08:00:00 - 2019-09-13 13:00:00
+
 # (1) Raw voltage INT + pHINT must be filtered from 2017-12-14 to 2018-01-08 < 8.04,
-# (2) removed from 2018-01-08 to 2018-02-02
-# (3) outliers removed
-# (1)
-d_all$phINT <- ifelse(d_all$datetime >= as.POSIXct("2017-12-14") &
-                        d_all$datetime <= as.POSIXct("2018-01-08") &
-                        d_all$phINT < 8.04, NA, d_all$phINT)
-d_all$phEXT <-ifelse(d_all$datetime >= as.POSIXct("2017-12-14") &
-                       d_all$datetime <= as.POSIXct("2018-01-08") &
-                       d_all$phEXT < 8.04, NA, d_all$phEXT) 
+# d_all$phINT <- ifelse(d_all$datetime >= as.POSIXct("2017-12-14") &
+#                         d_all$datetime <= as.POSIXct("2018-01-08") &
+#                         d_all$phINT < 8.04, NA, d_all$phINT)
+# d_all$phEXT <-ifelse(d_all$datetime >= as.POSIXct("2017-12-14") &
+#                        d_all$datetime <= as.POSIXct("2018-01-08") &
+#                        d_all$phEXT < 8.04, NA, d_all$phEXT) 
 d_all$voltINT <-ifelse(d_all$datetime >= as.POSIXct("2017-12-14") &
                          d_all$datetime <= as.POSIXct("2018-01-08") &
                          d_all$voltINT < -0.9439, NA, d_all$voltINT) 
 d_all$voltEXT <-ifelse(d_all$datetime >= as.POSIXct("2017-12-14") &
                          d_all$datetime <= as.POSIXct("2018-01-08") &
                          d_all$voltEXT < -0.907, NA, d_all$voltEXT) 
-# (2)
+#(2) removed from 2018-01-08 to 2018-02-02 due to drift
 d_all$voltINT <- ifelse(d_all$datetime >= as.POSIXct("2018-01-08 17:00:00") &
                           d_all$datetime <= as.POSIXct("2018-02-02 09:00:00"), 
                         NA, d_all$voltINT)
@@ -1520,7 +1465,7 @@ d_all$phINT <- ifelse(d_all$datetime >= as.POSIXct("2018-01-08 17:00:00") &
 d_all$phEXT <- ifelse(d_all$datetime >= as.POSIXct("2018-01-08 17:00:00") &
                         d_all$datetime <= as.POSIXct("2018-02-02 09:00:00"),
                       NA, d_all$phEXT)
-# (3)
+# (3) outliers removed
 d_all$voltINT <- ifelse(d_all$datetime == as.POSIXct("2017-11-02 21:00:00") |
                           d_all$datetime == as.POSIXct("2018-04-18 14:00:00"),
                         NA, d_all$voltINT)
@@ -1684,7 +1629,7 @@ d_all <- d_all %>%
 
 
 ####
-## calculation of E0INT25/E0EXT25 ##
+## calculation of E0INT25/E0EXT25 irrespective of the depth at which the seafet is (all data used) ##
 ##     new sf_calib function      ##
 ####
 calib_spectro <- sf_calib(calEint = d_all$voltINT, calEext = d_all$voltEXT, calpH = d_all$ph_s_sf_temp_insi, calT = d_all$temp_sf, calSal = d_all$sal_insitu_ctd_interp)
@@ -1711,9 +1656,7 @@ print(p_calib)
 
 
 ### **seaFET pHT calibrated**
-pH is measured continuously by an autonomous seaFET pH sensor. Final calibrated seaFET pHT data (green dots) are shown here after calibration with spectro measurements (red dots) according to each period of deployement, defined between 2 spectro measurements (shading grey).
-Calibration was done following the methods and code described in Bresnahan *et al.* (2014) using seaFET voltage and spectro measurements.
-During the fifth period, seaFET cannot be calibrated because seaFET was not working during the time of reference (pH spectro) sampling (2018-04-16). To solve this calibration, we decided to fit the spectro measurement with a pH mean of 4 previous days.
+Final calibrated seaFET pHT data (green dots) are shown here after calibration with spectro measurements (red dots) according to each period of deployement, defined between 2 spectro measurements (shading grey).
 
 We also defined a period of malfunction from **2017-12-14** to **2018-02-02**. in the first part of this period, until 2018-01-08, we decided to filter outliers. In the second part, until the end of the period, data must be removed.
 
@@ -1728,8 +1671,8 @@ seafet_calib <- sf_calc(calEint = d_all$voltINT, calEext = d_all$voltEXT, E0int2
 names(seafet_calib) <- c("pHint_tot_sf", "pHext_tot_sf")
 ##########  Despike() ###########
 d_all <- d_all %>%   
-  dplyr::mutate(pHint_tot_sf = oce::despike(seafet_calib$pHint_tot_sf, reference= "median", n=1, k=5000, replace="NA"),
-                pHext_tot_sf = oce::despike(seafet_calib$pHext_tot_sf, reference= "median", n=1, k=5000, replace="NA")
+  dplyr::mutate(pHint_tot_sf = oce::despike(seafet_calib$pHint_tot_sf, reference= "median", n=1, k=5001, replace="NA"),
+                pHext_tot_sf = oce::despike(seafet_calib$pHext_tot_sf, reference= "median", n=1, k=5001, replace="NA")
   )
 
 # pH seaFET Final
@@ -1753,29 +1696,6 @@ d_all <- d_all %>%
       ),
       depth_discrete = as.factor(depth_discrete)
   )
-
-
-# d_all <- d_all %>%
-#   dplyr::mutate(ph_s_sf_temp_4 = ifelse(!is.na(pH_seafet$ph_s_sf),
-#                                               pHinsi(pH = pH_seafet$ph_s_sf, 
-#                          ALK = pH_seafet$at_mean_interp*1e-6, Tinsi = 4, 
-#                          Tlab = pH_seafet$temp_s_lab, Pinsi = pH_seafet$depth/10, 
-#                          S = pH_seafet$sal_mix, Pt = 0, Sit = 0, k1k2 = "l", kf = "dg", ks="d", 
-#                          pHscale = "T", b="u74"), NA
-#   ))
-                 
-# add spectro points that cannot be taken into consideration (some ancillary data T and/or S not available) shown as white triangles on the plot
-# ALSO Conversion of spec pH of FerryBox samples at 4°C
-
-d_all <- d_all %>%
-  dplyr::mutate(
-    pH_s_sf_no_calb = ifelse(
-      datetime == as.POSIXct("2018-04-16 07:00:00") |
-        datetime == as.POSIXct("2018-12-14 10:00:00") |
-        datetime == as.POSIXct("2019-01-18 11:00:00"),
-      ph_s_sf_temp_insi,
-      NA
-    ))
 
 seafet_depth_xts <- dplyr::select(d_all, datetime, ph_s_sf_temp_insi, pHint_tot_sf_1m, pHint_tot_sf_3m, pHint_tot_sf_5m, pHint_tot_sf_7m, pHint_tot_sf_10m)
 seafet_depth_xts <- as.xts(seafet_depth_xts, order.by = d_all$datetime)
