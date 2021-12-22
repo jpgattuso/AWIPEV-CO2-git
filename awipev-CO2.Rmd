@@ -283,7 +283,6 @@ d_all <- d_all %>%
 d_all <- d_all %>% 
   dplyr::select(order(colnames(d_all)))
 rm(d_hour)
-
 ```
 
 ```{r Sal filter, fig.width=10, fig.height=4, echo=FALSE, message= FALSE}
@@ -608,7 +607,8 @@ d_all <- d_all %>%
                 no3no2 = NO3NO2 / (density_fb/1000),
                 no3 = NO3 / (density_fb/1000),
                 si = Si / (density_fb/1000)
-  )
+  ) %>% 
+  dplyr::select(-PO4, -NH4, -NO3NO2, -NO3, -Si)
 ```
 
 ```{r Combine discrete and continous data, echo=FALSE}
@@ -1652,9 +1652,7 @@ dyOptions(
 ```
 
 ```{r seaFET pH sf_calib , echo=FALSE, message= FALSE, warning=FALSE}
-####
 ## calculation of E0INT25/E0EXT25 irrespective of the depth at which the seafet is (all data used)
-###
 calib_spectro_all <- sf_calib(calEint = d_all$voltINT, calEext = d_all$voltEXT, calpH = d_all$ph_s_sf_temp_insi, calT = d_all$temp_sf, calSal = d_all$sal_insitu_ctd_interp)
 # put number of deployment 
 calib_spectro_all$deployment_sf <- d_all$deployment_sf 
@@ -1670,31 +1668,29 @@ names(calib_spectro_all) <- c("deployment_sf", "E0int25_sf", "E0ext25_sf")
 # add E0 mean to seaFET data per deployment
 d_all <-left_join(d_all, calib_spectro_all, by="deployment_sf" )
 
-
-###
 ## calculation of E0INT25/E0EXT25 only using seafet data deeper than 8m
-###
-d_all_calib_depth <- d_all %>%
+d_all_calib_10m <- d_all %>%
 #  dplyr::select(datetime, voltINT, voltEXT,ph_s_sf_temp_insi,sal_insitu_ctd_interp,temp_sf, depth_discrete,deployment_sf)%>%
   dplyr::select(datetime, voltINT, voltEXT,ph_s_sf_temp_insi,sal_insitu_ctd_interp,temp_sf,depth, deployment_sf)%>%
 #  dplyr::filter(depth_discrete == 10)
     dplyr::filter(depth > 8)
 
-calib_spectro_depth_10m <- sf_calib(calEint = d_all_calib_depth$voltINT, calEext = d_all_calib_depth$voltEXT, calpH = d_all_calib_depth$ph_s_sf_temp_insi, calT = d_all_calib_depth$temp_sf, calSal = d_all_calib_depth$sal_insitu_ctd_interp)
+calib_spectro_10m <- sf_calib(calEint = d_all_calib_10m$voltINT, calEext = d_all_calib_10m$voltEXT, calpH = d_all_calib_10m$ph_s_sf_temp_insi, calT = d_all_calib_10m$temp_sf, calSal = d_all_calib_10m$sal_insitu_ctd_interp)
 # put number of deployment 
-calib_spectro_depth_10m$deployment_sf <- d_all_calib_depth$deployment_sf 
+calib_spectro_10m$deployment_sf <- d_all_calib_10m$deployment_sf 
 
 # make the mean of E0 by period of deployement
-calib_spectro_depth_10m <- group_by(calib_spectro_depth_10m, deployment_sf) %>%
+calib_spectro_10m <- group_by(calib_spectro_10m, deployment_sf) %>%
   summarise(E0int25 = mean(E0int25, na.rm = TRUE),
             E0ext25 = mean(E0ext25, na.rm = TRUE) 
             ) %>% 
   dplyr::filter(!is.na(deployment_sf))
-names(calib_spectro_depth_10m) <- c("deployment_sf", "E0int25_sf_10m", "E0ext25_sf_10m")
+names(calib_spectro_10m) <- c("deployment_sf", "E0int25_sf_10m", "E0ext25_sf_10m")
 
 # add E0 mean to seaFET data per deployment
-d_all <- dplyr::left_join(d_all, calib_spectro_depth_10m, by="deployment_sf")
-d_all <- dplyr::select(d_all, order(colnames(d_all)))
+d_all <- dplyr::left_join(d_all, calib_spectro_10m, by="deployment_sf")
+d_all <- d_all %>% 
+  dplyr::select(order(colnames(d_all)))
 ```
 
 Below are the seafet calibration parameters using all data (irrespective of the depth of the seafet) and with the seafet data collected below 8 m. They are very close but we nevertheless use the calibration data below 8 m (easier to explain in the manuscript).
@@ -1714,7 +1710,7 @@ p_calib <- ggplot(kk) + geom_point(aes(x=deployment_sf, y=value, color=variable)
   scale_colour_discrete(guide="none")
 print(p_calib)
 
-calib_spectro <- cbind(calib_spectro_all, calib_spectro_depth_10m)
+calib_spectro <- cbind(calib_spectro_all, calib_spectro_10m)
 kbl(calib_spectro)%>%
     kable_paper() %>% 
     kable_styling(fixed_thead = T)
@@ -1727,58 +1723,49 @@ Final calibrated seaFET pHT data (small green dots) are shown here after calibra
 We also defined a period of malfunction from **2017-12-14** to **2018-02-02**. in the first part of this period, until 2018-01-08, we decided to filter outliers. In the second part, until the end of the period, data must be removed.
 
 ```{r seaFET pH calculation sf_calc all, echo=FALSE, message= FALSE, warning=FALSE}
-####
-## calculation of the calibrated pH with all data irrespective of the depth of the REMOS ##
-##       new sf_calc function       ##
-####
-seafet_calib <- sf_calc(calEint = d_all$voltINT, calEext = d_all$voltEXT, E0int25 = d_all$E0int25_sf,  E0ext25 = d_all$E0ext25_sf, calT = d_all$temp_sf, calSal = d_all$sal_insitu_ctd_interp)
-
+#### calculation of the calibrated pH with all data irrespective of the depth of the REMOS ####
+seafet_calib_all <- sf_calc(calEint = d_all$voltINT, calEext = d_all$voltEXT, E0int25 = d_all$E0int25_sf,  E0ext25 = d_all$E0ext25_sf, calT = d_all$temp_sf, calSal = d_all$sal_insitu_ctd_interp)
 # bind new calibrated pH data to the seafet data set.
-names(seafet_calib) <- c("pHint_tot_sf", "pHext_tot_sf")
-##########  Despike() ###########
+names(seafet_calib_all) <- c("pHint_tot_sf_all", "pHext_tot_sf_all")
+# Despike
 d_all <- d_all %>%   
-  dplyr::mutate(pHint_tot_sf = oce::despike(seafet_calib$pHint_tot_sf, reference= "median", n=1, k=5001, replace="NA"),
-                pHext_tot_sf = oce::despike(seafet_calib$pHext_tot_sf, reference= "median", n=1, k=5001, replace="NA")
+  dplyr::mutate(pHint_tot_sf_all = oce::despike(seafet_calib_all$pHint_tot_sf_all, reference= "median", n=1, k=5001, replace="NA"),
+                pHext_tot_sf_all = oce::despike(seafet_calib_all$pHext_tot_sf_all, reference= "median", n=1, k=5001, replace="NA")
   )
-
-# pH seaFET Final
-# add despike with n=2 k = 5762 to the final ph corrected data
-# despike me semble inutile, faire plutôt un simple des outliers qui, vérification faite, n'est même pas nécessaire
-# Il faut par contre créér une nouvelle variable avec pH deeper than 8 m, called *_10m for consistency with salinity and temp
+# split by depth
 d_all <- d_all %>%
-  #dplyr::mutate(pHint_tot_sf = despike(d_all$pHint_tot_sf, reference= "median", n=2, k=5761, replace="NA")) %>%
-  dplyr::mutate(pHint_tot_sf = seafet_calib$pHint_tot_sf) %>%
-  dplyr::mutate(pHint_tot_sf_1m = ifelse(depth > 0 & depth < 2, pHint_tot_sf, NA),
-                pHint_tot_sf_3m = ifelse(depth >= 2 & depth < 4, pHint_tot_sf, NA),
-                pHint_tot_sf_5m = ifelse(depth >= 4 & depth < 6, pHint_tot_sf, NA),
-                pHint_tot_sf_7m = ifelse(depth >= 6 & depth < 8, pHint_tot_sf, NA),
-                pHint_tot_sf_10m = ifelse(depth >= 8 , pHint_tot_sf, NA),
+  dplyr::mutate(pHint_tot_sf_all_1m = ifelse(depth > 0 & depth < 2, pHint_tot_sf_all, NA),
+                pHint_tot_sf_all_3m = ifelse(depth >= 2 & depth < 4, pHint_tot_sf_all, NA),
+                pHint_tot_sf_all_5m = ifelse(depth >= 4 & depth < 6, pHint_tot_sf_all, NA),
+                pHint_tot_sf_all_7m = ifelse(depth >= 6 & depth < 8, pHint_tot_sf_all, NA),
+                pHint_tot_sf_all_10m = ifelse(depth >= 8 , pHint_tot_sf_all, NA),
                 depth_discrete = case_when(
-      !is.na(pHint_tot_sf_1m) ~ 1,
-      !is.na(pHint_tot_sf_3m) ~ 3,
-      !is.na(pHint_tot_sf_5m) ~ 5,
-      !is.na(pHint_tot_sf_7m) ~ 7,
-      !is.na(pHint_tot_sf_10m) ~ 10
-      ),
-      depth_discrete = as.factor(depth_discrete)
-  )
-
-seafet_depth_xts <- dplyr::select(d_all, datetime, ph_s_sf_temp_insi, pHint_tot_sf_1m, pHint_tot_sf_3m, pHint_tot_sf_5m, pHint_tot_sf_7m, pHint_tot_sf_10m)
+                  !is.na(pHint_tot_sf_all_1m) ~ 1,
+                  !is.na(pHint_tot_sf_all_3m) ~ 3,
+                  !is.na(pHint_tot_sf_all_5m) ~ 5,
+                  !is.na(pHint_tot_sf_all_7m) ~ 7,
+                  !is.na(pHint_tot_sf_all_10m) ~ 10
+                  ),
+                depth_discrete = as.factor(depth_discrete)
+                )
+d_all <- d_all %>% 
+  dplyr::select(order(colnames(d_all)))
+seafet_depth_xts <- dplyr::select(d_all, datetime, ph_s_sf_temp_insi, pHint_tot_sf_all_1m, pHint_tot_sf_all_3m, pHint_tot_sf_all_5m, pHint_tot_sf_all_7m, pHint_tot_sf_all_10m)
 seafet_depth_xts <- as.xts(seafet_depth_xts, order.by = d_all$datetime)
 dygraph(seafet_depth_xts, group = "depth", main="pH seaFET", ylab="pHT") %>%
-dySeries("pHint_tot_sf_10m", label = "pHT 10m", color =  RColorBrewer::brewer.pal(3, "Dark2")[1], strokeWidth = 0, pointSize = 1) %>%
-dySeries("pHint_tot_sf_7m", label = "pHT 7m", color =  RColorBrewer::brewer.pal(3, "Dark2")[2], strokeWidth = 0, pointSize = 1) %>%
-dySeries("pHint_tot_sf_5m", label = "pHT 5m", color =  RColorBrewer::brewer.pal(3, "Dark2")[3], strokeWidth = 0, pointSize = 1) %>%
-dySeries("pHint_tot_sf_3m", label = "pHT 3m", color =  RColorBrewer::brewer.pal(3, "Dark2")[4], strokeWidth = 0, pointSize = 1) %>%
-dySeries("pHint_tot_sf_1m", label = "pHT 1m", color =  RColorBrewer::brewer.pal(3, "Dark2")[5], strokeWidth = 0, pointSize = 1) %>%
+dySeries("pHint_tot_sf_all_10m", label = "pHT 10m", color =  RColorBrewer::brewer.pal(3, "Dark2")[1], strokeWidth = 0, pointSize = 1) %>%
+dySeries("pHint_tot_sf_all_7m", label = "pHT 7m", color =  RColorBrewer::brewer.pal(3, "Dark2")[2], strokeWidth = 0, pointSize = 1) %>%
+dySeries("pHint_tot_sf_all_5m", label = "pHT 5m", color =  RColorBrewer::brewer.pal(3, "Dark2")[3], strokeWidth = 0, pointSize = 1) %>%
+dySeries("pHint_tot_sf_all_3m", label = "pHT 3m", color =  RColorBrewer::brewer.pal(3, "Dark2")[4], strokeWidth = 0, pointSize = 1) %>%
+dySeries("pHint_tot_sf_all_1m", label = "pHT 1m", color =  RColorBrewer::brewer.pal(3, "Dark2")[5], strokeWidth = 0, pointSize = 1) %>%
   dySeries("ph_s_sf_temp_insi", label = "pH spectro", color =  "red", strokeWidth = 0, pointSize = 5 ) %>%
 
 dyEvent(as.POSIXct("2017-08-24 12:00:00", tz="UTC"), "seaFET #1005 installed", labelLoc = "bottom", color="red") %>%
   dyEvent(as.POSIXct("2018-02-02 09:00:00", tz="UTC"), "seaFET settings changed to every 1H", labelLoc = "bottom", color="red") %>% 
   dyEvent(as.POSIXct("2018-04-17 12:00:00", tz="UTC"), "seaFET #0007 installed + continuous mode set", labelLoc = "bottom", color="red") %>%
     dyEvent(as.POSIXct("2019-09-02 12:00:00", tz="UTC"), "seaFET #0007 out of water for cleaning", labelLoc = "bottom", color="red") %>%
-  dyShading(from =  sfinterv[1], to= sfinterv[2], color = "#CCCCCC") %>%
-  dyShading(from =  sfinterv[2], to= sfinterv[3], color = "#E0E0E0") %>%
+  dyShading(from = sfinterv[1], to= sfinterv[2], color = "#CCCCCC") %>%
+  dyShading(from = sfinterv[2], to= sfinterv[3], color = "#E0E0E0") %>%
   dyShading(from = sfinterv[3], to= Sys.Date(), color = "#CCCCCC") %>%
   dyLegend(show = "auto")   %>%
   dyAxis("y2",valueRange = c(-3, 9)) %>%
@@ -1789,34 +1776,44 @@ rm(seafet_depth_xts)
 ```
 
 ```{r seaFET pH calculation sf_calc 10m, echo=FALSE, message= FALSE, warning=FALSE}
-####
-## calculation of the calibrated pH using spec pH when seafet is at a depth > 8 m##
-##       new sf_calc function       ##
-####
+#### calculation of the calibrated pH using spec pH when seafet is at a depth > 8 m# ####
 seafet_calib_10m <- sf_calc(calEint = d_all$voltINT, calEext = d_all$voltEXT, E0int25 = d_all$E0int25_sf_10m, E0ext25 = d_all$E0ext25_sf_10m, calT = d_all$temp_sf, calSal = d_all$sal_insitu_ctd_interp)
 
 # bind new calibrated pH data to the seafet data set.
-names(seafet_calib_10m) <- c("pHint_tot_sf_calib10m", "pHext_tot_sf_calib10m")
+names(seafet_calib_10m) <- c("pHint_tot_sf_10m", "pHext_tot_sf_10m")
 ##########  Despike() ###########
 d_all <- d_all %>%   
-  dplyr::mutate(pHint_tot_sf_calib10m = oce::despike(seafet_calib_10m$pHint_tot_sf_calib10m, reference= "median", n=1, k=5001, replace="NA"),
-                pHext_tot_sf_calib10m = oce::despike(seafet_calib_10m$pHext_tot_sf_calib10m, reference= "median", n=1, k=5001, replace="NA")
+  dplyr::mutate(pHint_tot_sf_10m = oce::despike(seafet_calib_10m$pHint_tot_sf_10m, reference= "median", n=1, k=5001, replace="NA"),
+                pHext_tot_sf_10m = oce::despike(seafet_calib_10m$pHint_tot_sf_10m, reference= "median", n=1, k=5001, replace="NA")
   )
 
+# split by depth
 d_all <- d_all %>%
-  #dplyr::mutate(pHint_tot_sf = despike(d_all$pHint_tot_sf, reference= "median", n=2, k=5761, replace="NA")) %>%
-  dplyr::mutate(pHint_tot_sf_calib10m = seafet_calib_10m$pHint_tot_sf_calib10m) 
+  dplyr::mutate(pHint_tot_sf_10m_1m = ifelse(depth > 0 & depth < 2, pHint_tot_sf_10m, NA),
+                pHint_tot_sf_10m_3m = ifelse(depth >= 2 & depth < 4, pHint_tot_sf_10m, NA),
+                pHint_tot_sf_10m_5m = ifelse(depth >= 4 & depth < 6, pHint_tot_sf_10m, NA),
+                pHint_tot_sf_10m_7m = ifelse(depth >= 6 & depth < 8, pHint_tot_sf_10m, NA),
+                pHint_tot_sf_10m_10m = ifelse(depth >= 8 , pHint_tot_sf_10m, NA),
+                depth_discrete = case_when(
+                  !is.na(pHint_tot_sf_10m_1m) ~ 1,
+                  !is.na(pHint_tot_sf_10m_3m) ~ 3,
+                  !is.na(pHint_tot_sf_10m_5m) ~ 5,
+                  !is.na(pHint_tot_sf_10m_7m) ~ 7,
+                  !is.na(pHint_tot_sf_10m_10m) ~ 10
+                  ),
+                depth_discrete = as.factor(depth_discrete)
+                )
+d_all <- d_all %>% 
+  dplyr::select(order(colnames(d_all)))
 
-#seafet_depth_xts <- dplyr::select(d_all, datetime, ph_s_sf_temp_insi, pHint_tot_sf_1m, pHint_tot_sf_3m, pHint_tot_sf_5m, pHint_tot_sf_7m, pHint_tot_sf_10m, pHint_tot_sf_calib10m)
-seafet_depth_xts <- dplyr::select(d_all, datetime, ph_s_sf_temp_insi, pHint_tot_sf_calib10m)
+# d_all <- d_all %>%
+#   #dplyr::mutate(pHint_tot_sf = despike(d_all$pHint_tot_sf, reference= "median", n=2, k=5761, replace="NA")) %>%
+#   dplyr::mutate(pHint_tot_sf_calib_10m = seafet_calib_10m$pHint_tot_sf_calib_10m) 
+
+seafet_depth_xts <- dplyr::select(d_all, datetime, ph_s_sf_temp_insi, pHint_tot_sf_10m)
 seafet_depth_xts <- as.xts(seafet_depth_xts, order.by = d_all$datetime)
 dygraph(seafet_depth_xts, group = "depth", main="Spec pH and calibrated seaFET pH at 10 m", ylab="pHT") %>%
-dySeries("pHint_tot_sf_calib10m", label = "pH calib 10m", color =  "black", strokeWidth = 0, pointSize = 1) %>%
-#dySeries("pHint_tot_sf_10m", label = "pHT 10m", color =  RColorBrewer::brewer.pal(3, "Dark2")[1], strokeWidth = 0, pointSize = 1) %>%
-#dySeries("pHint_tot_sf_7m", label = "pHT 7m", color =  RColorBrewer::brewer.pal(3, "Dark2")[2], strokeWidth = 0, pointSize = 1) %>%
-#dySeries("pHint_tot_sf_5m", label = "pHT 5m", color =  RColorBrewer::brewer.pal(3, "Dark2")[3], strokeWidth = 0, pointSize = 1) %>%
-#dySeries("pHint_tot_sf_3m", label = "pHT 3m", color =  RColorBrewer::brewer.pal(3, "Dark2")[4], strokeWidth = 0, pointSize = 1) %>%
-#dySeries("pHint_tot_sf_1m", label = "pHT 1m", color =  RColorBrewer::brewer.pal(3, "Dark2")[5], strokeWidth = 0, pointSize = 1) %>%
+dySeries("pHint_tot_sf_10m", label = "pH calib 10m", color =  "black", strokeWidth = 0, pointSize = 1) %>%
 dySeries("ph_s_sf_temp_insi", label = "pH spectro", color =  "red", strokeWidth = 0, pointSize = 5 ) %>%
 dyEvent(as.POSIXct("2017-08-24 12:00:00", tz="UTC"), "seaFET #1005 installed", labelLoc = "bottom", color="red") %>%
   dyEvent(as.POSIXct("2018-02-02 09:00:00", tz="UTC"), "seaFET settings changed to every 1H", labelLoc = "bottom", color="red") %>% 
@@ -1839,12 +1836,11 @@ Quality control plots :
 
 “differences between calibrated sensor pH values and values obtained from discrete, check samples can be expected to be as small as 0.02 pH units, and perhaps less.” (McLaughlin et al. 2017).
 
-
 ```{r seaFET quality control pH 1, echo=FALSE, warning = FALSE, message = FALSE, out.width='100%'}
 #Offset between seafet pH and spec pH (Fig. 2 Kapsenberg et al.)
 ph_sf <- d_all%>%
-  dplyr::select(datetime, ph_s_sf_temp_insi, pHint_tot_sf_calib10m)%>%
-    dplyr::mutate( diff_spec_sf = ph_s_sf_temp_insi - pHint_tot_sf_calib10m)
+  dplyr::select(datetime, ph_s_sf_temp_insi, pHint_tot_sf_10m) %>%
+  dplyr::mutate(diff_spec_sf = ph_s_sf_temp_insi - pHint_tot_sf_10m)
 average_offset <- mean(ph_sf$diff_spec_sf, na.rm=TRUE, digits=4)
 
 offset_xts <- select(ph_sf, datetime, diff_spec_sf)
@@ -1868,7 +1864,7 @@ dyOptions(
   dyRangeSelector(height = 30, dateWindow= c("2017-10-21 00:00:00", "2021-01-11 00:00:00"))
 ```
 
-- pH INT - pH EXT was plotted here.
+#- pH INT - pH EXT was plotted here.
 
 ```{r seaFET quality control pH 2, echo=FALSE, warning = FALSE, message = FALSE, out.width='100%'}
 # # COMMENTED BECAUSE INT-EXT NOT NEEDED
@@ -1891,7 +1887,23 @@ dyOptions(
 #   dyRangeSelector(height = 30, dateWindow= c("2017-10-21 00:00:00", "2021-01-11 00:00:00"))
 ```
 
+From now on, one uses seaFET pH from the internal electrode calibrated with spec pH and seaFET data when the REMOS was below 8 m (pHint_tot_sf_10m). This unique pH variable is called pHint_tot_sf. All other pH variables are cleaned up
 
+```{r seafet clean up, echo=FALSE, message= FALSE, warning=FALSE, out.width="80%",fig.show='hold', fig.align="center"}
+d_all <- d_all %>%
+  dplyr::rename(
+    pHint_tot_sf = pHint_tot_sf_10m,
+    pHint_tot_sf_10m = pHint_tot_sf_10m_10m,
+    pHint_tot_sf_1m = pHint_tot_sf_10m_1m,
+    pHint_tot_sf_3m = pHint_tot_sf_10m_3m,
+    pHint_tot_sf_5m = pHint_tot_sf_10m_5m,
+    pHint_tot_sf_7m = pHint_tot_sf_10m_7m
+  ) %>% 
+    dplyr::select(-starts_with(c(
+    "pHint_tot_sf_", "pHext_", "pHint_tot_sf_all"
+  )))
+
+```
 ### **seaFET pH profiles**
 
 ```{r seafet profiles, echo=FALSE, message= FALSE, warning=FALSE, out.width="80%",fig.show='hold', fig.align="center"}
