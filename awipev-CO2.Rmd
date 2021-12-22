@@ -1,6 +1,6 @@
 ---
 title: "Carbonate chemistry at Ny-Ålesund" 
-author: "Jean-Pierre Gattuso and Samir Alliouane"
+author: "Jean-Pierre Gattuso and Samir Alliouane and Bernard Gentili"
 date: '`r format(Sys.Date(), "%d %B %Y")`'
 output:
   html_document: default
@@ -1261,7 +1261,7 @@ The relationship between the measured (Contros) and calculated pCO2 (blue line) 
 
 ```{r plot measured vs calculated pCO2, echo=FALSE, warning=FALSE, message=FALSE, out.width='100%', fig.align="center"}
 print(p$plot)
-# 
+rm(fit, p)
 ```
 
 ### **pCO~2~ time series**
@@ -1367,7 +1367,7 @@ EO is calculated making a mean of several E0 that come from one deployment perio
 
 Plots of E0int25 and E0ext25 returned by the function "pHCalib" for each period of deployement are shown below.
 
-```{r seaFET calibration sf_calib, echo=FALSE, message= FALSE, warning=FALSE, out.width= "60%"}
+```{r seaFET calibration preparation, echo=FALSE, message= FALSE, warning=FALSE, out.width= "60%"}
 sfinterv <- as.POSIXct(c("2017-08-24 12:00:00","2018-04-17 12:00:00", "2019-09-02 12:00:00"))
 
 # add here the new periods sfinterv[..]
@@ -1649,12 +1649,12 @@ dyOptions(
     useDataTimezone = TRUE,
     digitsAfterDecimal = 4) %>%
   dyRangeSelector(height = 30, dateWindow= c("2017-10-21 00:00:00", "2021-01-11 00:00:00"))
+```
 
-
+```{r seaFET pH sf_calib , echo=FALSE, message= FALSE, warning=FALSE}
 ####
-## calculation of E0INT25/E0EXT25 irrespective of the depth at which the seafet is (all data used) ##
-##     new sf_calib function      ##
-####
+## calculation of E0INT25/E0EXT25 irrespective of the depth at which the seafet is (all data used)
+###
 calib_spectro_all <- sf_calib(calEint = d_all$voltINT, calEext = d_all$voltEXT, calpH = d_all$ph_s_sf_temp_insi, calT = d_all$temp_sf, calSal = d_all$sal_insitu_ctd_interp)
 # put number of deployment 
 calib_spectro_all$deployment_sf <- d_all$deployment_sf 
@@ -1668,21 +1668,17 @@ calib_spectro_all <- group_by(calib_spectro_all, deployment_sf) %>%
 names(calib_spectro_all) <- c("deployment_sf", "E0int25_sf", "E0ext25_sf")
 
 # add E0 mean to seaFET data per deployment
-d_all <-left_join(d_all, calib_spectro_all,by="deployment_sf" )
+d_all <-left_join(d_all, calib_spectro_all, by="deployment_sf" )
 
-```
 
-```{r seaFET pH calib sf_calib 10m, echo=FALSE, message= FALSE, warning=FALSE}
 ###
-#creaate new dataframe and CALIB to take into consideration only seafet data at the same depth than spectro (9m)
-##
-####
-d_all_calib_depth <- d_all%>%
+## calculation of E0INT25/E0EXT25 only using seafet data deeper than 8m
+###
+d_all_calib_depth <- d_all %>%
 #  dplyr::select(datetime, voltINT, voltEXT,ph_s_sf_temp_insi,sal_insitu_ctd_interp,temp_sf, depth_discrete,deployment_sf)%>%
   dplyr::select(datetime, voltINT, voltEXT,ph_s_sf_temp_insi,sal_insitu_ctd_interp,temp_sf,depth, deployment_sf)%>%
 #  dplyr::filter(depth_discrete == 10)
     dplyr::filter(depth > 8)
-
 
 calib_spectro_depth_10m <- sf_calib(calEint = d_all_calib_depth$voltINT, calEext = d_all_calib_depth$voltEXT, calpH = d_all_calib_depth$ph_s_sf_temp_insi, calT = d_all_calib_depth$temp_sf, calSal = d_all_calib_depth$sal_insitu_ctd_interp)
 # put number of deployment 
@@ -1697,8 +1693,8 @@ calib_spectro_depth_10m <- group_by(calib_spectro_depth_10m, deployment_sf) %>%
 names(calib_spectro_depth_10m) <- c("deployment_sf", "E0int25_sf_10m", "E0ext25_sf_10m")
 
 # add E0 mean to seaFET data per deployment
-d_all <- dplyr::left_join(d_all, calib_spectro_depth_10m, by="deployment_sf") %>% 
-    dplyr::select(order(colnames(d_all)))
+d_all <- dplyr::left_join(d_all, calib_spectro_depth_10m, by="deployment_sf")
+d_all <- dplyr::select(d_all, order(colnames(d_all)))
 ```
 
 Below are the seafet calibration parameters using all data (irrespective of the depth of the seafet) and with the seafet data collected below 8 m. They are very close but we nevertheless use the calibration data below 8 m (easier to explain in the manuscript).
@@ -1726,11 +1722,11 @@ kbl(calib_spectro)%>%
 
 
 ### **seaFET pHT calibrated**
-Final calibrated seaFET pHT data (green dots) are shown here after calibration with spectro measurements (red dots) according to each period of deployement, defined between 2 spectro measurements (shading grey).
+Final calibrated seaFET pHT data (small green dots) are shown here after calibration with spectro measurements (red dots) according to each period of deployement, defined between 2 spectro measurements (shading grey).
 
 We also defined a period of malfunction from **2017-12-14** to **2018-02-02**. in the first part of this period, until 2018-01-08, we decided to filter outliers. In the second part, until the end of the period, data must be removed.
 
-```{r seaFET pH calculation sf_calc, echo=FALSE, message= FALSE, warning=FALSE}
+```{r seaFET pH calculation sf_calc all, echo=FALSE, message= FALSE, warning=FALSE}
 ####
 ## calculation of the calibrated pH with all data irrespective of the depth of the REMOS ##
 ##       new sf_calc function       ##
@@ -1797,31 +1793,31 @@ rm(seafet_depth_xts)
 ## calculation of the calibrated pH using spec pH when seafet is at a depth > 8 m##
 ##       new sf_calc function       ##
 ####
-seafet_calib_10m <- sf_calc(calEint = d_all$voltINT, calEext = d_all$voltEXT, E0int25 = d_all$E0int25_sf_10m,  E0ext25 = d_all$E0ext25_sf_10m, calT = d_all$temp_sf, calSal = d_all$sal_insitu_ctd_interp)
+seafet_calib_10m <- sf_calc(calEint = d_all$voltINT, calEext = d_all$voltEXT, E0int25 = d_all$E0int25_sf_10m, E0ext25 = d_all$E0ext25_sf_10m, calT = d_all$temp_sf, calSal = d_all$sal_insitu_ctd_interp)
 
 # bind new calibrated pH data to the seafet data set.
 names(seafet_calib_10m) <- c("pHint_tot_sf_calib10m", "pHext_tot_sf_calib10m")
 ##########  Despike() ###########
 d_all <- d_all %>%   
   dplyr::mutate(pHint_tot_sf_calib10m = oce::despike(seafet_calib_10m$pHint_tot_sf_calib10m, reference= "median", n=1, k=5001, replace="NA"),
-                pHextt_tot_sf_calib10m = oce::despike(seafet_calib_9m$pHextt_tot_sf_calib10m, reference= "median", n=1, k=5001, replace="NA")
+                pHext_tot_sf_calib10m = oce::despike(seafet_calib_10m$pHext_tot_sf_calib10m, reference= "median", n=1, k=5001, replace="NA")
   )
 
 d_all <- d_all %>%
   #dplyr::mutate(pHint_tot_sf = despike(d_all$pHint_tot_sf, reference= "median", n=2, k=5761, replace="NA")) %>%
   dplyr::mutate(pHint_tot_sf_calib10m = seafet_calib_10m$pHint_tot_sf_calib10m) 
 
-seafet_depth_xts <- dplyr::select(d_all, datetime, ph_s_sf_temp_insi, pHint_tot_sf_1m, pHint_tot_sf_3m, pHint_tot_sf_5m, pHint_tot_sf_7m, pHint_tot_sf_10m, pHint_tot_sf_calib10m)
+#seafet_depth_xts <- dplyr::select(d_all, datetime, ph_s_sf_temp_insi, pHint_tot_sf_1m, pHint_tot_sf_3m, pHint_tot_sf_5m, pHint_tot_sf_7m, pHint_tot_sf_10m, pHint_tot_sf_calib10m)
+seafet_depth_xts <- dplyr::select(d_all, datetime, ph_s_sf_temp_insi, pHint_tot_sf_calib10m)
 seafet_depth_xts <- as.xts(seafet_depth_xts, order.by = d_all$datetime)
-dygraph(seafet_depth_xts, group = "depth", main="pH seaFET", ylab="pHT") %>%
-      dySeries("pHint_tot_sf_calib10m", label = "pH calib 9m", color =  "black", strokeWidth = 0, pointSize = 2 ) %>%
-dySeries("pHint_tot_sf_10m", label = "pHT 10m", color =  RColorBrewer::brewer.pal(3, "Dark2")[1], strokeWidth = 0, pointSize = 1) %>%
-dySeries("pHint_tot_sf_7m", label = "pHT 7m", color =  RColorBrewer::brewer.pal(3, "Dark2")[2], strokeWidth = 0, pointSize = 1) %>%
-dySeries("pHint_tot_sf_5m", label = "pHT 5m", color =  RColorBrewer::brewer.pal(3, "Dark2")[3], strokeWidth = 0, pointSize = 1) %>%
-dySeries("pHint_tot_sf_3m", label = "pHT 3m", color =  RColorBrewer::brewer.pal(3, "Dark2")[4], strokeWidth = 0, pointSize = 1) %>%
-dySeries("pHint_tot_sf_1m", label = "pHT 1m", color =  RColorBrewer::brewer.pal(3, "Dark2")[5], strokeWidth = 0, pointSize = 1) %>%
-  dySeries("ph_s_sf_temp_insi", label = "pH spectro", color =  "red", strokeWidth = 0, pointSize = 5 ) %>%
-
+dygraph(seafet_depth_xts, group = "depth", main="Spec pH and calibrated seaFET pH at 10 m", ylab="pHT") %>%
+dySeries("pHint_tot_sf_calib10m", label = "pH calib 10m", color =  "black", strokeWidth = 0, pointSize = 1) %>%
+#dySeries("pHint_tot_sf_10m", label = "pHT 10m", color =  RColorBrewer::brewer.pal(3, "Dark2")[1], strokeWidth = 0, pointSize = 1) %>%
+#dySeries("pHint_tot_sf_7m", label = "pHT 7m", color =  RColorBrewer::brewer.pal(3, "Dark2")[2], strokeWidth = 0, pointSize = 1) %>%
+#dySeries("pHint_tot_sf_5m", label = "pHT 5m", color =  RColorBrewer::brewer.pal(3, "Dark2")[3], strokeWidth = 0, pointSize = 1) %>%
+#dySeries("pHint_tot_sf_3m", label = "pHT 3m", color =  RColorBrewer::brewer.pal(3, "Dark2")[4], strokeWidth = 0, pointSize = 1) %>%
+#dySeries("pHint_tot_sf_1m", label = "pHT 1m", color =  RColorBrewer::brewer.pal(3, "Dark2")[5], strokeWidth = 0, pointSize = 1) %>%
+dySeries("ph_s_sf_temp_insi", label = "pH spectro", color =  "red", strokeWidth = 0, pointSize = 5 ) %>%
 dyEvent(as.POSIXct("2017-08-24 12:00:00", tz="UTC"), "seaFET #1005 installed", labelLoc = "bottom", color="red") %>%
   dyEvent(as.POSIXct("2018-02-02 09:00:00", tz="UTC"), "seaFET settings changed to every 1H", labelLoc = "bottom", color="red") %>% 
   dyEvent(as.POSIXct("2018-04-17 12:00:00", tz="UTC"), "seaFET #0007 installed + continuous mode set", labelLoc = "bottom", color="red") %>%
@@ -1835,7 +1831,6 @@ dyEvent(as.POSIXct("2017-08-24 12:00:00", tz="UTC"), "seaFET #1005 installed", l
   dyOptions(drawGrid = TRUE, drawPoints = TRUE,useDataTimezone = TRUE, digitsAfterDecimal=4) %>%
   dyRangeSelector(height = 30, dateWindow= c("2017-08-10 00:00:00","2021-01-20 23:00:00"))
 rm(seafet_depth_xts)
-
 ```
 
 Quality control plots :
@@ -1848,9 +1843,8 @@ Quality control plots :
 ```{r seaFET quality control pH 1, echo=FALSE, warning = FALSE, message = FALSE, out.width='100%'}
 #Offset between seafet pH and spec pH (Fig. 2 Kapsenberg et al.)
 ph_sf <- d_all%>%
-  dplyr::select(datetime, ph_s_sf_temp_insi,pHint_tot_sf,pHext_tot_sf)%>%
-    dplyr::mutate( diff_spec_sf = ph_s_sf_temp_insi - pHint_tot_sf,
-                   diff_sf_int_ext = pHint_tot_sf -pHext_tot_sf )
+  dplyr::select(datetime, ph_s_sf_temp_insi, pHint_tot_sf_calib10m)%>%
+    dplyr::mutate( diff_spec_sf = ph_s_sf_temp_insi - pHint_tot_sf_calib10m)
 average_offset <- mean(ph_sf$diff_spec_sf, na.rm=TRUE, digits=4)
 
 offset_xts <- select(ph_sf, datetime, diff_spec_sf)
@@ -1877,25 +1871,24 @@ dyOptions(
 - pH INT - pH EXT was plotted here.
 
 ```{r seaFET quality control pH 2, echo=FALSE, warning = FALSE, message = FALSE, out.width='100%'}
-                                                                                                                                                                                       ## INT -EXT
-delta_xts <- dplyr::select(ph_sf,datetime, diff_sf_int_ext, pHext_tot_sf, pHint_tot_sf)
-delta_xts <- as.xts(delta_xts, order.by=delta_xts$datetime)
-dygraph(delta_xts, main = "delta pHINT - pH EXT") %>%
-  dySeries(axis ="y2","pHext_tot_sf", drawPoints = TRUE, pointSize=3, label = "pH EXT", color="red")%>%
-dySeries(axis ="y2","pHint_tot_sf", drawPoints = TRUE, pointSize=2, label = "pH INT", color="blue")%>%
-  dySeries( "diff_sf_int_ext", drawPoints = TRUE, pointSize=2, label = "Delta", color="grey")%>%
-    dyLegend(show = "follow")   %>%
-      dyLimit(0,strokePattern = "solid", color = "black") %>% 
- dyAxis("y",valueRange = c(-0.3,0.3))%>%
-    dyHighlight(highlightCircleSize = 8,highlightSeriesBackgroundAlpha = 0.5,hideOnMouseOut = TRUE) %>%
-dyOptions(
-    drawGrid = TRUE,
-    strokeWidth= 0,
-    drawPoints = TRUE,
-    useDataTimezone = TRUE,
-    digitsAfterDecimal = 4) %>%
-  dyRangeSelector(height = 30, dateWindow= c("2017-10-21 00:00:00", "2021-01-11 00:00:00"))
-
+# # COMMENTED BECAUSE INT-EXT NOT NEEDED
+# delta_xts <- dplyr::select(ph_sf, datetime, diff_sf_int_ext, pHext_tot_sf, pHint_tot_sf)
+# delta_xts <- as.xts(delta_xts, order.by=delta_xts$datetime)
+# dygraph(delta_xts, main = "delta pHINT - pH EXT") %>%
+#   dySeries(axis ="y2","pHext_tot_sf", drawPoints = TRUE, pointSize=3, label = "pH EXT", color="red")%>%
+# dySeries(axis ="y2","pHint_tot_sf", drawPoints = TRUE, pointSize=2, label = "pH INT", color="blue")%>%
+#   dySeries( "diff_sf_int_ext", drawPoints = TRUE, pointSize=2, label = "Delta", color="grey")%>%
+#     dyLegend(show = "follow")   %>%
+#       dyLimit(0,strokePattern = "solid", color = "black") %>% 
+#  dyAxis("y",valueRange = c(-0.3,0.3))%>%
+#     dyHighlight(highlightCircleSize = 8,highlightSeriesBackgroundAlpha = 0.5,hideOnMouseOut = TRUE) %>%
+# dyOptions(
+#     drawGrid = TRUE,
+#     strokeWidth= 0,
+#     drawPoints = TRUE,
+#     useDataTimezone = TRUE,
+#     digitsAfterDecimal = 4) %>%
+#   dyRangeSelector(height = 30, dateWindow= c("2017-10-21 00:00:00", "2021-01-11 00:00:00"))
 ```
 
 
