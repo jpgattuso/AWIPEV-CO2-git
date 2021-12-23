@@ -9,8 +9,11 @@ output:
   odt_document: default
 editor_options: 
   chunk_output_type: console
+  markdown: 
+    wrap: 72
 ---
-![ ](Images/AWIPEV-Logo.jpg){width=250px}
+
+![](Images/AWIPEV-Logo.jpg){width="250px"}
 
 ```{r set-up, echo=FALSE, warning=FALSE, message=FALSE, include=FALSE}
 Sys.setlocale("LC_ALL", "en_US.UTF-8")
@@ -240,35 +243,42 @@ d_hour <- dplyr::left_join(d_hour, svl_remos_depth, by = 'datetime') %>%
 #     geom_point()
 
 d_all <- d_hour %>%
-  dplyr::mutate_all(function(x) ifelse(is.nan(x), NA, x)) %>% # replace all NaN by NA
-  dplyr::mutate(depth_group = as.factor(dplyr::case_when(depth > 0 & depth <= 2 ~ '0-2',
-                depth > 2 & depth <= 4 ~ '2-4',
-                depth > 4 & depth <= 6 ~ '4-6',
-                depth > 6 & depth <= 8 ~ '6-8',
-                depth > 8 & depth <= 12 ~ '>8', #8 to 12.4
-                TRUE ~ 'NA'
-                )),
-                sal_insitu_ctd_1m = ifelse(depth_group == '0-2', sal_insitu_ctd, NA),
-                sal_insitu_ctd_3m = ifelse(depth_group == '2-4', sal_insitu_ctd, NA),
-                sal_insitu_ctd_5m = ifelse(depth_group == '4-6', sal_insitu_ctd, NA),
-                sal_insitu_ctd_7m = ifelse(depth_group == '6-8', sal_insitu_ctd, NA),
-                sal_insitu_ctd_10m = ifelse(depth_group == '>8', sal_insitu_ctd, NA),
-                temp_insitu_ctd_1m = ifelse(depth_group == '0-2', temp_insitu_ctd, NA),
-                temp_insitu_ctd_3m = ifelse(depth_group == '2-4', temp_insitu_ctd, NA),
-                temp_insitu_ctd_5m = ifelse(depth_group == '4-6', temp_insitu_ctd, NA),
-                temp_insitu_ctd_7m = ifelse(depth_group == '6-8', temp_insitu_ctd, NA),
-                temp_insitu_ctd_10m = ifelse(depth_group == '>8', temp_insitu_ctd, NA),
-  ) %>% 
-  dplyr::rowwise() %>% 
-  dplyr::mutate(n_depth_ctd = sum(is.na( # create new variable to identify the hours for which there are CTD data at more than 1 depth 
-  c(
-    temp_insitu_ctd_1m,
-    temp_insitu_ctd_3m,
-    temp_insitu_ctd_5m,
-    temp_insitu_ctd_7m,
-    temp_insitu_ctd_10m
-  )
-), na.rm = TRUE)) %>% 
+  dplyr::mutate_all(function(x)
+    ifelse(is.nan(x), NA, x)) %>% # replace all NaN by NA
+  dplyr::mutate(
+    depth_group = as.factor(
+      dplyr::case_when(
+        depth > 0 & depth <= 2 ~ '0-2',
+        depth > 2 & depth <= 4 ~ '2-4',
+        depth > 4 & depth <= 6 ~ '4-6',
+        depth > 6 & depth <= 8 ~ '6-8',
+        depth > 8 & depth <= 12 ~ '>8',
+        #8 to 12.4
+        TRUE ~ 'NA'
+      )
+    ),
+    sal_insitu_ctd_1m = ifelse(depth_group == '0-2', sal_insitu_ctd, NA),
+    sal_insitu_ctd_3m = ifelse(depth_group == '2-4', sal_insitu_ctd, NA),
+    sal_insitu_ctd_5m = ifelse(depth_group == '4-6', sal_insitu_ctd, NA),
+    sal_insitu_ctd_7m = ifelse(depth_group == '6-8', sal_insitu_ctd, NA),
+    sal_insitu_ctd_10m = ifelse(depth_group == '>8', sal_insitu_ctd, NA),
+    temp_insitu_ctd_1m = ifelse(depth_group == '0-2', temp_insitu_ctd, NA),
+    temp_insitu_ctd_3m = ifelse(depth_group == '2-4', temp_insitu_ctd, NA),
+    temp_insitu_ctd_5m = ifelse(depth_group == '4-6', temp_insitu_ctd, NA),
+    temp_insitu_ctd_7m = ifelse(depth_group == '6-8', temp_insitu_ctd, NA),
+    temp_insitu_ctd_10m = ifelse(depth_group == '>8', temp_insitu_ctd, NA),
+  ) %>%
+  dplyr::rowwise() %>%
+  dplyr::mutate(n_depth_ctd = sum(is.na(
+    # create new variable to identify the hours for which there are CTD data at more than 1 depth
+    c(
+      temp_insitu_ctd_1m,
+      temp_insitu_ctd_3m,
+      temp_insitu_ctd_5m,
+      temp_insitu_ctd_7m,
+      temp_insitu_ctd_10m
+    )
+  ), na.rm = TRUE)) %>%
   ungroup()
 
 #restore datetime, date which are mangled by the mutates above, arrange ascending
@@ -291,7 +301,7 @@ rm(d_hour)
 d_all <- d_all %>%
   dplyr::mutate(sal_mix = ifelse(!is.na(sal_fb), sal_fb, sal_insitu_ctd_10m))
 ```
-   
+
 ```{r Temp filter, fig.width=10, fig.height=4, echo=FALSE, message= FALSE}
 # Create temp_mix: filling gaps in temp_insitu_11m using temp_insitu_10m
 d_all <- d_all %>%
@@ -684,6 +694,7 @@ d_all <- d_all %>%
   dplyr::select(datetime, date, year, monthd, montht, everything())
 ```
 
+```{=html}
 <style type="text/css">
 
 body{ /* Normal  */
@@ -705,51 +716,126 @@ h5{ /* Header 5 */
   color: DarkBlue;
 }
 </style>
+```
+#  {.tabset .tabset-fade .tabset-pills}
 
-# {.tabset .tabset-fade .tabset-pills}
-
-## Infos 
+## Infos
 
 ### **Introduction**
-<div style="text-align: justify">  
-The AWIPEV-CO2 project aims at starting the first time series for the carbonate chemistry in the Arctic Ocean as part of the AWIPEV Underwater Observatory. It comprises two components: (1) continuous real-time measurements and (2) discrete measurements. The rationale is that discrete measurements are absolutely needed to calibrate and validate the sensors. 
+
+<div style="text-align: justify">
+
+The AWIPEV-CO2 project aims at starting the first time series for the
+carbonate chemistry in the Arctic Ocean as part of the AWIPEV Underwater
+Observatory. It comprises two components: (1) continuous real-time
+measurements and (2) discrete measurements. The rationale is that
+discrete measurements are absolutely needed to calibrate and validate
+the sensors.
 
 ### **AWIPEV Underwater Observatory**
-<div style="text-align: justify">  
-The AWIPEV Underwater Observatory has been deployed at Ny-Alesund (Spitsbergen, 78°55'18N, 11°56'31E) in June 2012. It is part of the German Project COSYNA (Coastal Observation Systems of the Northern- and Arctic Seas), which aims at increasing the availability of continuous real-time data from remote but climatically-sensitive ecosystems. The AWIPEV underwater observatory comprises a fully remote controlled FerryBox system fed with seawater pumped in front of the old pIer at 12 m depth. Temperature, salinity, pressure, turbidity, oxygen, chl-*a* fluorescence are measured. Furthermore, an additional remote controlled underwater sensor unit able to profile from 12 m to the surface at any frequency carries additional sensors for salinity, pressure, turbidity, oxygen chl-*a* fluorescence and PAR. The system also comprises an ADCP for continuous measurements of currents and waves. Besides these standard sensors, the underwater unit is equipped with a webcam and stereo-optical device to remotely assess fish and jellyfish populations. The AWIPEV observatory is specifically designed for polar experimental work under extreme conditions including ice coverage and the inaccessibility for about 7 months during polar winter. During this time, the system is remotely controlled and maintained from Germany. All data sampled by the sensors are continuously sent to a central server system at Helgoland Island where the data are stored and processed. The processed data are open access and available at http://codm.hzg.de/codm.
 
-<div style="text-align:center" markdown="1">
-  <img  src="./Images/Container.png" width="200" height="200">
-  <img  src="./Images/Intake.png" width="200" height="200">
-  <img  src="./Images/2018-04-17_Ferrybox2.jpg" width="200" height="200">
-</div>
+<div style="text-align: justify">
+
+The AWIPEV Underwater Observatory has been deployed at Ny-Alesund
+(Spitsbergen, 78°55'18N, 11°56'31E) in June 2012. It is part of the
+German Project COSYNA (Coastal Observation Systems of the Northern- and
+Arctic Seas), which aims at increasing the availability of continuous
+real-time data from remote but climatically-sensitive ecosystems. The
+AWIPEV underwater observatory comprises a fully remote controlled
+FerryBox system fed with seawater pumped in front of the old pIer at 12
+m depth. Temperature, salinity, pressure, turbidity, oxygen, chl-*a*
+fluorescence are measured. Furthermore, an additional remote controlled
+underwater sensor unit able to profile from 12 m to the surface at any
+frequency carries additional sensors for salinity, pressure, turbidity,
+oxygen chl-*a* fluorescence and PAR. The system also comprises an ADCP
+for continuous measurements of currents and waves. Besides these
+standard sensors, the underwater unit is equipped with a webcam and
+stereo-optical device to remotely assess fish and jellyfish populations.
+The AWIPEV observatory is specifically designed for polar experimental
+work under extreme conditions including ice coverage and the
+inaccessibility for about 7 months during polar winter. During this
+time, the system is remotely controlled and maintained from Germany. All
+data sampled by the sensors are continuously sent to a central server
+system at Helgoland Island where the data are stored and processed. The
+processed data are open access and available at
+<http://codm.hzg.de/codm>.
+
+::: {style="text-align:center" markdown="1"}
+<img src="./Images/Container.png" width="200" height="200"/>
+<img src="./Images/Intake.png" width="200" height="200"/>
+<img src="./Images/2018-04-17_Ferrybox2.jpg" width="200" height="200"/>
+:::
 
 ### **Continuous and semi-continuous measurements**
-<div style="text-align: justify">  
-The Arctic version of the Contros-Kongsberg HydroC CO~2~ FT (Carbon Dioxyde partial pressure Flow Through surface water sensor) has been installed in July 2015. Molecules of dissolved CO~2~ diffuse through a thin composite membrane into the internal gas circuit leading to a detector chamber, where the partial pressure of CO~2~ is determined by means of infra-red absorption spectrometry. Concentration-dependent IR light is converted into the output signal from calibration coefficients stored in firmware and data from additional sensors within the gas circuit. The measuring range is 200-1000 uatm, resolution is < 1 uatm and accuracy is +- 1% reading. The sensor is the first instrument in the measuring loop; data are logged every minute. This instrument requires yearly factory calibration; two sensors ara available to allow a continuous time series.
 
-Since February 2016, total alkalinity (AT) is measured every 90 min with a Contros-Kongsberg HydroFIA TA (Total Alkalinity analyser flow through system). Fifty ml of seawater is filtered (0.2 um) using a Contros-Kongsberg cross-flow filter and then acidified using dilute hydrochloric acid (0.1 N). CO~2~ is then flushed out (open-cell titration) and the final pH measured by means of an indicator dye (bromocresol green) and visible absorption spectrometry. Together with salinity and temperature at the time of measurement, the pH reading is used to calculate AT. According to the manufacturer, the measuring range is 400 umol/kg dynamic range, resolution 0.1 umol/kg, accuracy 25 umol/kg (+- 1%) and precision 5 umol/kg (+- 0.2%).
+<div style="text-align: justify">
 
-In August 2017, a seaFET Ocean pH sensor (Sea-Bird Scientific) has been added to the UWO. This new sensor continuously measures pH at 11 m using an ISFET (Ion Sensitive Field Effect Transistor). According to the manufacturer, the measuring range is between 6.5 and 9 pH units, initial accuracy is 0.02 pH units and precision is 0.004 pH units. Operating salinity and temperature range are 20 to 40 PSU and 0 to 50°C respectively.
+The Arctic version of the Contros-Kongsberg HydroC CO~2~ FT (Carbon
+Dioxyde partial pressure Flow Through surface water sensor) has been
+installed in July 2015. Molecules of dissolved CO~2~ diffuse through a
+thin composite membrane into the internal gas circuit leading to a
+detector chamber, where the partial pressure of CO~2~ is determined by
+means of infra-red absorption spectrometry. Concentration-dependent IR
+light is converted into the output signal from calibration coefficients
+stored in firmware and data from additional sensors within the gas
+circuit. The measuring range is 200-1000 uatm, resolution is \< 1 uatm
+and accuracy is +- 1% reading. The sensor is the first instrument in the
+measuring loop; data are logged every minute. This instrument requires
+yearly factory calibration; two sensors ara available to allow a
+continuous time series.
 
-In August 2017, a Durafet III pH electrode connected to a UDA2128 Analyser (Honeywell) was also implemented to the Ferrybox flow-through system. This electrode continuously measures pH, in the Ferrybox, through an ISFET. According to the manufacturer, the measuring range is between 0 and 14 pH units.
+Since February 2016, total alkalinity (AT) is measured every 90 min with
+a Contros-Kongsberg HydroFIA TA (Total Alkalinity analyser flow through
+system). Fifty ml of seawater is filtered (0.2 um) using a
+Contros-Kongsberg cross-flow filter and then acidified using dilute
+hydrochloric acid (0.1 N). CO~2~ is then flushed out (open-cell
+titration) and the final pH measured by means of an indicator dye
+(bromocresol green) and visible absorption spectrometry. Together with
+salinity and temperature at the time of measurement, the pH reading is
+used to calculate AT. According to the manufacturer, the measuring range
+is 400 umol/kg dynamic range, resolution 0.1 umol/kg, accuracy 25
+umol/kg (+- 1%) and precision 5 umol/kg (+- 0.2%).
+
+In August 2017, a seaFET Ocean pH sensor (Sea-Bird Scientific) has been
+added to the UWO. This new sensor continuously measures pH at 11 m using
+an ISFET (Ion Sensitive Field Effect Transistor). According to the
+manufacturer, the measuring range is between 6.5 and 9 pH units, initial
+accuracy is 0.02 pH units and precision is 0.004 pH units. Operating
+salinity and temperature range are 20 to 40 PSU and 0 to 50°C
+respectively.
+
+In August 2017, a Durafet III pH electrode connected to a UDA2128
+Analyser (Honeywell) was also implemented to the Ferrybox flow-through
+system. This electrode continuously measures pH, in the Ferrybox,
+through an ISFET. According to the manufacturer, the measuring range is
+between 0 and 14 pH units.
 
 ### **Data availability**
-The data at one minute frequency were tagged with the following quality flags
 
-+ 1: good data
-+ 3: failing the date and time test
-+ 4: data not usable according to manufacturer
-+ 6: failing the manufacturer range test (not used)
-+ 7: failing the regional range test 
-+ 12: failing the spike test (NAs from despike)
-+ 13: failing the gradient test
-+ 15: instrument not deployed or operated
-+ 16: acid flush
-+ 99: failing the final visual inspection 
+The data at one minute frequency were tagged with the following quality
+flags
 
-* Despike using oce::despike with n=2, k=5761
+-   1: good data
 
+-   3: failing the date and time test
+
+-   4: data not usable according to manufacturer
+
+-   6: failing the manufacturer range test (not used)
+
+-   7: failing the regional range test
+
+-   12: failing the spike test (NAs from despike)
+
+-   13: failing the gradient test
+
+-   15: instrument not deployed or operated
+
+-   16: acid flush
+
+-   99: failing the final visual inspection
+
+-   Despike using oce::despike with n=2, k=5761
 
 ```{r data availability, echo=FALSE, message= FALSE, warning=FALSE, out.width="80%",fig.show='hold', fig.align="center"}
 d_min <- readRDS(file = paste0(path, "fb_awipev-co2_server/ny-alesund/data/NRT_data/all_nydata_minute.rds")) %>%
@@ -820,12 +906,17 @@ ggsave(filename = "figures/availability.png", plot = p, width = 20, height = 15,
 rm(x, d_min, list=ls(pattern="^d2"))
 ```
 
-
 ## Salinities
-Several salinity sensors are on site, 1 inside the Ferrybox (SBE45) and 5 outside (ctd183, ctd181, ctd578, ctd964/964b and ctd103) that are switched periodically. Salinity from FB is taken in consideration. If data gaps are encountered, they are filled with bottom salinity data from ctd (> 8 m). New column "sal_mix" is created and is the one used in ESSD paper.
 
-+ 1 SBE45 inside the Ferrybox (sal_fb)
-+ 5 CTD > 8 m depth (sal_insitu_ctd)
+Several salinity sensors are on site, 1 inside the Ferrybox (SBE45) and
+5 outside (ctd183, ctd181, ctd578, ctd964/964b and ctd103) that are
+switched periodically. Salinity from FB is taken in consideration. If
+data gaps are encountered, they are filled with bottom salinity data
+from ctd (> 8 m). New column "sal_mix" is created and is the one used in
+ESSD paper.
+
+-   1 SBE45 inside the Ferrybox (sal_fb)
+-   5 CTD > 8 m depth (sal_insitu_ctd)
 
 ```{r Salinity, echo=FALSE, message= FALSE, warning=FALSE, out.width="80%",fig.show='hold', fig.align="center"}
 # SAL FerryBox and sal_mix
@@ -874,30 +965,40 @@ dySeries("sal_insitu_ctd_10m", color = RColorBrewer::brewer.pal(5, "Set1")[5], s
     dyAxis("y",valueRange = c(29, 37)) %>%
       dyRangeSelector(height = 30, dateWindow= NULL)
 
-df <- d_all %>% 
+tmp <- d_all %>% 
   dplyr::select(datetime, sal_insitu_ctd_1m, sal_insitu_ctd_3m, sal_insitu_ctd_5m, sal_insitu_ctd_7m, sal_insitu_ctd_10m) %>%
   dplyr::mutate(date = format(datetime, '%Y-%m-%d')) %>% 
   group_by(date) %>% 
   summarize(mean1m = mean(sal_insitu_ctd_1m, na.rm = TRUE),
             mean10m = mean(sal_insitu_ctd_10m, na.rm = TRUE),
-            range = mean(sal_insitu_ctd_1m, na.rm = TRUE) - mean(sal_insitu_ctd_10m, na.rm = TRUE)) %>% 
+            range_diff = mean(sal_insitu_ctd_1m, na.rm = TRUE) - mean(sal_insitu_ctd_10m, na.rm = TRUE)) %>% 
   ungroup()
 
-p_sal_range <- ggplot(data = df) +
-  geom_histogram((aes(x = range))) +
+p_sal_range <- ggplot(data = tmp) +
+  geom_histogram((aes(x = range_diff))) +
   labs(title = "Daily salinity difference between 1 and 10 m", x = "Difference") +
   Mytheme(size_labs = 8)
-p_sal_range
+print(p_sal_range)
 
-kable(quantile(x = df$range, na.rm = TRUE), digits = 2, col.names = "Sal. unit", caption = "Quantiles salinity gradient between 0-2 m and > 8 m")
+kable(quantile(x = tmp$range_diff, na.rm = TRUE), digits = 2, col.names = "Sal. unit", caption = "Quantiles salinity gradient between 0-2 m and > 8 m")
 rm(sal_xts)
 ```
-Extreme differences: `r dplyr::filter(df, range < -3 | range > 2)`.
-
-There are `r sum(!is.na(df$range))` days with salinity values at both 1 m (0-2 m) and 10 m (8-12 m). The salinity difference between 1 and 10 m ranges between `r min(df$range, na.rm=TRUE)` and `r max(df$range, na.rm=TRUE)` (mean: `r mean(df$range, na.rm=TRUE)`; `r median(df$range, na.rm=TRUE)`). The difference with depth is therefore significant.
 
 
-### **Sal FB / Sal CTD 10 m **
+
+```{r, eval=FALSE, echo=FALSE}
+Extreme differences: `r dplyr::filter(tmp, range_diff < -3 | range_diff > 2)`.
+
+There are `r sum(!is.na(tmp$range_diff))` days with salinity values at both 1 m (0-2 m) and 10 m (8-12 m).
+
+The salinity difference between 1 and 10 m ranges between `r min(tmp$range_diff, na.rm=TRUE)` and `r max(tmp$range_diff, na.rm=TRUE)` (mean: `r mean(tmp$range_diff, na.rm=TRUE)`; `r median(tmp$range_diff, na.rm=TRUE)`). The difference with depth is therefore significant.
+```
+
+
+
+
+
+### **Sal FB / Sal CTD 10 m** 
 
 ```{r Sal comparaison, echo=FALSE, message= FALSE, warning=FALSE, out.width="80%",fig.show='hold', fig.align="center"}
 lm <- lm2(x = d_all$sal_insitu_ctd_10m, y = d_all$sal_fb)
@@ -922,15 +1023,22 @@ mean_diff_sal_fb_insitu_10m <- round(mean(d_all$diff_sal_fb_insitu_10m, na.rm = 
 sd_diff_sal_fb_insitu_10m <- round(sd(d_all$diff_sal_fb_insitu_10m, na.rm = TRUE), digits = 2)
 ```
 
-The mean difference between salinity FB and in situ is: `r mean_diff_sal_fb_insitu_10m` ± `r sd_diff_sal_fb_insitu_10m` PSU.
+The mean difference between salinity FB and in situ is:
+`r mean_diff_sal_fb_insitu_10m` ± `r sd_diff_sal_fb_insitu_10m` PSU.
 
 ## Temperatures
-Several temperature sensors are on site, 1 inside the Ferrybox (SBE45), 5 outside (ctd183, ctd181, ctd578, ctd964/964b and ctd103) that are switched periodically and 1 fixed at 11 m depth (sbe38). 
-Temperature in situ at 11 m depth is taken in consideration. If data gaps are encountered, they are filled with bottom temperature data from ctd (> 8 m). New column "temp_mix" is created. For the moment, no gaps are encountered and temp_mix = temp_insitu_11m.
 
-- 1 SBE45 inside the Ferrybox (temp_fb)
-- 5 CTD profiling (temp_insitu_ctd_1m - 3m - 5m - 7m - 10m)
-- 1 fixed at 11 meters depth (temp_insitu_11m)
+Several temperature sensors are on site, 1 inside the Ferrybox (SBE45),
+5 outside (ctd183, ctd181, ctd578, ctd964/964b and ctd103) that are
+switched periodically and 1 fixed at 11 m depth (sbe38). Temperature in
+situ at 11 m depth is taken in consideration. If data gaps are
+encountered, they are filled with bottom temperature data from ctd (> 8
+m). New column "temp_mix" is created. For the moment, no gaps are
+encountered and temp_mix = temp_insitu_11m.
+
+-   1 SBE45 inside the Ferrybox (temp_fb)
+-   5 CTD profiling (temp_insitu_ctd_1m - 3m - 5m - 7m - 10m)
+-   1 fixed at 11 meters depth (temp_insitu_11m)
 
 ```{r temperature time series, echo=FALSE, message= FALSE, warning=FALSE, out.width="80%",fig.show='hold', fig.align="center"}
 # TEMP Ferrybox SBE45
@@ -955,8 +1063,9 @@ dygraph(temp_insitu_xts, group = "awipev", main="Temperature (in situ 11 m)", yl
       dyRangeSelector(height = 30, dateWindow= NULL)
 rm(temp_fb_xts, temp_insitu_xts)
 ```
-      
+
 ### **Temperature profiles**
+
 ```{r temperature profiles, echo=FALSE, message= FALSE, warning=FALSE, out.width="80%",fig.show='hold', fig.align="center"}
 temp_xts <- dplyr::select(d_all, datetime, temp_insitu_ctd_1m, temp_insitu_ctd_3m, temp_insitu_ctd_5m, temp_insitu_ctd_7m, temp_insitu_ctd_10m)
 temp_xts <- as.xts(temp_xts, order.by = temp_xts$datetime)
@@ -972,7 +1081,7 @@ dyLegend(show = "follow")   %>%
 dyAxis("y",valueRange = c(-2, 10)) %>%
 dyRangeSelector(height = 30, dateWindow= NULL)
 
-df <- d_all %>% 
+tmp <- d_all %>% 
   dplyr::select(datetime, temp_insitu_ctd_1m, temp_insitu_ctd_3m, temp_insitu_ctd_5m, temp_insitu_ctd_7m, temp_insitu_ctd_10m) %>%
   dplyr::mutate(date = format(datetime, '%Y-%m-%d')) %>% 
   group_by(date) %>% 
@@ -982,9 +1091,15 @@ df <- d_all %>%
   ungroup()
 rm(temp_xts)
 ```
-There are `r sum(!is.na(df$range))` days with temperature values at both 1 m (0-2 m) and 9 m (> 8 m). The temperature difference between 1 and 9 m ranges between `r min(df$range, na.rm=TRUE)`°C and `r max(df$range, na.rm=TRUE)`°C (mean: `r mean(df$range, na.rm=TRUE)`°C; `r median(df$range, na.rm=TRUE)`°C). The difference with depth is therefore significant.
 
-### **T Ferrybox / T insitu 11 m **
+There are `r sum(!is.na(tmp$range))` days with temperature values at
+both 1 m (0-2 m) and 9 m (> 8 m). The temperature difference between 1
+and 9 m ranges between `r min(tmp$range, na.rm=TRUE)`°C and
+`r max(tmp$range, na.rm=TRUE)`°C (mean:
+`r mean(tmp$range, na.rm=TRUE)`°C; `r median(tmp$range, na.rm=TRUE)`°C).
+The difference with depth is therefore significant.
+
+### **T Ferrybox / T insitu 11 m** 
 
 ```{r Temp fb insi comparaison, echo=FALSE, message= FALSE, warning=FALSE}
 # Remove temp_fb outliers 
@@ -1021,9 +1136,10 @@ mean_diff_T_fb_11m <- round(mean(d_all$diff_T_fb_11m, na.rm = TRUE), digits = 2)
 sd_diff_T_fb_11m <- round(sd(d_all$diff_T_fb_11m, na.rm = TRUE), digits = 2)
 ```
 
-The mean difference between temperature Ferrybox and in situ at 11 m is: `r mean_diff_T_fb_11m` ± `r sd_diff_T_fb_11m`°C.
+The mean difference between temperature Ferrybox and in situ at 11 m is:
+`r mean_diff_T_fb_11m` ± `r sd_diff_T_fb_11m`°C.
 
-### **T 11 m / T CTD > 8 m **
+### **T 11 m / T CTD \> 8 m** 
 
 ```{r Temp 11m and ctd comparaison, echo=FALSE, message= FALSE, warning=FALSE}
 lm <- lm2(x = d_all$temp_insitu_ctd_10m, y = d_all$temp_insitu_11m)
@@ -1047,18 +1163,24 @@ mean_diff_T_ctd_11m <- round(mean(d_all$diff_T_ctd_11m, na.rm = TRUE), digits = 
 sd_diff_T_ctd_11m <- round(sd(d_all$diff_T_ctd_11m, na.rm = TRUE), digits = 2)
 ```
 
-The mean difference between temperature Ferrybox and in situ at 11 m is: `r mean_diff_T_ctd_11m` ± `r sd_diff_T_ctd_11m`°C.
-
-
+The mean difference between temperature Ferrybox and in situ at 11 m is:
+`r mean_diff_T_ctd_11m` ± `r sd_diff_T_ctd_11m`°C.
 
 ## Total alkalinity
 
-Since we bought the AT analyser (February 2016), numerous problems happened due to a leak of the degassing unit in each analyser and sudden step changes. Last analyser repaired by Contros was installed back in the FB on 2018-07-31. This was the 3rd analyser on site. Even with this instrument, data collection didn't show satisfaction.
+Since we bought the AT analyser (February 2016), numerous problems
+happened due to a leak of the degassing unit in each analyser and sudden
+step changes. Last analyser repaired by Contros was installed back in
+the FB on 2018-07-31. This was the 3rd analyser on site. Even with this
+instrument, data collection didn't show satisfaction.
 
 ### **Discrete total alkalinity (reference) vs salinity relationship**
 
-In the previous part, missing TA were interpolated with a linear model. This does not reflect the natural variability of TA. For this reason, missing TA is now calculated from salinity data by making a relationship between the same reference TA samples as in the previous part and salinity data.
-
+In the previous part, missing TA were interpolated with a linear model.
+This does not reflect the natural variability of TA. For this reason,
+missing TA is now calculated from salinity data by making a relationship
+between the same reference TA samples as in the previous part and
+salinity data.
 
 ```{r Discrete salinity vs TA, echo=FALSE, fig.align="center", message=FALSE, warning=FALSE, out.width="100%"}
 d_all_at_discrete <- d_all %>% #  To remove an outlier in red
@@ -1105,9 +1227,10 @@ ggsave(filename = "figures/p_at_s.png", plot = p_at_s, width = 7, height = 7, un
 d_all$at_calc <- slope_s_at * d_all$sal_mix + intercept_s_at
 ```
 
-
-The relationship between titrated total alkalinity (references) and salinity is very good with an r2 of `r #round(summary(fit)$r.squared, digits=2)`. Need to compare with other relationships from the literature.
-
+The relationship between titrated total alkalinity (references) and
+salinity is very good with an r2 of
+`r #round(summary(fit)$r.squared, digits=2)`. Need to compare with other
+relationships from the literature.
 
 ```{r plot Discrete salinity vs TA, echo=FALSE, warning=FALSE, message=FALSE, out.width="100%", fig.align="center"}
  # PLOT
@@ -1159,42 +1282,83 @@ dygraph(at_contros_calc_xts, group = "awipev", main="TA, calculated from sal_mix
 rm(at_contros_calc_xts)
 ```
 
-There are a lot of outliers in the 4th period (since the new analyzer was set up in Nov. 2018). We use the desplike function to remove them.
+There are a lot of outliers in the 4th period (since the new analyzer
+was set up in Nov. 2018). We use the desplike function to remove them.
 
 <!-- #### **TA since November 2018 (final installation)** -->
+
 <!-- ```{r TA since November 2018, echo=FALSE, warning=FALSE, message=FALSE,out.width='100%',fig.align='hold'} -->
+
 <!--  # select subset of data and remove obvious outliers -->
+
 <!--  at_nov_2018 <- -->
+
 <!--   dplyr::select(d_all, datetime, at_calc, AT, at) %>% -->
+
 <!--   filter(datetime > "2018-11-01", AT > 2250) -->
+
 <!-- #despike -->
+
 <!-- at_nov_2018 <- mutate(at_nov_2018, AT_despike = despike(AT, reference= "median", n=0.5, k=10, replace="NA")) -->
+
 <!-- #plot -->
+
 <!-- at_datetime <- ggplot(data = at_nov_2018, aes(x=datetime)) + -->
+
 <!--   geom_point(aes(y=AT, colour = "before"), size =3) + -->
+
 <!--   geom_point(aes(y=AT_despike, colour = "after"), size = 2) + -->
+
 <!--   labs(x = "Time", y = "Total alkalinity", color = "despike") -->
+
 <!-- print(at_datetime) -->
 
 <!-- at_nov_2018_no_NA <- dplyr::filter(at_nov_2018, at_calc != "NA" & AT_despike != "NA") -->
+
 <!-- titre <- "Contros AT vs Calculated AT" -->
+
 <!--  fit <- lmodel2(data = at_nov_2018_no_NA, AT_despike ~ at_calc, nperm = 99) -->
+
 <!-- ggreg2(fit, x = "at_calc", y = "AT_despike") -->
 
 <!-- ``` -->
 
 ## *p*CO~2~ and *f*CO~2~
-The HydroC CO~2~ FT sensor (S/N: CO2FT-0215-001) was bought from Contros (Germany) in February 2015. It was deployed in the FerryBox with other sensors since July 2015, the 20th. A spare sensor (S/N: CO2FT-0515-001) was also bought in March 2015 and carried to Ny-Alesund to replace the first one in case of calibration or problem. Both sensors were set on a cycle according to informations given by Contros in March 2015 (c.kirbach@contros.eu):
 
-30 min warm up --> (3 min Zeroing + 15 min Flushing + 702 minutes Measuring) --> (3 + 15 + 702)...
+The HydroC CO~2~ FT sensor (S/N: CO2FT-0215-001) was bought from Contros
+(Germany) in February 2015. It was deployed in the FerryBox with other
+sensors since July 2015, the 20th. A spare sensor (S/N: CO2FT-0515-001)
+was also bought in March 2015 and carried to Ny-Alesund to replace the
+first one in case of calibration or problem. Both sensors were set on a
+cycle according to informations given by Contros in March 2015
+([c.kirbach\@contros.eu](mailto:c.kirbach@contros.eu){.email}):
 
-  - **Warm-up**: running without sending data. Done once, after the sensor is turned on. Time can vary depending on T water and power supply.
-  - **Flushing**: running normally. Phase of equilibration that depends on the sensor configuration and the environment conditions. Warmer the water is and larger the flow is in front of the membrane, faster will be the response time and shorter will be the flush time. Recovery data of the sensor signal from the zeroing interval happen in this time. During this step the flush flag is set to “1” for simplifier extraction of the flush values.
-  - **Measuring**: running normally and all other flags are on “0”. Sensor is fully equilibrated and T is stable.
+30 min warm up --> (3 min Zeroing + 15 min Flushing + 702 minutes
+Measuring) --> (3 + 15 + 702)...
 
-During those steps (except zeroing) the sensor runs normally. Equilibration between the gas inside the sensor and the dissolved gas in ambient water takes place. Gas is led to NDIR unit while T control is running.
+-   **Warm-up**: running without sending data. Done once, after the
+    sensor is turned on. Time can vary depending on T water and power
+    supply.
+-   **Flushing**: running normally. Phase of equilibration that depends
+    on the sensor configuration and the environment conditions. Warmer
+    the water is and larger the flow is in front of the membrane, faster
+    will be the response time and shorter will be the flush time.
+    Recovery data of the sensor signal from the zeroing interval happen
+    in this time. During this step the flush flag is set to "1" for
+    simplifier extraction of the flush values.
+-   **Measuring**: running normally and all other flags are on "0".
+    Sensor is fully equilibrated and T is stable.
 
-**Note** that the Contros pCO2 values after 2020-03-01 were not used because the Covid-19 pandemic prevented maintenance and the setup of a freshly calibrated sensor. As the result, algae becalme inceasingly abundant, pulling pCO2 down and further away from values calculated from CT and AT. 
+During those steps (except zeroing) the sensor runs normally.
+Equilibration between the gas inside the sensor and the dissolved gas in
+ambient water takes place. Gas is led to NDIR unit while T control is
+running.
+
+**Note** that the Contros pCO2 values after 2020-03-01 were not used
+because the Covid-19 pandemic prevented maintenance and the setup of a
+freshly calibrated sensor. As the result, algae becalme inceasingly
+abundant, pulling pCO2 down and further away from values calculated from
+CT and AT.
 
 ### **Corrected Contros vs calculated *p*CO~2~ data**
 
@@ -1234,8 +1398,10 @@ set.caption("Difference fco2_fb - fco2_fb_insi_temp")
 pander(summary(d_all$fco2_fb - d_all$fco2_fb_insi_temp))
 ```
 
-We first calculate fCO2 from pCO2 and then express both pCO2 and fCO2 at in situ temperature. Ideally, this should be done with SST as the goal is to estimate air-sea CO2 fluxes. I therefore use the in situ temperature at 11 m and we will need to speculate on stratification.
-
+We first calculate fCO2 from pCO2 and then express both pCO2 and fCO2 at
+in situ temperature. Ideally, this should be done with SST as the goal
+is to estimate air-sea CO2 fluxes. I therefore use the in situ
+temperature at 11 m and we will need to speculate on stratification.
 
 ```{r measured vs calculated pCO2, echo=FALSE, warning=FALSE, message=FALSE, out.width='100%', fig.align="center"}
 title <- "pCO2 normalized at in situ temperature"
@@ -1254,10 +1420,18 @@ p <- reg$plot
 ggsave(filename = "figures/pco2_calc_meas.png", plot = p)
 ```
 
-The relationship between the measured (Contros) and calculated pCO2 (blue line) is relatively poor. It is far from the 1:1 relationship (black dashed line). The slope is `r signif(reg$fit$regression.results[2,3], 3)`) and its 95% confidence interval does include 1; r2 is `r round(reg$fit$rsquare, digits=2)`.
+The relationship between the measured (Contros) and calculated pCO2
+(blue line) is relatively poor. It is far from the 1:1 relationship
+(black dashed line). The slope is
+`r signif(reg$fit$regression.results[2,3], 3)`) and its 95% confidence
+interval does include 1; r2 is `r round(reg$fit$rsquare, digits=2)`.
 
-**Figure legend**: pCO2 calculated from AT and CT as a function of pCO2 measured using a Contros sensor. All data are normalized at in situ temperature. The black dotted line is the 1:1 line while the blue solid line shows the line obtained by a major axis regression (Legendre, 2018- Pierre Legendre (2018). lmodel2: Model II Regression. R package version 1.7-3. https://CRAN.R-project.org/package=lmodel2
-
+**Figure legend**: pCO2 calculated from AT and CT as a function of pCO2
+measured using a Contros sensor. All data are normalized at in situ
+temperature. The black dotted line is the 1:1 line while the blue solid
+line shows the line obtained by a major axis regression (Legendre, 2018-
+Pierre Legendre (2018). lmodel2: Model II Regression. R package version
+1.7-3. <https://CRAN.R-project.org/package=lmodel2>
 
 ```{r plot measured vs calculated pCO2, echo=FALSE, warning=FALSE, message=FALSE, out.width='100%', fig.align="center"}
 print(p$plot)
@@ -1350,22 +1524,47 @@ d_all <- d_all %>%
 
 ## pH seaFET
 
-pH is measured continuously by an autonomous seaFET pH sensor. Measurement periodicity was set to 1 hour from 2018-02-02 to 2018-04-17 it was then measured once every minute. pH calibration is based on monthly, when possible, discrete samples collected at 11 m that were analysed with spectrophotometric method in Villefranche by Samir Alliouane. Measurments were performed several months after sampling. When sampling was not possible in the vicinity of the sensor for practical reasons (in winter), sampling was done in the harbour and is not taken in consideration for calibration for spatial reasons.  *Note that the pH sensor is mounted on a profiling structure. Here, in principle, only seaFET data recorded with a depth > 8 m should be taken into consideration.* 
+pH is measured continuously by an autonomous seaFET pH sensor.
+Measurement periodicity was set to 1 hour from 2018-02-02 to 2018-04-17
+it was then measured once every minute. pH calibration is based on
+monthly, when possible, discrete samples collected at 11 m that were
+analysed with spectrophotometric method in Villefranche by Samir
+Alliouane. Measurments were performed several months after sampling.
+When sampling was not possible in the vicinity of the sensor for
+practical reasons (in winter), sampling was done in the harbour and is
+not taken in consideration for calibration for spatial reasons. *Note
+that the pH sensor is mounted on a profiling structure. Here, in
+principle, only seaFET data recorded with a depth \> 8 m should be taken
+into consideration.*
 
-Calibration was done following the methods and code described in Bresnahan et al. (2014) and adapted to use in R (seacarb package). 3 deployment periods were defined, corresponding to a change of sensors. 
+Calibration was done following the methods and code described in
+Bresnahan et al. (2014) and adapted to use in R (seacarb package). 3
+deployment periods were defined, corresponding to a change of sensors.
 
-Within a deployment period, calibration is made with E0 calculation (first plot) and final corrected pH is calculated (second plot). To allow calibration, one spectrophotometric pH measurement must match: seaFET voltage, in situ temperature (seaFET) and salinity (REMOS CTD). When one of these parameters is missing for any reasons (Ferrybox maintenance, breakdown...), the gap is filled with a mean of the 4 previous or next hours when available. If the pH spectrophotometric measurement is too far from the available values, the calibration is not performed (environemental variability reasons).
+Within a deployment period, calibration is made with E0 calculation
+(first plot) and final corrected pH is calculated (second plot). To
+allow calibration, one spectrophotometric pH measurement must match:
+seaFET voltage, in situ temperature (seaFET) and salinity (REMOS CTD).
+When one of these parameters is missing for any reasons (Ferrybox
+maintenance, breakdown...), the gap is filled with a mean of the 4
+previous or next hours when available. If the pH spectrophotometric
+measurement is too far from the available values, the calibration is not
+performed (environemental variability reasons).
 
-Only 5 spectrophotometric pH which could be used for calibration when seaFET at > 8 m: 2018-11-16, 2019-04-17, 2019-10-11, 2020-01-27. All deployment meriods are covered but we had to alter the sampling time of:
+Only 5 spectrophotometric pH which could be used for calibration when
+seaFET at \> 8 m: 2018-11-16, 2019-04-17, 2019-10-11, 2020-01-27. All
+deployment meriods are covered but we had to alter the sampling time of:
 
-* 2017-08-24 14:00 to 2017-08-24 19:00 (5 h later)
-* 2017-11-28 09:00 to 2017-11-28 13:00 (4 h later)
+-   2017-08-24 14:00 to 2017-08-24 19:00 (5 h later)
+-   2017-11-28 09:00 to 2017-11-28 13:00 (4 h later)
 
-EO is calculated making a mean of several E0 that come from one deployment period (sensor in the water for several months).
+EO is calculated making a mean of several E0 that come from one
+deployment period (sensor in the water for several months).
 
 ### **seaFET calibration constant E0**
 
-Plots of E0int25 and E0ext25 returned by the function "pHCalib" for each period of deployement are shown below.
+Plots of E0int25 and E0ext25 returned by the function "pHCalib" for each
+period of deployement are shown below.
 
 ```{r seaFET calibration preparation, echo=FALSE, message= FALSE, warning=FALSE, out.width= "60%"}
 sfinterv <- as.POSIXct(c("2017-08-24 12:00:00","2018-04-17 12:00:00", "2019-09-02 12:00:00"))
@@ -1693,7 +1892,10 @@ d_all <- d_all %>%
   dplyr::select(order(colnames(d_all)))
 ```
 
-Below are the seafet calibration parameters using all data (irrespective of the depth of the seafet) and with the seafet data collected below 8 m. They are very close but we nevertheless use the calibration data below 8 m (easier to explain in the manuscript).
+Below are the seafet calibration parameters using all data (irrespective
+of the depth of the seafet) and with the seafet data collected below 8
+m. They are very close but we nevertheless use the calibration data
+below 8 m (easier to explain in the manuscript).
 
 ```{r seaFET pH plot sf_calib , echo=FALSE, message= FALSE, warning=FALSE}
 #### plot
@@ -1716,11 +1918,17 @@ kbl(calib_spectro)%>%
     kable_styling(fixed_thead = T)
 ```
 
-
 ### **seaFET pHT calibrated**
-Final calibrated seaFET pHT data (small green dots) are shown here after calibration with spectro measurements (red dots) according to each period of deployement, defined between 2 spectro measurements (shading grey).
 
-We also defined a period of malfunction from **2017-12-14** to **2018-02-02**. in the first part of this period, until 2018-01-08, we decided to filter outliers. In the second part, until the end of the period, data must be removed.
+Final calibrated seaFET pHT data (small green dots) are shown here after
+calibration with spectro measurements (red dots) according to each
+period of deployement, defined between 2 spectro measurements (shading
+grey).
+
+We also defined a period of malfunction from **2017-12-14** to
+**2018-02-02**. in the first part of this period, until 2018-01-08, we
+decided to filter outliers. In the second part, until the end of the
+period, data must be removed.
 
 ```{r seaFET pH calculation sf_calc all, echo=FALSE, message= FALSE, warning=FALSE}
 #### calculation of the calibrated pH with all data irrespective of the depth of the REMOS ####
@@ -1734,19 +1942,19 @@ d_all <- d_all %>%
   )
 # split by depth
 d_all <- d_all %>%
-  dplyr::mutate(pHint_tot_sf_all_1m = ifelse(depth > 0 & depth < 2, pHint_tot_sf_all, NA),
-                pHint_tot_sf_all_3m = ifelse(depth >= 2 & depth < 4, pHint_tot_sf_all, NA),
-                pHint_tot_sf_all_5m = ifelse(depth >= 4 & depth < 6, pHint_tot_sf_all, NA),
-                pHint_tot_sf_all_7m = ifelse(depth >= 6 & depth < 8, pHint_tot_sf_all, NA),
-                pHint_tot_sf_all_10m = ifelse(depth >= 8 , pHint_tot_sf_all, NA),
-                depth_discrete = case_when(
-                  !is.na(pHint_tot_sf_all_1m) ~ 1,
-                  !is.na(pHint_tot_sf_all_3m) ~ 3,
-                  !is.na(pHint_tot_sf_all_5m) ~ 5,
-                  !is.na(pHint_tot_sf_all_7m) ~ 7,
-                  !is.na(pHint_tot_sf_all_10m) ~ 10
-                  ),
-                depth_discrete = as.factor(depth_discrete)
+  dplyr::mutate(pHint_tot_sf_all_1m = ifelse(depth_group == '0-2', pHint_tot_sf_all, NA),
+                pHint_tot_sf_all_3m = ifelse(depth_group == '2-4', pHint_tot_sf_all, NA),
+                pHint_tot_sf_all_5m = ifelse(depth_group == '4-6', pHint_tot_sf_all, NA),
+                pHint_tot_sf_all_7m = ifelse(depth_group == '6-8', pHint_tot_sf_all, NA),
+                pHint_tot_sf_all_10m = ifelse(depth_group == '>8',  pHint_tot_sf_all, NA),
+                # depth_discrete = case_when(
+                #   !is.na(pHint_tot_sf_all_1m) ~ 1,
+                #   !is.na(pHint_tot_sf_all_3m) ~ 3,
+                #   !is.na(pHint_tot_sf_all_5m) ~ 5,
+                #   !is.na(pHint_tot_sf_all_7m) ~ 7,
+                #   !is.na(pHint_tot_sf_all_10m) ~ 10
+                #   ),
+                # depth_discrete = as.factor(depth_discrete)
                 )
 d_all <- d_all %>% 
   dplyr::select(order(colnames(d_all)))
@@ -1789,19 +1997,19 @@ d_all <- d_all %>%
 
 # split by depth
 d_all <- d_all %>%
-  dplyr::mutate(pHint_tot_sf_10m_1m = ifelse(depth > 0 & depth < 2, pHint_tot_sf_10m, NA),
-                pHint_tot_sf_10m_3m = ifelse(depth >= 2 & depth < 4, pHint_tot_sf_10m, NA),
-                pHint_tot_sf_10m_5m = ifelse(depth >= 4 & depth < 6, pHint_tot_sf_10m, NA),
-                pHint_tot_sf_10m_7m = ifelse(depth >= 6 & depth < 8, pHint_tot_sf_10m, NA),
-                pHint_tot_sf_10m_10m = ifelse(depth >= 8 , pHint_tot_sf_10m, NA),
-                depth_discrete = case_when(
-                  !is.na(pHint_tot_sf_10m_1m) ~ 1,
-                  !is.na(pHint_tot_sf_10m_3m) ~ 3,
-                  !is.na(pHint_tot_sf_10m_5m) ~ 5,
-                  !is.na(pHint_tot_sf_10m_7m) ~ 7,
-                  !is.na(pHint_tot_sf_10m_10m) ~ 10
-                  ),
-                depth_discrete = as.factor(depth_discrete)
+  dplyr::mutate(pHint_tot_sf_10m_1m = ifelse(depth_group == '0-2', pHint_tot_sf_10m, NA),
+                pHint_tot_sf_10m_3m = ifelse(depth_group == '2-4', pHint_tot_sf_10m, NA),
+                pHint_tot_sf_10m_5m = ifelse(depth_group == '4-6', pHint_tot_sf_10m, NA),
+                pHint_tot_sf_10m_7m = ifelse(depth_group == '6-8', pHint_tot_sf_10m, NA),
+                pHint_tot_sf_10m_10m = ifelse(depth_group == '>8', pHint_tot_sf_10m, NA)#,
+                # depth_discrete = case_when(
+                #   !is.na(pHint_tot_sf_10m_1m) ~ 1,
+                #   !is.na(pHint_tot_sf_10m_3m) ~ 3,
+                #   !is.na(pHint_tot_sf_10m_5m) ~ 5,
+                #   !is.na(pHint_tot_sf_10m_7m) ~ 7,
+                #   !is.na(pHint_tot_sf_10m_10m) ~ 10
+                #   ),
+                # depth_discrete = as.factor(depth_discrete)
                 )
 d_all <- d_all %>% 
   dplyr::select(order(colnames(d_all)))
@@ -1832,9 +2040,12 @@ rm(seafet_depth_xts)
 
 Quality control plots :
 
-- Offset between calibrated seaFET data and pH spectro. The offset must fit between -0.2/0.2 pH units.
+-   Offset between calibrated seaFET data and pH spectro. The offset
+    must fit between -0.2/0.2 pH units.
 
-“differences between calibrated sensor pH values and values obtained from discrete, check samples can be expected to be as small as 0.02 pH units, and perhaps less.” (McLaughlin et al. 2017).
+"differences between calibrated sensor pH values and values obtained
+from discrete, check samples can be expected to be as small as 0.02 pH
+units, and perhaps less." (McLaughlin et al. 2017).
 
 ```{r seaFET quality control pH 1, echo=FALSE, warning = FALSE, message = FALSE, out.width='100%'}
 #Offset between seafet pH and spec pH (Fig. 2 Kapsenberg et al.)
@@ -1887,7 +2098,10 @@ dyOptions(
 #   dyRangeSelector(height = 30, dateWindow= c("2017-10-21 00:00:00", "2021-01-11 00:00:00"))
 ```
 
-From now on, one uses seaFET pH from the internal electrode calibrated with spec pH and seaFET data when the REMOS was below 8 m (pHint_tot_sf_10m). This unique pH variable is called pHint_tot_sf. All other pH variables are cleaned up
+From now on, one uses seaFET pH from the internal electrode calibrated
+with spec pH and seaFET data when the REMOS was below 8 m
+(pHint_tot_sf_10m). This unique pH variable is called pHint_tot_sf. All
+other pH variables are cleaned up
 
 ```{r seafet clean up, echo=FALSE, message= FALSE, warning=FALSE, out.width="80%",fig.show='hold', fig.align="center"}
 d_all <- d_all %>%
@@ -1900,65 +2114,74 @@ d_all <- d_all %>%
     pHint_tot_sf_7m = pHint_tot_sf_10m_7m
   ) %>% 
     dplyr::select(-starts_with(c(
-    "pHint_tot_sf_", "pHext_", "pHint_tot_sf_all"
+    "pHint_tot_sf_10m_", "pHext_", "pHint_tot_sf_all"
   )))
 
 ```
+
 ### **seaFET pH profiles**
 
 ```{r seafet profiles, echo=FALSE, message= FALSE, warning=FALSE, out.width="80%",fig.show='hold', fig.align="center"}
 
 # we look at all depths
 tmp <- d_all %>% 
-  dplyr::select(year, montht, pHint_tot_sf, depth_discrete) %>%
-  tidyr::drop_na(pHint_tot_sf, depth_discrete) %>%
-  dplyr::group_by(depth_discrete, year, montht)
-summary(aov(tmp$pHint_tot_sf ~ tmp$depth_discrete * tmp$montht))
-
-# remove outliers
-quantile(tmp$pHint_tot_sf, na.rm =TRUE, probs = c(0.01, 0.99))
-
+  dplyr::select(year, montht, pHint_tot_sf, depth_group) %>%
+  tidyr::drop_na(pHint_tot_sf, depth_group) %>%
+  dplyr::group_by(depth_group, year, montht)
+summary(aov(tmp$pHint_tot_sf ~ tmp$depth_group * tmp$montht))
 p <- tmp %>%
-  ggplot(aes(x=depth_discrete, y = pHint_tot_sf)) +
+  ggplot(aes(x = depth_group, y = pHint_tot_sf)) +
   geom_boxplot(notch=FALSE, size=0.2, fill="grey50", outlier.color = "blue", outlier.size = 0.3, coef = 1.5) +
-  labs(title = "pHT", x = "Depth (m)", y= "pHT") +
-  lims(y = c(7.4, 8.3)) +
+  labs(title = "pHT", x = "Depth (m)", y= "pHT seaFET at in situ temperature") +
+#  lims(y = c(7.4, 8.3)) +
   coord_cartesian() +
   facet_wrap(vars(montht), scale = "fixed")
 print(p)
 
-pp <- tmp %>%
-  ggplot(aes(x=depth_discrete, y = pHint_tot_sf)) +
-  stat_boxplot(notch=FALSE, size=0.2, fill="grey50", outlier.color = "blue", outlier.size = 0.3, coef = 3)
-
 # we look at 0 to 4 m vs more than 8 m
 tmp <- d_all %>% 
   dplyr::select(montht, pHint_tot_sf, depth) %>%
-  dplyr::mutate(depth2 = as.factor(case_when(depth < 4 ~ '0-4', 
-                                             depth > 8~ '8-12',
-                                             TRUE ~ NA_real_))) %>% 
-  dplyr::filter(depth2 == '0-2' | depth2 == '8-12') %>% 
+  dplyr::mutate(depth2 = as.factor(dplyr::case_when(depth < 4 ~ '0-4', 
+                                             depth > 8 ~ '8-12'))) %>% 
+  dplyr::filter(depth2 == '0-4' | depth2 == '8-12') %>% 
   dplyr::group_by(depth2, montht)
 summary(aov(tmp$pHint_tot_sf ~ tmp$depth2 * tmp$montht))
 
 p <- tmp %>% 
-  ggplot(aes(x=as.factor(depth), y = pHint_tot_sf)) +
+  ggplot(aes(x=as.factor(depth2), y = pHint_tot_sf)) +
   geom_boxplot(notch=FALSE, size=0.2, fill="grey50", outlier.color = "blue", outlier.size = 0.3) +
-  labs(title = "pHT", x = "Depth (m)", y= "pHT") +
+  labs(title = "pHT", x = "Depth (m)", y= "pHT seaFET at in situ temperature") +
   facet_wrap(vars(montht), scale = "free_y")
 print(p)
+
+# we look at 0 to 4 m vs more than 8 m but pH at 4°C
+
+
 ```
-**Conclusion**:
-The range is significantly larger during some months when the data deeper than 8 m are considered. Also, pH is sometimes higher at the surface, at other times it is higher on the bottom (June). No data are available at 1 m (actually 0 to 2 m). So, to compare surface and bottom, I combine 1 and 3 m (0 to 4 m) and 9 m (below 8 m).
 
-Depth and month of the year have a statistically significant effect on pH. The interaction is also significant, indicating that the effect of depth differs depending on the month.
+**Conclusion**: The range is significantly larger during some months
+when the data deeper than 8 m are considered. Also, pH is sometimes
+higher at the surface, at other times it is higher on the bottom (June).
+No data are available at 1 m (actually 0 to 2 m). So, to compare surface
+and bottom, I combine 1 and 3 m (0 to 4 m) and 9 m (below 8 m).
 
- + To compare with pCO2/pCO2 measured in the Ferrybox seems therefore better to stick with pH_10m, that is at depths deeper than 8 m.
-  + pCO2 would have the same behaviour as pH. For air-sea CO2 fluxes, one should use data from 0 to 4 m.
+Depth and month of the year have a statistically significant effect on
+pH. The interaction is also significant, indicating that the effect of
+depth differs depending on the month.
+
+-   To compare with pCO2/pCO2 measured in the Ferrybox seems therefore
+    better to stick with pH_10m, that is at depths deeper than 8 m.
+-   pCO2 would have the same behaviour as pH. For air-sea CO2 fluxes,
+    one should use data from 0 to 4 m.
 
 ## pH durafet
 
-pH is measured continuously by an autonomous durafet pH sensor. Final calibrated durafet pHT data (green doibb) are shown here after calibration with spectro measurements (red dots) according to each period of deployement, defined between 2 spectro measurements (shading grey). Calibration was done appliying an offset of pH between measured and spectro data per periods.
+pH is measured continuously by an autonomous durafet pH sensor. Final
+calibrated durafet pHT data (green doibb) are shown here after
+calibration with spectro measurements (red dots) according to each
+period of deployement, defined between 2 spectro measurements (shading
+grey). Calibration was done appliying an offset of pH between measured
+and spectro data per periods.
 
 ### **Durafet calibration**
 
@@ -2172,7 +2395,9 @@ print(p) # plot_range_dur
 rm(durafet_contros_xts)
 ```
 
-The average offset between durafet and references (spectro) data is `r average_offset_dur` pH unit (sd = `r sd_offset_dur`, n = `r n_offset_dur`).
+The average offset between durafet and references (spectro) data is
+`r average_offset_dur` pH unit (sd = `r sd_offset_dur`, n =
+`r n_offset_dur`).
 
 ## Range per months
 
@@ -2194,8 +2419,13 @@ range_month <-
 kable(range_month, caption = "")
 ```
 
-## pHs 
-Comparaison is done here with **corrected pHs** (**seaFET**, **durafet** and **calculated** (from AT/CT)) and normalized at 4°C with a total alkalinity of `r mean(d_all$at, na.rm=TRUE)` µmoles kg-1 (mean data). For information, mean temperatures in Ferrybox and *in situ* are repectively 3.5°C and 2.5°C.
+## pHs
+
+Comparaison is done here with **corrected pHs** (**seaFET**, **durafet**
+and **calculated** (from AT/CT)) and normalized at 4°C with a total
+alkalinity of `r mean(d_all$at, na.rm=TRUE)` µmoles kg-1 (mean data).
+For information, mean temperatures in Ferrybox and *in situ* are
+repectively 3.5°C and 2.5°C.
 
 ### **seaFET / durafet pHs (all at 9 m)**
 
@@ -2243,6 +2473,7 @@ rm(durafet_sf_contros_xts, pdur_sf_norm_text)
 ```
 
 ### **Calculated / Durafet pHs**
+
 ```{r pHs comparaison dur calc, echo=FALSE, message= FALSE, warning=FALSE}
 # Normalize ph_calc from AT/CT to 4°c
 pH_calc <- discrete %>%
@@ -2267,6 +2498,7 @@ rm(durafet_calc_contros_xts)
 ```
 
 ### **Calculated / seaFET pHs**
+
 ```{r pHs comparaison sf calc, echo=FALSE, message= FALSE, warning=FALSE}
 seafet_calc_contros_xts <- dplyr::select(d_all, datetime, pHint_tot_sf_temp_4, pH_calc_fb_temp_4)
 seafet_calc_contros_xts <- as.xts(seafet_calc_contros_xts, order.by = d_all$datetime)
@@ -2328,26 +2560,55 @@ p
 ```
 
 ## SNAPO-CO2
-Since November 2018, informations on weekly Ferrybox and monthly durafet/seaFET samplings are collected in a online document that can be consulted at anytime:
 
-[weekly and monthly samplings](https://docs.google.com/spreadsheets/d/1bNh9q4bkNoh2ra78XC451EmGb9Q8kMf4ByBnKngeHOg/edit?usp=sharing) 
+Since November 2018, informations on weekly Ferrybox and monthly
+durafet/seaFET samplings are collected in a online document that can be
+consulted at anytime:
 
-We found that some analysed discrete seawater replicates for AT/CT, performed by SNAPO in Paris sometimes show a large difference between duplicates. Arbitrarily, we decided to take in consideration replicates with a standard deviation smaller than 10 µmoles.kg-1. In the other case (greater than 10 µmoles.kg-1), the closest replicate from the general trend will be kept with qflag_at/qflag_ct of 2 (correct analysis) and the farthest one will be rejected with a flag of 1. There are exceptions when it is difficult to decide which of the replicates need to be eliminated.
+[weekly and monthly
+samplings](https://docs.google.com/spreadsheets/d/1bNh9q4bkNoh2ra78XC451EmGb9Q8kMf4ByBnKngeHOg/edit?usp=sharing)
 
-For TA, dulpicates's flags that have been changed from 2 (good) to 1 (not good) are:
+We found that some analysed discrete seawater replicates for AT/CT,
+performed by SNAPO in Paris sometimes show a large difference between
+duplicates. Arbitrarily, we decided to take in consideration replicates
+with a standard deviation smaller than 10 µmoles.kg-1. In the other case
+(greater than 10 µmoles.kg-1), the closest replicate from the general
+trend will be kept with qflag_at/qflag_ct of 2 (correct analysis) and
+the farthest one will be rejected with a flag of 1. There are exceptions
+when it is difficult to decide which of the replicates need to be
+eliminated.
 
-2015-11-18
-, 2016-07-28, 2016-09-29, 2016-11-17, 2016-11-23, 2016-12-29, 2017-01-19, 2017-05-04, 2017-08-31, 2018-04-26, 2018-05-04, 2018-05-16, 2018-05-25, 2018-06-22, 2018-06-30, 2018-07-27, 2018-07-20, 2018-08-03, 2018-08-10, 2018-08-24, 2018-08-31, 2018-09-07, 2018-09-14, 2018-09-21, 2018-09-28, 2018-10-05, 2018-10-12, 2018-10-19, 2018-10-26, 2018-11-02, 2018-11-09, 2018-11-16, 2018-11-23, 2019-08-23, 2019-09-20, 2019-11-08, 2019-11-23,2020-02-14 (2 replicates out of 5), 2020-05-29, 2020-06-06 (2 replicates out of 6), 2020-07-03.
+For TA, dulpicates's flags that have been changed from 2 (good) to 1
+(not good) are:
 
-For CT, duplicates's flags that have been changed from 2 (good) to 1 (not good) are:
+2015-11-18 , 2016-07-28, 2016-09-29, 2016-11-17, 2016-11-23, 2016-12-29,
+2017-01-19, 2017-05-04, 2017-08-31, 2018-04-26, 2018-05-04, 2018-05-16,
+2018-05-25, 2018-06-22, 2018-06-30, 2018-07-27, 2018-07-20, 2018-08-03,
+2018-08-10, 2018-08-24, 2018-08-31, 2018-09-07, 2018-09-14, 2018-09-21,
+2018-09-28, 2018-10-05, 2018-10-12, 2018-10-19, 2018-10-26, 2018-11-02,
+2018-11-09, 2018-11-16, 2018-11-23, 2019-08-23, 2019-09-20, 2019-11-08,
+2019-11-23,2020-02-14 (2 replicates out of 5), 2020-05-29, 2020-06-06 (2
+replicates out of 6), 2020-07-03.
 
-2015-08-06, 2015-08-13, 2016-05-12, 2016-05-19, 2016-06-16, 2016-07-28, 2016-09-08, 2016-10-27, 2016-11-17, 2017-01-19, 2017-03-02, 2017-04-27, 2017-09-14, 2018-04-26, 2018-05-04, 2018-05-12, 2018-05-25, 2018-06-30, 2018-07-20, 2018-08-03, 2018-08-31, 2018-09-07, 2018-09-14, 2018-09-28, 2018-10-05, 2018-10-12, 2018-10-19, 2018-10-26, 2018-11-02, 2018-11-09, 2018-11-16, 2018-11-23, 2019-05-03, 2019-05-10, 2019-08-23, 2020-02-08, 2020-07-17, 2020-11-20.
+For CT, duplicates's flags that have been changed from 2 (good) to 1
+(not good) are:
 
-Also in the Discrete_sampling_AWIPEV.csv, some analysed samples have been flaged "3" by the SNAPO. After a close look, these samples are not differents from their duplicates. Then we put the flag to "2" (good result).
+2015-08-06, 2015-08-13, 2016-05-12, 2016-05-19, 2016-06-16, 2016-07-28,
+2016-09-08, 2016-10-27, 2016-11-17, 2017-01-19, 2017-03-02, 2017-04-27,
+2017-09-14, 2018-04-26, 2018-05-04, 2018-05-12, 2018-05-25, 2018-06-30,
+2018-07-20, 2018-08-03, 2018-08-31, 2018-09-07, 2018-09-14, 2018-09-28,
+2018-10-05, 2018-10-12, 2018-10-19, 2018-10-26, 2018-11-02, 2018-11-09,
+2018-11-16, 2018-11-23, 2019-05-03, 2019-05-10, 2019-08-23, 2020-02-08,
+2020-07-17, 2020-11-20.
 
-For TA and CT, samples's flags that have been changed from 3 to 2 are: 2019-12-27 (2264 and 2130), 2019-10-25 (2332 and 2152), 2019-09-06 (2268 and 2116).
+Also in the Discrete_sampling_AWIPEV.csv, some analysed samples have
+been flaged "3" by the SNAPO. After a close look, these samples are not
+differents from their duplicates. Then we put the flag to "2" (good
+result).
 
-
+For TA and CT, samples's flags that have been changed from 3 to 2 are:
+2019-12-27 (2264 and 2130), 2019-10-25 (2332 and 2152), 2019-09-06 (2268
+and 2116).
 
 ```{r SNAPO, echo=FALSE, message= FALSE, warning=FALSE}
 # use the df at_ct for mean and sd
@@ -2456,7 +2717,8 @@ p_ct_ts
 rm(at_diff_xts, ct_diff_xts)
 ```
 
-## Nutrients   {.tabset .tabset-pills}
+## Nutrients {.tabset .tabset-pills}
+
 ```{r impact of nutrients, echo=FALSE, warning=FALSE, message=FALSE}
 # boxplot
 ts_po4_bp <- d_all %>%
@@ -2531,29 +2793,60 @@ nuts_table <- bind_rows(diff_po4_0a, diff_Si_0a, diff_po4_0b, diff_Si_0b, diff_m
   dplyr::select(flag, nutrients, pH, pCO2, DIC, OmegaAragonite)
 rm(ts_po4_bp, ts_Si_bp)
 ```
+
 `r knitr::kable(nuts_table, digits = c(1, 1, 4, 2, 7, 3), caption = "Impact of PO4 and Si.", format = "simple")`
 
-The concentration of po4 and si varies with a factor 10 along a composite year. The ranges are respectively, `r round(range(d_all$po4, na.rm = TRUE), digits = 2)` for po4 and `r round(range(d_all$si, na.rm = TRUE), digits = 2)` for si. 
+The concentration of po4 and si varies with a factor 10 along a
+composite year. The ranges are respectively,
+`r round(range(d_all$po4, na.rm = TRUE), digits = 2)` for po4 and
+`r round(range(d_all$si, na.rm = TRUE), digits = 2)` for si.
 
 ### Using the pCO2-AT pair (hourly data)
-The difference between no PO4 and its maximum value on pH, DIC, and Omega_a are small:  `r round(1000*diff_po4_0a$pH, digits=2)` mpH units, `r round(1e6*diff_po4_0a$DIC, digits=2)` umol/kg for CT and `r round(diff_po4_0a$OmegaAragonite, digits=2)` for OmegaAragonite.
 
-The impact of the min max changes of po4 on pH, DIC, and Omega_a are small:  `r round(1000*diff_po4_1a$pH, digits=2)` mpH units, `r round(1e6*diff_po4_1a$DIC, digits=2)` umol/kg for CT and `r round(diff_po4_1a$OmegaAragonite, digits=2)` for OmegaAragonite.
+The difference between no PO4 and its maximum value on pH, DIC, and
+Omega_a are small: `r round(1000*diff_po4_0a$pH, digits=2)` mpH units,
+`r round(1e6*diff_po4_0a$DIC, digits=2)` umol/kg for CT and
+`r round(diff_po4_0a$OmegaAragonite, digits=2)` for OmegaAragonite.
 
-The difference between no Si and its maximum value on pH, DIC, and Omega_a are small:  `r round(1000*diff_Si_0a$pH, digits=2)` mpH units, `r round(1e6*diff_Si_0a$DIC, digits=2)` umol/kg for CT and `r round(diff_Si_0a$OmegaAragonite, digits=2)` for OmegaAragonite.
+The impact of the min max changes of po4 on pH, DIC, and Omega_a are
+small: `r round(1000*diff_po4_1a$pH, digits=2)` mpH units,
+`r round(1e6*diff_po4_1a$DIC, digits=2)` umol/kg for CT and
+`r round(diff_po4_1a$OmegaAragonite, digits=2)` for OmegaAragonite.
 
-The impact of the min max changes of si on pH, DIC, and Omega_a are small:  `r round(1000*diff_Si_1a$pH, digits=2)` mpH units, `r round(1e6*diff_Si_1a$DIC, digits=2)` umol/kg for CT and `r round(diff_Si_1a$OmegaAragonite, digits=2)` for OmegaAragonite.
+The difference between no Si and its maximum value on pH, DIC, and
+Omega_a are small: `r round(1000*diff_Si_0a$pH, digits=2)` mpH units,
+`r round(1e6*diff_Si_0a$DIC, digits=2)` umol/kg for CT and
+`r round(diff_Si_0a$OmegaAragonite, digits=2)` for OmegaAragonite.
+
+The impact of the min max changes of si on pH, DIC, and Omega_a are
+small: `r round(1000*diff_Si_1a$pH, digits=2)` mpH units,
+`r round(1e6*diff_Si_1a$DIC, digits=2)` umol/kg for CT and
+`r round(diff_Si_1a$OmegaAragonite, digits=2)` for OmegaAragonite.
 
 ### Using the CT-AT pair (discrete data)
-The difference between no PO4 and its maximum value on pH, pCO2, and Omega_a are small:  `r round(1000*diff_po4_0b$pH, digits=2)` mpH units, `r round(diff_po4_0b$pCO2, digits=2)` uatm for pCO2 and `r round(diff_po4_0b$OmegaAragonite, digits=2)` for OmegaAragonite.
 
-The impact of the min max changes of po4 on pH, pCO2, and Omega_a are small:  `r round(1000*diff_po4_1b$pH, digits=2)` mpH units, `r round(diff_po4_1b$pCO2, digits=2)` uatm for pCO2 and `r round(diff_po4_1b$OmegaAragonite, digits=2)` for OmegaAragonite.
+The difference between no PO4 and its maximum value on pH, pCO2, and
+Omega_a are small: `r round(1000*diff_po4_0b$pH, digits=2)` mpH units,
+`r round(diff_po4_0b$pCO2, digits=2)` uatm for pCO2 and
+`r round(diff_po4_0b$OmegaAragonite, digits=2)` for OmegaAragonite.
 
-The difference between no Si and its maximum value on pH, pCO2, and Omega_a are small:  `r round(1000*diff_Si_0b$pH, digits=2)` mpH units, `r round(diff_Si_0b$pCO2, digits=2)` uatm for pCO2 and `r round(diff_Si_0b$OmegaAragonite, digits=2)` for OmegaAragonite.
+The impact of the min max changes of po4 on pH, pCO2, and Omega_a are
+small: `r round(1000*diff_po4_1b$pH, digits=2)` mpH units,
+`r round(diff_po4_1b$pCO2, digits=2)` uatm for pCO2 and
+`r round(diff_po4_1b$OmegaAragonite, digits=2)` for OmegaAragonite.
 
-The impact of the min max changes of Si on pH, pCO2, and Omega_a are small:  `r round(1000*diff_Si_1b$pH, digits=2)` mpH units, `r round(diff_Si_1b$pCO2, digits=2)` uatm for pCO2 and `r round(diff_Si_1b$OmegaAragonite, digits=2)` for OmegaAragonite.
+The difference between no Si and its maximum value on pH, pCO2, and
+Omega_a are small: `r round(1000*diff_Si_0b$pH, digits=2)` mpH units,
+`r round(diff_Si_0b$pCO2, digits=2)` uatm for pCO2 and
+`r round(diff_Si_0b$OmegaAragonite, digits=2)` for OmegaAragonite.
 
-## K1K2  {.tabset .tabset-pills}
+The impact of the min max changes of Si on pH, pCO2, and Omega_a are
+small: `r round(1000*diff_Si_1b$pH, digits=2)` mpH units,
+`r round(diff_Si_1b$pCO2, digits=2)` uatm for pCO2 and
+`r round(diff_Si_1b$OmegaAragonite, digits=2)` for OmegaAragonite.
+
+## K1K2 {.tabset .tabset-pills}
+
 ```{r impact of constants discrete, echo=FALSE, warning=FALSE, message=FALSE}
 # Compare Lueker and Sulpis using mean discrete values
 # first, order columns
@@ -2608,6 +2901,7 @@ const_choice <- bind_rows(diff_ls_1, diff_ls_2) %>%
 ```
 
 ### K1K2 using pCO2 and AT
+
 ```{r impact of constants using FerryBox pCO2 and at, echo=FALSE, warning=FALSE, message=FALSE}
 tmp <- d_all %>% 
   tidyr::drop_na(ph_s_dur_temp_fb, pco2_fb, at, sal_fb, temp_fb) %>% 
@@ -2731,27 +3025,52 @@ k1k2_pco2_at <- list(mean_discrete = mean_discrete, const_choice = const_choice,
              diff_ls_quant = diff_ls_quant)
 save(k1k2_pco2_at, file="reports/k1k2_pco2_at.RData")
 ```
+
 #### Difference Lueker vs Sulpis
+
 Using the following using mean discrete values:
 `r knitr::kable(mean_discrete, digits = c(1, 1, 0, 1, 1), caption = "Mean discrete values.", format = "simple")`
 
 The differences are:
 `r knitr::kable(const_choice, digits = c(0, 3, 1, 1, 3, 3, 1, 1, 1), caption = "Lueker minus Sulpis. e indicates typical errors estimated with seacarb.", format = "simple")`
 
-The discrete values of pCO2, AT, salinity and temperature in the FerryBox were used to calculate pH using the formulations for K1 and K2 of Lueker et al. (2000) and Sulpis et al. (2020). The differences induced by the choice of the carbonic acid constants are:
+The discrete values of pCO2, AT, salinity and temperature in the
+FerryBox were used to calculate pH using the formulations for K1 and K2
+of Lueker et al. (2000) and Sulpis et al. (2020). The differences
+induced by the choice of the carbonic acid constants are:
 
-- large for pH (`r round(diff_ls_quant[4, 2], digits = 3)` pH units on average; ; median is `r round(diff_ls_quant[3, 2], digits = 3)`) compared with the uncertainty calculated with seacarb (`r round(const_choice[1, 6], digits = 3)`). In general, pH is higher with Sulpis than with Lueker.
-- small for CT (`r round(diff_ls_quant[4, 3], digits = 1)` umol/kg on average; always lower with Sulpis than with Lueker) compared with the uncertainty calculated with seacarb (`r round(const_choice[1, 8], digits = 1)`)
-- negligible for OmegaAragonite
+-   large for pH (`r round(diff_ls_quant[4, 2], digits = 3)` pH units on
+    average; ; median is `r round(diff_ls_quant[3, 2], digits = 3)`)
+    compared with the uncertainty calculated with seacarb
+    (`r round(const_choice[1, 6], digits = 3)`). In general, pH is
+    higher with Sulpis than with Lueker.
+-   small for CT (`r round(diff_ls_quant[4, 3], digits = 1)` umol/kg on
+    average; always lower with Sulpis than with Lueker) compared with
+    the uncertainty calculated with seacarb
+    (`r round(const_choice[1, 8], digits = 1)`)
+-   negligible for OmegaAragonite
 
 #### Difference between all formulations and measured pH
+
 `r knitr::kable(diff_ls_quant, digits = c(0, rep(3, 5)), caption = "Lueker minus Sulpis using discrete Ferrybox data.", format = "simple")`
 
-Here we compare pH measured spectrophotometrically with pH calculated from pCO2 and AT using various formulations of K1 and K2. All pH values were normalized to a temperature of 4°C. The absolute differences are generally large, up to `r round(max(abs(diff_table_pco2_at[, 2:5])), digits=3)` pH units. In general, all formulations overestimate spectrophotometric pH. pH calculated using the formulation of Papadimitriou et al. (2018) is closer to measured pH, with a mean difference of `r round(diff_table_pco2_at[4, 4], digits=3)` pH units. This difference is `r abs(round(diff_table_pco2_at[4, 4]/errors_pco2_at$pH, digits=1))` times larger than the uncertainty for pH calculated from pCO2 and AT according to seacarb (`r round(errors_pco2_at$pH, digits=3)`).
+Here we compare pH measured spectrophotometrically with pH calculated
+from pCO2 and AT using various formulations of K1 and K2. All pH values
+were normalized to a temperature of 4°C. The absolute differences are
+generally large, up to
+`r round(max(abs(diff_table_pco2_at[, 2:5])), digits=3)` pH units. In
+general, all formulations overestimate spectrophotometric pH. pH
+calculated using the formulation of Papadimitriou et al. (2018) is
+closer to measured pH, with a mean difference of
+`r round(diff_table_pco2_at[4, 4], digits=3)` pH units. This difference
+is `r abs(round(diff_table_pco2_at[4, 4]/errors_pco2_at$pH, digits=1))`
+times larger than the uncertainty for pH calculated from pCO2 and AT
+according to seacarb (`r round(errors_pco2_at$pH, digits=3)`).
 `r knitr::kable(diff_table_pco2_at, digits = 3, caption = "Difference between spectrophotometric pH and pH calculated with pCO2 and AT using different formulations for K1 and K2.", format = "simple")`
 `r include_graphics("figures/k1k2_all_pco2_at.png")`
 
 ### K1K2 using CT and AT
+
 ```{r impact of constants using FerryBox ct and at, echo=FALSE, warning=FALSE, message=FALSE}
 tmp <- d_all %>% 
   tidyr::drop_na(ph_s_dur_temp_fb, ct, at, sal_fb, temp_fb) %>% 
@@ -2870,7 +3189,9 @@ k1k2_at_ct <- list(errors_at_ct = errors_at_ct,
                    diff_table_at_ct = diff_table_at_ct)
 save(k1k2_at_ct, file="reports/k1k2_at_ct.RData")
 ```
+
 #### Difference Lueker vs Sulpis
+
 Using the following using mean discrete values:
 `r knitr::kable(mean_discrete, digits = c(1, 1, 0, 1, 1), caption = "Mean discrete values.", format = "simple")`
 
@@ -2878,12 +3199,27 @@ The differences are:
 `r knitr::kable(const_choice, digits = c(0, 3, 1, 1, 3, 3, 1, 1, 1), caption = "Lueker minus Sulpis. e indicates typical errors estimated with seacarb.", format = "simple")`
 
 #### Difference between all formulations and measured pH
+
 `r knitr::kable(diff_table_at_ct, digits = 3, caption = "Difference between spectrophotometric pH and pH calculated with AT and CT using different formulations for K1 and K2.", format = "simple")`
 `r include_graphics("figures/k1k2_all_at_ct.png")`
 
-Here we compare pH measured spectrophotometrically with pH calculated from AT and CT using various formulations of K1 and K2. All pH values were normalized to a temperature of 4°C. The absolute differences are generally large, up to `r round(max(abs(diff_table_at_ct[, 2:5])), digits=3)` pH units. In general, all formulations overestimate spectrophotometric pH. pH calculated using the formulation of Papadimitriou et al. (2018) is closer to measured pH, with a mean difference of `r round(diff_table_at_ct[4, 4], digits=3)` pH units. This difference is `r abs(round(diff_table_at_ct[4, 4]/errors_at_ct$pH, digits=1))` times the uncertainty for pH calculated from AT and CT according to seacarb (`r round(errors_at_ct$pH, digits=3)`). The differences found with the other formulations are, on average, slightly lower than the uncertainty for pH calculated from AT and CT according to seacarb.
+Here we compare pH measured spectrophotometrically with pH calculated
+from AT and CT using various formulations of K1 and K2. All pH values
+were normalized to a temperature of 4°C. The absolute differences are
+generally large, up to
+`r round(max(abs(diff_table_at_ct[, 2:5])), digits=3)` pH units. In
+general, all formulations overestimate spectrophotometric pH. pH
+calculated using the formulation of Papadimitriou et al. (2018) is
+closer to measured pH, with a mean difference of
+`r round(diff_table_at_ct[4, 4], digits=3)` pH units. This difference is
+`r abs(round(diff_table_at_ct[4, 4]/errors_at_ct$pH, digits=1))` times
+the uncertainty for pH calculated from AT and CT according to seacarb
+(`r round(errors_at_ct$pH, digits=3)`). The differences found with the
+other formulations are, on average, slightly lower than the uncertainty
+for pH calculated from AT and CT according to seacarb.
 
 ## Stratification
+
 ```{r stratification, echo=FALSE, message= FALSE, warning=FALSE}
 # # we look at the distribution of data
 depth_labels <- c("0-2", "2-4", "4-6", "6-8", ">8")
@@ -2909,7 +3245,7 @@ tmp <- d_all %>%
                                       depth_group == '>8' ~ '8-12'))) %>% 
   dplyr::filter(depth_group2 == '0-4' | depth_group2 == '8-12') %>% 
   dplyr::group_by(depth_group2, montht)
-tmp_delta <- tmp %>% 
+tmp_delta <- tidyr::drop_na(tmp) %>% 
   group_by(depth_group2, montht) %>% 
   dplyr::summarise(sal_med = median(sal_insitu_ctd, na.rm = TRUE)) %>% 
   tidyr::pivot_wider(names_from = depth_group2, values_from = sal_med) %>% 
@@ -2918,14 +3254,14 @@ tmp_delta <- tmp %>%
   dplyr::mutate(sal_delta = median0_4m - median8_12m)
 kable(tmp_delta, digits = 2, caption = "Median salinity with (median0_4m - median8_12m)")
 
-p <- tmp %>% 
+p <- tidyr::drop_na(tmp) %>% 
   ggplot(aes(x=depth_group2, y = sal_insitu_ctd)) +
   geom_boxplot(notch=FALSE, size=0.2, fill="grey50", outlier.color = "blue", outlier.size = 0.3) +
   labs(title = "Salinity vs depth", x = "Depth (m)", y= "Salinity") +
   facet_wrap(vars(montht), scale = "free_y")
 print(p)
 
-sal_delta_plt <- tmp_delta %>% 
+sal_delta_plt <- tidyr::drop_na(tmp_delta) %>% 
   ggplot(aes(x=montht, y=sal_delta)) +
   scale_x_discrete(expand = c(0, 0)) +
   scale_y_continuous("Salinity", limits = c(-1.1, 0.8), expand = c(0, 0)) +
@@ -2968,14 +3304,14 @@ tmp_delta <- tmp %>%
   dplyr::mutate(temp_delta = median0_4m - median8_12m)
 kable(tmp_delta, digits = 2, caption = "Median temperature with (median0_4m - median8_12m)")
 
-p <- tmp %>% 
+p <- tidyr::drop_na(tmp) %>% 
   ggplot(aes(x=depth_group2, y = temp_insitu_ctd)) +
   geom_boxplot(notch=FALSE, size=0.2, fill="grey50", outlier.color = "blue", outlier.size = 0.3) +
   labs(title = "Temperature vs depth", x = "Depth (m)", y= "Temperature") +
   facet_wrap(vars(montht), scale = "free_y")
 print(p)
 
-temp_delta_plt <- tmp_delta %>% 
+temp_delta_plt <- tidyr::drop_na(tmp_delta) %>% 
   ggplot(aes(x=montht, y=temp_delta)) +
   scale_x_discrete(expand = c(0, 0)) +
   scale_y_continuous("Temperature", limits = c(-1.3, 0.8), expand = c(0, 0)) +
@@ -2994,7 +3330,7 @@ tmp <- d_all %>%
   dplyr::filter(depth_group != "NA") %>% 
   dplyr::mutate(density = seacarb::rho(S = sal_insitu_ctd, T = temp_insitu_ctd, P = pressure_insitu_ctd)) %>% 
   group_by(depth_group, montht)
-p <- tmp %>% 
+p <- tidyr::drop_na(tmp) %>% 
   ggplot(aes(x=as.factor(depth_group), y = sal_insitu_ctd)) +
   geom_boxplot(notch=FALSE, size=0.2, fill="grey50", outlier.color = "blue", outlier.size = 0.3) +
   labs(title = "Density vs depth", x = "Depth (m)", y= "Density") +
@@ -3025,10 +3361,10 @@ tmp_delta <- tmp %>%
   tidyr::pivot_wider(names_from = depth_group2, values_from = den_med) %>% 
   dplyr::rename(median0_4m = "0-4",
                 median8_12m = "8-12") %>% 
-  dplyr::mutate(temp_delta = median0_4m - median8_12m)
+  dplyr::mutate(den_delta = median0_4m - median8_12m)
 kable(tmp_delta, digits = 2, caption = "Median density with (median0_4m - median8_12m)")
 
-p <- tmp %>% 
+p <- tidyr::drop_na(tmp) %>% 
   ggplot(aes(x=montht, y = density)) +
   geom_boxplot(notch=FALSE, size=0.2, fill="grey50", outlier.color = "blue", outlier.size = 0.3) +
   labs(title = "Density vs depth", x = "Depth (m)", y= "Density") +
@@ -3050,30 +3386,30 @@ den_delta_plt <- tmp_delta %>%
 
 # we look at pHint_tot_sf 0 to 4 m vs more than 8 m
 tmp <- d_all %>% 
-  dplyr::mutate(depth_group = depth_group_pressure) %>% 
+  #dplyr::mutate(depth_group = depth_group_pressure) %>% 
   dplyr::select(montht, pHint_tot_sf, depth_group) %>%
-  dplyr::mutate(depth = as.factor(ifelse(depth_group == 1 | depth_group == 3, 2, depth_group))) %>% 
-  dplyr::filter(depth == 2 | depth == 10) %>% 
-  group_by(depth, montht)
-summary(aov(tmp$pHint_tot_sf ~ tmp$depth * tmp$montht))
+  dplyr::mutate(depth_group2 = as.factor(case_when(depth_group == '0-2' | depth_group == '2-4' ~ '0-4', 
+                                      depth_group == '>8' ~ '8-12'))) %>% 
+  dplyr::filter(depth_group2 == '0-4' | depth_group2 == '8-12') %>% 
+  dplyr::group_by(depth_group2, montht)
+summary(aov(tmp$pHint_tot_sf ~ tmp$depth_group2 * tmp$montht))
 
 tmp_delta <- tmp %>% 
-  group_by(depth, montht) %>% 
+  group_by(depth_group2, montht) %>% 
   dplyr::summarise(pH_tot_sf_med = median(pHint_tot_sf, na.rm = TRUE)) %>% 
-  tidyr::pivot_wider(names_from = depth, values_from = pH_tot_sf_med) %>% 
-  dplyr::rename(median0_4m = "2",
-                median8_12m = "10") %>% 
-  dplyr::mutate(pH_tot_sf_med_delta = median0_4m - median8_12m)
+  tidyr::pivot_wider(names_from = depth_group2, values_from = pH_tot_sf_med) %>% 
+  dplyr::rename(median0_4m = "0-4",
+                median8_12m = "8-12") %>%   dplyr::mutate(pH_tot_sf_med_delta = median0_4m - median8_12m)
 kable(tmp_delta, digits = 3, caption = "Median seafet pH with (median0_4m - median8_12m)")
 
-p <- tmp %>% 
-  ggplot(aes(x=as.factor(depth), y = pHint_tot_sf)) +
+p <- tidyr::drop_na(tmp) %>% 
+  ggplot(aes(x=as.factor(depth_group2), y = pHint_tot_sf)) +
   geom_boxplot(notch=FALSE, size=0.2, fill="grey50", outlier.color = "blue", outlier.size = 0.3) +
   labs(title = "pH vs depth", x = "Depth (m)", y= "pHint_tot_sf") +
   facet_wrap(vars(montht), scale = "free_y")
 print(p)
 
-pH_delta_plt <- tmp_delta %>% 
+pH_delta_plt <- tidyr::drop_na(tmp_delta) %>% 
   ggplot(aes(x=montht, y=pH_tot_sf_med_delta)) +
   #labs(y = substitute("pH"["T"] ~ "at in situ temp."), x = "Month") +
   scale_x_discrete("Month", expand = c(0, 0)) +
@@ -3093,10 +3429,11 @@ ggsave(filename = "figures/deltas.png", plot = deltas, width = 15, height = 20, 
 
 Using the medians because data are missing.
 
-+ Salinity 
-+ Temperature is always colder at 0-4 m than below 8 m (0.15 to 2°C).
+-   Salinity
+-   Temperature is always colder at 0-4 m than below 8 m (0.15 to 2°C).
 
 ## Takahashi thermal vs non-thermal
+
 ```{r Takahashi thermal vs non-thermal, include=FALSE}
 # According to Takahashi et al. (2002) and McCutcheon et al. (2021)
 # Select data
@@ -3133,15 +3470,20 @@ taka_season <- taka %>%
                    thermal_nonthermal = thermal / nonthermal) %>% 
   ungroup()
 ```
+
 `r knitr::kable(taka_year, digits = c(0, 1, 1, 2), caption = "Thermal vs non-thermal control of pCO2. Yearly estimate.", format = "simple")`
 `r knitr::kable(taka_season, digits = c(0, 1, 1, 2), caption = "Thermal vs non-thermal control of pCO2. Seasonal estimate.", format = "simple")`
-For seasonal analysis, December to February was considered winter, March to May was considered spring, June to August was considered summer, and September to November was considered fall. 
+For seasonal analysis, December to February was considered winter, March
+to May was considered spring, June to August was considered summer, and
+September to November was considered fall.
 
-The control of pCO2 by non-thermal (physical and biological processes) drivers is always greater than the control from temperature on both annual and seasonal basis. Thermal control is highest in winter and lowest in summer.
-
-
+The control of pCO2 by non-thermal (physical and biological processes)
+drivers is always greater than the control from temperature on both
+annual and seasonal basis. Thermal control is highest in winter and
+lowest in summer.
 
 ## Deconvolution of pCO2 changes
+
 ```{r pCO2 changes due to changes in T, S, AT and CT, include=FALSE}
 # First we prepare data. CT is needed for deconvolution
 # we calculate it from at_calc and pCO2
@@ -3261,15 +3603,22 @@ ggsave(file="figures/fig_deconv_pCO2.png", fig_deconv_pCO2, width = 18, height =
 
 To calculate the air-sea CO2 flux, we use:
 
-+ seawater pCO2 measured in the FerryBox on water pumped from 11 m depth.
-+ atmospheric CO2 measured at the Zeppelin station and downloaded on 2020-08-19 from https://gaw.kishou.go.jp/search/file/0054-6001-1001-01-01-9999 
-+ wind speed data collected by the AWI at 10 m height (sent to JPG by P. Fischer, Aug. 2020)
+-   seawater pCO2 measured in the FerryBox on water pumped from 11 m
+    depth.
+-   atmospheric CO2 measured at the Zeppelin station and downloaded on
+    2020-08-19 from
+    <https://gaw.kishou.go.jp/search/file/0054-6001-1001-01-01-9999>
+-   wind speed data collected by the AWI at 10 m height (sent to JPG
+    by P. Fischer, Aug. 2020)
 
-Since there are many gaps, a climatological year is used: air-sea flux calculated by day, then by month, then by year.
+Since there are many gaps, a climatological year is used: air-sea flux
+calculated by day, then by month, then by year.
 
-seaFET pH is significantly different at the surface and depth. It should therefore be the same for pCO2.
+seaFET pH is significantly different at the surface and depth. It should
+therefore be the same for pCO2.
 
-Let's look first at the stratification (salinity, temperature and density).
+Let's look first at the stratification (salinity, temperature and
+density).
 
 ```{r atmospheric CO2 Zeppelin, echo=FALSE, message= FALSE, warning=FALSE}
 ## Atmospheric CO2 Zeppelin
@@ -3431,10 +3780,13 @@ knitr::include_graphics("figures/air-sea_CO2_flux.png")
 #rm(p, p_f_air_sea, p_f_air_sea_d, p_f_air_sea_m)
 ```
 
-The annual air-sea CO2 flux is `r round(sum(air_sea_month$f_air_sea), digits = 0)` mol/(m2 year).
+The annual air-sea CO2 flux is
+`r round(sum(air_sea_month$f_air_sea), digits = 0)` mol/(m2 year).
 
 ## Miscellaneous
+
 ###Save all
+
 ```{r save all, echo=FALSE, message= FALSE, warning=FALSE}
 # d_hour is the real data set that is read at the beginning of the script
 # d_all comprises additional columns calculated in this script
@@ -3496,6 +3848,7 @@ write_csv(pangaea, path = paste0(path, "fb_data/pangaea.csv"))
 ```
 
 ### Whole time series plot
+
 ```{r whole time series plot, fig.width=10, fig.height=10, echo=FALSE, message= FALSE}
 size_point <- 0.3 # size of data points
 alpha <- 1 #transparency
@@ -3568,6 +3921,7 @@ gc() #garbage collection
 ```
 
 ### Whole time series monthly box plots and stats
+
 ```{r whole time series monthly box plots and stats, fig.width=10, fig.height=10, echo=FALSE, message= FALSE}
 size_point <- 0.5 # size of data points
 alpha <- 1 #transparency
@@ -3657,291 +4011,572 @@ gc() #garbage collection
 ```
 
 ## Maintenance
-<div style="text-align: justify"> 
+
+<div style="text-align: justify">
 
 ### **REMOS**
-- **2020-09-23**: REMOS started at 20:00 UTC.
-- **2020-09-22**: REMOS stopped at 19:00 UTC because of a power shutdown.
-- **2019-03-12**: REMOS on.
-- **2020-02-24**: REMOS off.
-- **2019-09-07**: REMOS back in the water.
-- **2019-09-02**: REMOS removed from the water for maintenance with Philipp and Samir.
-- **2018-11-24**: REMOS stopped because of an iceberg. At the moment we dont know if instruments are still there/broken.
+
+-   **2020-09-23**: REMOS started at 20:00 UTC.
+-   **2020-09-22**: REMOS stopped at 19:00 UTC because of a power
+    shutdown.
+-   **2019-03-12**: REMOS on.
+-   **2020-02-24**: REMOS off.
+-   **2019-09-07**: REMOS back in the water.
+-   **2019-09-02**: REMOS removed from the water for maintenance with
+    Philipp and Samir.
+-   **2018-11-24**: REMOS stopped because of an iceberg. At the moment
+    we dont know if instruments are still there/broken.
 
 ### **FerryBox**
-- **2020-09-30**: FB started at 19:00 UTC.
-- **2020-09-29**: FB stopped at in the morning for few hours.
-- **2020-09-26**: FB stopped at in the morning for few hours.
-- **2020-09-25**: FB stopped at in the morning for few hours.
-- **2020-09-23**: FB started at 20:00 UTC.
-- **2020-09-22**: FB stopped at 19:00 UTC because of a power shutdown.
-- **2020-09-22**: FB started again at 08:00 UTC after several months of locked down. Lisa repaired it in few minutes only. 
-- **2020-09-22**: FB started again after several months of locked down. Lisa repaired it in few minutes only. 
-- **2020-07-25**: FB stopped. Not possible to go inside to repair because the FB is locked after the "mercurygate". IPEV locked the FB with suspicion of mercury contamination rose up by Bettina (Stationleader)
-- **2020-05-24**: FB started again after several months of on activity due to very cold T and frozen pipes.
-- **2020-02-18**: FB stopped because of frozen pipes.
-- **2020-01-24**: heater issues in the contenair (power shutdown maybe) caused some samples to freeze. See part "SNAPO" for details on samples.
-- **2019-09-01**: Some interruptions for the FB during 2 weeks of maintenance.
-- **2019-06-12**: Markus came to do maintenace. 
-- **2019-06-05**: Problem in the relay 15 that controls the waste water pump was found. The spare part will be brought here next week (when Samir will leave...).
-- **2019-06-03**: Samir is on site alone. Different tests were made. Maybe the 2 tapes that feed TA and pCO2 are responsible of the problem (low flow).
-- **2019-05-22**: FB is stopped because of several problems. Philipp and Marine are working on it.
-- **2019-05-21**: FB is unstable. 
-- **2019-04-14**: FB is working again. 
-- **2019-04-13**: FB is stopped since 05:00am (the level switch stuck in the full position in the waste tank). 
-- **2019-02-27**: FB is working again. 
-- **2019-02-26**: FB is stopped because of a "leakage" issue. 
-- **2019-01-17**: FB is stopped until 19th January 
-- **2019-01-11**: FB is stopped until 12th Decmeber. 
-- **2018-12-28**: FB is stopped until 31st Decmeber. 
-- **2018-10-12**: FB is working again. 
-- **2018-10-10**: FB is stopped after a seawater leakage. 
-- **2018-10-08**: FB is working again. 
-- **2018-10-05**: FB is stopped after a seawater leakage. 
-- **2018-09-12**: FB is stopped. Problems inland could be the reason. The same day Marine make it working again.
-- **2018-04-14**: FB is working again. They made an outlet "by-pass" tube to flush the seawater directly on the beach, not at 11 m.
-- **2018-03-08**: Last data at 23:59. Frozen Ferrybox system (outlet tubings) in Svalbard, maybe due to a power failure over night in Kingsbay. UWO parameters (seaFET and SBE38 are still runing)
-- **2017-05-24**: FerryBox was shut down due to many connexion issues...see Philipp's email 24/05/2017 18:17.
-- **2017-03-20**: Philipp arrived in NYA to solve the problem.
-- **2017-03-11**: Iceberg destroyed the power-pumps cables (Philipp's email on 2017-03-11 10:40). No more data for all parameters.
-- **2017-01-31**: Beginning of the 14-days FB maintenance by Philipp and Uwe. Gaps in data could be present during this period.
-- **2017-01-17**: Ferrybox stopped for unknown reasons from 2017-01-17 21:00 to 2017-01-19.
-- **2016-09-24**: No data because of maintenance until the 28th. Except for TA wich has data available for this period.
-- **2016-09-20**: Test in the Ferrybox with the seawater. Seawater was "sucked" (not pumped) from 7:40 to 10:00 by a vaccum system in order to test it. This system was installed if the pumps 1 and 2 broke during winter. This is a "plan C". This system is not automatic and we will be informed about its power up in case of emergency. As long as the water is not pumped with this system, we have to monitor the data because changements in gas partial pressure can occur.
-- **2016-09-12**: No data because of maintenance until the 18th.
-- **2016-09-10**: No data because of maintenance until the 11th.
-- **2016-05-09**: data are back.
-- **2016-05-04**: No data for all parameters because of electricity issues. 
-- **2016-04-23**: FerryBox was shut down by AWI team for maintenance.
-- **2016-02-23**: FerryBox was switched on by AWI team after maintenance.
-- **2015-12-20**: FerryBox was shut down because of pump issues. Waiting for the maintenance in February.
-- **2015-11-27**: The ferrybox was down from Nov. 18th until today Nov. 27th. (emails from P.Fischer 2015-11-24 23:09 and Station Leader AWIPEV 2015-11-27 12:57). Tubes frozen.
- 
+
+-   **2020-09-30**: FB started at 19:00 UTC.
+-   **2020-09-29**: FB stopped at in the morning for few hours.
+-   **2020-09-26**: FB stopped at in the morning for few hours.
+-   **2020-09-25**: FB stopped at in the morning for few hours.
+-   **2020-09-23**: FB started at 20:00 UTC.
+-   **2020-09-22**: FB stopped at 19:00 UTC because of a power shutdown.
+-   **2020-09-22**: FB started again at 08:00 UTC after several months
+    of locked down. Lisa repaired it in few minutes only.
+-   **2020-09-22**: FB started again after several months of locked
+    down. Lisa repaired it in few minutes only.
+-   **2020-07-25**: FB stopped. Not possible to go inside to repair
+    because the FB is locked after the "mercurygate". IPEV locked the FB
+    with suspicion of mercury contamination rose up by Bettina
+    (Stationleader)
+-   **2020-05-24**: FB started again after several months of on activity
+    due to very cold T and frozen pipes.
+-   **2020-02-18**: FB stopped because of frozen pipes.
+-   **2020-01-24**: heater issues in the contenair (power shutdown
+    maybe) caused some samples to freeze. See part "SNAPO" for details
+    on samples.
+-   **2019-09-01**: Some interruptions for the FB during 2 weeks of
+    maintenance.
+-   **2019-06-12**: Markus came to do maintenace.
+-   **2019-06-05**: Problem in the relay 15 that controls the waste
+    water pump was found. The spare part will be brought here next week
+    (when Samir will leave...).
+-   **2019-06-03**: Samir is on site alone. Different tests were made.
+    Maybe the 2 tapes that feed TA and pCO2 are responsible of the
+    problem (low flow).
+-   **2019-05-22**: FB is stopped because of several problems. Philipp
+    and Marine are working on it.
+-   **2019-05-21**: FB is unstable.
+-   **2019-04-14**: FB is working again.
+-   **2019-04-13**: FB is stopped since 05:00am (the level switch stuck
+    in the full position in the waste tank).
+-   **2019-02-27**: FB is working again.
+-   **2019-02-26**: FB is stopped because of a "leakage" issue.
+-   **2019-01-17**: FB is stopped until 19th January
+-   **2019-01-11**: FB is stopped until 12th Decmeber.
+-   **2018-12-28**: FB is stopped until 31st Decmeber.
+-   **2018-10-12**: FB is working again.
+-   **2018-10-10**: FB is stopped after a seawater leakage.
+-   **2018-10-08**: FB is working again.
+-   **2018-10-05**: FB is stopped after a seawater leakage.
+-   **2018-09-12**: FB is stopped. Problems inland could be the reason.
+    The same day Marine make it working again.
+-   **2018-04-14**: FB is working again. They made an outlet "by-pass"
+    tube to flush the seawater directly on the beach, not at 11 m.
+-   **2018-03-08**: Last data at 23:59. Frozen Ferrybox system (outlet
+    tubings) in Svalbard, maybe due to a power failure over night in
+    Kingsbay. UWO parameters (seaFET and SBE38 are still runing)
+-   **2017-05-24**: FerryBox was shut down due to many connexion
+    issues...see Philipp's email 24/05/2017 18:17.
+-   **2017-03-20**: Philipp arrived in NYA to solve the problem.
+-   **2017-03-11**: Iceberg destroyed the power-pumps cables (Philipp's
+    email on 2017-03-11 10:40). No more data for all parameters.
+-   **2017-01-31**: Beginning of the 14-days FB maintenance by Philipp
+    and Uwe. Gaps in data could be present during this period.
+-   **2017-01-17**: Ferrybox stopped for unknown reasons from 2017-01-17
+    21:00 to 2017-01-19.
+-   **2016-09-24**: No data because of maintenance until the 28th.
+    Except for TA wich has data available for this period.
+-   **2016-09-20**: Test in the Ferrybox with the seawater. Seawater was
+    "sucked" (not pumped) from 7:40 to 10:00 by a vaccum system in order
+    to test it. This system was installed if the pumps 1 and 2 broke
+    during winter. This is a "plan C". This system is not automatic and
+    we will be informed about its power up in case of emergency. As long
+    as the water is not pumped with this system, we have to monitor the
+    data because changements in gas partial pressure can occur.
+-   **2016-09-12**: No data because of maintenance until the 18th.
+-   **2016-09-10**: No data because of maintenance until the 11th.
+-   **2016-05-09**: data are back.
+-   **2016-05-04**: No data for all parameters because of electricity
+    issues.
+-   **2016-04-23**: FerryBox was shut down by AWI team for maintenance.
+-   **2016-02-23**: FerryBox was switched on by AWI team after
+    maintenance.
+-   **2015-12-20**: FerryBox was shut down because of pump issues.
+    Waiting for the maintenance in February.
+-   **2015-11-27**: The ferrybox was down from Nov. 18th until today
+    Nov. 27th. (emails from P.Fischer 2015-11-24 23:09 and Station
+    Leader AWIPEV 2015-11-27 12:57). Tubes frozen.
+
 ### **TA analyser**
-- **2019-11-15**: TA calibration done by Gwendall is OK but the sensore seems to have problem since 2019-10-16. Video conference is scheduled with Steffen on 2019-11-19. Maybe sample supply is defective.
-- **2019-07-12**: Steffen told us that calibration was not OK. To check it, he calculated the mediane of the pH/volume sample / volumeIndicatorfactor and compared them to January/October calibration. We wait for Steffen recommandations before to make another calibration.
-- **2019-06-07**: Samir did the TA calibration: T0 with CRM 145. Beginning of a 3-months period. TA was stable before the calibration and calibration was OK.
-- **2019-02-15**: No data from 15th (14:08:21 UTC) to 19th February (14:58:46 UTC). files transfered but no data. No explanation.
-- **2019-01-26**: Philipp did the TA calibration: T0 with CRM 145. Beginning of a 3-months period. Flow filter was also lifted up and the seawater flow has therefore increased.
-- **2019-01-16**: Bad data since this date. 
-- **2018-12-28**: HCL and BCG cartridges were changed by Marine.
-- **2018-11-26**: TA analyser was stopped in order to save reagents because of filter issues.
-- **2018-11-20**: A web interface was created by KM Contros to access the TA via VPN and Virtual Machine (VNC viewer). Samir received password and access from the AWI in order to communicate from France with the TA.
-- **2018-10-31**: New TA analyser (SN 0317-001) was installed with a new membrane inside (completely new technology). Tests were made with Steffen from KM Contros.
-- **2018-07-31**: TA analyser was received (SN TA-1215-001) and pluged again. First data were received (high: 2450 and low: 2150) but salinity issue since this time. Uwe/Philipp try to find if this comes from comunication issue with the FB.
-- **2018-06-20**: TA analyser was stopped in order to save reagents because leakage in degasing unit is not solved. Email was sent to Steffen. 
-- **2018-01-05**: TA analyser switched on and first communication tests. S/N TA-0317-001.
-- **2017-08-23**: The 2 TA analysers were sent to Contros for repair, 1 will be sent back to NYA after. No more TA data during this period.
-- **2017-04-06**: (12:30 UTC) Christelle repaired TA analyser by removing air bubbles in Acid tubings (advices from Steffen).
-- **2017-04-01**: No more TA data...waiting for a diagnostic by Contros.
-- **2017-03-31**: (11:00 UTC) Christelle switched on TA analyser.
-- **2017-03-30**: (07:30 UTC) Christelle switched TA analyser on "standby" because of cartridge leakage issue (3 ways connector broken).
-- **2017-03-21**: Philipp changed the TA analyser provided by Contros.
-- **2017-02-10**: TA cleaning salt crusts.
-- **2017-02-09**: TA calibration with CRM at 12:20.
-- **2017-01-20**: The date issue with TA analyser since 201-01-07 was fixed by Uwe with a restart of the Ferrybox Module around 14:00 UTC.
-- **2016-11-15**: TA calibration done by Christelle with Dickson CRM run as regular sample (measure mode). Data of this calibration do not appear on plot because TA analyser is disconnected from the FerryBox.
-- **2016-09-16**: Cleaning of the TA analyser removing all the salt crusts from the bottom of the degazing unit (Samir).
-- **2016-06-24**: BCG cartridge was changed (Christelle, ObsEng).
-- **2016-05-31**: HCL cartridge was changed (Christelle, ObsEng).
-- **2016-05-01**: No data for TA.
-- **2016-04-26**: Salt crusts inside the TA analyser appeared during deployment (see pictures) were removed by René Burgi (Observatory engineer) according to Contros advices (email from Steffen Assmann 13/04/2016 10:30).
- 
+
+-   **2019-11-15**: TA calibration done by Gwendall is OK but the
+    sensore seems to have problem since 2019-10-16. Video conference is
+    scheduled with Steffen on 2019-11-19. Maybe sample supply is
+    defective.
+-   **2019-07-12**: Steffen told us that calibration was not OK. To
+    check it, he calculated the mediane of the pH/volume sample /
+    volumeIndicatorfactor and compared them to January/October
+    calibration. We wait for Steffen recommandations before to make
+    another calibration.
+-   **2019-06-07**: Samir did the TA calibration: T0 with CRM 145.
+    Beginning of a 3-months period. TA was stable before the calibration
+    and calibration was OK.
+-   **2019-02-15**: No data from 15th (14:08:21 UTC) to 19th February
+    (14:58:46 UTC). files transfered but no data. No explanation.
+-   **2019-01-26**: Philipp did the TA calibration: T0 with CRM 145.
+    Beginning of a 3-months period. Flow filter was also lifted up and
+    the seawater flow has therefore increased.
+-   **2019-01-16**: Bad data since this date.
+-   **2018-12-28**: HCL and BCG cartridges were changed by Marine.
+-   **2018-11-26**: TA analyser was stopped in order to save reagents
+    because of filter issues.
+-   **2018-11-20**: A web interface was created by KM Contros to access
+    the TA via VPN and Virtual Machine (VNC viewer). Samir received
+    password and access from the AWI in order to communicate from France
+    with the TA.
+-   **2018-10-31**: New TA analyser (SN 0317-001) was installed with a
+    new membrane inside (completely new technology). Tests were made
+    with Steffen from KM Contros.
+-   **2018-07-31**: TA analyser was received (SN TA-1215-001) and pluged
+    again. First data were received (high: 2450 and low: 2150) but
+    salinity issue since this time. Uwe/Philipp try to find if this
+    comes from comunication issue with the FB.
+-   **2018-06-20**: TA analyser was stopped in order to save reagents
+    because leakage in degasing unit is not solved. Email was sent to
+    Steffen.
+-   **2018-01-05**: TA analyser switched on and first communication
+    tests. S/N TA-0317-001.
+-   **2017-08-23**: The 2 TA analysers were sent to Contros for repair,
+    1 will be sent back to NYA after. No more TA data during this
+    period.
+-   **2017-04-06**: (12:30 UTC) Christelle repaired TA analyser by
+    removing air bubbles in Acid tubings (advices from Steffen).
+-   **2017-04-01**: No more TA data...waiting for a diagnostic by
+    Contros.
+-   **2017-03-31**: (11:00 UTC) Christelle switched on TA analyser.
+-   **2017-03-30**: (07:30 UTC) Christelle switched TA analyser on
+    "standby" because of cartridge leakage issue (3 ways connector
+    broken).
+-   **2017-03-21**: Philipp changed the TA analyser provided by Contros.
+-   **2017-02-10**: TA cleaning salt crusts.
+-   **2017-02-09**: TA calibration with CRM at 12:20.
+-   **2017-01-20**: The date issue with TA analyser since 201-01-07 was
+    fixed by Uwe with a restart of the Ferrybox Module around 14:00 UTC.
+-   **2016-11-15**: TA calibration done by Christelle with Dickson CRM
+    run as regular sample (measure mode). Data of this calibration do
+    not appear on plot because TA analyser is disconnected from the
+    FerryBox.
+-   **2016-09-16**: Cleaning of the TA analyser removing all the salt
+    crusts from the bottom of the degazing unit (Samir).
+-   **2016-06-24**: BCG cartridge was changed (Christelle, ObsEng).
+-   **2016-05-31**: HCL cartridge was changed (Christelle, ObsEng).
+-   **2016-05-01**: No data for TA.
+-   **2016-04-26**: Salt crusts inside the TA analyser appeared during
+    deployment (see pictures) were removed by René Burgi (Observatory
+    engineer) according to Contros advices (email from Steffen Assmann
+    13/04/2016 10:30).
+
 ### **pH seaFET**
-- **2019-09-02**: Out from the water for maintenance and cleaning only.
-- **2018-04-17**: seaFET #1005 was changed on the REMOS and seaFET #007 (from Villefranche) was installed. Continuous mode with external power supply was set and internal pack of bateries was removed. Old seaFET will be brought back to France with Samir.
-- **2018-03-09**: #007 seaFET currently in USA will be sent by seabird to NYA. #1005 seaFET currently in NYA will be sent to USA for update, following all external issues, for free.
-- **2017-08-24**: seaFET #1005 was installed on the REMOS into the field.
- 
+
+-   **2019-09-02**: Out from the water for maintenance and cleaning
+    only.
+-   **2018-04-17**: seaFET #1005 was changed on the REMOS and seaFET
+    #007 (from Villefranche) was installed. Continuous mode with
+    external power supply was set and internal pack of bateries was
+    removed. Old seaFET will be brought back to France with Samir.
+-   **2018-03-09**: #007 seaFET currently in USA will be sent by seabird
+    to NYA. #1005 seaFET currently in NYA will be sent to USA for
+    update, following all external issues, for free.
+-   **2017-08-24**: seaFET #1005 was installed on the REMOS into the
+    field.
+
 ### **Cross-Flow filter**
-- **2019-01-26**: The filter was lifted up in order to fix the flow problem. 
-- **2018-11-01**: The filter clogged a lot of time even after acid cycles. It was not replaced since its initial installation with the TA analyser. We think to replace it soon.
-- **2016-07-20**: Cross filter was cleanned by Obs. eng. with 10-15 min tape water flush.
+
+-   **2019-01-26**: The filter was lifted up in order to fix the flow
+    problem.
+-   **2018-11-01**: The filter clogged a lot of time even after acid
+    cycles. It was not replaced since its initial installation with the
+    TA analyser. We think to replace it soon.
+-   **2016-07-20**: Cross filter was cleanned by Obs. eng. with 10-15
+    min tape water flush.
 
 ### **durafet**
-- **2019-09-05**: same durafet 
-- **2017-10-30**: (13:00 UTC) Durafet holder was changed by Benoit and the new one (made by Uwe) more larger (all the durafet's body is plunge in the seawater) was installed.
-- **2017-08-24**: durafet was installed.
 
-### ***p*CO~2~**
-- **2019-09-03**: *p*CO~2~ analyser (S/N: CO2FT-0515-001) have been installed and *p*CO~2~ analyser (S/N: CO2FT-0215-001) was sent to Kiel for calibration.
-- **2018-10-31**: *p*CO~2~ analyser (S/N: CO2FT-0215-001) have been installed and *p*CO~2~ analyser (S/N: CO2FT-0515-001) was brought back to France and waiting 2019 fundings to bring it for calibration.
-- **2018-04-16**: *p*CO~2~ analyser switching by Uwe and Samir. S/N CO2FT-0515-001 is now installed. Old *p*CO~2~ sensor will be brought back to France with Samir.
-- **2017-02-07**: pCO2 analyser switching by Uwe. S/N CO2FT-0215-001 is now installed.
-- **2016-09-13**: Changement of the *p*CO~2~ S/N CO2FT-0515-001 membrane (Uwe from 4H-Jena).
-- **2016-02-28**: *p*CO~2~ analyser (S/N CO2FT-0215-001) was sent to calibration and the second *p*CO~2~ analyser (S/N: CO2FT-0515-001) have been installed.
+-   **2019-09-05**: same durafet
+-   **2017-10-30**: (13:00 UTC) Durafet holder was changed by Benoit and
+    the new one (made by Uwe) more larger (all the durafet's body is
+    plunge in the seawater) was installed.
+-   **2017-08-24**: durafet was installed.
 
-<div style="text-align:center" markdown="1">
-<img  src="./Images/2016-04-04_leakage_AT_analyser1.jpg" width="200" height="200">
-<img  src="./Images/2016-04-04_leakage_AT_analyser3.jpg" width="200" height="200">
-</div>
+### ***p*****CO~2~**
+
+-   **2019-09-03**: *p*CO~2~ analyser (S/N: CO2FT-0515-001) have been
+    installed and *p*CO~2~ analyser (S/N: CO2FT-0215-001) was sent to
+    Kiel for calibration.
+-   **2018-10-31**: *p*CO~2~ analyser (S/N: CO2FT-0215-001) have been
+    installed and *p*CO~2~ analyser (S/N: CO2FT-0515-001) was brought
+    back to France and waiting 2019 fundings to bring it for
+    calibration.
+-   **2018-04-16**: *p*CO~2~ analyser switching by Uwe and Samir. S/N
+    CO2FT-0515-001 is now installed. Old *p*CO~2~ sensor will be brought
+    back to France with Samir.
+-   **2017-02-07**: pCO2 analyser switching by Uwe. S/N CO2FT-0215-001
+    is now installed.
+-   **2016-09-13**: Changement of the *p*CO~2~ S/N CO2FT-0515-001
+    membrane (Uwe from 4H-Jena).
+-   **2016-02-28**: *p*CO~2~ analyser (S/N CO2FT-0215-001) was sent to
+    calibration and the second *p*CO~2~ analyser (S/N: CO2FT-0515-001)
+    have been installed.
+
+::: {style="text-align:center" markdown="1"}
+<img src="./Images/2016-04-04_leakage_AT_analyser1.jpg" width="200" height="200"/>
+<img src="./Images/2016-04-04_leakage_AT_analyser3.jpg" width="200" height="200"/>
+:::
 
 ## Script + data
-<div style="text-align: justify">  
+
+<div style="text-align: justify">
+
 Here is reported all important modifications made on *ny-alesund_cc.*.
-All documents concerning maintenance, tasks to do, calibration... are accessible by the AWIPEV staff on this link with special access:
+All documents concerning maintenance, tasks to do, calibration... are
+accessible by the AWIPEV staff on this link with special access:
 
 [wiki document](https://spaces.awi.de)
 
-[Logbook discrete sampling](https://docs.google.com/spreadsheets/d/1bNh9q4bkNoh2ra78XC451EmGb9Q8kMf4ByBnKngeHOg/edit#gid=1034421443)
+[Logbook discrete
+sampling](https://docs.google.com/spreadsheets/d/1bNh9q4bkNoh2ra78XC451EmGb9Q8kMf4ByBnKngeHOg/edit#gid=1034421443)
 
-[Logbook FerryBox](https://docs.google.com/spreadsheets/d/1QwAJm7TttoEwue-CUM0efhqEAMwj5m148Gy_Mp-1maM/edit?ts=5ed0fca6#gid=2036495380)
+[Logbook
+FerryBox](https://docs.google.com/spreadsheets/d/1QwAJm7TttoEwue-CUM0efhqEAMwj5m148Gy_Mp-1maM/edit?ts=5ed0fca6#gid=2036495380)
 
-[UWO-Ferrybox variables from our sensors](https://docs.google.com/spreadsheets/d/1arKYfUjmg3YrgQ5g9LN_XFwUORyz7nqlKNWq3uYok3U/edit?ts=5c7e1d16#gid=393659093)
+[UWO-Ferrybox variables from our
+sensors](https://docs.google.com/spreadsheets/d/1arKYfUjmg3YrgQ5g9LN_XFwUORyz7nqlKNWq3uYok3U/edit?ts=5c7e1d16#gid=393659093)
 
 [Dashboard](https://dashboard.awi.de/?dashboard=3760)
 
-[Procedure to download NRT data](https://spaces.awi.de/confluence/display/MOS/NRT+data+download+procedures)
+[Procedure to download NRT
+data](https://spaces.awi.de/confluence/display/MOS/NRT+data+download+procedures)
 
-[AWI NRT database](https://dashboard.awi.de/data-xxl/), search for svluwobs
+[AWI NRT database](https://dashboard.awi.de/data-xxl/), search for
+svluwobs
 
-[Quick overview AWI NRT database](https://dashboard.awi.de/?dashboard=9736) 
+[Quick overview AWI NRT
+database](https://dashboard.awi.de/?dashboard=9736)
 
 ### **FerryBox**
-- **2020-03-13**: Salinity was filtered above 28 in d_all.rds file.
-- **2018-11-14**: One instrument was removed by Uwe (Chlorophyl-a), that means that one column (CHl_A_Cyclops) was also removed from the Ferrybox data file. Script was modified in consequence.
+
+-   **2020-03-13**: Salinity was filtered above 28 in d_all.rds file.
+-   **2018-11-14**: One instrument was removed by Uwe (Chlorophyl-a),
+    that means that one column (CHl_A\_Cyclops) was also removed from
+    the Ferrybox data file. Script was modified in consequence.
 
 ### **pH seaFET**
-- **2018-08-30**: voltINT + phINT were filtered from 2017-12-14 to 2018-01-08 and bad data were removed from 2018-01-08 to 2018-02-02. pH spectro from 2018-04-16 07:00:00 was fitted with a mean of 4 days of voltINT in order to make the calibration for this 5th period.
-- **2018-07-30**: Flag location (location_flag) is added in the script to localize seaFET/durafet discrete samples: flag 1 = at the harbor (not taken in consideration) and flag 0 = in the FB for durafet or on site for seaFET (takken in consideration as "normal" sampling"). See seaFET part.
-- **2018-02-02**: Based on Darrell's advices (SeaBird), Philipp implemented the seaFET as: 1h periodic sampling with the following commands: perdival 1h, navg 5, brstsize 1, opermode periodic. 
-- **2017-12-29**: "SVL_20171218_010426.dat" from seaFet data was deleted because of bug with its size (0 octect). pH filter was added to "ny_alesund_cc" file for seaFet data (<7.5 and <8.5).
+
+-   **2018-08-30**: voltINT + phINT were filtered from 2017-12-14 to
+    2018-01-08 and bad data were removed from 2018-01-08 to 2018-02-02.
+    pH spectro from 2018-04-16 07:00:00 was fitted with a mean of 4 days
+    of voltINT in order to make the calibration for this 5th period.
+-   **2018-07-30**: Flag location (location_flag) is added in the script
+    to localize seaFET/durafet discrete samples: flag 1 = at the harbor
+    (not taken in consideration) and flag 0 = in the FB for durafet or
+    on site for seaFET (takken in consideration as "normal" sampling").
+    See seaFET part.
+-   **2018-02-02**: Based on Darrell's advices (SeaBird), Philipp
+    implemented the seaFET as: 1h periodic sampling with the following
+    commands: perdival 1h, navg 5, brstsize 1, opermode periodic.
+-   **2017-12-29**: "SVL_20171218_010426.dat" from seaFet data was
+    deleted because of bug with its size (0 octect). pH filter was added
+    to "ny_alesund_cc" file for seaFet data (\<7.5 and \<8.5).
 
 ### **Durafet**
-- Reference spectro measurement from the 2019-01-18 11:00 do not match with a durafet raw data because Ferrybox was off. This reference point was not takken in consideration for calibration. The window of the previous and next calibration periods was extended.
 
-### ***p*CO~2~**
-- **2020-03-11**: Post calibration parameters for period 4 (2018-04-16 to 2018-10-31) were not taken in consideration because they lead to wrong correction.
-- **2019-11-18**: Calibration parameters from #0215-001 were added to "server.../data/NRT_data/Data_Processing_sheet_pCO2.csv" (new path).
-- **2018-08-29**: Calibration parameters from #0215-001 were added to "./data/Calibration_pCO2/Data_Processing_sheet_pCO2.csv".
-- **2018-04-20**: For *p*CO~2~ Calibration the previous period (N° 4) was added to the script "ny-alesund_cc" line 466.
-- **2015-10-13**: we put back the spike.pCO2 to 600 because data in October reached more than 350 µAtm. We let this like that and we are going to deal with it manually later if needed.
-- **2015-09-28**: we put the spike.pCO2 (detection of peaks: threshold) at 350 to remove anomalies on the 12 and 15 September. We have to monitor data. If data reach this value, then problem.
- 
+-   Reference spectro measurement from the 2019-01-18 11:00 do not match
+    with a durafet raw data because Ferrybox was off. This reference
+    point was not takken in consideration for calibration. The window of
+    the previous and next calibration periods was extended.
+
+### ***p*****CO~2~**
+
+-   **2020-03-11**: Post calibration parameters for period 4 (2018-04-16
+    to 2018-10-31) were not taken in consideration because they lead to
+    wrong correction.
+-   **2019-11-18**: Calibration parameters from #0215-001 were added to
+    "server.../data/NRT_data/Data_Processing_sheet_pCO2.csv" (new path).
+-   **2018-08-29**: Calibration parameters from #0215-001 were added to
+    "./data/Calibration_pCO2/Data_Processing_sheet_pCO2.csv".
+-   **2018-04-20**: For *p*CO~2~ Calibration the previous period (N° 4)
+    was added to the script "ny-alesund_cc" line 466.
+-   **2015-10-13**: we put back the spike.pCO2 to 600 because data in
+    October reached more than 350 µAtm. We let this like that and we are
+    going to deal with it manually later if needed.
+-   **2015-09-28**: we put the spike.pCO2 (detection of peaks:
+    threshold) at 350 to remove anomalies on the 12 and 15 September. We
+    have to monitor data. If data reach this value, then problem.
+
 ### **SNAPO**
-- **2020-01-23**: Freezed and lost samples because of heater issue in the container: 15/11/2019 (durafet x1), 03/12/2019 (FB x2), 11/12/2019 (FB x2), 13/12/2019 (FB x2), 20/12/2019 (FB x2), 03/01/2020 (FB x2). Following samples could have been frozen, not sure: 06/09/2019 (FB x2), 13/09/2019 (seaFET x1), 13/09/2019 (FB x2), 20/09/2019 (FB x1), 27/09/2019(FB x2), 04/10/2019 (FB x2), 11/10/2019 (FB x1), 11/10/2019  (durafet x1), 25/10/2019 (FB x2), 01/11/2019 (FB x1), 15/11/2019 (FB x1).
 
-- **2020-01-15**: Results from 2019-04-19 to 2019-08-31 (sent in September 2019) were received. FB duplicates from 2019-08-09 were analysed as Durafet because of wrong box. One sample from 2019-06-07 (durafet) was analysed by Paris because of wrong box.
-- **2019-04-30**: Duplicate "Ferrybox" samples (SN0316 and SN264, 2019-02-22 14:05) were sent by mistake in Villefranche for pH measurements. Those results were put in the datafile as "durafet" samples as soon as they are comming from the Ferrybox tape seawater. We will add a lack of DIC for this week. TA will be measured in Villefranche.
-- **2018-08-30**: flag of 1 AT duplicate (2205) from 2017-08-31 was put to 3 (dosage douteux).
+-   **2020-01-23**: Freezed and lost samples because of heater issue in
+    the container: 15/11/2019 (durafet x1), 03/12/2019 (FB x2),
+    11/12/2019 (FB x2), 13/12/2019 (FB x2), 20/12/2019 (FB x2),
+    03/01/2020 (FB x2). Following samples could have been frozen, not
+    sure: 06/09/2019 (FB x2), 13/09/2019 (seaFET x1), 13/09/2019 (FB
+    x2), 20/09/2019 (FB x1), 27/09/2019(FB x2), 04/10/2019 (FB x2),
+    11/10/2019 (FB x1), 11/10/2019 (durafet x1), 25/10/2019 (FB x2),
+    01/11/2019 (FB x1), 15/11/2019 (FB x1).
+
+-   **2020-01-15**: Results from 2019-04-19 to 2019-08-31 (sent in
+    September 2019) were received. FB duplicates from 2019-08-09 were
+    analysed as Durafet because of wrong box. One sample from 2019-06-07
+    (durafet) was analysed by Paris because of wrong box.
+
+-   **2019-04-30**: Duplicate "Ferrybox" samples (SN0316 and SN264,
+    2019-02-22 14:05) were sent by mistake in Villefranche for pH
+    measurements. Those results were put in the datafile as "durafet"
+    samples as soon as they are comming from the Ferrybox tape seawater.
+    We will add a lack of DIC for this week. TA will be measured in
+    Villefranche.
+
+-   **2018-08-30**: flag of 1 AT duplicate (2205) from 2017-08-31 was
+    put to 3 (dosage douteux).
 
 ### **Files - server**
-- **2019-11-15**: Script including the new data downloading from the NRT AWI database is running (ny-alesund_cc.R). From this date, data are donwloaded from AWI NRT dtabase. We are waiting some setting from Philipp to have the entire dataset. Only 2018-2019 are available for the moment. New path was created in the server and pCloud/exp168 with "NRT_data" file. Please see the picture bellow.
-- **2018-04-19**: Since "Ferrybox" is on again, the adding to solve the files issues are making not data into d_hour for this period (2018-09-03 to 2018-14-04). This adding was put in comments now. In seaFET data reading, S/N have been changed from 1005 to 0007.
-- **2018-03-21**: Files issues. FerryBox instruments are down because of freezing but UWO instrument as seaFET and SBE38 are OK. Removing of one 0 octet file from seaFET20180317_1404 and put back seaFET files from 20180309 to 20180312 in seaFET folder. They were in SBE38 folder...Weird. Additionnal script lines were added in order to deal with the issue of "in situ" created date whereas "Ferrybox" created data ware not. Since "in situ" parameters are running (d df) and not "in ferrybox" parameters (z df), the new datetime lines are not taking in consideration with the left_join function we have to add them during Ferrybox shutdown.
-- **2018-03-09**: Script issue solved with first negative values encountred in SBE38 files. We find a regex solution to take "space + space or negative value" in consideration.
-- **2017-11-07**: Wrong seaFET files (wrong datetime starting on the 5th September) from 24 to 26 October were fixed. File "SVL_20171024_030426_to_20171026_110425_SeaFet-1005.txt" were created in SeaFet_archive.
+
+-   **2019-11-15**: Script including the new data downloading from the
+    NRT AWI database is running (ny-alesund_cc.R). From this date, data
+    are donwloaded from AWI NRT dtabase. We are waiting some setting
+    from Philipp to have the entire dataset. Only 2018-2019 are
+    available for the moment. New path was created in the server and
+    pCloud/exp168 with "NRT_data" file. Please see the picture bellow.
+-   **2018-04-19**: Since "Ferrybox" is on again, the adding to solve
+    the files issues are making not data into d_hour for this period
+    (2018-09-03 to 2018-14-04). This adding was put in comments now. In
+    seaFET data reading, S/N have been changed from 1005 to 0007.
+-   **2018-03-21**: Files issues. FerryBox instruments are down because
+    of freezing but UWO instrument as seaFET and SBE38 are OK. Removing
+    of one 0 octet file from seaFET20180317_1404 and put back seaFET
+    files from 20180309 to 20180312 in seaFET folder. They were in SBE38
+    folder...Weird. Additionnal script lines were added in order to deal
+    with the issue of "in situ" created date whereas "Ferrybox" created
+    data ware not. Since "in situ" parameters are running (d df) and not
+    "in ferrybox" parameters (z df), the new datetime lines are not
+    taking in consideration with the left_join function we have to add
+    them during Ferrybox shutdown.
+-   **2018-03-09**: Script issue solved with first negative values
+    encountred in SBE38 files. We find a regex solution to take "space +
+    space or negative value" in consideration.
+-   **2017-11-07**: Wrong seaFET files (wrong datetime starting on the
+    5th September) from 24 to 26 October were fixed. File
+    "SVL_20171024_030426_to_20171026_110425_SeaFet-1005.txt" were
+    created in SeaFet_archive.
 
 ### Data processing
-#### Script ny-alesund_cc.R which runs on awipev@awipev-co2.obs-vlfr.fr
-* reads data from the AWI NRT database [Quick overview AWI NRT database](https://dashboard.awi.de/?dashboard=9736) 
-* calibrates pCO2 data
-* data cleaning:
-  + Argo Global Range Test.
-  + filter salinities above 28
-  + filter temperatures above 10
-  + filter seaFET Volt (outliers)
-  + filter seaFET pH (outliers)
-  + filter durafet (outliers)
-* Quality flags
-    + 1: good data
-    + 3: impossible date and time test
-    + 4: data not usable according to manufacturer (flush mode, zero mode, calibration mode...) 
-    + 6: failing the manufacturer range test (not used)
-    + 7: failing the regional range test 
-    + 12: failing the spike test (NAs from despike)
-    + 13: failing the gradient test
-    + 15: the instrument was not deployed or operated
-    + 16: acid flush
-    + 99: failing the final visual inspection of the data. 
-* Despike using oce::despike with n=2, k=5761
-* Files generated:
-    + previous_NRT_data.rds: all NRT data without alteration from the beginning (2015)
-    + all_nydata_minute.rds: all data after filtering and despike describe above (every minute)
-    + all_nydata_hour.rds: hourly means of all data after filtering and despike describe above (every minute)
-    + nydata_minute.rds: selected data after filtering and despike describe above (every minute). **Useful?**
-    + nydata_hour.rds: selected hourly means of all data after filtering and despike describe above (every minute).  This is for further data processing.
+
+#### Script ny-alesund_cc.R which runs on [awipev\@awipev-co2.obs-vlfr.fr](mailto:awipev@awipev-co2.obs-vlfr.fr){.email}
+
+-   reads data from the AWI NRT database [Quick overview AWI NRT
+    database](https://dashboard.awi.de/?dashboard=9736)
+
+-   calibrates pCO2 data
+
+-   data cleaning:
+
+    -   Argo Global Range Test.
+    -   filter salinities above 28
+    -   filter temperatures above 10
+    -   filter seaFET Volt (outliers)
+    -   filter seaFET pH (outliers)
+    -   filter durafet (outliers)
+
+-   Quality flags
+
+    -   1: good data
+    -   3: impossible date and time test
+    -   4: data not usable according to manufacturer (flush mode, zero
+        mode, calibration mode...)
+    -   6: failing the manufacturer range test (not used)
+    -   7: failing the regional range test
+    -   12: failing the spike test (NAs from despike)
+    -   13: failing the gradient test
+    -   15: the instrument was not deployed or operated
+    -   16: acid flush
+    -   99: failing the final visual inspection of the data.
+
+-   Despike using oce::despike with n=2, k=5761
+
+-   Files generated:
+
+    -   previous_NRT_data.rds: all NRT data without alteration from the
+        beginning (2015)
+    -   all_nydata_minute.rds: all data after filtering and despike
+        describe above (every minute)
+    -   all_nydata_hour.rds: hourly means of all data after filtering
+        and despike describe above (every minute)
+    -   nydata_minute.rds: selected data after filtering and despike
+        describe above (every minute). **Useful?**
+    -   nydata_hour.rds: selected hourly means of all data after
+        filtering and despike describe above (every minute). This is for
+        further data processing.
 
 #### Script awipev-co2.Rmd which runs locally
-* reads locally fb_awipev-co2_server/ny-alesund/data/NRT_data/nydata_hour.rds
-* sal_mix: when ferrybox data (sal_fb) are missing, they are replaced by data from the profiling ctd for depths > 8 m (sal_insitu_ctd_10m)
-* sal_mix_interp: interpolated salinity sal_mix. It is used to have as many spec pH to display (some are during missing data)
-* temp_mix: when data of in situ temperature at 11 m (temp_insitu_11m) are missing, they are replaced by data from the profiling ctd for depths > 8 m
-* temp_mix_interp: interpolated temperature temp_mix. It is used to have as many spec pH to display (some are during missing data)
-* pco2_calc_fb: pco2 calc from AT/CT ferrybox = carb avec temp_fb +sal_fb
-* calibrate seafet pH
-    - ph_s_sf_temp_insi: pH spectro seaFET pH insi calculé avec AT interpolée + temp_mix +sal_mix
-    - E0int25_sf: calculé à partir du voltage interne + ph_s_sf_temp_insi (temp 11m + temp_insitu_ctd_10m si trous) + temp CTD 10m + sal CTD 10m (calib seaFET fonction 1)
-    - phint_tot_sf: calculé à partir du voltage interne + E0 + temp CTD + sal CTD (calib seaFET fonction 2)
-* ph_calc: pH calc from AT/CT ferrybox = carb avec temp_fb +sal_fb
-* despike pH seaFET
-* calibrate durafet pH
-    - ph_s_dur_temp_fb: pH spectro durafet pH insi calculé avec AT interpolée + temp_fb +sal_fb
-* Relation at / sal_mix 
-* at_calc: calculé from sal_mix
-* saves locally d_all.rds which comprises all variables plus those generated in the script
 
+-   reads locally
+    fb_awipev-co2_server/ny-alesund/data/NRT_data/nydata_hour.rds
+
+-   sal_mix: when ferrybox data (sal_fb) are missing, they are replaced
+    by data from the profiling ctd for depths > 8 m (sal_insitu_ctd_10m)
+
+-   sal_mix_interp: interpolated salinity sal_mix. It is used to have as
+    many spec pH to display (some are during missing data)
+
+-   temp_mix: when data of in situ temperature at 11 m (temp_insitu_11m)
+    are missing, they are replaced by data from the profiling ctd for
+    depths > 8 m
+
+-   temp_mix_interp: interpolated temperature temp_mix. It is used to
+    have as many spec pH to display (some are during missing data)
+
+-   pco2_calc_fb: pco2 calc from AT/CT ferrybox = carb avec temp_fb
+    +sal_fb
+
+-   calibrate seafet pH
+
+    -   ph_s\_sf_temp_insi: pH spectro seaFET pH insi calculé avec AT
+        interpolée + temp_mix +sal_mix
+    -   E0int25_sf: calculé à partir du voltage interne +
+        ph_s\_sf_temp_insi (temp 11m + temp_insitu_ctd_10m si trous) +
+        temp CTD 10m + sal CTD 10m (calib seaFET fonction 1)
+    -   phint_tot_sf: calculé à partir du voltage interne + E0 + temp
+        CTD + sal CTD (calib seaFET fonction 2)
+
+-   ph_calc: pH calc from AT/CT ferrybox = carb avec temp_fb +sal_fb
+
+-   despike pH seaFET
+
+-   calibrate durafet pH
+
+    -   ph_s\_dur_temp_fb: pH spectro durafet pH insi calculé avec AT
+        interpolée + temp_fb +sal_fb
+
+-   Relation at / sal_mix
+
+-   at_calc: calculé from sal_mix
+
+-   saves locally d_all.rds which comprises all variables plus those
+    generated in the script
 
 ### Villefranche Server informations
 
-* Serveur : awipev-co2 (193.50.85.104)
-* 3 comptes: awipev (partagé avec Samir), gattuso, nydata (pour l’envoi des données par P. Fischer mais n'est plus utilisé).
-* Pour se connecter à awipev-co2.obs-vlfr.fr
-    + ssh awipev@awipev-co2.obs-vlfr.fr
-* Intervention sur le serveur :
-    + ssh awipev@awipev-co2.obs-vlfr.fr
-    + rebooting Ubuntu server: sudo shutdown -r now
-    + to check versions:
-        - dpkg -l | grep shiny
-        - dpkg -l | grep r-base
-    + To update Ubuntu, R and its packages:
-        - sudo su
-        - apt-get upgrade
-    + To restart shiny server: sudo systemctl restart shiny-server
-        - update shiny server: follow procedure detailed on the shiny web page Data processing
-* To install R packages:
-    + ssh gattuso@awipev-co2.obs-vlfr.fr
-    + sudo R (then password)
-    + install.packages("tidyverse")
-    
-**crontab awipev@awipev-co2.obs-vlfr.fr**
+-   Serveur : awipev-co2 (193.50.85.104)
 
-si on veut remplacer intégralement les fichiers de pCloud par ceux de awipev-co2 : ajouter “--delete” à la commande rsync.
-Pattern des commandes : # m h dom mon dow command 
+-   3 comptes: awipev (partagé avec Samir), gattuso, nydata (pour
+    l'envoi des données par P. Fischer mais n'est plus utilisé).
 
-* (Every 4 hour on the hour, a crontab action runs automatically the script ny-alesund/R/ny-alesund_cc.R. This script essentially appends the daily files from AWI-NRT database and cleans the data)
-    + 00 *//1 * * * cd $HOME; USER=awipev R --vanilla < ny-alesund/R/ny-alesund_cc.R > ny-alesund/R/log_ny-alesund_cc.txt 2>&1
-* (Every 4 hour at 10 min past the hour, the web page is generated)
-    + 10 *//1 * * * cd web; USER=awipev bash awipev-co2.sh > awipev-web.log 2>&1 
-* (At 05:00 the files from server/web are copied to gattuso’s iMac in pCloud ... Exp168)
-    + 00 05 * * * /usr/bin/rsync -e "ssh -o StrictHostKeyChecking=no" -avh /home/awipev/web 'gattuso@gattuso.obs-vlfr.fr:/Users/gattuso/pCloud\ Sync/Documents/experiments/exp168_awipev-CO2/fb_awipev-co2_server/'
-* (At 05:00 the files from server/ny-alesund are copied to gattuso’s iMac in pCloud/Exp168)
-    + 00 05 * * * /usr/bin/rsync -e "ssh -o StrictHostKeyChecking=no" -avh /home/awipev/ny-alesund 'gattuso@gattuso.obs-vlfr.fr:/Users/gattuso/pCloud\ Sync/Documents/experiments/exp168_awipev-CO2/fb_awipev-co2_server/' 
+-   Pour se connecter à awipev-co2.obs-vlfr.fr
+
+    -   ssh
+        [awipev\@awipev-co2.obs-vlfr.fr](mailto:awipev@awipev-co2.obs-vlfr.fr){.email}
+
+-   Intervention sur le serveur :
+
+    -   ssh
+        [awipev\@awipev-co2.obs-vlfr.fr](mailto:awipev@awipev-co2.obs-vlfr.fr){.email}
+
+    -   rebooting Ubuntu server: sudo shutdown -r now
+
+    -   to check versions:
+
+        -   dpkg -l \| grep shiny
+        -   dpkg -l \| grep r-base
+
+    -   To update Ubuntu, R and its packages:
+
+        -   sudo su
+        -   apt-get upgrade
+
+    -   To restart shiny server: sudo systemctl restart shiny-server
+
+        -   update shiny server: follow procedure detailed on the shiny
+            web page Data processing
+
+-   To install R packages:
+
+    -   ssh
+        [gattuso\@awipev-co2.obs-vlfr.fr](mailto:gattuso@awipev-co2.obs-vlfr.fr){.email}
+    -   sudo R (then password)
+    -   install.packages("tidyverse")
+
+**crontab
+[awipev\@awipev-co2.obs-vlfr.fr](mailto:awipev@awipev-co2.obs-vlfr.fr){.email}**
+
+si on veut remplacer intégralement les fichiers de pCloud par ceux de
+awipev-co2 : ajouter "--delete" à la commande rsync. Pattern des
+commandes : \# m h dom mon dow command
+
+-   (Every 4 hour on the hour, a crontab action runs automatically the
+    script ny-alesund/R/ny-alesund_cc.R. This script essentially appends
+    the daily files from AWI-NRT database and cleans the data)
+
+    -   00 *//1*  \* \* cd \$HOME; USER=awipev R --vanilla \<
+        ny-alesund/R/ny-alesund_cc.R >
+        ny-alesund/R/log_ny-alesund_cc.txt 2>&1
+
+-   (Every 4 hour at 10 min past the hour, the web page is generated)
+
+    -   10 *//1*  \* \* cd web; USER=awipev bash awipev-co2.sh >
+        awipev-web.log 2>&1
+
+-   (At 05:00 the files from server/web are copied to gattuso's iMac in
+    pCloud ... Exp168)
+
+    -   00 05 \* \* \* /usr/bin/rsync -e "ssh -o
+        StrictHostKeyChecking=no" -avh /home/awipev/web
+        '[gattuso\@gattuso.obs-vlfr.fr](mailto:gattuso@gattuso.obs-vlfr.fr){.email}:/Users/gattuso/pCloud Sync/Documents/experiments/exp168_awipev-CO2/fb_awipev-co2_server/'
+
+-   (At 05:00 the files from server/ny-alesund are copied to gattuso's
+    iMac in pCloud/Exp168)
+
+    -   00 05 \* \* \* /usr/bin/rsync -e "ssh -o
+        StrictHostKeyChecking=no" -avh /home/awipev/ny-alesund
+        '[gattuso\@gattuso.obs-vlfr.fr](mailto:gattuso@gattuso.obs-vlfr.fr){.email}:/Users/gattuso/pCloud Sync/Documents/experiments/exp168_awipev-CO2/fb_awipev-co2_server/'
 
 ### Web page
 
-* La page web index.html est faite sur le serveur awipev/web grâce au script awipev-CO2_web.Rmd puis transférée et renommée dans awipev/awipev-CO2_web
-* Création du répertoire web qui contient ce qu’il faut pour générer la page web:
-    + AWIPEV-Logo.jpg
-    + Discrete_sampling_AWIPEV.csurv
-    + awipev-CO2_web.Rmd
-    + awipev-co2.sh (lancer par bash awipev-co2.sh)
-* Accessible https://awipev-co2.obs-vlfr.fr 
-* On utilise un shell script awipev-co2.sh :
-    
-    #!/bin/bash 
-    
-    # script de lancement via crontab echo '---------deb awipev-co2.sh -----------' 
-    
-    # On lance la fabrication du html (une seule ligne)
-    cd web; R -e 'library("rmarkdown");library("knitr");rmarkdown::render("awipev-CO2_web.Rmd")'; cp awipev-CO2_web.html ../awipev-CO2_web/index.html 
-    
+-   La page web index.html est faite sur le serveur awipev/web grâce au
+    script awipev-CO2_web.Rmd puis transférée et renommée dans
+    awipev/awipev-CO2_web
+
+-   Création du répertoire web qui contient ce qu'il faut pour générer
+    la page web:
+
+    -   AWIPEV-Logo.jpg
+    -   Discrete_sampling_AWIPEV.csurv
+    -   awipev-CO2_web.Rmd
+    -   awipev-co2.sh (lancer par bash awipev-co2.sh)
+
+-   Accessible <https://awipev-co2.obs-vlfr.fr>
+
+-   On utilise un shell script awipev-co2.sh :
+
+    #!/bin/bash
+
+    \# script de lancement via crontab echo '---------deb awipev-co2.sh
+    -----------'
+
+    \# On lance la fabrication du html (une seule ligne) cd web; R -e
+    'library("rmarkdown");library("knitr");rmarkdown::render("awipev-CO2_web.Rmd")';
+    cp awipev-CO2_web.html ../awipev-CO2_web/index.html
+
     echo '---------fin awipev-co2.sh -----------'
 
 A la main dans le terminal, cela donne :
 
-* ssh awipev@awipev-co2.obs-vlfr.fr
-* cd; bash web/awipev-co2.sh
+-   ssh
+    [awipev\@awipev-co2.obs-vlfr.fr](mailto:awipev@awipev-co2.obs-vlfr.fr){.email}
+-   cd; bash web/awipev-co2.sh
 
-
-![ ](Images/awipev_server_arborescence.jpg){width=65%}
+![](Images/awipev_server_arborescence.jpg){width="65%"}
