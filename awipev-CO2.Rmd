@@ -3,9 +3,9 @@ title: "Carbonate chemistry at Ny-Ålesund"
 author: "Jean-Pierre Gattuso and Samir Alliouane and Bernard Gentili"
 date: '`r format(Sys.Date(), "%d %B %Y")`'
 output:
-  html_document: default
-  word_document: default
   pdf_document: default
+  word_document: default
+  html_document: default
   odt_document: default
 editor_options: 
   chunk_output_type: console
@@ -63,6 +63,8 @@ if (!require("readxl")) install.packages("readxl")
 library("readxl")
 if (!require("oce")) install.packages("oce")
 library(oce)
+if (!require("pangaear")) install.packages("pangaear")
+library("pangaear")
 
 knitr::opts_chunk$set(echo = TRUE)
 
@@ -223,7 +225,12 @@ svl_remos_depth <- tibble(
 d_hour <- dplyr::left_join(d_hour, svl_remos_depth, by = 'datetime') %>% 
   dplyr::mutate(depth = ifelse(!is.na(pressure_insitu_ctd), pressure_insitu_ctd, depth_complete))
 
-  
+# # Many issue with sal_ctd_insi
+# # read files made available by Philipp with  quality-controlled data
+# https://doi.org/10.1594/PANGAEA.929583
+# pg_data("10.1594/PANGAEA.929583")
+
+
 # check_plot <- d_hour %>% 
 #   ggplot() + geom_point(aes(x=datetime, y=depth, col='blue', alpha = 0.7)) +
 #   geom_point(aes(x=datetime, y=depth, col='red', alpha = 0.3))
@@ -974,17 +981,16 @@ tmp <- d_all %>%
             range_diff = mean(sal_insitu_ctd_1m, na.rm = TRUE) - mean(sal_insitu_ctd_10m, na.rm = TRUE)) %>% 
   ungroup()
 
+knitr::kable(quantile(x = tmp$range_diff, na.rm = TRUE), digits = 1, col.names = "Salinity (unit)", caption = "Quantiles salinity gradient between 0-2 m and > 8 m", format = "html", table.attr = "style='width:30%;'") %>% kableExtra::kable_classic(full_width = TRUE, position = "center")
+
 p_sal_range <- ggplot(data = tmp) +
   geom_histogram((aes(x = range_diff))) +
   labs(title = "Daily salinity difference between 1 and 10 m", x = "Difference") +
   Mytheme(size_labs = 8)
 print(p_sal_range)
 
-kable(quantile(x = tmp$range_diff, na.rm = TRUE), digits = 2, col.names = "Sal. unit", caption = "Quantiles salinity gradient between 0-2 m and > 8 m")
 rm(sal_xts)
 ```
-
-
 
 ```{r, eval=FALSE, echo=FALSE}
 Extreme differences: `r dplyr::filter(tmp, range_diff < -3 | range_diff > 2)`.
@@ -1862,7 +1868,7 @@ calib_spectro_all <- group_by(calib_spectro_all, deployment_sf) %>%
             E0ext25 = mean(E0ext25, na.rm = TRUE) 
             ) %>% 
   dplyr::filter(!is.na(deployment_sf))
-names(calib_spectro_all) <- c("deployment_sf", "E0int25_sf", "E0ext25_sf")
+names(calib_spectro_all) <- c("deployment_sf", "E0int25_sf_all", "E0ext25_sf_all")
 
 # add E0 mean to seaFET data per deployment
 d_all <-left_join(d_all, calib_spectro_all, by="deployment_sf" )
@@ -1892,10 +1898,7 @@ d_all <- d_all %>%
   dplyr::select(order(colnames(d_all)))
 ```
 
-Below are the seafet calibration parameters using all data (irrespective
-of the depth of the seafet) and with the seafet data collected below 8
-m. They are very close but we nevertheless use the calibration data
-below 8 m (easier to explain in the manuscript).
+Below are the seafet calibration parameters using all data (irrespective of the depth of the seafet) and with the seafet data collected below 8 m. They are very close but we nevertheless use the calibration data below 8 m (easier to explain in the manuscript).
 
 ```{r seaFET pH plot sf_calib , echo=FALSE, message= FALSE, warning=FALSE}
 #### plot
@@ -1932,7 +1935,7 @@ period, data must be removed.
 
 ```{r seaFET pH calculation sf_calc all, echo=FALSE, message= FALSE, warning=FALSE}
 #### calculation of the calibrated pH with all data irrespective of the depth of the REMOS ####
-seafet_calib_all <- sf_calc(calEint = d_all$voltINT, calEext = d_all$voltEXT, E0int25 = d_all$E0int25_sf,  E0ext25 = d_all$E0ext25_sf, calT = d_all$temp_sf, calSal = d_all$sal_insitu_ctd_interp)
+seafet_calib_all <- sf_calc(calEint = d_all$voltINT, calEext = d_all$voltEXT, E0int25 = d_all$E0int25_sf_all,  E0ext25 = d_all$E0ext25_sf_all, calT = d_all$temp_sf, calSal = d_all$sal_insitu_ctd_interp)
 # bind new calibrated pH data to the seafet data set.
 names(seafet_calib_all) <- c("pHint_tot_sf_all", "pHext_tot_sf_all")
 # Despike
@@ -1960,7 +1963,7 @@ d_all <- d_all %>%
   dplyr::select(order(colnames(d_all)))
 seafet_depth_xts <- dplyr::select(d_all, datetime, ph_s_sf_temp_insi, pHint_tot_sf_all_1m, pHint_tot_sf_all_3m, pHint_tot_sf_all_5m, pHint_tot_sf_all_7m, pHint_tot_sf_all_10m)
 seafet_depth_xts <- as.xts(seafet_depth_xts, order.by = d_all$datetime)
-dygraph(seafet_depth_xts, group = "depth", main="pH seaFET", ylab="pHT") %>%
+dygraph(seafet_depth_xts, group = "depth", main="Spec pH and seaFET pH at all depths (calibrated using all data, irrespective of the depth of the seafet)", ylab="pHT") %>%
 dySeries("pHint_tot_sf_all_10m", label = "pHT 10m", color =  RColorBrewer::brewer.pal(3, "Dark2")[1], strokeWidth = 0, pointSize = 1) %>%
 dySeries("pHint_tot_sf_all_7m", label = "pHT 7m", color =  RColorBrewer::brewer.pal(3, "Dark2")[2], strokeWidth = 0, pointSize = 1) %>%
 dySeries("pHint_tot_sf_all_5m", label = "pHT 5m", color =  RColorBrewer::brewer.pal(3, "Dark2")[3], strokeWidth = 0, pointSize = 1) %>%
@@ -2020,7 +2023,7 @@ d_all <- d_all %>%
 
 seafet_depth_xts <- dplyr::select(d_all, datetime, ph_s_sf_temp_insi, pHint_tot_sf_10m)
 seafet_depth_xts <- as.xts(seafet_depth_xts, order.by = d_all$datetime)
-dygraph(seafet_depth_xts, group = "depth", main="Spec pH and calibrated seaFET pH at 10 m", ylab="pHT") %>%
+dygraph(seafet_depth_xts, group = "depth", main="Spec pH and seaFET pH at 10 m (calibrated with 10 mdata only)", ylab="pHT") %>%
 dySeries("pHint_tot_sf_10m", label = "pH calib 10m", color =  "black", strokeWidth = 0, pointSize = 1) %>%
 dySeries("ph_s_sf_temp_insi", label = "pH spectro", color =  "red", strokeWidth = 0, pointSize = 5 ) %>%
 dyEvent(as.POSIXct("2017-08-24 12:00:00", tz="UTC"), "seaFET #1005 installed", labelLoc = "bottom", color="red") %>%
@@ -2040,12 +2043,7 @@ rm(seafet_depth_xts)
 
 Quality control plots :
 
--   Offset between calibrated seaFET data and pH spectro. The offset
-    must fit between -0.2/0.2 pH units.
-
-"differences between calibrated sensor pH values and values obtained
-from discrete, check samples can be expected to be as small as 0.02 pH
-units, and perhaps less." (McLaughlin et al. 2017).
+Offset between calibrated seaFET data and pH spectro. The offset must be between -0.2 and 0.2 pH units. "differences between calibrated sensor pH values and values obtained from discrete, check samples can be expected to be as small as 0.02 pH units, and perhaps less." (McLaughlin et al. 2017).
 
 ```{r seaFET quality control pH 1, echo=FALSE, warning = FALSE, message = FALSE, out.width='100%'}
 #Offset between seafet pH and spec pH (Fig. 2 Kapsenberg et al.)
@@ -2075,8 +2073,6 @@ dyOptions(
   dyRangeSelector(height = 30, dateWindow= c("2017-10-21 00:00:00", "2021-01-11 00:00:00"))
 ```
 
-#- pH INT - pH EXT was plotted here.
-
 ```{r seaFET quality control pH 2, echo=FALSE, warning = FALSE, message = FALSE, out.width='100%'}
 # # COMMENTED BECAUSE INT-EXT NOT NEEDED
 # delta_xts <- dplyr::select(ph_sf, datetime, diff_sf_int_ext, pHext_tot_sf, pHint_tot_sf)
@@ -2098,10 +2094,8 @@ dyOptions(
 #   dyRangeSelector(height = 30, dateWindow= c("2017-10-21 00:00:00", "2021-01-11 00:00:00"))
 ```
 
-From now on, one uses seaFET pH from the internal electrode calibrated
-with spec pH and seaFET data when the REMOS was below 8 m
-(pHint_tot_sf_10m). This unique pH variable is called pHint_tot_sf. All
-other pH variables are cleaned up
+pH INT - pH EXT was plotted here. From now on, one uses seaFET pH from the internal electrode calibrated
+with spec pH and seaFET data when the REMOS was below 8 m (pHint_tot_sf_10m). This unique pH variable is called pHint_tot_sf. All other pH variables are cleaned up. We also calculate pHint_tot_sf. at 4°C: pHint_tot_sf_temp_4.
 
 ```{r seafet clean up, echo=FALSE, message= FALSE, warning=FALSE, out.width="80%",fig.show='hold', fig.align="center"}
 d_all <- d_all %>%
@@ -2117,62 +2111,70 @@ d_all <- d_all %>%
     "pHint_tot_sf_10m_", "pHext_", "pHint_tot_sf_all"
   )))
 
+# normalized seafet pH 4°C and remove sf biofouling period
+tmp <- d_all %>%
+  dplyr::select(datetime, depth, at, sal_insitu_ctd, temp_sf, pHint_tot_sf) %>%
+  tidyr::drop_na() %>%
+  dplyr::filter(datetime < as.POSIXct("2018-01-01") | datetime > as.POSIXct("2018-02-03"))
+tmp$pHint_tot_sf_temp_4 <- seacarb::pHinsi(pH=tmp$pHint_tot_sf, ALK=mean(tmp$at*1e-6, na.rm=TRUE), Tinsi=4, Tlab=tmp$temp_sf, Pinsi=tmp$depth/10, S=tmp$sal_insitu_ctd, Pt=0, Sit=0, k1k2 = "l", kf = "dg", ks="d", pHscale = "T", b="u74")
+d_all <- d_all %>% 
+  left_join(tmp %>% dplyr::select(datetime, pHint_tot_sf_temp_4), by="datetime")
 ```
 
-### **seaFET pH profiles**
+<!-- ### **seaFET pH profiles** -->
 
-```{r seafet profiles, echo=FALSE, message= FALSE, warning=FALSE, out.width="80%",fig.show='hold', fig.align="center"}
+```{r seafet profiles, eval=FALSE, echo=FALSE, message= FALSE, warning=FALSE, out.width="80%",fig.show='hold', fig.align="center"}
 
-# we look at all depths
-tmp <- d_all %>% 
-  dplyr::select(year, montht, pHint_tot_sf, depth_group) %>%
-  tidyr::drop_na(pHint_tot_sf, depth_group) %>%
-  dplyr::group_by(depth_group, year, montht)
-summary(aov(tmp$pHint_tot_sf ~ tmp$depth_group * tmp$montht))
-p <- tmp %>%
-  ggplot(aes(x = depth_group, y = pHint_tot_sf)) +
-  geom_boxplot(notch=FALSE, size=0.2, fill="grey50", outlier.color = "blue", outlier.size = 0.3, coef = 1.5) +
-  labs(title = "pHT", x = "Depth (m)", y= "pHT seaFET at in situ temperature") +
-#  lims(y = c(7.4, 8.3)) +
-  coord_cartesian() +
-  facet_wrap(vars(montht), scale = "fixed")
-print(p)
-
-# we look at 0 to 4 m vs more than 8 m
-tmp <- d_all %>% 
-  dplyr::select(montht, pHint_tot_sf, depth) %>%
-  dplyr::mutate(depth2 = as.factor(dplyr::case_when(depth < 4 ~ '0-4', 
-                                             depth > 8 ~ '8-12'))) %>% 
-  dplyr::filter(depth2 == '0-4' | depth2 == '8-12') %>% 
-  dplyr::group_by(depth2, montht)
-summary(aov(tmp$pHint_tot_sf ~ tmp$depth2 * tmp$montht))
-
-p <- tmp %>% 
-  ggplot(aes(x=as.factor(depth2), y = pHint_tot_sf)) +
-  geom_boxplot(notch=FALSE, size=0.2, fill="grey50", outlier.color = "blue", outlier.size = 0.3) +
-  labs(title = "pHT", x = "Depth (m)", y= "pHT seaFET at in situ temperature") +
-  facet_wrap(vars(montht), scale = "free_y")
-print(p)
-
-# we look at 0 to 4 m vs more than 8 m but pH at 4°C
+# # we look at all depths
+# tmp <- d_all %>% 
+#   dplyr::select(year, montht, pHint_tot_sf, depth_group) %>%
+#   tidyr::drop_na(pHint_tot_sf, depth_group) %>%
+#   dplyr::group_by(depth_group, year, montht)
+# summary(aov(tmp$pHint_tot_sf ~ tmp$depth_group * tmp$montht))
+# p <- tmp %>%
+#   ggplot(aes(x = depth_group, y = pHint_tot_sf)) +
+#   geom_boxplot(notch=FALSE, size=0.2, fill="grey50", outlier.color = "blue", outlier.size = 0.3, coef = 1.5) +
+#   labs(title = "pHT", x = "Depth (m)", y= "pHT seaFET at in situ temperature") +
+# #  lims(y = c(7.4, 8.3)) +
+#   coord_cartesian() +
+#   facet_wrap(vars(montht), scale = "fixed")
+# print(p)
+# 
+# # we look at 0 to 4 m vs more than 8 m
+# tmp <- d_all %>% 
+#   dplyr::select(montht, pHint_tot_sf, depth) %>%
+#   dplyr::mutate(depth2 = as.factor(dplyr::case_when(depth < 4 ~ '0-4', 
+#                                              depth > 8 ~ '8-12'))) %>% 
+#   dplyr::filter(depth2 == '0-4' | depth2 == '8-12') %>% 
+#   dplyr::group_by(depth2, montht)
+# summary(aov(tmp$pHint_tot_sf ~ tmp$depth2 * tmp$montht))
+# 
+# p <- tmp %>% 
+#   ggplot(aes(x=as.factor(depth2), y = pHint_tot_sf)) +
+#   geom_boxplot(notch=FALSE, size=0.2, fill="grey50", outlier.color = "blue", outlier.size = 0.3) +
+#   labs(title = "pHT", x = "Depth (m)", y= "pHT seaFET at in situ temperature") +
+#   facet_wrap(vars(montht), scale = "free_y")
+# print(p)
+# 
+# # we look at 0 to 4 m vs more than 8 m but pH at 4°C
 
 
 ```
 
-**Conclusion**: The range is significantly larger during some months
-when the data deeper than 8 m are considered. Also, pH is sometimes
-higher at the surface, at other times it is higher on the bottom (June).
-No data are available at 1 m (actually 0 to 2 m). So, to compare surface
-and bottom, I combine 1 and 3 m (0 to 4 m) and 9 m (below 8 m).
+<!-- **Conclusion**: The range is significantly larger during some months -->
+<!-- when the data deeper than 8 m are considered. Also, pH is sometimes -->
+<!-- higher at the surface, at other times it is higher on the bottom (June). -->
+<!-- No data are available at 1 m (actually 0 to 2 m). So, to compare surface -->
+<!-- and bottom, I combine 1 and 3 m (0 to 4 m) and 9 m (below 8 m). -->
 
-Depth and month of the year have a statistically significant effect on
-pH. The interaction is also significant, indicating that the effect of
-depth differs depending on the month.
+<!-- Depth and month of the year have a statistically significant effect on -->
+<!-- pH. The interaction is also significant, indicating that the effect of -->
+<!-- depth differs depending on the month. -->
 
--   To compare with pCO2/pCO2 measured in the Ferrybox seems therefore
-    better to stick with pH_10m, that is at depths deeper than 8 m.
--   pCO2 would have the same behaviour as pH. For air-sea CO2 fluxes,
-    one should use data from 0 to 4 m.
+<!-- -   To compare with pCO2/pCO2 measured in the Ferrybox seems therefore -->
+<!--     better to stick with pH_10m, that is at depths deeper than 8 m. -->
+<!-- -   pCO2 would have the same behaviour as pH. For air-sea CO2 fluxes, -->
+<!--     one should use data from 0 to 4 m. -->
 
 ## pH durafet
 
@@ -2399,6 +2401,18 @@ The average offset between durafet and references (spectro) data is
 `r average_offset_dur` pH unit (sd = `r sd_offset_dur`, n =
 `r n_offset_dur`).
 
+```{r durafet clean up, echo=FALSE, message= FALSE, warning=FALSE}
+d_all <- d_all %>% 
+  dplyr::mutate(pH_dur = ph_dur_corr) %>% # the right durafet pH at in situ temp from now on
+  dplyr::select(-ph_dur, -ph_dur_corr)
+# normalized durafet pH 4°C
+tmp <- d_all %>%
+  dplyr::select(datetime, at, sal_fb, temp_fb, pH_dur) %>%
+  tidyr::drop_na()
+tmp$pH_dur_temp_4 <- seacarb::pHinsi(pH=tmp$pH_dur, ALK=mean(tmp$at*1e-6, na.rm=TRUE), Tinsi=4, Tlab=tmp$temp_fb, Pinsi=11/10, S=tmp$sal_fb, Pt=0, Sit=0, k1k2 = "l", kf = "dg", ks="d", pHscale = "T", b="u74")
+d_all <- d_all %>% 
+  left_join(tmp %>% dplyr::select(datetime, pH_dur_temp_4 ), by="datetime")
+```
 ## Range per months
 
 ```{r Range per month, echo=FALSE, message= FALSE, warning=FALSE}
@@ -2427,42 +2441,44 @@ alkalinity of `r mean(d_all$at, na.rm=TRUE)` µmoles kg-1 (mean data).
 For information, mean temperatures in Ferrybox and *in situ* are
 repectively 3.5°C and 2.5°C.
 
-### **seaFET / durafet pHs (all at 9 m)**
+### **seaFET / durafet pHs (all > 8 m)**
 
-```{r pHs comparaison, echo=FALSE, message= FALSE, warning=FALSE}
+```{r pHs comparaison 4°C, echo=FALSE, message= FALSE, warning=FALSE}
 # prepare data and remove sf biofouling period
 pH_sf <- d_all %>%
-  dplyr::select(datetime, sal_insitu_ctd_10m , temp_insitu_ctd_10m, pHint_tot_sf)%>%
-  dplyr::filter(!is.na(pHint_tot_sf), !is.na(temp_insitu_ctd_10m), !is.na(sal_insitu_ctd_10m)) %>%
-  dplyr::filter(datetime < as.POSIXct("2018-01-01") | datetime > as.POSIXct("2018-02-03"))
+  dplyr::select(datetime, sal_insitu_ctd_10m, temp_insitu_ctd_10m, pHint_tot_sf_temp_4, depth_group) %>%
+  #tidyr::drop_na() %>%
+  dplyr::filter(datetime < as.POSIXct("2018-01-01") | datetime > as.POSIXct("2018-02-03")) %>% 
+  dplyr::mutate(pHint_tot_sf_temp_4_10m = ifelse(depth_group == ">8", pHint_tot_sf_temp_4, NA))
 
-pH_sf$pHint_tot_sf_temp_4 <- pHinsi(pH=pH_sf$pHint_tot_sf, ALK=mean(d_all$at, na.rm=TRUE), Tinsi=4, Tlab=pH_sf$temp_insitu_ctd_10m, Pinsi=11/10, S=pH_sf$sal_insitu_ctd_10m, Pt=0, Sit=0, k1k2 = "l", kf = "dg", ks="d", pHscale = "T", b="u74")
+#pH_sf$pHint_tot_sf_temp_4 <- pHinsi(pH=pH_sf$pHint_tot_sf, ALK=mean(d_all$at, na.rm=TRUE), Tinsi=4, Tlab=pH_sf$temp_insitu_ctd_10m, Pinsi=11/10, S=pH_sf$sal_insitu_ctd_10m, Pt=0, Sit=0, k1k2 = "l", kf = "dg", ks="d", pHscale = "T", b="u74")
 
 pH_dur <- d_all %>%
   dplyr::select(datetime, sal_fb,temp_fb, ph_dur_corr)%>%
-  dplyr::filter(!is.na(ph_dur_corr), !is.na(temp_fb), !is.na(sal_fb))
-pH_dur$pH_durafet_temp_4 <- pHinsi(pH=pH_dur$ph_dur_corr, ALK=mean(d_all$at, na.rm=TRUE), Tinsi=4, Tlab=pH_dur$temp_fb, Pinsi=11/10, S=pH_dur$sal_fb, Pt=0, Sit=0, k1k2 = "l", kf = "dg", ks="d", pHscale = "T", b="u74")
+  tidyr::drop_na() %>%
+pH_dur$pH_dur_temp_4 <- pHinsi(pH=pH_dur$ph_dur_corr, ALK=mean(d_all$at, na.rm=TRUE), Tinsi=4, Tlab=pH_dur$temp_fb, Pinsi=11/10, S=pH_dur$sal_fb, Pt=0, Sit=0, k1k2 = "l", kf = "dg", ks="d", pHscale = "T", b="u74")
 
-# join pH sf norm + pH dur norm
-d_all <- left_join(d_all, pH_sf%>%dplyr::select(datetime, pHint_tot_sf_temp_4 ), by="datetime")
-d_all <- left_join(d_all, pH_dur%>%dplyr::select(datetime, pH_durafet_temp_4 ), by="datetime")
+# add pH sf and pH dur normalized at 4°C ti d_all
+#d_all <- left_join(d_all, pH_sf%>%dplyr::select(datetime, pHint_tot_sf_temp_4 ), by="datetime")
+d_all <- d_all %>% 
+  left_join(pH_dur %> %dplyr::select(datetime, pH_dur_temp_4), by="datetime")
 
-fit <- lmodel2(data = d_all,  pHint_tot_sf_temp_4 ~ pH_durafet_temp_4 , nperm = 99)
-pdur_sf_norm_text <-  ggplot(d_all,aes(x=pH_durafet_temp_4, y= pHint_tot_sf_temp_4, label = monthd))+
+fit <- lmodel2(data = d_all,  pHint_tot_sf_temp_4 ~ pH_dur_temp_4, nperm = 99)
+pdur_sf_norm_text <-  ggplot(d_all,aes(x=pH_dur_temp_4, y= pHint_tot_sf_temp_4, label = monthd))+
   geom_point( aes(color=factor(monthd)), size =1, alpha=0.5) + 
   facet_wrap( ~ factor(monthd), ncol = 3) +
   geom_abline(slope = 1, intercept = 0, linetype = "dashed") +
   theme(aspect.ratio=1,plot.title = element_text(size=7)) + 
-  coord_fixed(ratio = 1 , xlim=c(7.8,8.35), ylim=c(7.8,8.35))+ #scale_colour_discrete(guide="none") +
+  coord_fixed(ratio = 1 , xlim=c(7.8,8.35), ylim=c(7.8,8.35)) + #scale_colour_discrete(guide="none") +
   labs( x="pH durafet, 4°C", y="pH seaFET, 4°C ", color = "Month ")  +theme_bw()
 
 print(pdur_sf_norm_text)
 rm(pdur_sf_norm_text)
 
-durafet_sf_contros_xts <- dplyr::select(d_all, datetime, pH_durafet_temp_4, pHint_tot_sf_temp_4)
+durafet_sf_contros_xts <- dplyr::select(d_all, datetime, pH_dur_temp_4, pHint_tot_sf_temp_4)
 durafet_sf_contros_xts <- as.xts(durafet_sf_contros_xts, order.by = d_all$datetime)
 dygraph(durafet_sf_contros_xts, group = "awipev", main="pH durafet vs pH seaFET at 4°C", ylab="pHT") %>%
-    dySeries("pH_durafet_temp_4", label = "pH durafet", color ="blue", strokeWidth=0, pointSize=2) %>%
+    dySeries("pH_dur_temp_4", label = "pH durafet", color ="blue", strokeWidth=0, pointSize=2) %>%
     dySeries("pHint_tot_sf_temp_4", label = "pH seaFET", color =  "red", strokeWidth = 0, pointSize = 2 ) %>%
     # dyOptions(colors = RColorBrewer::brewer.pal(3, "Dark2"), pointSize = 4) %>%
     dyHighlight(highlightCircleSize = 8,highlightSeriesBackgroundAlpha = 0.5,hideOnMouseOut = TRUE) %>%
@@ -2484,10 +2500,10 @@ pH_calc$pH_calc_fb_temp_4 <- pHinsi(pH = pH_calc$ph_calc_fb, ALK=pH_calc$at*1e-6
 # join pH calc norm + pH dur/sf norm in d_all
 d_all <- left_join(d_all, pH_calc %>% dplyr::select(datetime, pH_calc_fb_temp_4), by="datetime")
 
-durafet_calc_contros_xts <- dplyr::select(d_all, datetime, pH_durafet_temp_4, pH_calc_fb_temp_4)
+durafet_calc_contros_xts <- dplyr::select(d_all, datetime, pH_dur_temp_4, pH_calc_fb_temp_4)
 durafet_calc_contros_xts <- as.xts(durafet_calc_contros_xts, order.by = d_all$datetime)
 dygraph(durafet_calc_contros_xts, group = "awipev", main="pH calculated vs pH durafet, normalized at 4°C", ylab="pHT") %>%
-    dySeries("pH_durafet_temp_4", label = "pH durafet", color ="blue", strokeWidth=0, pointSize=2) %>%
+    dySeries("pH_dur_temp_4", label = "pH durafet", color ="blue", strokeWidth=0, pointSize=2) %>%
     dySeries("pH_calc_fb_temp_4", label = "pH calculated", color =  "red", strokeWidth = 0, pointSize = 4 ) %>%
     # dyOptions(colors = RColorBrewer::brewer.pal(3, "Dark2"), pointSize = 4) %>%
     dyHighlight(highlightCircleSize = 8,highlightSeriesBackgroundAlpha = 0.5,hideOnMouseOut = TRUE) %>%
@@ -3220,7 +3236,7 @@ for pH calculated from AT and CT according to seacarb.
 
 ## Stratification
 
-```{r stratification, echo=FALSE, message= FALSE, warning=FALSE}
+```{r, echo=FALSE, message= FALSE, warning=FALSE}
 # # we look at the distribution of data
 depth_labels <- c("0-2", "2-4", "4-6", "6-8", ">8")
 # we look at salinity all depths
@@ -3383,13 +3399,27 @@ den_delta_plt <- tmp_delta %>%
   Mytheme(size_labs = 12) +
   theme(panel.grid.major.x = element_blank(), panel.grid.major.y = element_blank(),
         panel.grid.minor.y = element_blank())
+print(den_delta_plt)
+# we look at pHint_tot_sf at all depths
+tmp <- d_all %>% 
+  dplyr::select(montht, pHint_tot_sf, depth_group) %>%
+  tidyr::drop_na() %>% 
+  dplyr::filter(depth_group != "NA") %>% 
+  group_by(depth_group, montht)
+p <- tmp %>% 
+  ggplot(aes(x=as.factor(depth_group), y = pHint_tot_sf)) +
+  geom_boxplot(notch=FALSE, size=0.2, fill="grey50", outlier.color = "blue", outlier.size = 0.3) +
+  labs(title = "pHint_tot_sf vs depth", x = "Depth (m)", y= "pH (units)") +
+  scale_x_discrete(labels = depth_labels) +
+  facet_wrap(vars(montht), scale = "free_y")
+print(p)
+summary(aov(tmp$pHint_tot_sf ~ tmp$depth_group * tmp$montht))
 
 # we look at pHint_tot_sf 0 to 4 m vs more than 8 m
 tmp <- d_all %>% 
-  #dplyr::mutate(depth_group = depth_group_pressure) %>% 
   dplyr::select(montht, pHint_tot_sf, depth_group) %>%
-  dplyr::mutate(depth_group2 = as.factor(case_when(depth_group == '0-2' | depth_group == '2-4' ~ '0-4', 
-                                      depth_group == '>8' ~ '8-12'))) %>% 
+  dplyr::mutate(depth_group2 = as.factor(case_when(depth_group == '0-2' | depth_group == '2-4' ~ '0-4',
+                                                   depth_group == '>8' ~ '8-12'))) %>% 
   dplyr::filter(depth_group2 == '0-4' | depth_group2 == '8-12') %>% 
   dplyr::group_by(depth_group2, montht)
 summary(aov(tmp$pHint_tot_sf ~ tmp$depth_group2 * tmp$montht))
@@ -3409,11 +3439,63 @@ p <- tidyr::drop_na(tmp) %>%
   facet_wrap(vars(montht), scale = "free_y")
 print(p)
 
+pHinsi_delta_plt <- tmp_delta %>% 
+  ggplot(aes(x=montht, y=pH_tot_sf_med_delta)) +
+  #labs(y = substitute("pH"["T"] ~ "at in situ temp."), x = "Month") +
+  scale_x_discrete("Month", expand = c(0, 0)) +
+  scale_y_continuous(substitute("pH"["T"] ~ "at in situ temp."), limits = c(-0.07, 0.03), expand = c(0, 0)) +
+  geom_col(fill="blue") +
+  geom_hline(yintercept = 0) +
+  annotate("text", x = 1.5, y = 0.02, label = substitute("pH"["surface"] ~ "> pH"["deep"])) +
+  annotate("text", x = 1.5, y = -0.06, label = substitute("pH"["surface"] ~ "< pH"["deep"])) +
+  Mytheme(size_labs = 12) +
+  theme(panel.grid.major.x = element_blank(), panel.grid.major.y = element_blank(),
+        panel.grid.minor.y = element_blank())
+print(pHinsi_delta_plt)
+# we look at pHint_tot_sf normalized at 4°C at all depths
+tmp <- d_all %>% 
+  dplyr::select(montht, pHint_tot_sf_temp_4, depth_group) %>%
+  #tidyr::drop_na() %>% 
+  dplyr::filter(depth_group != "NA") %>% 
+  group_by(depth_group, montht)
+p <- tmp %>% 
+  ggplot(aes(x=as.factor(depth_group), y = pHint_tot_sf_temp_4)) +
+  geom_boxplot(notch=FALSE, size=0.2, fill="grey50", outlier.color = "blue", outlier.size = 0.3) +
+  labs(title = "pHint_tot_sf at 4°C vs depth", x = "Depth (m)", y= "pH at 4°C (units)") +
+  scale_x_discrete(labels = depth_labels) +
+  facet_wrap(vars(montht), scale = "free_y")
+print(p)
+summary(aov(tmp$pHint_tot_sf_temp_4 ~ tmp$depth_group * tmp$montht))
+
+# we look at pHint_tot_sf normalized at 4°C  0 to 4 m vs more than 8 m
+tmp <- d_all %>% 
+  dplyr::select(montht, pHint_tot_sf_temp_4, depth_group) %>%
+  dplyr::mutate(depth_group2 = as.factor(case_when(depth_group == '0-2' | depth_group == '2-4' ~ '0-4',
+                                                   depth_group == '>8' ~ '8-12'))) %>% 
+  dplyr::filter(depth_group2 == '0-4' | depth_group2 == '8-12') %>% 
+  dplyr::group_by(depth_group2, montht)
+summary(aov(tmp$pHint_tot_sf_temp_4 ~ tmp$depth_group2 * tmp$montht))
+
+tmp_delta <- tmp %>% 
+  group_by(depth_group2, montht) %>% 
+  dplyr::summarise(pH_tot_sf_med = median(pHint_tot_sf_temp_4, na.rm = TRUE)) %>% 
+  tidyr::pivot_wider(names_from = depth_group2, values_from = pH_tot_sf_med) %>% 
+  dplyr::rename(median0_4m = "0-4",
+                median8_12m = "8-12") %>%   dplyr::mutate(pH_tot_sf_med_delta = median0_4m - median8_12m)
+kable(tmp_delta, digits = 3, caption = "Median seafet pH at 4°C with (median0_4m - median8_12m)")
+
+p <- tidyr::drop_na(tmp) %>% 
+  ggplot(aes(x=as.factor(depth_group2), y = pHint_tot_sf)) +
+  geom_boxplot(notch=FALSE, size=0.2, fill="grey50", outlier.color = "blue", outlier.size = 0.3) +
+  labs(title = "pH vs depth", x = "Depth (m)", y= "pHint_tot_sf") +
+  facet_wrap(vars(montht), scale = "free_y")
+print(p)
+
 pH_delta_plt <- tidyr::drop_na(tmp_delta) %>% 
   ggplot(aes(x=montht, y=pH_tot_sf_med_delta)) +
   #labs(y = substitute("pH"["T"] ~ "at in situ temp."), x = "Month") +
   scale_x_discrete("Month", expand = c(0, 0)) +
-  scale_y_continuous(substitute("pH"["T"] ~ "at in situ temp."), limits = c(-0.2, 0.1), expand = c(0, 0)) +
+  scale_y_continuous(substitute("pH"["T"] ~ "at 4°C"), limits = c(-0.2, 0.1), expand = c(0, 0)) +
   geom_col(fill="blue") +
   geom_hline(yintercept = 0) +
   annotate("text", x = 1.5, y = 0.8, label = substitute("pH"["surface"] ~ "> pH"["deep"])) +
@@ -3422,15 +3504,33 @@ pH_delta_plt <- tidyr::drop_na(tmp_delta) %>%
   theme(panel.grid.major.x = element_blank(), panel.grid.major.y = element_blank(),
         panel.grid.minor.y = element_blank())
 
-deltas <- sal_delta_plt / temp_delta_plt / den_delta_plt / pH_delta_plt
-deltas <- deltas + plot_annotation(tag_levels = 'a')
-ggsave(filename = "figures/deltas.png", plot = deltas, width = 15, height = 20, units = "cm")
+
+# all deltas
+deltas_plt <- sal_delta_plt / temp_delta_plt / den_delta_plt / pH_delta_plt
+deltas_plt <- deltas_plt + plot_annotation(tag_levels = 'a')
+print(deltas_plt)
+ggsave(filename = "figures/deltas.png", plot = deltas_plt, width = 15, height = 20, units = "cm")
 ```
 
 Using the medians because data are missing.
 
 -   Salinity
 -   Temperature is always colder at 0-4 m than below 8 m (0.15 to 2°C).
+
+**Conclusion for pH**: The range is significantly larger during some months
+when the data deeper than 8 m are considered. Also, pH is sometimes
+higher at the surface, at other times it is higher on the bottom (June).
+No data are available at 1 m (actually 0 to 2 m). So, to compare surface
+and bottom, I combine 1 and 3 m (0 to 4 m) and 9 m (below 8 m).
+
+Depth and month of the year have a statistically significant effect on
+pH. The interaction is also significant, indicating that the effect of
+depth differs depending on the month.
+
+-   To compare with pCO2/pCO2 measured in the Ferrybox seems therefore
+    better to stick with pH_10m, that is at depths deeper than 8 m.
+-   pCO2 would have the same behaviour as pH. For air-sea CO2 fluxes,
+    one should use data from 0 to 4 m.
 
 ## Takahashi thermal vs non-thermal
 
