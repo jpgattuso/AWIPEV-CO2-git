@@ -2,11 +2,7 @@
 title: "Carbonate chemistry at Ny-Ålesund" 
 author: "Jean-Pierre Gattuso and Samir Alliouane and Bernard Gentili"
 date: '`r format(Sys.Date(), "%d %B %Y")`'
-output:
-  pdf_document: default
-  word_document: default
-  html_document: default
-  odt_document: default
+output: html_document
 editor_options: 
   chunk_output_type: console
   markdown: 
