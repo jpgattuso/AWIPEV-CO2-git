@@ -65,6 +65,8 @@ if (!require("oce")) install.packages("oce")
 library(oce)
 if (!require("pangaear")) install.packages("pangaear")
 library("pangaear")
+if (!require("todor")) install.packages("todor")
+library("todor")
 
 knitr::opts_chunk$set(echo = TRUE)
 
@@ -595,11 +597,11 @@ discrete <- bind_rows(discrete_no_na, discrete_is_na) %>%
 # File "Ferrybox nutrients 2014-2018.xlsx" provided by 
 # Willem van de Poll <w.h.van.de.poll@rug.nl> on 2020-01-16
 # nutrients in umol/l
-nuts <- readxl::read_excel(paste0(path, "fb_data/Ferrybox nutrients 2014-2018.xlsx"),
-                           skip =1) %>% 
-  drop_na(date) %>% 
-  dplyr::mutate(datetime = as.POSIXct(paste0(date, " 12:00:00")),
-                ) %>% # assuming sampling time 12:00
+nuts <-
+  readxl::read_excel(paste0(path, "fb_data/Ferrybox nutrients 2014-2018.xlsx"),
+                     skip = 1) %>%
+  drop_na(date) %>%
+  dplyr::mutate(datetime = as.POSIXct(paste0(date, " 12:00:00")),) %>% # assuming sampling time 12:00
   dplyr::filter(datetime > as.POSIXct("2015-07-09"))
 # The nearest times
 time_index <- unique(d_all$datetime)
@@ -642,7 +644,6 @@ d_all <- full_join(d_all, discrete2merge, by="datetime")
 
 # ct
 discrete2merge <- discrete %>%
-  #drop_na() %>%
   dplyr::select(closest_datetime, ct) %>%
   dplyr::filter(!is.na(closest_datetime)) %>%
   rename(datetime=closest_datetime)
@@ -650,7 +651,6 @@ d_all <- full_join(d_all, discrete2merge, by="datetime")
 
 # pH calculated ferrybox
 discrete2merge <- discrete %>%
-  #drop_na() %>%
   dplyr::select(closest_datetime, ph_calc_fb) %>%
   dplyr::filter(!is.na(closest_datetime)) %>%
   rename(datetime=closest_datetime)
@@ -1008,7 +1008,7 @@ The salinity difference between 1 and 10 m ranges between `r min(tmp$range_diff,
 
 ```{r Sal comparaison, echo=FALSE, message= FALSE, warning=FALSE, out.width="80%",fig.show='hold', fig.align="center"}
 lm <- lm2(x = d_all$sal_insitu_ctd_10m, y = d_all$sal_fb)
-p <-  ggplot(d_all,aes(x=sal_insitu_ctd_10m, y= sal_fb))+
+p <-  ggplot(d_all, aes(x=sal_insitu_ctd_10m, y = sal_fb))+
   geom_point( aes(color=factor(monthd))) + 
   geom_abline(slope=1, intercept=0, linetype = "dashed")+
   geom_abline(aes(intercept = lm$intercept_MA, slope = lm$slope_MA),colour = "blue") +
@@ -1047,7 +1047,7 @@ encountered and temp_mix = temp_insitu_11m.
 -   1 fixed at 11 meters depth (temp_insitu_11m)
 
 ```{r temperature time series, echo=FALSE, message= FALSE, warning=FALSE, out.width="80%",fig.show='hold', fig.align="center"}
-# TEMP Ferrybox SBE45
+# Temperature Ferrybox SBE45
 temp_fb_xts <- dplyr::select(d_all, datetime, temp_fb)
 temp_fb_xts <- as.xts(temp_fb_xts, order.by = temp_fb_xts$datetime)
 dygraph(temp_fb_xts, group = "awipev", main="Temperature (in Ferrybox)", ylab="Temperature") %>%
@@ -1057,7 +1057,7 @@ dygraph(temp_fb_xts, group = "awipev", main="Temperature (in Ferrybox)", ylab="T
       dyHighlight(highlightCircleSize = 8,highlightSeriesBackgroundAlpha = 0.5,hideOnMouseOut = TRUE) %>%
       dyOptions(drawGrid = TRUE, drawPoints = TRUE, pointSize = 2,useDataTimezone = TRUE) %>%
       dyRangeSelector(height = 30, dateWindow= NULL)
-# TEMP insitu SBE38
+# Temperature insitu SBE38
 temp_insitu_xts <- dplyr::select(d_all, datetime, temp_insitu_11m)
 temp_insitu_xts <- as.xts(temp_insitu_xts, order.by = temp_insitu_xts$datetime)
 dygraph(temp_insitu_xts, group = "awipev", main="Temperature (in situ 11 m)", ylab="Temperature") %>%
@@ -2312,48 +2312,109 @@ d_all <- d_all %>%
     NA
   ))
 
-durafet_contros_xts <- dplyr::select(d_all, datetime, ph_dur, ph_s_dur_temp_fb,ph_dur_corr, pH_s_dur_no_calb)
-durafet_contros_xts <- as.xts(durafet_contros_xts, order.by = d_all$datetime)
- dygraph(durafet_contros_xts, group = "awipev", main="pH durafet (in Ferrybox)", ylab="pHT") %>%
-    dySeries("ph_dur", label = "Raw durafet pH", color ="blue", strokeWidth=0, pointSize=2) %>%
-       dySeries("pH_s_dur_no_calb", label = "pH spectro no calibration", color ="black", pointShape = "triangle",strokeWidth=0, pointSize=6) %>%
-       dySeries("ph_dur_corr", label = "pH durafet corrected", color =  RColorBrewer::brewer.pal(3, "Dark2")[1], strokeWidth = 0, pointSize = 2 ) %>%
-       dySeries("ph_s_dur_temp_fb", label = "pH spectro for calibration", color =  "red", strokeWidth = 0, pointSize = 6 ) %>%
-    dyEvent(as.POSIXct("2017-10-30 13:00:00", tz="UTC"), "New holder installed", labelLoc = "bottom", color="red") %>% 
-    dyEvent(as.POSIXct("2017-08-24 12:00:00", tz="UTC"), "durafet installed", labelLoc = "bottom", color="red") %>%
-    dyEvent(as.POSIXct("2019-09-02 20:00:00", tz="UTC"), "cleaning same probe ", labelLoc = "bottom", color="red") %>%
-    # dyOptions(colors = RColorBrewer::brewer.pal(3, "Dark2"), pointSize = 4) %>%
-    dyShading(from =  durinterv[1], to= durinterv[2], color = "#CCCCCC") %>%
-    dyShading(from = durinterv[2], to= durinterv[3], color = "#E0E0E0") %>%
-    dyShading(from = durinterv[3], to= durinterv[4], color = "#CCCCCC") %>%
-    dyShading(from = durinterv[4], to= durinterv[5], color = "#E0E0E0") %>%
-    dyShading(from = durinterv[5], to= durinterv[6], color = "#CCCCCC") %>%
-    dyShading(from = durinterv[6], to= durinterv[7], color = "#E0E0E0") %>%
-   dyShading(from = durinterv[7], to= durinterv[8], color = "#CCCCCC") %>%
-   dyShading(from = durinterv[8], to= durinterv[9], color = "#E0E0E0") %>%
-   dyShading(from = durinterv[9], to= durinterv[10], color = "#CCCCCC") %>%
-   dyShading(from = durinterv[10], to= durinterv[11], color = "#E0E0E0") %>%
-    dyShading(from = durinterv[11], to= durinterv[12], color = "#CCCCCC") %>%
-    dyShading(from = durinterv[12], to= durinterv[13], color = "#E0E0E0") %>%
-   dyShading(from = durinterv[13], to= durinterv[14], color = "#CCCCCC") %>%
-   dyShading(from = durinterv[14], to= durinterv[15], color = "#E0E0E0") %>%
-   dyShading(from = durinterv[15], to= durinterv[16], color = "#CCCCCC") %>%
-   dyShading(from = durinterv[16], to= durinterv[17], color = "#E0E0E0") %>%
-   dyShading(from = durinterv[17], to= durinterv[18], color = "#CCCCCC") %>%
-   dyShading(from = durinterv[18], to= durinterv[19], color = "#E0E0E0") %>%
-    dyShading(from = durinterv[19], to= durinterv[20], color = "#CCCCCC") %>%
-    dyShading(from = durinterv[20], to= durinterv[21], color = "#E0E0E0") %>%
-   dyShading(from = durinterv[21], to= durinterv[22], color = "#CCCCCC") %>%
-   dyShading(from = durinterv[22], to= durinterv[23], color = "#E0E0E0") %>%
-   dyShading(from = durinterv[23], to= durinterv[24], color = "#CCCCCC") %>%
-   dyShading(from = durinterv[24], to= durinterv[25], color = "#E0E0E0") %>%
-  dyShading(from = durinterv[25], to= durinterv[26], color = "#CCCCCC") %>%
-  dyShading(from = durinterv[26], to= Sys.Date(), color = "#E0E0E0") %>%
-     dyLegend(show = "follow")   %>%
-    dyHighlight(highlightCircleSize = 8,highlightSeriesBackgroundAlpha = 0.5,hideOnMouseOut = TRUE) %>%
-    dyOptions(drawGrid = TRUE, drawPoints = TRUE, pointSize = c(1,8,1),useDataTimezone = TRUE, digitsAfterDecimal=4) %>%
-    dyRangeSelector(height = 30, dateWindow= NULL) 
-
+durafet_contros_xts <-
+  dplyr::select(d_all,
+                datetime,
+                ph_dur,
+                ph_s_dur_temp_fb,
+                ph_dur_corr,
+                pH_s_dur_no_calb)
+durafet_contros_xts <-
+  as.xts(durafet_contros_xts, order.by = d_all$datetime)
+dygraph(durafet_contros_xts,
+        group = "awipev",
+        main = "pH durafet (in Ferrybox)",
+        ylab = "pHT") %>%
+  dySeries(
+    "ph_dur",
+    label = "Raw durafet pH",
+    color = "blue",
+    strokeWidth = 0,
+    pointSize = 2
+  ) %>%
+  dySeries(
+    "pH_s_dur_no_calb",
+    label = "pH spectro no calibration",
+    color = "black",
+    pointShape = "triangle",
+    strokeWidth = 0,
+    pointSize = 6
+  ) %>%
+  dySeries(
+    "ph_dur_corr",
+    label = "pH durafet corrected",
+    color =  RColorBrewer::brewer.pal(3, "Dark2")[1],
+    strokeWidth = 0,
+    pointSize = 2
+  ) %>%
+  dySeries(
+    "ph_s_dur_temp_fb",
+    label = "pH spectro for calibration",
+    color =  "red",
+    strokeWidth = 0,
+    pointSize = 6
+  ) %>%
+  dyEvent(
+    as.POSIXct("2017-10-30 13:00:00", tz = "UTC"),
+    "New holder installed",
+    labelLoc = "bottom",
+    color = "red"
+  ) %>%
+  dyEvent(
+    as.POSIXct("2017-08-24 12:00:00", tz = "UTC"),
+    "durafet installed",
+    labelLoc = "bottom",
+    color = "red"
+  ) %>%
+  dyEvent(
+    as.POSIXct("2019-09-02 20:00:00", tz = "UTC"),
+    "cleaning same probe ",
+    labelLoc = "bottom",
+    color = "red"
+  ) %>%
+  # dyOptions(colors = RColorBrewer::brewer.pal(3, "Dark2"), pointSize = 4) %>%
+  dyShading(from =  durinterv[1], to = durinterv[2], color = "#CCCCCC") %>%
+  dyShading(from = durinterv[2], to = durinterv[3], color = "#E0E0E0") %>%
+  dyShading(from = durinterv[3], to = durinterv[4], color = "#CCCCCC") %>%
+  dyShading(from = durinterv[4], to = durinterv[5], color = "#E0E0E0") %>%
+  dyShading(from = durinterv[5], to = durinterv[6], color = "#CCCCCC") %>%
+  dyShading(from = durinterv[6], to = durinterv[7], color = "#E0E0E0") %>%
+  dyShading(from = durinterv[7], to = durinterv[8], color = "#CCCCCC") %>%
+  dyShading(from = durinterv[8], to = durinterv[9], color = "#E0E0E0") %>%
+  dyShading(from = durinterv[9], to = durinterv[10], color = "#CCCCCC") %>%
+  dyShading(from = durinterv[10], to = durinterv[11], color = "#E0E0E0") %>%
+  dyShading(from = durinterv[11], to = durinterv[12], color = "#CCCCCC") %>%
+  dyShading(from = durinterv[12], to = durinterv[13], color = "#E0E0E0") %>%
+  dyShading(from = durinterv[13], to = durinterv[14], color = "#CCCCCC") %>%
+  dyShading(from = durinterv[14], to = durinterv[15], color = "#E0E0E0") %>%
+  dyShading(from = durinterv[15], to = durinterv[16], color = "#CCCCCC") %>%
+  dyShading(from = durinterv[16], to = durinterv[17], color = "#E0E0E0") %>%
+  dyShading(from = durinterv[17], to = durinterv[18], color = "#CCCCCC") %>%
+  dyShading(from = durinterv[18], to = durinterv[19], color = "#E0E0E0") %>%
+  dyShading(from = durinterv[19], to = durinterv[20], color = "#CCCCCC") %>%
+  dyShading(from = durinterv[20], to = durinterv[21], color = "#E0E0E0") %>%
+  dyShading(from = durinterv[21], to = durinterv[22], color = "#CCCCCC") %>%
+  dyShading(from = durinterv[22], to = durinterv[23], color = "#E0E0E0") %>%
+  dyShading(from = durinterv[23], to = durinterv[24], color = "#CCCCCC") %>%
+  dyShading(from = durinterv[24], to = durinterv[25], color = "#E0E0E0") %>%
+  dyShading(from = durinterv[25], to = durinterv[26], color = "#CCCCCC") %>%
+  dyShading(from = durinterv[26],
+            to = Sys.Date(),
+            color = "#E0E0E0") %>%
+  dyLegend(show = "follow")   %>%
+  dyHighlight(
+    highlightCircleSize = 8,
+    highlightSeriesBackgroundAlpha = 0.5,
+    hideOnMouseOut = TRUE
+  ) %>%
+  dyOptions(
+    drawGrid = TRUE,
+    drawPoints = TRUE,
+    pointSize = c(1, 8, 1),
+    useDataTimezone = TRUE,
+    digitsAfterDecimal = 4
+  ) %>%
+  dyRangeSelector(height = 30, dateWindow = NULL)
 print(plot_offset_dur)
 
 # now remove outliers
@@ -2445,35 +2506,41 @@ repectively 3.5°C and 2.5°C.
 
 ```{r pHs comparaison 4°C, echo=FALSE, message= FALSE, warning=FALSE}
 # prepare data and remove sf biofouling period
-pH_sf <- d_all %>%
-  dplyr::select(datetime, sal_insitu_ctd_10m, temp_insitu_ctd_10m, pHint_tot_sf_temp_4, depth_group) %>%
-  #tidyr::drop_na() %>%
-  dplyr::filter(datetime < as.POSIXct("2018-01-01") | datetime > as.POSIXct("2018-02-03")) %>% 
-  dplyr::mutate(pHint_tot_sf_temp_4_10m = ifelse(depth_group == ">8", pHint_tot_sf_temp_4, NA))
-
-#pH_sf$pHint_tot_sf_temp_4 <- pHinsi(pH=pH_sf$pHint_tot_sf, ALK=mean(d_all$at, na.rm=TRUE), Tinsi=4, Tlab=pH_sf$temp_insitu_ctd_10m, Pinsi=11/10, S=pH_sf$sal_insitu_ctd_10m, Pt=0, Sit=0, k1k2 = "l", kf = "dg", ks="d", pHscale = "T", b="u74")
-
-pH_dur <- d_all %>%
-  dplyr::select(datetime, sal_fb,temp_fb, ph_dur_corr)%>%
-  tidyr::drop_na() %>%
-pH_dur$pH_dur_temp_4 <- pHinsi(pH=pH_dur$ph_dur_corr, ALK=mean(d_all$at, na.rm=TRUE), Tinsi=4, Tlab=pH_dur$temp_fb, Pinsi=11/10, S=pH_dur$sal_fb, Pt=0, Sit=0, k1k2 = "l", kf = "dg", ks="d", pHscale = "T", b="u74")
-
-# add pH sf and pH dur normalized at 4°C ti d_all
-#d_all <- left_join(d_all, pH_sf%>%dplyr::select(datetime, pHint_tot_sf_temp_4 ), by="datetime")
-d_all <- d_all %>% 
-  left_join(pH_dur %> %dplyr::select(datetime, pH_dur_temp_4), by="datetime")
-
-fit <- lmodel2(data = d_all,  pHint_tot_sf_temp_4 ~ pH_dur_temp_4, nperm = 99)
-pdur_sf_norm_text <-  ggplot(d_all,aes(x=pH_dur_temp_4, y= pHint_tot_sf_temp_4, label = monthd))+
-  geom_point( aes(color=factor(monthd)), size =1, alpha=0.5) + 
-  facet_wrap( ~ factor(monthd), ncol = 3) +
-  geom_abline(slope = 1, intercept = 0, linetype = "dashed") +
-  theme(aspect.ratio=1,plot.title = element_text(size=7)) + 
-  coord_fixed(ratio = 1 , xlim=c(7.8,8.35), ylim=c(7.8,8.35)) + #scale_colour_discrete(guide="none") +
-  labs( x="pH durafet, 4°C", y="pH seaFET, 4°C ", color = "Month ")  +theme_bw()
-
-print(pdur_sf_norm_text)
-rm(pdur_sf_norm_text)
+# TODO consider biofouling period elsewhere too
+#   pH_sf <- d_all %>%
+#   dplyr::select(datetime, sal_insitu_ctd_10m, temp_insitu_ctd_10m, pHint_tot_sf_temp_4, depth_group) %>%
+#   #tidyr::drop_na() %>%
+#   dplyr::filter(datetime < as.POSIXct("2018-01-01") | datetime > as.POSIXct("2018-02-03")) %>% 
+#   dplyr::mutate(pHint_tot_sf_temp_4_10m = ifelse(depth_group == ">8", pHint_tot_sf_temp_4, NA))
+# 
+# #pH_sf$pHint_tot_sf_temp_4 <- pHinsi(pH=pH_sf$pHint_tot_sf, ALK=mean(d_all$at, na.rm=TRUE), Tinsi=4, Tlab=pH_sf$temp_insitu_ctd_10m, Pinsi=11/10, S=pH_sf$sal_insitu_ctd_10m, Pt=0, Sit=0, k1k2 = "l", kf = "dg", ks="d", pHscale = "T", b="u74")
+# 
+# pH_dur <- d_all %>%
+#   dplyr::select(datetime, sal_fb,temp_fb, pH_dur)%>%
+#   tidyr::drop_na() %>%
+# pH_dur$pH_dur_temp_4 <- pHinsi(pH=pH_dur$ph_dur_corr, ALK=mean(d_all$at, na.rm=TRUE), Tinsi=4, Tlab=pH_dur$temp_fb, Pinsi=11/10, S=pH_dur$sal_fb, Pt=0, Sit=0, k1k2 = "l", kf = "dg", ks="d", pHscale = "T", b="u74")
+# 
+# # add pH sf and pH dur normalized at 4°C ti d_all
+# #d_all <- left_join(d_all, pH_sf%>%dplyr::select(datetime, pHint_tot_sf_temp_4 ), by="datetime")
+# d_all <- d_all %>% 
+#   left_join(pH_dur %> %dplyr::select(datetime, pH_dur_temp_4), by="datetime")
+lm <- lm2(x = d_all$pH_dur_temp_4, y = d_all$pHint_tot_sf_temp_4)
+p <- d_all %>% 
+  dplyr::select(pH_dur_temp_4, pHint_tot_sf_temp_4, monthd) %>% 
+  drop_na() %>% 
+  ggplot(aes(x = pH_dur_temp_4, y = pHint_tot_sf_temp_4))+
+  geom_point(aes(color=factor(monthd))) + 
+  geom_abline(slope=1, intercept=0, linetype = "dashed")+
+  geom_abline(aes(intercept = lm$intercept_MA, slope = lm$slope_MA), colour = "blue") +
+  coord_fixed(ratio = 1 , xlim=c(7.8, 8.35), ylim=c(7.8, 8.35)) +
+  labs(title = paste("","\n Adj R2 = ", signif(lm$rsquare, 3),
+                     "; Intercept =", signif(lm$intercept_MA, 3),
+                     "; Slope =", signif(lm$slope_MA, 3),
+                     "; P =", signif(lm$P, 3),
+                     "; RMSE = ", signif(lm$rmse, 3))) +
+  theme(aspect.ratio = 1, plot.title = element_text(size = 7)) + #
+  labs( x = "pH durafet, 4°C", y = "pH seaFET, 4°C", color = "Months") + theme_bw()
+print(p)
 
 durafet_sf_contros_xts <- dplyr::select(d_all, datetime, pH_dur_temp_4, pHint_tot_sf_temp_4)
 durafet_sf_contros_xts <- as.xts(durafet_sf_contros_xts, order.by = d_all$datetime)
@@ -2533,9 +2600,11 @@ rm(seafet_calc_contros_xts)
 
 ```{r pHs comparaison durafet spectro, echo=FALSE, message= FALSE, warning=FALSE}
 # Spectro / durafet
-lm <- lm2(x = d_all$ph_s_dur_temp_fb, y = d_all$ph_dur_corr)
-
-p <-  ggplot(d_all, aes(x=ph_s_dur_temp_fb, y= ph_dur_corr, label = monthd)) +
+lm <- lm2(x = d_all$ph_s_dur_temp_fb, y = d_all$pH_dur)
+p <- d_all %>% 
+  dplyr::select(ph_s_dur_temp_fb, pH_dur, monthd) %>% 
+  drop_na() %>% 
+  ggplot(aes(x = ph_s_dur_temp_fb, y= pH_dur, label = monthd)) +
   geom_text( aes(color=factor(monthd))) + 
   scale_color_discrete(guide = "none")+
   geom_abline(slope=1, intercept =0, linetype = "dashed") +
@@ -2550,17 +2619,19 @@ p <-  ggplot(d_all, aes(x=ph_s_dur_temp_fb, y= ph_dur_corr, label = monthd)) +
   theme(aspect.ratio = 1, plot.title = element_text(size=7)) + 
   coord_fixed(ratio = 1 , xlim=c(8,8.4), ylim=c(8,8.4))+
   labs(x="pH durafet", y="pH spectro", color = "Months")
-p
+print(p)
 ```
 
 ```{r pHs comparaison sf spectro, echo=FALSE, message= FALSE, warning=FALSE}
 # Spectro / seafet
 lm <- lm2(x = d_all$ph_s_sf_temp_insi, y = d_all$pHint_tot_sf)
-
-p <-  ggplot(d_all, aes(x=ph_s_sf_temp_insi, y= pHint_tot_sf, label = monthd)) +
+p <- d_all %>% 
+  dplyr::select(ph_s_sf_temp_insi, pHint_tot_sf, monthd) %>%
+  tidyr::drop_na() %>%
+  ggplot(aes(x=ph_s_sf_temp_insi, y= pHint_tot_sf, label = monthd)) +
   geom_text( aes(color=factor(monthd))) + 
   scale_color_discrete(guide = "none")+
-  geom_abline(slope=1, intercept =0, linetype = "dashed") +
+  geom_abline(slope=1, intercept = 0, linetype = "dashed") +
   geom_abline(aes(intercept = lm$intercept_MA, slope = lm$slope_MA),
               colour = "blue") +
   labs(title = paste("pH spectro vs pH seafet (at in situ temperature)","\n Adj R2 = ", signif(lm$rsquare, 3),
@@ -2570,9 +2641,9 @@ p <-  ggplot(d_all, aes(x=ph_s_sf_temp_insi, y= pHint_tot_sf, label = monthd)) +
                      "; RMSE = ", signif(lm$rmse, 1))) +
   theme_bw() +
   theme(aspect.ratio = 1, plot.title = element_text(size=7)) + 
-  coord_fixed(ratio = 1 , xlim=c(8,8.4), ylim=c(8,8.4))+
-  labs(x="pH spectro", y="pH seafet", color = "Months")
-p
+  coord_fixed(ratio = 1 , xlim=c(8, 8.25), ylim=c(8, 8.25))+
+  labs(x = "pH spectro", y = "pH seafet", color = "Months")
+print(p)
 ```
 
 ## SNAPO-CO2
@@ -2629,7 +2700,7 @@ and 2116).
 ```{r SNAPO, echo=FALSE, message= FALSE, warning=FALSE}
 # use the df at_ct for mean and sd
 # creat a new df to calculate the diff between replicate
- diff <- d %>%
+ diff <- d_all %>%
     group_by(datetime) %>%
    dplyr::select(datetime, at, ct)%>%   
    dplyr::mutate(at_diff = abs(at - lag(at)),
@@ -2649,7 +2720,6 @@ pdelta_ct_snapo <-ggplot() +
     #annotate("text", x = diff$datetime[17], y = -6, label = "-4 µmoles/kg", color="red")+
     labs(title= "CT",x="Time", y="Delta between CT replicates")+
     Mytheme()
-
 p_ct_ts <- ggplot() +
     geom_point(data=discrete, aes(x= datetime, y= ct)) +
     labs(title= "",x="Time", y="CT (µmoles/kg)")+
@@ -2681,27 +2751,64 @@ snapcoevents <-
     )
   )
 
-at_diff_xts <- dplyr::select(diff, datetime, at_diff, at)
+at_diff_xts <- diff %>% dplyr::select(datetime, at_diff, at)
 at_diff_xts <- as.xts(at_diff_xts, order.by = diff$datetime)
 
-pdelta_at_snapo_dygraph <- dygraph(at_diff_xts, group = "awipev", main="Discrete AT (SNAPO) measurements", ylab="AT") %>%
-    dySeries("at_diff", label = "AT delta", color ="red", strokeWidth=0, pointSize=4) %>%
-    dySeries("at", label = "AT duplicates", color =  "blue", strokeWidth = 0, pointSize = 2, axis = "y2" ) %>%
-    # dyOptions(colors = RColorBrewer::brewer.pal(3, "Dark2"), pointSize = 4) %>%
+pdelta_at_snapo_dygraph <-
+  dygraph(at_diff_xts,
+          group = "awipev",
+          main = "Discrete AT (SNAPO) measurements",
+          ylab = "AT") %>%
+  dySeries(
+    "at_diff",
+    label = "AT delta",
+    color = "red",
+    strokeWidth = 0,
+    pointSize = 4
+  ) %>%
+  dySeries(
+    "at",
+    label = "AT duplicates",
+    color =  "blue",
+    strokeWidth = 0,
+    pointSize = 2,
+    axis = "y2"
+  ) %>%
+  # dyOptions(colors = RColorBrewer::brewer.pal(3, "Dark2"), pointSize = 4) %>%
   dyShading(from = snapcoevents[1], to = snapcoevents[2], color = "#E0DEDE") %>%
   dyShading(from = snapcoevents[3], to = snapcoevents[4], color = "#C2C2C2") %>%
   dyShading(from = snapcoevents[5], to = snapcoevents[6], color = "#E0DEDE") %>%
   dyShading(from = snapcoevents[7], to = snapcoevents[8], color = "#C2C2C2") %>%
   dyShading(from = snapcoevents[9], to = snapcoevents[10], color = "#E0DEDE") %>%
   dyShading(from = snapcoevents[11], to = snapcoevents[12], color = "#C2C2C2") %>%
-    dyShading(from = snapcoevents[13], to = snapcoevents[14], color = "#E0DEDE") %>%
-
-  dyAxis("y", axisLineColor="red",label = "", axisLabelColor ="red", axisLineWidth=5) %>%
-    dyAxis("y2", axisLineColor="blue", axisLabelColor = "blue", axisLineWidth=5) %>%
-    dyHighlight(highlightCircleSize = 8,highlightSeriesBackgroundAlpha = 0.5,hideOnMouseOut = TRUE) %>%
-       dyLegend(show = "follow")   %>%
-    dyOptions(drawGrid = TRUE, drawPoints = TRUE, pointSize = c(1,8,1),useDataTimezone = TRUE, digitsAfterDecimal=2) %>%
-    dyRangeSelector(height = 30, dateWindow= NULL) 
+  dyShading(from = snapcoevents[13], to = snapcoevents[14], color = "#E0DEDE") %>%
+  dyAxis(
+    "y",
+    axisLineColor = "red",
+    label = "",
+    axisLabelColor = "red",
+    axisLineWidth = 5
+  ) %>%
+  dyAxis(
+    "y2",
+    axisLineColor = "blue",
+    axisLabelColor = "blue",
+    axisLineWidth = 5
+  ) %>%
+  dyHighlight(
+    highlightCircleSize = 8,
+    highlightSeriesBackgroundAlpha = 0.5,
+    hideOnMouseOut = TRUE
+  ) %>%
+  dyLegend(show = "follow")   %>%
+  dyOptions(
+    drawGrid = TRUE,
+    drawPoints = TRUE,
+    pointSize = c(1, 8, 1),
+    useDataTimezone = TRUE,
+    digitsAfterDecimal = 2
+  ) %>%
+  dyRangeSelector(height = 30, dateWindow = NULL) 
 
 ct_diff_xts <- dplyr::select(diff, datetime, ct_diff, ct)
 ct_diff_xts <- as.xts(ct_diff_xts, order.by = diff$datetime)
@@ -2721,7 +2828,7 @@ pdelta_ct_snapo_dygraph <- dygraph(ct_diff_xts, group = "awipev", main="Discrete
     dyAxis("y2", axisLineColor="blue", axisLabelColor = "blue", axisLineWidth=5) %>%
        dyLegend(show = "follow")   %>%
     dyHighlight(highlightCircleSize = 8,highlightSeriesBackgroundAlpha = 0.5,hideOnMouseOut = TRUE) %>%
-    dyOptions(drawGrid = TRUE, drawPoints = TRUE, pointSize = c(1,8,1),useDataTimezone = TRUE, digitsAfterDecimal=2) %>%
+    dyOptions(drawGrid = TRUE, drawPoints = TRUE, pointSize = c(1,8,1), digitsAfterDecimal=2) %>%
     dyRangeSelector(height = 30, dateWindow= NULL) 
 
 pdelta_at_snapo
@@ -3277,7 +3384,7 @@ p <- tidyr::drop_na(tmp) %>%
   facet_wrap(vars(montht), scale = "free_y")
 print(p)
 
-sal_delta_plt <- tidyr::drop_na(tmp_delta) %>% 
+sal_delta_plt <- tmp_delta %>% 
   ggplot(aes(x=montht, y=sal_delta)) +
   scale_x_discrete(expand = c(0, 0)) +
   scale_y_continuous("Salinity", limits = c(-1.1, 0.8), expand = c(0, 0)) +
@@ -3319,21 +3426,21 @@ tmp_delta <- tmp %>%
                 median8_12m = "8-12") %>% 
   dplyr::mutate(temp_delta = median0_4m - median8_12m)
 kable(tmp_delta, digits = 2, caption = "Median temperature with (median0_4m - median8_12m)")
-
-p <- tidyr::drop_na(tmp) %>% 
+p <- tmp %>% 
+  tidyr::drop_na() %>% 
   ggplot(aes(x=depth_group2, y = temp_insitu_ctd)) +
   geom_boxplot(notch=FALSE, size=0.2, fill="grey50", outlier.color = "blue", outlier.size = 0.3) +
   labs(title = "Temperature vs depth", x = "Depth (m)", y= "Temperature") +
   facet_wrap(vars(montht), scale = "free_y")
 print(p)
-
-temp_delta_plt <- tidyr::drop_na(tmp_delta) %>% 
-  ggplot(aes(x=montht, y=temp_delta)) +
-  scale_x_discrete(expand = c(0, 0)) +
-  scale_y_continuous("Temperature", limits = c(-1.3, 0.8), expand = c(0, 0)) +
+temp_delta_plt <- tmp_delta %>% 
+  #tidyr::drop_na() %>% 
+  ggplot(aes(x = montht, y = temp_delta)) +
+  #scale_x_discrete(expand = c(0, 0)) +
+  scale_y_continuous("Temperature", limits = c(-2.1, 0.5), expand = c(0, 0)) +
   geom_col(fill="blue") +
   geom_hline(yintercept = 0) +
-  annotate("text", x = 1.5, y =0.6, label = substitute("T"["surface"] ~ "> T"["deep"])) +
+  annotate("text", x = 1.5, y = 0.3, label = substitute("T"["surface"] ~ "> T"["deep"])) +
   annotate("text", x = 1.5, y = -0.6, label = substitute("T"["surface"] ~ "< T"["deep"])) +
   Mytheme(size_labs = 12) +
   theme(panel.grid.major.x = element_blank(), panel.grid.major.y = element_blank(),
@@ -3368,9 +3475,9 @@ tmp <- d_all %>%
   dplyr::group_by(depth_group2, montht)
 
 tmp_delta <- tmp %>% 
-  dplyr::select(montht, depth_group, density) %>% 
-  dplyr::mutate(depth_group2 = as.factor(case_when(depth_group == '0-2' | depth_group == '2-4' ~ '0-4', 
-                                      depth_group == '>8' ~ '8-12'))) %>% 
+  dplyr::select(montht, depth_group2, density) %>% 
+  #dplyr::mutate(depth_group2 = as.factor(case_when(depth_group2 == '0-2' | depth_group2 == '2-4' ~ '0-4',
+#                                                   depth_group2 == '>8' ~ '8-12'))) %>% 
   dplyr::filter(depth_group2 == '0-4' | depth_group2 == '8-12') %>% 
   group_by(depth_group2, montht) %>% 
   dplyr::summarise(den_med = median(density, na.rm = TRUE)) %>% 
@@ -3380,8 +3487,9 @@ tmp_delta <- tmp %>%
   dplyr::mutate(den_delta = median0_4m - median8_12m)
 kable(tmp_delta, digits = 2, caption = "Median density with (median0_4m - median8_12m)")
 
-p <- tidyr::drop_na(tmp) %>% 
-  ggplot(aes(x=montht, y = density)) +
+p <- tmp %>% 
+  tidyr::drop_na() %>% 
+  ggplot(aes(x = depth_group2, y = density)) +
   geom_boxplot(notch=FALSE, size=0.2, fill="grey50", outlier.color = "blue", outlier.size = 0.3) +
   labs(title = "Density vs depth", x = "Depth (m)", y= "Density") +
   scale_x_discrete(labels = c("0-4", "8-12")) +
@@ -3407,7 +3515,7 @@ tmp <- d_all %>%
   dplyr::filter(depth_group != "NA") %>% 
   group_by(depth_group, montht)
 p <- tmp %>% 
-  ggplot(aes(x=as.factor(depth_group), y = pHint_tot_sf)) +
+  ggplot(aes(x = as.factor(depth_group), y = pHint_tot_sf)) +
   geom_boxplot(notch=FALSE, size=0.2, fill="grey50", outlier.color = "blue", outlier.size = 0.3) +
   labs(title = "pHint_tot_sf vs depth", x = "Depth (m)", y= "pH (units)") +
   scale_x_discrete(labels = depth_labels) +
@@ -3432,7 +3540,8 @@ tmp_delta <- tmp %>%
                 median8_12m = "8-12") %>%   dplyr::mutate(pH_tot_sf_med_delta = median0_4m - median8_12m)
 kable(tmp_delta, digits = 3, caption = "Median seafet pH with (median0_4m - median8_12m)")
 
-p <- tidyr::drop_na(tmp) %>% 
+p <- tmp %>% 
+  tidyr::drop_na() %>% 
   ggplot(aes(x=as.factor(depth_group2), y = pHint_tot_sf)) +
   geom_boxplot(notch=FALSE, size=0.2, fill="grey50", outlier.color = "blue", outlier.size = 0.3) +
   labs(title = "pH vs depth", x = "Depth (m)", y= "pHint_tot_sf") +
@@ -3455,7 +3564,7 @@ print(pHinsi_delta_plt)
 # we look at pHint_tot_sf normalized at 4°C at all depths
 tmp <- d_all %>% 
   dplyr::select(montht, pHint_tot_sf_temp_4, depth_group) %>%
-  #tidyr::drop_na() %>% 
+  tidyr::drop_na() %>% 
   dplyr::filter(depth_group != "NA") %>% 
   group_by(depth_group, montht)
 p <- tmp %>% 
@@ -3485,9 +3594,9 @@ tmp_delta <- tmp %>%
 kable(tmp_delta, digits = 3, caption = "Median seafet pH at 4°C with (median0_4m - median8_12m)")
 
 p <- tidyr::drop_na(tmp) %>% 
-  ggplot(aes(x=as.factor(depth_group2), y = pHint_tot_sf)) +
+  ggplot(aes(x=as.factor(depth_group2), y = pHint_tot_sf_temp_4)) +
   geom_boxplot(notch=FALSE, size=0.2, fill="grey50", outlier.color = "blue", outlier.size = 0.3) +
-  labs(title = "pH vs depth", x = "Depth (m)", y= "pHint_tot_sf") +
+  labs(title = "pH at 4°C vs depth", x = "Depth (m)", y= "pHint_tot_sf") +
   facet_wrap(vars(montht), scale = "free_y")
 print(p)
 
@@ -3902,7 +4011,7 @@ d_all <- d_all %>%
 saveRDS(file= paste0(path, "fb_data/d_all.rds"), d_all)
 
 pangaea <- as_tibble(d_all) %>% 
-  dplyr::select(datetime, depth, sal_insitu_ctd, sal_fb, sal_mix, temp_insitu_11m, temp_insitu_ctd, temp_fb, temp_sf, temp_dur, at, ct, ph_s_sf_temp_insi, ph_s_dur_temp_fb, ph_calc_fb, pco2_fb, pco2_calc_fb, at_calc, ph_dur_corr, pHint_tot_sf) %>%
+  dplyr::select(datetime, depth, sal_insitu_ctd, sal_fb, sal_mix, temp_insitu_11m, temp_insitu_ctd, temp_fb, temp_sf, temp_dur, at, ct, ph_s_sf_temp_insi, ph_s_dur_temp_fb, ph_calc_fb, pco2_fb, pco2_calc_fb, at_calc, pH_dur, pHint_tot_sf) %>%
   dplyr::rename(pressure = depth,
                 s_insitu = sal_insitu_ctd,
                 s_fb = sal_fb, 
@@ -3920,7 +4029,7 @@ pangaea <- as_tibble(d_all) %>%
                 pco2 = pco2_fb,
                 pco2_calc = pco2_calc_fb,
                 pH_sf = pHint_tot_sf,
-                ph_dur = ph_dur_corr,
+                pH_dur = pH_dur,
                 ph_calc = ph_calc_fb
                 )
 saveRDS(file= paste0(path, "fb_data/pangaea.rds"), pangaea)
