@@ -226,8 +226,21 @@ d_hour <- dplyr::left_join(d_hour, svl_remos_depth, by = 'datetime') %>%
 # # read files made available by Philipp on 2021-12-09 with quality-controlled data
 # # not useful as these are FerryBox data...
 # https://dashboard.awi.de/?dashboard=3865
-# Test with one of the files: https://doi.org/10.1594/PANGAEA.929583
-# pg_data("10.1594/PANGAEA.929583")
+# # NOT USED
+# file_list <- c("10.1594/PANGAEA.896828", "10.1594/PANGAEA.896822", "10.1594/PANGAEA.896821", "10.1594/PANGAEA.896771", "10.1594/PANGAEA.896770", "10.1594/PANGAEA.896170", "10.1594/PANGAEA.897349", "10.1594/PANGAEA.927607", "10.1594/PANGAEA.929583")
+# i <- 0; tmp <- NULL
+# for (i in 1:length(file_list)) {
+#     z <- pg_data(file_list[i])
+#     tmp <- dplyr::bind_rows(tmp, z[[1]]$data)
+# }
+# tmp <- tmp %>% 
+#   dplyr::mutate(datetime = lubridate::parse_date_time(tmp$`Date/Time`,
+#                 orders = "ymd HM")) %>% 
+#   dplyr::select(datetime, `Sal (PSU)`, `Temp [°C]`) %>% 
+#   dplyr::arrange(datetime) %>% 
+#   dplyr::distinct(datetime, .keep_all = TRUE) %>%  # there are a few duplicated datetime
+#   as_tsibble(index = datetime)
+# eff <- dplyr::left_join(d_hour, tmp, by = "datetime")
 
 # check_plot <- d_hour %>% 
 #   ggplot() + geom_point(aes(x=datetime, y=depth, col='blue', alpha = 0.7)) +
