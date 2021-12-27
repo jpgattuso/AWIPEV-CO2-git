@@ -86,7 +86,7 @@ qq <- function (data, digits) {
 
 #################### Regression function
 # function regression plot with equation (MA or OLS) in title
-ggreg <- function (xdata, ydata, type = "OLS", plot = TRUE, title = "title", subtitle = "subtitle", xlab = "x", ylab = "y", proplot = TRUE, ...) 
+ggreg <- function (xdata, ydata, type = "OLS", plot = TRUE, title = "title", xlab = "x", ylab = "y", proplot = TRUE, ...) 
   { # x and y are the names of the variables
   fit_data <- tibble(xdata, ydata)
   colnames(fit_data) = c("xdata", "ydata")
@@ -103,19 +103,19 @@ if (plot == TRUE) {
   geom_point(na.rm = TRUE, size = 2, colour = "blue") +
   geom_abline(aes(intercept = intercept, slope = slope),
               colour = "blue")  + 
-  labs(title = paste(title, 
-                     "\ntype: ", type,
+  labs(title = title,
+       subtitle = paste("\ntype: ", type,
                      "; R2 = ", round(fit$rsquare, digits = 2),
                      "; Intercept =", signif(intercept, 3),
                      "; Slope =", signif(slope, 3),
                      "\nP =", signif(fit$P.param, 3),
                     "rmse =", signif(sqrt(mean(error^2, na.rm=TRUE)), 3)),
-       subtitle = subtitle,
        x = xlab,
        y = ylab) +
 #    lims(x = c(min(fit_data$xdata), max(fit_data$xdata)), y = c(min(fit_data$ydata), max(fit_data$ydata))) +
     theme_bw() +
-    theme(plot.title = element_text(size = 7))
+    theme(plot.title = element_text(size = 10, face = "bold"),
+          plot.subtitle = element_text(size = 8))
     if (proplot == TRUE) { # property-property plot
       plt <- plt +
         geom_abline(slope = 1, intercept = 0, linetype = "dashed") +
@@ -223,10 +223,11 @@ d_hour <- dplyr::left_join(d_hour, svl_remos_depth, by = 'datetime') %>%
   dplyr::mutate(depth = ifelse(!is.na(pressure_insitu_ctd), pressure_insitu_ctd, depth_complete))
 
 # # Many issue with sal_ctd_insi
-# # read files made available by Philipp with  quality-controlled data
-# https://doi.org/10.1594/PANGAEA.929583
+# # read files made available by Philipp on 2021-12-09 with quality-controlled data
+# # not useful as these are FerryBox data...
+# https://dashboard.awi.de/?dashboard=3865
+# Test with one of the files: https://doi.org/10.1594/PANGAEA.929583
 # pg_data("10.1594/PANGAEA.929583")
-
 
 # check_plot <- d_hour %>% 
 #   ggplot() + geom_point(aes(x=datetime, y=depth, col='blue', alpha = 0.7)) +
@@ -936,22 +937,20 @@ The salinity difference between 1 and 10 m ranges between `r min(tmp$range_diff,
 ### **Sal FB / Sal CTD 10 m** 
 
 ```{r Sal comparaison, echo=FALSE, message= FALSE, warning=FALSE, out.width="80%",fig.show='hold', fig.align="center"}
-lm <- lm2(x = d_all$sal_insitu_ctd_10m, y = d_all$sal_fb)
-p <-  ggplot(d_all, aes(x=sal_insitu_ctd_10m, y = sal_fb))+
-  geom_point( aes(color=factor(monthd))) + 
-  geom_abline(slope=1, intercept=0, linetype = "dashed")+
-  geom_abline(aes(intercept = lm$intercept_MA, slope = lm$slope_MA),colour = "blue") +
-  ylim(c(30.5,35.5)) +xlim(c(28,35.5)) +
-  labs(title = paste("","\n Adj R2 = ", signif(lm$rsquare, 3),
-                     "; Intercept =", signif(lm$intercept_MA, 3),
-                     "; Slope =", signif(lm$slope_MA, 3),
-                     "; P =", signif(lm$P, 3),
-                     "; RMSE = ", signif(lm$rmse, 3))) +
-  theme(aspect.ratio = 1, plot.title = element_text(size = 7)) + #
-  coord_fixed(ratio = 1 )+
-  labs( x="Salinity CTD 10 m", y="Salinity FB ", color = "Months") + theme_bw()
-
-print(p) #p_sal_fb_ctd
+reg <- ggreg(
+  xdata = d_all$sal_insitu_ctd_10m,
+  ydata = d_all$sal_fb,
+  type = "MA",
+  plot = TRUE,
+  title = "Comparison salinity",
+  #subtitle = "",
+  xlab = "Salinity CTD 10 m",
+  ylab = "Salinity FB",
+  proplot = TRUE,
+  ylim(c(30.5,35.5)) +xlim(c(28,35.5)),
+  coord_fixed(ratio = 1)
+)
+print(reg$plot)
 
 d_all$diff_sal_fb_insitu_10m <- d_all$sal_insitu_ctd_10m - d_all$sal_fb
 mean_diff_sal_fb_insitu_10m <- round(mean(d_all$diff_sal_fb_insitu_10m, na.rm = TRUE), digits = 2)
@@ -1346,7 +1345,7 @@ reg <- ggreg(
   type = "MA",
   plot = TRUE,
   title = title,
-  subtitle = "",
+  #subtitle = "",
   xlab = "Measured pCO2",
   ylab = "Calculated pCO2",
   proplot = TRUE
