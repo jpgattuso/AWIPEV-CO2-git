@@ -996,10 +996,6 @@ There are `r sum(!is.na(tmp$range_diff))` days with salinity values at both 1 m 
 The salinity difference between 1 and 10 m ranges between `r min(tmp$range_diff, na.rm=TRUE)` and `r max(tmp$range_diff, na.rm=TRUE)` (mean: `r mean(tmp$range_diff, na.rm=TRUE)`; `r median(tmp$range_diff, na.rm=TRUE)`). The difference with depth is therefore significant.
 ```
 
-
-
-
-
 ### **Sal FB / Sal CTD 10 m** 
 
 ```{r Sal comparaison, echo=FALSE, message= FALSE, warning=FALSE, out.width="80%",fig.show='hold', fig.align="center"}
@@ -3338,7 +3334,6 @@ other formulations are, on average, slightly lower than the uncertainty
 for pH calculated from AT and CT according to seacarb.
 
 ## Stratification
-
 ```{r, echo=FALSE, message= FALSE, warning=FALSE}
 # # we look at the distribution of data
 depth_labels <- c("0-2", "2-4", "4-6", "6-8", ">8")
@@ -3373,7 +3368,8 @@ tmp_delta <- tidyr::drop_na(tmp) %>%
   dplyr::mutate(sal_delta = median0_4m - median8_12m)
 kable(tmp_delta, digits = 2, caption = "Median salinity with (median0_4m - median8_12m)")
 
-p <- tidyr::drop_na(tmp) %>% 
+p <- tmp %>% 
+  tidyr::drop_na() %>% 
   ggplot(aes(x=depth_group2, y = sal_insitu_ctd)) +
   geom_boxplot(notch=FALSE, size=0.2, fill="grey50", outlier.color = "blue", outlier.size = 0.3) +
   labs(title = "Salinity vs depth", x = "Depth (m)", y= "Salinity") +
