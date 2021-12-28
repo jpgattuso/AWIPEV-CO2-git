@@ -61,6 +61,8 @@ if (!require("oce")) install.packages("oce")
 library(oce)
 if (!require("pangaear")) install.packages("pangaear")
 library("pangaear")
+if (!require("latex2exp")) install.packages("latex2exp")
+library("latex2exp")
 if (!require("todor")) install.packages("todor")
 library("todor")
 # todor::todor_file("awipev-CO2.Rmd")
@@ -166,7 +168,7 @@ Mytheme <- function(size_labs = 7, face_font="plain") {
         axis.ticks.x = element_line(size=0.1),
         axis.ticks.y = element_line(size=0.1),
         axis.ticks.length = unit(1.1, "mm"),
-        panel.grid.major = element_line(size = 0.25, color="black", linetype="dashed"),
+        #panel.grid.major = element_line(size = 0.25, color="black", linetype="dashed"),
         #aspect.ratio = 1 / 2,
         plot.margin = margin(t = 0, r = 0, b = 0, l = 0, unit = "cm")
   )
@@ -809,7 +811,7 @@ flags
 
 -   Despike using oce::despike with n=2, k=5761
 
-```{r data availability, echo=FALSE, message= FALSE, warning=FALSE, out.width="80%",fig.show='hold', fig.align="center"}
+```{r, echo=FALSE, message= FALSE, warning=FALSE, out.width="80%",fig.show='hold', fig.align="center"}
 d_min <- readRDS(file = paste0(path, "fb_awipev-co2_server/ny-alesund/data/NRT_data/all_nydata_minute.rds")) %>%
 dplyr::select(datetime, c(pco2_corr_qf, sal_fb_qf, sal_insitu_ctd_qf, 
                           temp_fb_qf, temp_insitu_11m_qf, ph_dur_qf, phINT_qf))
@@ -839,8 +841,8 @@ p_avail <- pivot_longer(z, -Flag) %>%
   geom_bar(position = position_stack(reverse = TRUE), stat="identity", width = 0.3) +
   scale_fill_discrete(labels = labels) + 
   coord_flip() +
-  labs(x="", y="", title = "Distribution (%) of quality flags", color = "Quality flag") +
-  Mytheme(size_labs = 8) +
+  labs(x="", y="", title = "Distribution (%) of quality flags") +
+  Mytheme(size_labs = 8) #+
   theme(plot.margin = margin(t = -8, r = 0.0, b = -8, l = 0.0, unit = "cm"))
 kable(z, digits = 1)
 # Monthly distribution of hourly data
@@ -851,25 +853,27 @@ count_phINT_no_NA <-  sum(!is.na(d2$phINT)) # total non-NA pH seafet values
 # calculate the distribution of non-NA pCO2 and pH values per month
 d2_summary <- d2 %>% 
   dplyr::group_by(montht) %>% 
-  dplyr::summarise(pco2_pc = round(100 * sum(!is.na(pco2_fb))/count_pco2_fb_no_NA, digits = 1),
+  dplyr::summarise(pco2 = round(100 * sum(!is.na(pco2_fb))/1000, digits = 1),
+                   pH = round(100 * sum(!is.na(phINT))/1000, digits = 1),
+                   pco2_pc = round(100 * sum(!is.na(pco2_fb))/count_pco2_fb_no_NA, digits = 1),
                    pH_pc = round(100 * sum(!is.na(phINT))/count_phINT_no_NA, digits = 1)
                    )
 # plot the distribution of non-NA pCO2 and pH values per month
 p_avail_month <- d2_summary %>% 
-  tidyr::pivot_longer(cols = c(pco2_pc, pH_pc)) %>% 
+  tidyr::pivot_longer(cols = c(pco2, pH)) %>% 
   ggplot() +
   geom_col(aes(x = montht, y = value, fill = name), position = "dodge", width = 0.75) +
   scale_fill_discrete(name = "", labels = c("pCO2", "pH")) + 
-  labs(x="Month", y="Percent of total number of data", title = "") +
-  Mytheme(size_labs = 8) +
-  theme(plot.margin = margin(t = 0, r = 0, b = 0, l = 0.5, unit = "cm"))
+  labs(x="Month", y="Number of data (thousands)", title = "") +
+  Mytheme(size_labs = 8) #+
+  #theme(plot.margin = margin(t = 0, r = 0, b = 0, l = 0.5, unit = "cm"))
 # Combine plots
 p <- (p_avail / p_avail_month)
 p <- p + plot_annotation(tag_levels = 'A')
 p
 ggsave(filename = "figures/availability.png", plot = p, width = 20, height = 15, units = "cm")
 
-# deleted uneeded data
+# deleted unneeded data
 rm(x, d_min, list=ls(pattern="^d2"))
 ```
 
@@ -1146,42 +1150,30 @@ salinity data.
 ```{r Discrete salinity vs TA, echo=FALSE, fig.align="center", message=FALSE, warning=FALSE, out.width="100%"}
 d_all_at_discrete <- d_all %>% #  To remove an outlier in red
   dplyr::select(datetime, monthd,closest_datetime, at, sal_fb_mix)
-
-fit <- lm(data = d_all_at_discrete, at ~ sal_fb_mix)
-slope_s_at <- fit$coefficients[[2]]
-intercept_s_at <- fit$coefficients[[1]]
-at_s <- ggplot(d_all_at_discrete,aes(x=sal_fb_mix, y= at, label = monthd))+
-  geom_text( aes(color=factor(monthd))) +
-  scale_color_discrete(guide="none")+
-    labs(x="Salinity", y="Discrete AT", color = "Months")  +
-    stat_smooth(method = "lm", col = "black") +
-    labs(title = paste("", "\nAdj R2 = ",signif(summary(fit)$adj.r.squared, 5),
-                       ";\nIntercept =",signif(fit$coef[[1]],5 ),
-                       ";\nSlope =",signif(fit$coef[[2]], 5),
-                       ";\nP =", signif(summary(fit)$coef[2,4], 5),
-                       ";\nRMSE =", signif(sqrt(mean(fit$residuals^2)), 5))) +
-  theme_bw() +
-  theme(aspect.ratio=1,
-        axis.text=element_text(size=7),
-        axis.title.y= element_text(size =7),
-        axis.title.x= element_text(size =7),
-        plot.margin = unit(c(0.5,1,1,1), "cm"),
-        plot.title = element_text(size=7, hjust=0.05,margin = margin(l = 10, b = -70)))
-ggsave(filename = "figures/at_s.png", plot = at_s, width = 25, height = 20, units = "cm")
+reg <- ggreg(
+  xdata = d_all$sal_fb_mix,
+  ydata = d_all$at,
+  type = "OLS",
+  plot = TRUE,
+  title = "Discrete total alkalinity vs salinity",
+  #subtitle = "",
+  xlab = "Salinity",
+  ylab = TeX("Total alkalinity ($\\mu mol\\~kg^{-1})$"),
+  proplot = TRUE,
+  #ylim(c(30.5,35.5)) + xlim(c(28,35.5)),
+  coord_fixed(ratio = 1)
+)
+print(reg$plot)
+ggsave(filename = "figures/at_s.png", plot = reg$plot, width = 25, height = 20, units = "cm")
 
 # Same plot for paper
-p_at_s <- ggplot(d_all_at_discrete,aes(x=sal_fb_mix, y= at)) +
-  geom_point(col="blue", size = 0.2) +
-  labs(x="Salinity", y="Discrete AT")  +
-  stat_smooth(method = "lm", col = "blue", size = 0.3) +
-  theme_bw(base_size = 9) +
-  theme(aspect.ratio=1#,
-        #axis.text=element_text(size=7),
-        #axis.title.y= element_text(size =7),
-        #axis.title.x= element_text(size =7),
-        #plot.margin = unit(c(0.5,1,1,1), "cm"),
-        #plot.title = element_text(size=7, hjust=0.05,margin = margin(l = 10, b = -70))
-        )
+p_at_s <- d_all_at_discrete %>% 
+  drop_na() %>% 
+  ggplot(aes(x = sal_fb_mix, y = at)) +
+  geom_point(col="blue", size = 0.5) +
+  labs(x="Salinity", y=TeX("Total alkalinity ($\\mu mol\\~kg^{-1})$"))  +
+  stat_smooth(method = "lm", col = "blue", size = 0.5) +
+  Mytheme(size_labs = 9)
 ggsave(filename = "figures/p_at_s.png", plot = p_at_s, width = 7, height = 7, units = "cm")
 
 # Salinity is a predictor of AT -> using the regression defined above
@@ -1246,44 +1238,6 @@ rm(at_contros_calc_xts)
 There are a lot of outliers in the 4th period (since the new analyzer
 was set up in Nov. 2018). We use the desplike function to remove them.
 
-<!-- #### **TA since November 2018 (final installation)** -->
-
-<!-- ```{r TA since November 2018, echo=FALSE, warning=FALSE, message=FALSE,out.width='100%',fig.align='hold'} -->
-
-<!--  # select subset of data and remove obvious outliers -->
-
-<!--  at_nov_2018 <- -->
-
-<!--   dplyr::select(d_all, datetime, at_calc, AT, at) %>% -->
-
-<!--   filter(datetime > "2018-11-01", AT > 2250) -->
-
-<!-- #despike -->
-
-<!-- at_nov_2018 <- mutate(at_nov_2018, AT_despike = despike(AT, reference= "median", n=0.5, k=10, replace="NA")) -->
-
-<!-- #plot -->
-
-<!-- at_datetime <- ggplot(data = at_nov_2018, aes(x=datetime)) + -->
-
-<!--   geom_point(aes(y=AT, colour = "before"), size =3) + -->
-
-<!--   geom_point(aes(y=AT_despike, colour = "after"), size = 2) + -->
-
-<!--   labs(x = "Time", y = "Total alkalinity", color = "despike") -->
-
-<!-- print(at_datetime) -->
-
-<!-- at_nov_2018_no_NA <- dplyr::filter(at_nov_2018, at_calc != "NA" & AT_despike != "NA") -->
-
-<!-- titre <- "Contros AT vs Calculated AT" -->
-
-<!--  fit <- lmodel2(data = at_nov_2018_no_NA, AT_despike ~ at_calc, nperm = 99) -->
-
-<!-- ggreg2(fit, x = "at_calc", y = "AT_despike") -->
-
-<!-- ``` -->
-
 ## *p*CO~2~ and *f*CO~2~
 
 The HydroC CO~2~ FT sensor (S/N: CO2FT-0215-001) was bought from Contros
@@ -1321,9 +1275,9 @@ freshly calibrated sensor. As the result, algae becalme inceasingly
 abundant, pulling pCO2 down and further away from values calculated from
 CT and AT.
 
-### **Corrected Contros vs calculated *p*CO~2~ data**
+### **Contros vs calculated *p*CO~2~**
 
-```{r pco2 and fco2 at in situ temp, echo=FALSE, warning=FALSE, message=FALSE}
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
 d_all <- d_all %>%
   dplyr::mutate(
     pco2_fb_insi_temp = seacarb::pCO2insi(
@@ -1365,20 +1319,21 @@ is to estimate air-sea CO2 fluxes. I therefore use the in situ
 temperature at 11 m and we will need to speculate on stratification.
 
 ```{r measured vs calculated pCO2, echo=FALSE, warning=FALSE, message=FALSE, out.width='100%', fig.align="center"}
-title <- "pCO2 normalized at in situ temperature"
 reg <- ggreg(
   xdata = d_all$pco2_fb_insi_temp,
   ydata = d_all$pco2_calc_fb_insi_temp,
   type = "MA",
   plot = TRUE,
-  title = title,
+  title = "pCO2 normalized at in situ temperature",
   #subtitle = "",
-  xlab = "Measured pCO2",
-  ylab = "Calculated pCO2",
-  proplot = TRUE
+  xlab = latex2exp::TeX("Measured $pCO_{2}(\\mu atm)$"),
+  ylab = latex2exp::TeX("Calculated $pCO_{2}(\\mu atm)$"),
+  proplot = TRUE,
+  #ylim(c(30.5,35.5)) + xlim(c(28,35.5)),
+  coord_fixed(ratio = 1)
 )
-p <- reg$plot
-ggsave(filename = "figures/pco2_calc_meas.png", plot = p)
+print(reg$plot)
+ggsave(filename = "figures/pco2_calc_meas.png", plot = reg$plot)
 ```
 
 The relationship between the measured (Contros) and calculated pCO2
@@ -1395,8 +1350,8 @@ Pierre Legendre (2018). lmodel2: Model II Regression. R package version
 1.7-3. <https://CRAN.R-project.org/package=lmodel2>
 
 ```{r plot measured vs calculated pCO2, echo=FALSE, warning=FALSE, message=FALSE, out.width='100%', fig.align="center"}
-print(p$plot)
-rm(fit, p)
+print(reg$plot)
+rm(fit, reg)
 ```
 
 ### **pCO~2~ time series**
@@ -1816,13 +1771,15 @@ Below are the seafet calibration parameters using all data (irrespective of the 
 
 kk <- d_all %>% 
   dplyr::select(deployment_sf, tidyr::starts_with("E0")) %>% 
+  drop_na() %>% 
   tidyr::pivot_longer(cols = starts_with("E0"), names_to = "variable", values_to = "value")
-p_calib <- ggplot(kk) + geom_point(aes(x=deployment_sf, y=value, color=variable), size=2) +
+p_calib <- kk %>% 
+  ggplot() + 
+  geom_point(aes(x=deployment_sf, y=value, color=variable), size=2) +
   facet_grid(variable ~ ., scales="fixed") + theme_bw() +
   scale_colour_discrete(guide="none")
 print(p_calib)
 
-# TODO the dataframe below is huge, cleaning it would make the script faster
 calib_spectro <- cbind(calib_spectro_all, calib_spectro_10m)
 kbl(calib_spectro)%>%
     kable_paper() %>% 
@@ -2155,7 +2112,6 @@ average_offset_dur <- round(mean(dat_dur$diff_pH_dur, na.rm=TRUE), digits = 2)
 sd_offset_dur <- round(sd(abs(dat_dur$diff_pH_dur), na.rm=TRUE), digits = 2)
 n_offset_dur <- length(!is.na(dat_dur$diff_pH_dur))
 
-
 plot_offset_dur <- ggplot(data = filter(dat_dur, !is.na(diff_pH_dur))) +
   geom_hline(yintercept=mean(dat_dur$diff_pH_dur, na.rm = TRUE), size=0.3, col="red") +
   annotate("text", x = dat_dur$datetime[3], y =-0.16, label = "offset mean", color="red")+
@@ -2164,7 +2120,6 @@ plot_offset_dur <- ggplot(data = filter(dat_dur, !is.na(diff_pH_dur))) +
   labs(x = NULL, y=expression(paste(pH[T], " difference")), title = NULL) +
   scale_x_datetime(date_breaks="month", date_minor_breaks="1 week", labels=date_format("%b %Y")) +
   Mytheme() + theme(panel.grid.major.x = element_blank(), axis.text.x = element_text(angle = 45, hjust = 1)) 
-
 
 # create offset per period + add this offset per period.
 d_all <- d_all%>%
@@ -2357,7 +2312,8 @@ range_month <-
 
 size_point <- 0.4 # size of data points
 p <-
-  ggplot(data=range_dur, aes(x = as.factor(montht), y = pH_range)) +
+  ggplot(data = tidyr::drop_na(range_dur), 
+         aes(x = as.factor(montht), y = pH_range)) +
   geom_violin(fill='lightblue', alpha=0.5, size=0.2, trim = TRUE) +
   geom_boxplot(notch=TRUE, size=0.2, fill="grey50", outlier.color = "blue", outlier.size = 0.3) +
   labs(y =expression(paste(pH[T], " range durafet")), x=NULL, title=NULL) +
@@ -2379,9 +2335,9 @@ d_all <- d_all %>%
 tmp <- d_all %>%
   dplyr::select(datetime, at, sal_fb_mix, temp_fb, pH_dur) %>%
   tidyr::drop_na()
-tmp$pH_dur_temp_4 <- seacarb::pHinsi(pH=tmp$pH_dur, ALK=mean(tmp$at*1e-6, na.rm=TRUE), Tinsi=4, Tlab=tmp$temp_fb, Pinsi=11/10, S=tmp$sal_fb_mix, Pt=0, Sit=0, k1k2 = "l", kf = "dg", ks="d", pHscale = "T", b="u74")
+tmp$pH_dur_temp_4 <- seacarb::pHinsi(pH=tmp$pH_dur, ALK=tmp$at, Tinsi=4, Tlab=tmp$temp_fb, Pinsi=11/10, S=tmp$sal_fb_mix, Pt=0, Sit=0, k1k2 = "l", kf = "dg", ks="d", pHscale = "T", b="u74")
 d_all <- d_all %>% 
-  left_join(tmp %>% dplyr::select(datetime, pH_dur_temp_4 ), by="datetime")
+  left_join(tmp %>% dplyr::select(datetime, pH_dur_temp_4), by="datetime")
 ```
 ## Range per months
 
