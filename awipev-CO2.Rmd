@@ -121,7 +121,8 @@ if (plot == TRUE) {
     if (proplot == TRUE) { # property-property plot
       plt <- plt +
         geom_abline(slope = 1, intercept = 0, linetype = "dashed") +
-        theme(aspect.ratio = 1)
+        theme(aspect.ratio = 1) +
+        coord_fixed(ratio = 1, xlim = NULL, ylim = NULL, expand = TRUE, clip = "on")
     }
   return(list(plot = plt, fit = fit))
   } else {
@@ -208,8 +209,10 @@ d_hour <- d_hour %>%
     temp_fb = temp_fb_filtered,
     ph_dur = ph_dur_filtered
   ) %>% 
-  # data post 2020-03-01 eliminated because no maintenance and lots of algae
-  dplyr::mutate(pco2_fb = ifelse(datetime >= as.POSIXct("2020-03-01 00:00"), NA, pco2_fb)) %>%
+  # pCO2 data post 2020-03-01 eliminated because no maintenance and lots of algae
+  # pH durafet data post 2020-01-01 eliminated because no maintenance and lots of algae
+  dplyr::mutate(pco2_fb = ifelse(datetime >= as.POSIXct("2020-03-01 00:00"), NA, pco2_fb),
+                ph_dur = ifelse(datetime >= as.POSIXct("2020-01-01 00:00"), NA, ph_dur)) %>%
   arrange(datetime)
 
 # read a file provided by Philipp on 2021-04-09 which fills most gaps of pressure data
@@ -2055,13 +2058,14 @@ and spectro data per periods.
 
 ```{r durafet calibration, echo=FALSE, message= FALSE, warning=FALSE}
 # deployment period between 2 spectro measurements.
-durPeriod <- d_all%>%
-  dplyr::select(datetime, ph_s_dur_temp_fb)%>%
+# TODO the following throws a warning but seems to work
+durPeriod <- d_all %>%
+  dplyr::select(datetime, ph_s_dur_temp_fb) %>%
   dplyr::filter(!is.na(ph_s_dur_temp_fb))
-
-durPeriod <-  durPeriod %>%
-  dplyr::arrange(datetime) %>%
-  dplyr::mutate(middle=  seconds_to_period(c(0,difftime(time1= datetime[-1], time2= datetime[-nrow(durPeriod)])/2* 3600 ))) %>%
+durPeriod <- durPeriod %>% 
+  #dplyr::arrange(datetime) %>%
+  dplyr::mutate(middle =  seconds_to_period(
+   c(0, difftime(time1 = datetime[-1], time2 = datetime[-nrow(durPeriod)])/2* 3600 ))) %>%
   dplyr::mutate(dur_interval = datetime + middle[2:nrow(durPeriod)])
 
 #put interval in a list with the start date of durafet measurements
@@ -2106,14 +2110,18 @@ d_all <- d_all %>%
                                 ifelse(datetime >= durinterv[26], 26,NA )))))))))))))))))))))))))))
 
 # Offset between durafet pH and spec pH 
-duroffset <- left_join(durPeriod%>%dplyr::select(datetime,ph_s_dur_temp_fb), d_all%>%dplyr::select(datetime,ph_dur ), by="datetime")
-dat_dur <- mutate(duroffset, diff_pH_dur = ph_s_dur_temp_fb - ph_dur)
+duroffset <- left_join(durPeriod %>% dplyr::select(datetime, ph_s_dur_temp_fb), d_all %>% dplyr::select(datetime, ph_dur), by="datetime")
+dat_dur <- duroffset %>% 
+  drop_na() %>% 
+  dplyr::mutate(diff_pH_dur = ph_s_dur_temp_fb - ph_dur)
 average_offset_dur <- round(mean(dat_dur$diff_pH_dur, na.rm=TRUE), digits = 2)
 sd_offset_dur <- round(sd(abs(dat_dur$diff_pH_dur), na.rm=TRUE), digits = 2)
 n_offset_dur <- length(!is.na(dat_dur$diff_pH_dur))
 
-plot_offset_dur <- ggplot(data = filter(dat_dur, !is.na(diff_pH_dur))) +
-  geom_hline(yintercept=mean(dat_dur$diff_pH_dur, na.rm = TRUE), size=0.3, col="red") +
+plot_offset_dur <- dat_dur %>% 
+  drop_na() %>% 
+  ggplot() +
+  geom_hline(yintercept = mean(dat_dur$diff_pH_dur, na.rm = TRUE), size=0.3, col="red") +
   annotate("text", x = dat_dur$datetime[3], y =-0.16, label = "offset mean", color="red")+
   geom_hline(yintercept=0, size=0.3) +
   geom_point(aes(x = datetime, y = diff_pH_dur), size = 1, colour = "#51C56AFF") +
@@ -2296,24 +2304,19 @@ d_all <- d_all %>%
     )
   )
 
-# RANGE of pH
-range_dur <- tbl_df(
-  d_all %>%
-  group_by(date, montht, year=year(datetime)) %>%
+# Range of pH per day
+range_dur <- d_all %>%
+  group_by(date, montht) %>%
   summarize(pH_range = max(ph_dur_corr) - min(ph_dur_corr))
-)
 quant <- quantile(range_dur$pH_range, probs =c(2.5/100, 97.5/100), na.rm =TRUE)
-
-# Per month
-range_month <-
-  range_dur %>%
+# Range of pH per month
+range_month <- range_dur %>%
   group_by(montht) %>%
   summarize(pH_range_month = mean(pH_range, na.rm=TRUE))
 
-size_point <- 0.4 # size of data points
-p <-
-  ggplot(data = tidyr::drop_na(range_dur), 
-         aes(x = as.factor(montht), y = pH_range)) +
+p <- range_dur %>% 
+  tidyr::drop_na() %>% 
+  ggplot(aes(x = as.factor(montht), y = pH_range)) +
   geom_violin(fill='lightblue', alpha=0.5, size=0.2, trim = TRUE) +
   geom_boxplot(notch=TRUE, size=0.2, fill="grey50", outlier.color = "blue", outlier.size = 0.3) +
   labs(y =expression(paste(pH[T], " range durafet")), x=NULL, title=NULL) +
@@ -2341,7 +2344,7 @@ d_all <- d_all %>%
 ```
 ## Range per months
 
-```{r Range per month, echo=FALSE, message= FALSE, warning=FALSE}
+```{r Range per month, eval = FALSE, echo=FALSE, message= FALSE, warning=FALSE}
 my_skim <- skim_with(numeric = sfl(ave = ~ mean(., na.rm = TRUE),
                                    med = ~ median(., na.rm = TRUE),
                                    min = ~ min(., na.rm = TRUE),
@@ -2367,45 +2370,20 @@ alkalinity of `r mean(d_all$at, na.rm=TRUE)` µmoles kg-1 (mean data).
 For information, mean temperatures in Ferrybox and *in situ* are
 repectively 3.5°C and 2.5°C.
 
-### **seaFET / durafet pHs (all > 8 m)**
+### **seaFET vs durafet pHs at 4°C (all > 8 m)**
 
-```{r pHs comparaison 4°C, echo=FALSE, message= FALSE, warning=FALSE}
-# prepare data and remove sf biofouling period
-# TODO consider biofouling period elsewhere too
-#   pH_sf <- d_all %>%
-#   dplyr::select(datetime, sal_insitu_ctd_10m, temp_insitu_ctd_10m, pHint_tot_sf_temp_4, depth_group) %>%
-#   #tidyr::drop_na() %>%
-#   dplyr::filter(datetime < as.POSIXct("2018-01-01") | datetime > as.POSIXct("2018-02-03")) %>% 
-#   dplyr::mutate(pHint_tot_sf_temp_4_10m = ifelse(depth_group == ">8", pHint_tot_sf_temp_4, NA))
-# 
-# #pH_sf$pHint_tot_sf_temp_4 <- pHinsi(pH=pH_sf$pHint_tot_sf, ALK=mean(d_all$at, na.rm=TRUE), Tinsi=4, Tlab=pH_sf$temp_insitu_ctd_10m, Pinsi=11/10, S=pH_sf$sal_insitu_ctd_10m, Pt=0, Sit=0, k1k2 = "l", kf = "dg", ks="d", pHscale = "T", b="u74")
-# 
-# pH_dur <- d_all %>%
-#   dplyr::select(datetime, sal_fb,temp_fb, pH_dur)%>%
-#   tidyr::drop_na() %>%
-# pH_dur$pH_dur_temp_4 <- pHinsi(pH=pH_dur$ph_dur_corr, ALK=mean(d_all$at, na.rm=TRUE), Tinsi=4, Tlab=pH_dur$temp_fb, Pinsi=11/10, S=pH_dur$sal_fb, Pt=0, Sit=0, k1k2 = "l", kf = "dg", ks="d", pHscale = "T", b="u74")
-# 
-# # add pH sf and pH dur normalized at 4°C ti d_all
-# #d_all <- left_join(d_all, pH_sf%>%dplyr::select(datetime, pHint_tot_sf_temp_4 ), by="datetime")
-# d_all <- d_all %>% 
-#   left_join(pH_dur %> %dplyr::select(datetime, pH_dur_temp_4), by="datetime")
-lm <- lm2(x = d_all$pH_dur_temp_4, y = d_all$pHint_tot_sf_temp_4)
-p <- d_all %>% 
-  dplyr::select(pH_dur_temp_4, pHint_tot_sf_temp_4, monthd) %>% 
-  drop_na() %>% 
-  ggplot(aes(x = pH_dur_temp_4, y = pHint_tot_sf_temp_4))+
-  geom_point(aes(color=factor(monthd))) + 
-  geom_abline(slope=1, intercept=0, linetype = "dashed")+
-  geom_abline(aes(intercept = lm$intercept_MA, slope = lm$slope_MA), colour = "blue") +
-  coord_fixed(ratio = 1 , xlim=c(7.8, 8.35), ylim=c(7.8, 8.35)) +
-  labs(title = paste("","\n Adj R2 = ", signif(lm$rsquare, 3),
-                     "; Intercept =", signif(lm$intercept_MA, 3),
-                     "; Slope =", signif(lm$slope_MA, 3),
-                     "; P =", signif(lm$P, 3),
-                     "; RMSE = ", signif(lm$rmse, 3))) +
-  theme(aspect.ratio = 1, plot.title = element_text(size = 7)) + #
-  labs( x = "pH durafet, 4°C", y = "pH seaFET, 4°C", color = "Months") + theme_bw()
-print(p)
+```{r, echo=FALSE, message= FALSE, warning=FALSE}
+reg <- ggreg(
+  xdata = d_all$pH_dur_temp_4,
+  ydata = d_all$pHint_tot_sf_temp_4,
+  type = "MA",
+  plot = TRUE,
+  title = "seaFET vs durafet pH at 4 °C",
+  xlab = "pH durafet, 4 °C",
+  ylab = "pH seaFET, 4 °C",
+  proplot = TRUE
+)
+print(reg$plot + xlim(c(7.8, 8.35)) + ylim(c(7.8, 8.35)))
 
 durafet_sf_contros_xts <- dplyr::select(d_all, datetime, pH_dur_temp_4, pHint_tot_sf_temp_4)
 durafet_sf_contros_xts <- as.xts(durafet_sf_contros_xts, order.by = d_all$datetime)
@@ -2419,17 +2397,17 @@ dygraph(durafet_sf_contros_xts, group = "awipev", main="pH durafet vs pH seaFET 
 rm(durafet_sf_contros_xts)
 ```
 
-### **Calculated / Durafet pHs**
+### **Calculated vq Durafet**
 
-```{r pHs comparaison dur calc, echo=FALSE, message= FALSE, warning=FALSE}
-# Normalize ph_calc from AT/CT to 4°c
-pH_calc <- discrete %>%
-  dplyr::select(datetime, sal_fb_mix, temp_fb, ph_calc_fb, at)%>%
-  dplyr::filter(!is.na(ph_calc_fb), !is.na(temp_fb), !is.na(sal_fb_mix))
-pH_calc$pH_calc_fb_temp_4 <- pHinsi(pH = pH_calc$ph_calc_fb, ALK=pH_calc$at*1e-6, Tinsi=4, Tlab=pH_calc$temp_fb, Pinsi=11/10, S=pH_calc$sal_fb_mix, Pt=0, Sit=0, k1k2 = "l", kf = "dg", ks="d", pHscale = "T", b="u74")
+```{r, echo=FALSE, message= FALSE, warning=FALSE}
+# Normalize pH_calc from AT/CT to 4°c
+tmp <- discrete %>%
+  dplyr::select(datetime, sal_fb_mix, temp_fb, ph_calc_fb, at) %>%
+  tidyr::drop_na()
+tmp$pH_calc_fb_temp_4 <- pHinsi(pH = tmp$ph_calc_fb, ALK=tmp$at*1e-6, Tinsi=4, Tlab=tmp$temp_fb, Pinsi=11/10, S=tmp$sal_fb_mix, Pt=0, Sit=0, k1k2 = "l", kf = "dg", ks="d", pHscale = "T", b="u74")
 
 # join pH calc norm + pH dur/sf norm in d_all
-d_all <- left_join(d_all, pH_calc %>% dplyr::select(datetime, pH_calc_fb_temp_4), by="datetime")
+d_all <- left_join(d_all, tmp %>% dplyr::select(datetime, pH_calc_fb_temp_4), by="datetime")
 
 durafet_calc_contros_xts <- dplyr::select(d_all, datetime, pH_dur_temp_4, pH_calc_fb_temp_4)
 durafet_calc_contros_xts <- as.xts(durafet_calc_contros_xts, order.by = d_all$datetime)
@@ -2444,9 +2422,9 @@ dygraph(durafet_calc_contros_xts, group = "awipev", main="pH calculated vs pH du
 rm(durafet_calc_contros_xts)
 ```
 
-### **Calculated / seaFET pHs**
+### **Calculated vs seaFET**
 
-```{r pHs comparaison sf calc, echo=FALSE, message= FALSE, warning=FALSE}
+```{r, echo=FALSE, message= FALSE, warning=FALSE}
 seafet_calc_contros_xts <- dplyr::select(d_all, datetime, pHint_tot_sf_temp_4, pH_calc_fb_temp_4)
 seafet_calc_contros_xts <- as.xts(seafet_calc_contros_xts, order.by = d_all$datetime)
 dygraph(seafet_calc_contros_xts, group = "awipev", main="pH calculated vs pH seaFET, normalized at 4°C", ylab="pHT") %>%
@@ -2460,30 +2438,20 @@ dyOptions(drawGrid = TRUE, drawPoints = TRUE, pointSize = c(1,8,1),useDataTimezo
 rm(seafet_calc_contros_xts)
 ```
 
-### **Spectro / durafet**
-
-```{r pHs comparaison durafet spectro, echo=FALSE, message= FALSE, warning=FALSE}
+### **Spectro vs durafet**
+```{r, echo=FALSE, message= FALSE, warning=FALSE}
 # Spectro / durafet
-lm <- lm2(x = d_all$ph_s_dur_temp_fb, y = d_all$pH_dur)
-p <- d_all %>% 
-  dplyr::select(ph_s_dur_temp_fb, pH_dur, monthd) %>% 
-  drop_na() %>% 
-  ggplot(aes(x = ph_s_dur_temp_fb, y= pH_dur, label = monthd)) +
-  geom_text( aes(color=factor(monthd))) + 
-  scale_color_discrete(guide = "none")+
-  geom_abline(slope=1, intercept =0, linetype = "dashed") +
-  geom_abline(aes(intercept = lm$intercept_MA, slope = lm$slope_MA),
-              colour = "blue") +
-  labs(title = paste("pH spectro vs pH durafet (both at FB temperature","\n Adj R2 = ", signif(lm$rsquare, 3),
-                     "; Intercept =", signif(lm$intercept_MA, 3),
-                     "; Slope =", signif(lm$slope_MA, 3),
-                     "; P =", signif(lm$P, 3),
-                     "; RMSE = ", signif(lm$rmse, 3))) +
-  theme_bw() +
-  theme(aspect.ratio = 1, plot.title = element_text(size=7)) + 
-  coord_fixed(ratio = 1 , xlim=c(8,8.4), ylim=c(8,8.4))+
-  labs(x="pH durafet", y="pH spectro", color = "Months")
-print(p)
+reg <- ggreg(
+  xdata = d_all$ph_s_dur_temp_fb,
+  ydata = d_all$pH_dur,
+  type = "MA",
+  plot = TRUE,
+  title = "pH spectro vs pH durafet (both at FB temperature)",
+  xlab = "pH durafet",
+  ylab = "pH spectro",
+  proplot = TRUE
+)
+print(reg$plot + xlim(c(7.8, 8.35)) + ylim(c(7.8, 8.35)))
 ```
 
 ```{r pHs comparaison sf spectro, echo=FALSE, message= FALSE, warning=FALSE}
