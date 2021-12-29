@@ -2061,7 +2061,7 @@ durPeriod <- d_all%>%
 
 durPeriod <-  durPeriod %>%
   dplyr::arrange(datetime) %>%
-  dplyr::mutate(middle=  seconds_to_period(c(0,difftime(time1= datetime[-1], time2= datetime[-nrow(durPeriod)])/2* 3600 )))%>%
+  dplyr::mutate(middle=  seconds_to_period(c(0,difftime(time1= datetime[-1], time2= datetime[-nrow(durPeriod)])/2* 3600 ))) %>%
   dplyr::mutate(dur_interval = datetime + middle[2:nrow(durPeriod)])
 
 #put interval in a list with the start date of durafet measurements
