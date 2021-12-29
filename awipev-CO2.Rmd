@@ -1158,7 +1158,7 @@ reg <- ggreg(
   title = "Discrete total alkalinity vs salinity",
   #subtitle = "",
   xlab = "Salinity",
-  ylab = TeX("Total alkalinity ($\\mu mol\\~kg^{-1})$"),
+  ylab = TeX("Total alkalinity ($\\mu mol\\phantom{x}kg^{-1})$"),
   proplot = TRUE,
   #ylim(c(30.5,35.5)) + xlim(c(28,35.5)),
   coord_fixed(ratio = 1)
@@ -1171,7 +1171,7 @@ p_at_s <- d_all_at_discrete %>%
   drop_na() %>% 
   ggplot(aes(x = sal_fb_mix, y = at)) +
   geom_point(col="blue", size = 0.5) +
-  labs(x="Salinity", y=TeX("Total alkalinity ($\\mu mol\\~kg^{-1})$"))  +
+  labs(x="Salinity", y=TeX("Total alkalinity ($\\mu mol\\phantom{x}kg^{-1})$"))  +
   stat_smooth(method = "lm", col = "blue", size = 0.5) +
   Mytheme(size_labs = 9)
 ggsave(filename = "figures/p_at_s.png", plot = p_at_s, width = 7, height = 7, units = "cm")
@@ -1326,8 +1326,8 @@ reg <- ggreg(
   plot = TRUE,
   title = "pCO2 normalized at in situ temperature",
   #subtitle = "",
-  xlab = latex2exp::TeX("Measured $pCO_{2}(\\mu atm)$"),
-  ylab = latex2exp::TeX("Calculated $pCO_{2}(\\mu atm)$"),
+  xlab = latex2exp::TeX("Measured $pCO_{2}\\phantom{x}(\\mu atm)$"),
+  ylab = latex2exp::TeX("Calculated $pCO_{2}\\phantom{x}(\\mu atm)$"),
   proplot = TRUE,
   #ylim(c(30.5,35.5)) + xlim(c(28,35.5)),
   coord_fixed(ratio = 1)
