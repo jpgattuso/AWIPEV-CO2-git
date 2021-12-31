@@ -525,7 +525,7 @@ pH_seafet_mean$ph_s_sf_temp_insi <- pH_seafet_mean$ph_s_sf_temp_insi_mean
 # make means in "d" to have same format and call it "discrete"
 discrete <- d %>%
   group_by(datetime) %>%
-#dplyr::select( datetime, date,hour,sal_fb,sal_fb_mix_interp ,sal_fb_mix,temp_fb, at_mean_interp,at ,ct_mean_interp,ct, temp_insitu_11m_mix,temp_insitu_11m_mix_interp,temp_insitu_11m) %>%
+#dplyr::select( datetime, date,hour,sal_fb,sal_fb_mix_interp ,sal_fb_mix,temp_fb, at_mean_interp, at, ct_mean_interp, ct, temp_insitu_11m_mix,temp_insitu_11m_mix_interp,temp_insitu_11m) %>%
   summarise(datetime = mean(datetime, na.rm = TRUE),
     sal_fb = mean(sal_fb, na.rm = TRUE),
     sal_fb_mix = mean(sal_fb_mix, na.rm = TRUE),
@@ -2397,7 +2397,7 @@ dygraph(durafet_sf_contros_xts, group = "awipev", main="pH durafet vs pH seaFET 
 rm(durafet_sf_contros_xts)
 ```
 
-### **Calculated vq Durafet**
+### **Calculated vs Durafet**
 
 ```{r, echo=FALSE, message= FALSE, warning=FALSE}
 # Normalize pH_calc from AT/CT to 4°c
@@ -2456,26 +2456,17 @@ print(reg$plot + xlim(c(7.8, 8.35)) + ylim(c(7.8, 8.35)))
 
 ```{r pHs comparaison sf spectro, echo=FALSE, message= FALSE, warning=FALSE}
 # Spectro / seafet
-lm <- lm2(x = d_all$ph_s_sf_temp_insi, y = d_all$pHint_tot_sf)
-p <- d_all %>% 
-  dplyr::select(ph_s_sf_temp_insi, pHint_tot_sf, monthd) %>%
-  tidyr::drop_na() %>%
-  ggplot(aes(x=ph_s_sf_temp_insi, y= pHint_tot_sf, label = monthd)) +
-  geom_text( aes(color=factor(monthd))) + 
-  scale_color_discrete(guide = "none")+
-  geom_abline(slope=1, intercept = 0, linetype = "dashed") +
-  geom_abline(aes(intercept = lm$intercept_MA, slope = lm$slope_MA),
-              colour = "blue") +
-  labs(title = paste("pH spectro vs pH seafet (at in situ temperature)","\n Adj R2 = ", signif(lm$rsquare, 3),
-                     "; Intercept =", signif(lm$intercept_MA, 3),
-                     "; Slope =", signif(lm$slope_MA, 3),
-                     "; P =", signif(lm$P, 3),
-                     "; RMSE = ", signif(lm$rmse, 1))) +
-  theme_bw() +
-  theme(aspect.ratio = 1, plot.title = element_text(size=7)) + 
-  coord_fixed(ratio = 1 , xlim=c(8, 8.25), ylim=c(8, 8.25))+
-  labs(x = "pH spectro", y = "pH seafet", color = "Months")
-print(p)
+reg <- ggreg(
+  xdata = d_all$ph_s_sf_temp_insi,
+  ydata = d_all$pHint_tot_sf,
+  type = "MA",
+  plot = TRUE,
+  title = "pH spectro vs pH seafet (at in situ temperature)",
+  xlab = "pH spectro",
+  ylab = "pH seafet",
+  proplot = TRUE
+)
+print(reg$plot + xlim(c(8, 8.25)) + ylim(c(8, 8.25)))
 ```
 
 ## SNAPO-CO2
@@ -2521,25 +2512,26 @@ For CT, duplicates's flags that have been changed from 2 (good) to 1
 2020-07-17, 2020-11-20.
 
 Also in the Discrete_sampling_AWIPEV.csv, some analysed samples have
-been flaged "3" by the SNAPO. After a close look, these samples are not
-differents from their duplicates. Then we put the flag to "2" (good
+been flagged "3" by the SNAPO. After a close look, these samples are not
+different from their duplicates. Then we put the flag to "2" (good
 result).
 
 For TA and CT, samples's flags that have been changed from 3 to 2 are:
 2019-12-27 (2264 and 2130), 2019-10-25 (2332 and 2152), 2019-09-06 (2268
 and 2116).
 
-```{r SNAPO, echo=FALSE, message= FALSE, warning=FALSE}
+```{r SNAPO, eval =FALSE, echo=FALSE, message= FALSE, warning=FALSE}
+# I THINK THIS CHUNK IS NO LONGER NEEDED AS THE REPLICATES HAVE ALREADY BEEN AVERAGED ABOVE.
+
 # use the df at_ct for mean and sd
-# creat a new df to calculate the diff between replicate
- diff <- d_all %>%
+# create a new df to calculate the diff between replicate
+diff <- d_all %>%
     group_by(datetime) %>%
    dplyr::select(datetime, at, ct)%>%   
    dplyr::mutate(at_diff = abs(at - lag(at)),
                  ct_diff = abs(ct - lag(ct)))
-
 pdelta_at_snapo <-ggplot() +
-    geom_point(data=diff, aes(x= datetime, y= at_diff)) +
+    geom_point(data = diff, aes(x = datetime, y = at_diff)) +
     geom_hline(yintercept= 4, size= 0.6, col="red", linetype="dashed") +
     annotate("text", x = diff$datetime[17], y = 7, label = "4 µmoles/kg", color="red")+
     #annotate("text", x = diff$datetime[17], y = -6, label = "-4 µmoles/kg", color="red")+
@@ -2644,24 +2636,60 @@ pdelta_at_snapo_dygraph <-
 
 ct_diff_xts <- dplyr::select(diff, datetime, ct_diff, ct)
 ct_diff_xts <- as.xts(ct_diff_xts, order.by = diff$datetime)
-pdelta_ct_snapo_dygraph <- dygraph(ct_diff_xts, group = "awipev", main="Discrete CT (SNAPO) measurements", ylab="CT") %>%
-    dySeries("ct_diff", label = "CT delta", color ="red", strokeWidth=0, pointSize=4) %>%
-    dySeries("ct", label = "CT duplicates", color =  "blue", strokeWidth = 0, pointSize = 2, axis = "y2" ) %>%
-    # dyOptions(colors = RColorBrewer::brewer.pal(3, "Dark2"), pointSize = 4) %>%
-   dyShading(from = snapcoevents[1], to = snapcoevents[2], color = "#E0DEDE") %>%
+pdelta_ct_snapo_dygraph <-
+  dygraph(ct_diff_xts,
+          group = "awipev",
+          main = "Discrete CT (SNAPO) measurements",
+          ylab = "CT") %>%
+  dySeries(
+    "ct_diff",
+    label = "CT delta",
+    color = "red",
+    strokeWidth = 0,
+    pointSize = 4
+  ) %>%
+  dySeries(
+    "ct",
+    label = "CT duplicates",
+    color =  "blue",
+    strokeWidth = 0,
+    pointSize = 2,
+    axis = "y2"
+  ) %>%
+  # dyOptions(colors = RColorBrewer::brewer.pal(3, "Dark2"), pointSize = 4) %>%
+  dyShading(from = snapcoevents[1], to = snapcoevents[2], color = "#E0DEDE") %>%
   dyShading(from = snapcoevents[3], to = snapcoevents[4], color = "#C2C2C2") %>%
   dyShading(from = snapcoevents[5], to = snapcoevents[6], color = "#E0DEDE") %>%
   dyShading(from = snapcoevents[7], to = snapcoevents[8], color = "#C2C2C2") %>%
   dyShading(from = snapcoevents[9], to = snapcoevents[10], color = "#E0DEDE") %>%
   dyShading(from = snapcoevents[11], to = snapcoevents[12], color = "#C2C0C0") %>%
-      dyShading(from = snapcoevents[13], to = snapcoevents[14], color = "#E0DEDE") %>%
-
-  dyAxis("y", axisLineColor="red",label = "", axisLabelColor ="red", axisLineWidth=5) %>%
-    dyAxis("y2", axisLineColor="blue", axisLabelColor = "blue", axisLineWidth=5) %>%
-       dyLegend(show = "follow")   %>%
-    dyHighlight(highlightCircleSize = 8,highlightSeriesBackgroundAlpha = 0.5,hideOnMouseOut = TRUE) %>%
-    dyOptions(drawGrid = TRUE, drawPoints = TRUE, pointSize = c(1,8,1), digitsAfterDecimal=2) %>%
-    dyRangeSelector(height = 30, dateWindow= NULL) 
+  dyShading(from = snapcoevents[13], to = snapcoevents[14], color = "#E0DEDE") %>%
+  dyAxis(
+    "y",
+    axisLineColor = "red",
+    label = "",
+    axisLabelColor = "red",
+    axisLineWidth = 5
+  ) %>%
+  dyAxis(
+    "y2",
+    axisLineColor = "blue",
+    axisLabelColor = "blue",
+    axisLineWidth = 5
+  ) %>%
+  dyLegend(show = "follow")   %>%
+  dyHighlight(
+    highlightCircleSize = 8,
+    highlightSeriesBackgroundAlpha = 0.5,
+    hideOnMouseOut = TRUE
+  ) %>%
+  dyOptions(
+    drawGrid = TRUE,
+    drawPoints = TRUE,
+    pointSize = c(1, 8, 1),
+    digitsAfterDecimal = 2
+  ) %>%
+  dyRangeSelector(height = 30, dateWindow = NULL) 
 
 pdelta_at_snapo
 pdelta_at_snapo_dygraph
