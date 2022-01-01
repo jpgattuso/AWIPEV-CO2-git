@@ -1180,6 +1180,8 @@ p_at_s <- d_all_at_discrete %>%
 ggsave(filename = "figures/p_at_s.png", plot = p_at_s, width = 7, height = 7, units = "cm")
 
 # Salinity is a predictor of AT -> using the regression defined above
+slope_s_at <- slope_s_at <- reg$fit$regression.results[3][[1]][1] # OLS
+intercept_s_at <- reg$fit$regression.results[2][[1]][1] #OLS
 d_all$at_calc <- slope_s_at * d_all$sal_fb_mix + intercept_s_at
 ```
 
@@ -1189,9 +1191,9 @@ salinity is very good with an r2 of
 relationships from the literature.
 
 ```{r plot Discrete salinity vs TA, echo=FALSE, warning=FALSE, message=FALSE, out.width="100%", fig.align="center"}
- # PLOT
- print(at_s)
-rm(at_s)
+# PLOT
+print(p_at_s)
+rm(p_at_s)
 ```
 
 #### **Final TA re-calculated data (Salinity relationship)**
@@ -1354,7 +1356,7 @@ Pierre Legendre (2018). lmodel2: Model II Regression. R package version
 
 ```{r plot measured vs calculated pCO2, echo=FALSE, warning=FALSE, message=FALSE, out.width='100%', fig.align="center"}
 print(reg$plot)
-rm(fit, reg)
+rm(reg)
 ```
 
 ### **pCO~2~ time series**
@@ -2521,7 +2523,7 @@ For TA and CT, samples's flags that have been changed from 3 to 2 are:
 and 2116).
 
 ```{r SNAPO, eval =FALSE, echo=FALSE, message= FALSE, warning=FALSE}
-# I THINK THIS CHUNK IS NO LONGER NEEDED AS THE REPLICATES HAVE ALREADY BEEN AVERAGED ABOVE.
+# THIS CHUNK IS NO LONGER NEEDED AS THE REPLICATES HAVE ALREADY BEEN AVERAGED ABOVE.
 
 # use the df at_ct for mean and sd
 # create a new df to calculate the diff between replicate
@@ -3701,6 +3703,7 @@ atm_co2_old <-
   #skip = 182,
   col_names = TRUE,
   na = "-999.999",
+  show_col_types = FALSE
   ) %>%
   dplyr::mutate(co2_air = value,
   datetime = as_datetime(paste(paste(year, month, day, sep="-"), paste(hour, minute, second, sep="-"), sep = " "))) %>%
@@ -3714,11 +3717,11 @@ atm_co2_new <- NULL
 year_co2 <- ymd_hm(paste0(c(2016:2020), "-01-01 00:00"))
 for (i in 1:5) {
 tmp <-
-  read_table2(file = paste0(path, file_names[i]),
+  read_table(file = paste0(path, file_names[i]),
   comment = "#",
   #skip = 182,
   col_names = FALSE,
-  na = c("9999.999", "99.999", "9999.990", "9999.99"),
+  na = c("9999.999", "99.999", "9999.990", "9999.99")
   ) %>%
   dplyr::mutate(co2_air = X3,
   datetime = year_co2[i] + X1*24*3600) %>% 
@@ -3768,7 +3771,8 @@ wind_2020 <-
   dplyr::mutate(datetime = as.POSIXct(datetime, format = "%d-%m-%Y %H"))
 
 load(file = paste0(path, "meteo_awi/wind_nyalesund.RData")) 
-meteo <- tibble(windnyalesund) %>%
+meteo <- dplyr::tibble(windnyalesund) %>% 
+  dplyr::slice_head(n = nrow(windnyalesund) - 1) %>% # remove last row which only contains NAs
   dplyr::mutate(datetime = as_datetime(paste(paste(Year, Month, Day, sep="-"), paste(Hour, "00", "00", sep="-"), sep = " ")),
          temp_air = `Temperature[degC]`,
          p_air = `Pressure[hPa]`,
@@ -3777,7 +3781,7 @@ meteo <- tibble(windnyalesund) %>%
         ) %>%
   dplyr::select(datetime, temp_air, p_air, ws, wd)
 d_all <- dplyr::left_join(d_all, meteo, by = "datetime") %>% 
-  select(sort(current_vars()))
+  dplyr::select(sort(current_vars()))
 ```
 
 ```{r air-sea CO2, echo=FALSE, message= FALSE, warning=FALSE}
@@ -3789,7 +3793,8 @@ d_all <- dplyr::left_join(d_all, meteo, by = "datetime") %>%
 d_all <- d_all %>%
   dplyr::mutate(delta_pco2 = pco2_fb - co2_air, # ppm
                 k600 = 0.266 * ws^2, #cm/hr Ho et al. (2006)
-                Sc = 2073.1 - (125.62*temp_insitu_11m) + (3.6276*temp_insitu_11m^2) - (0.043219*temp_insitu_ctd^3), #dimensionless
+                Sc = 2073.1 - (125.62*temp_insitu_11m) + (3.6276*temp_insitu_11m^2) -
+                  (0.043219*temp_insitu_ctd^3), #dimensionless
                 k = k600 * (Sc/600)^-0.5, #cm/h
                 alp = seacarb::K0(S=sal_fb_mix,T=temp_insitu_11m,P=0,Patm=p_air/1013.25), #mol/(kg/atm)
                 alp = alp * (seacarb::rho(S = sal_fb_mix, T = temp_insitu_11m, P = 0)/1000), #mol/(l/atm)
@@ -4035,7 +4040,7 @@ d_bp <- d_bp %>%
 ts_sal_bp <- d_bp %>%
   ggplot(aes(x = month(x = datetime, label = TRUE, abbr = TRUE), y = sal_fb)) +
   geom_boxplot(notch=FALSE, size=0.2, fill="blue", outlier.shape = NA, na.rm=TRUE) +
-  geom_point(aes(x = month(x = datetime, label = TRUE, abbr = TRUE), y = ext_sal_fb), col = "lightblue", size = size_point) +
+  geom_point(aes(x = month(x = datetime, label = TRUE, abbr = TRUE), y = ext_sal_fb), col = "lightblue", size = size_point, na.rm=TRUE) +
   labs(y = "Salinity", x=NULL, title=NULL) +
   Mytheme() +
   theme(panel.grid.major.x = element_blank(),
@@ -4043,7 +4048,7 @@ ts_sal_bp <- d_bp %>%
 ts_temp_bp <- d_bp %>%
   ggplot(aes(x = month(x = datetime, label = TRUE, abbr = TRUE), y = temp_insitu_11m)) +
   geom_boxplot(notch=FALSE, size=0.2, fill="blue", outlier.shape = NA, na.rm=TRUE) +
-  geom_point(aes(x = month(x = datetime, label = TRUE, abbr = TRUE), y = ext_temp_insitu_11m), col = "lightblue", size = size_point) +
+  geom_point(aes(x = month(x = datetime, label = TRUE, abbr = TRUE), y = ext_temp_insitu_11m), col = "lightblue", size = size_point, na.rm=TRUE) +
   labs(y = "Temperature", x=NULL, title=NULL) +
   Mytheme() +
   theme(panel.grid.major.x = element_blank(),
@@ -4051,7 +4056,7 @@ ts_temp_bp <- d_bp %>%
 ts_pco2_bp <- d_bp %>%
   ggplot(aes(x = month(x = datetime, label = TRUE, abbr = TRUE), y = pco2_fb)) +
   geom_boxplot(notch=FALSE, size=0.2, fill="blue", outlier.shape = NA, na.rm=TRUE) +
-  geom_point(aes(x = month(x = datetime, label = TRUE, abbr = TRUE), y = ext_pco2_fb), col = "lightblue", size = size_point) +
+  geom_point(aes(x = month(x = datetime, label = TRUE, abbr = TRUE), y = ext_pco2_fb), col = "lightblue", size = size_point, na.rm=TRUE) +
   labs(y = expression(paste(pCO[2])), x=NULL, title=NULL) +
   Mytheme() +
   theme(panel.grid.major.x = element_blank(),
@@ -4059,7 +4064,7 @@ ts_pco2_bp <- d_bp %>%
 ts_pH_bp <- d_bp %>%
   ggplot(aes(x = month(x = datetime, label = TRUE, abbr = TRUE), y = pHint_tot_sf)) +
   geom_boxplot(notch=FALSE, size=0.2, fill="blue", outlier.shape = NA, na.rm=TRUE) +
-  geom_point(aes(x = month(x = datetime, label = TRUE, abbr = TRUE), y = ext_pHint_tot_sf), col = "lightblue", size = size_point) +
+  geom_point(aes(x = month(x = datetime, label = TRUE, abbr = TRUE), y = ext_pHint_tot_sf), col = "lightblue", size = size_point, na.rm=TRUE) +
   labs(y = expression(paste(pH[T])), x=NULL, title=NULL) +
   Mytheme() +
   theme(panel.grid.major.x = element_blank(),
@@ -4067,7 +4072,7 @@ ts_pH_bp <- d_bp %>%
 ts_at_bp <- d_bp %>%
   ggplot(aes(x = month(x = datetime, label = TRUE, abbr = TRUE), y = at_calc)) +
   geom_boxplot(notch=FALSE, size=0.2, fill="blue", outlier.shape = NA, na.rm=TRUE) +
-  geom_point(aes(x = month(x = datetime, label = TRUE, abbr = TRUE), y = ext_at_calc), col = "lightblue", size = size_point) +
+  geom_point(aes(x = month(x = datetime, label = TRUE, abbr = TRUE), y = ext_at_calc), col = "lightblue", size = size_point, na.rm=TRUE) +
   labs(y = "Total alkalinity", x=NULL, title=NULL) +
   Mytheme() +
   theme(panel.grid.major.x = element_blank(),
