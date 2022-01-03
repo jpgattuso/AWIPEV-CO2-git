@@ -112,7 +112,7 @@ if (plot == TRUE) {
                      "; Intercept =", signif(intercept, 3),
                      "; Slope =", signif(slope, 3),
                      "\nP =", signif(fit$P.param, 3),
-                    "rmse =", signif(sqrt(mean(error^2, na.rm=TRUE)), 3)),
+                    "rmse =", signif(sqrt(mean(error^2, na.rm = TRUE)), 3)),
        x = xlab,
        y = ylab) +
     theme_bw() +
@@ -152,7 +152,7 @@ fit <- lmodel2(col_y ~ col_x, nperm = 99)
                   slope_OLS = slope_MA,
                   rsquare = rsquare,
                   P = P.param,
-                  rmse = sqrt(mean(error^2, na.rm=TRUE)))
+                  rmse = sqrt(mean(error^2, na.rm = TRUE)))
   return(my_list)
 }
 
@@ -966,7 +966,7 @@ Extreme differences: `r dplyr::filter(tmp, range_diff < -3 | range_diff > 2)`.
 
 There are `r sum(!is.na(tmp$range_diff))` days with salinity values at both 1 m (0-2 m) and 10 m (8-12 m).
 
-The salinity difference between 1 and 10 m ranges between `r min(tmp$range_diff, na.rm=TRUE)` and `r max(tmp$range_diff, na.rm=TRUE)` (mean: `r mean(tmp$range_diff, na.rm=TRUE)`; `r median(tmp$range_diff, na.rm=TRUE)`). The difference with depth is therefore significant.
+The salinity difference between 1 and 10 m ranges between `r min(tmp$range_diff, na.rm = TRUE)` and `r max(tmp$range_diff, na.rm = TRUE)` (mean: `r mean(tmp$range_diff, na.rm = TRUE)`; `r median(tmp$range_diff, na.rm = TRUE)`). The difference with depth is therefore significant.
 ```
 
 ### **Comparison salinity FerryBox vs Salinity CTD REMOS 10 m** 
@@ -1065,9 +1065,9 @@ rm(temp_xts)
 # skipped because it is done in the "stratification tab"
 There are `r sum(!is.na(tmp$range))` days with temperature values at
 both 1 m (0-2 m) and 9 m (> 8 m). The temperature difference between 1
-and 9 m ranges between `r min(tmp$range, na.rm=TRUE)`°C and
-`r max(tmp$range, na.rm=TRUE)`°C (mean:
-`r mean(tmp$range, na.rm=TRUE)`°C; `r median(tmp$range, na.rm=TRUE)`°C).
+and 9 m ranges between `r min(tmp$range, na.rm = TRUE)`°C and
+`r max(tmp$range, na.rm = TRUE)`°C (mean:
+`r mean(tmp$range, na.rm = TRUE)`°C; `r median(tmp$range, na.rm = TRUE)`°C).
 The difference with depth is therefore significant.
 ```
 
@@ -1920,7 +1920,7 @@ Offset between calibrated seaFET data and pH spectro. The offset must be between
 ph_sf <- d_all%>%
   dplyr::select(datetime, ph_s_sf_temp_insi, pHint_tot_sf_10m) %>%
   dplyr::mutate(diff_spec_sf = ph_s_sf_temp_insi - pHint_tot_sf_10m)
-average_offset <- mean(ph_sf$diff_spec_sf, na.rm=TRUE, digits=4)
+average_offset <- mean(ph_sf$diff_spec_sf, na.rm = TRUE, digits=4)
 
 offset_xts <- select(ph_sf, datetime, diff_spec_sf)
 offset_xts <- as.xts(offset_xts, order.by=offset_xts$datetime)
@@ -1986,7 +1986,7 @@ tmp <- d_all %>%
   dplyr::select(datetime, depth, at, sal_insitu_ctd_mix, temp_sf, pHint_tot_sf) %>%
   tidyr::drop_na() %>%
   dplyr::filter(datetime < as.POSIXct("2018-01-01") | datetime > as.POSIXct("2018-02-03"))
-tmp$pHint_tot_sf_temp_4 <- seacarb::pHinsi(pH=tmp$pHint_tot_sf, ALK=mean(tmp$at*1e-6, na.rm=TRUE), Tinsi=4, Tlab=tmp$temp_sf, Pinsi=tmp$depth/10, S=tmp$sal_insitu_ctd_mix, Pt=0, Sit=0, k1k2 = "l", kf = "dg", ks="d", pHscale = "T", b="u74")
+tmp$pHint_tot_sf_temp_4 <- seacarb::pHinsi(pH=tmp$pHint_tot_sf, ALK=mean(tmp$at*1e-6, na.rm = TRUE), Tinsi=4, Tlab=tmp$temp_sf, Pinsi=tmp$depth/10, S=tmp$sal_insitu_ctd_mix, Pt=0, Sit=0, k1k2 = "l", kf = "dg", ks="d", pHscale = "T", b="u74")
 d_all <- d_all %>% 
   left_join(tmp %>% dplyr::select(datetime, pHint_tot_sf_temp_4), by="datetime")
 ```
@@ -2116,8 +2116,8 @@ duroffset <- left_join(durPeriod %>% dplyr::select(datetime, ph_s_dur_temp_fb), 
 dat_dur <- duroffset %>% 
   drop_na() %>% 
   dplyr::mutate(diff_pH_dur = ph_s_dur_temp_fb - ph_dur)
-average_offset_dur <- round(mean(dat_dur$diff_pH_dur, na.rm=TRUE), digits = 2)
-sd_offset_dur <- round(sd(abs(dat_dur$diff_pH_dur), na.rm=TRUE), digits = 2)
+average_offset_dur <- round(mean(dat_dur$diff_pH_dur, na.rm = TRUE), digits = 2)
+sd_offset_dur <- round(sd(abs(dat_dur$diff_pH_dur), na.rm = TRUE), digits = 2)
 n_offset_dur <- length(!is.na(dat_dur$diff_pH_dur))
 
 plot_offset_dur <- dat_dur %>% 
@@ -2314,7 +2314,7 @@ quant <- quantile(range_dur$pH_range, probs =c(2.5/100, 97.5/100), na.rm =TRUE)
 # Range of pH per month
 range_month <- range_dur %>%
   group_by(montht) %>%
-  summarize(pH_range_month = mean(pH_range, na.rm=TRUE))
+  summarize(pH_range_month = mean(pH_range, na.rm = TRUE))
 
 p <- range_dur %>% 
   tidyr::drop_na() %>% 
@@ -2368,7 +2368,7 @@ kable(range_month, caption = "")
 
 Comparaison is done here with **corrected pHs** (**seaFET**, **durafet**
 and **calculated** (from AT/CT)) and normalized at 4°C with a total
-alkalinity of `r mean(d_all$at, na.rm=TRUE)` µmoles kg-1 (mean data).
+alkalinity of `r mean(d_all$at, na.rm = TRUE)` µmoles kg-1 (mean data).
 For information, mean temperatures in Ferrybox and *in situ* are
 repectively 3.5°C and 2.5°C.
 
@@ -2739,32 +2739,32 @@ mean_sal <-  mean(means$mean_sal)
 mean_temp <-  mean(means$mean_temp)
 # then check impacts of 0, min and max nutrient values using pco2 and AT
 carb_po4_1 <- carb(24, mean_pco2_calc, mean_at_calc*1e-6, S = mean_sal, T = mean_temp, P = 0, 
-                 Pt = c(0, min(d_all$po4/1e6, na.rm=TRUE), max(d_all$po4/1e6, na.rm=TRUE)), Sit = 0,
+                 Pt = c(0, min(d_all$po4/1e6, na.rm = TRUE), max(d_all$po4/1e6, na.rm = TRUE)), Sit = 0,
                  k1k2 = "l", kf = "dg", ks = "d", pHscale = "T", b = "u74")
 diff_po4_0a <- carb_po4_1[1,] - carb_po4_1[3,] # diff between no PO4 and max PO4
 diff_po4_1a <- carb_po4_1[2,] - carb_po4_1[3,] # diff between min PO4 and max PO4
 carb_Si_1 <- carb(24, mean_pco2_calc, mean_at_calc*1e-6, S = mean_sal, T = mean_temp, P = 0,
-                Pt = 0, Sit = c(0, min(d_all$si/1e6, na.rm=TRUE), max(d_all$si/1e6, na.rm=TRUE)), 
+                Pt = 0, Sit = c(0, min(d_all$si/1e6, na.rm = TRUE), max(d_all$si/1e6, na.rm = TRUE)), 
                 k1k2 = "l", kf = "dg", ks = "d", pHscale = "T", b = "u74")
 diff_Si_0a <- carb_Si_1[1,] - carb_Si_1[3,] # diff between no Si and max Si
 diff_Si_1a <- carb_Si_1[2,] - carb_Si_1[3,] # diff between no Si and max Si
 # then check impacts of O, min and max nutrient values using AT-DIC pair
 carb_po4_2 <- carb(15, mean_at_calc*1e-6, mean_ct*1e-6, S = mean_sal, T = mean_temp, P = 0, 
-                 Pt = c(0, min(d_all$po4/1e6, na.rm=TRUE), max(d_all$po4/1e6, na.rm=TRUE)), Sit = 0,
+                 Pt = c(0, min(d_all$po4/1e6, na.rm = TRUE), max(d_all$po4/1e6, na.rm = TRUE)), Sit = 0,
                  k1k2 = "l", kf = "dg", ks = "d", pHscale = "T", b = "u74")
 diff_po4_0b <- carb_po4_2[1,] - carb_po4_2[3,] # diff between no PO4 and max PO4
 diff_po4_1b <- carb_po4_2[2,] - carb_po4_2[3,] # diff between min PO4 and max PO4
 carb_Si_2 <- carb(15, mean_at_calc*1e-6, mean_ct*1e-6, S = mean_sal, T = mean_temp, P = 0,
-                Pt = 0, Sit = c(0, min(d_all$si/1e6, na.rm=TRUE), max(d_all$si/1e6, na.rm=TRUE)), 
+                Pt = 0, Sit = c(0, min(d_all$si/1e6, na.rm = TRUE), max(d_all$si/1e6, na.rm = TRUE)), 
                 k1k2 = "l", kf = "dg", ks = "d", pHscale = "T", b = "u74")
 diff_Si_0b <- carb_Si_2[1,] - carb_Si_2[3,] # diff between no Si and max Si
 diff_Si_1b <- carb_Si_2[2,] - carb_Si_2[3,] # diff between no Si and max Si
 # then check impacts of O, max PO4 and NO3 values using pCO2 and AT as well as AT-DIC pair
 carb_1 <- carb(24, mean_pco2_calc, mean_at_calc*1e-6, S = mean_sal, T = mean_temp, P = 0, 
-                 Pt = c(0, max(d_all$po4/1e6, na.rm=TRUE)), Sit = c(0, max(d_all$si/1e6, na.rm=TRUE)),
+                 Pt = c(0, max(d_all$po4/1e6, na.rm = TRUE)), Sit = c(0, max(d_all$si/1e6, na.rm = TRUE)),
                  k1k2 = "l", kf = "dg", ks = "d", pHscale = "T", b = "u74")
 carb_2 <- carb(15, mean_at_calc*1e-6, mean_ct*1e-6, S = mean_sal, T = mean_temp, P = 0, 
-                 Pt = c(0, max(d_all$po4/1e6, na.rm=TRUE)), Sit = c(0, max(d_all$si/1e6, na.rm=TRUE)),
+                 Pt = c(0, max(d_all$po4/1e6, na.rm = TRUE)), Sit = c(0, max(d_all$si/1e6, na.rm = TRUE)),
                  k1k2 = "l", kf = "dg", ks = "d", pHscale = "T", b = "u74")
 diff_max_0a <- carb_1[1,] - carb_1[2,] # pco2-AT: diff between (0 PO4 and Si) and (max PO4 and Si)
 diff_max_0b <- carb_2[1,] - carb_2[2,] # AT-CT: diff between (0 PO4 and Si) and (max PO4 and Si)
@@ -3811,7 +3811,7 @@ p_f_air_sea <- ggplot(data = d_all) +
 air_sea_day <- d_all %>%
   dplyr::select(datetime, f_air_sea) %>%
   dplyr::group_by(lubridate::yday(datetime)) %>%
-  dplyr::summarise(f_air_sea = 24 * mean(f_air_sea, na.rm=TRUE)/1000) %>% #mol/(m2 d)
+  dplyr::summarise(f_air_sea = 24 * mean(f_air_sea, na.rm = TRUE)/1000) %>% #mol/(m2 d)
   ungroup() %>%
   dplyr::rename(day = 1)
   
@@ -3825,7 +3825,7 @@ p_f_air_sea_d <- ggplot(data = air_sea_day) +
 air_sea_month <- d_all %>%
   dplyr::select(monthd, f_air_sea) %>%
   dplyr::group_by(monthd) %>%
-  dplyr::summarise(f_air_sea = 24 * mean(f_air_sea, na.rm=TRUE)/1000) %>% #mol/(m2 d)
+  dplyr::summarise(f_air_sea = 24 * mean(f_air_sea, na.rm = TRUE)/1000) %>% #mol/(m2 d)
   ungroup() %>%
   dplyr::mutate(f_air_sea = days_in_month(monthd) * f_air_sea) %>% 
   dplyr::mutate(montht = month(monthd, label = TRUE, abbr = TRUE))
@@ -3926,25 +3926,25 @@ alpha <- 1 #transparency
 size_labs <- 6 # font size labels
 
 ts_sal <- d_all %>%
-  ggplot(aes(x = datetime, y = sal_fb), na.rm=TRUE) +
+  ggplot(aes(x = datetime, y = sal_fb), na.rm = TRUE) +
   scale_x_datetime(breaks = date_breaks("1 year"), labels = date_format("%Y")) +
-  geom_point(colour="blue", alpha=alpha, na.rm=TRUE, size=size_point) + 
+  geom_point(colour="blue", alpha = alpha, na.rm = TRUE, size = size_point) + 
   labs(title="Salinity FerryBox",x="", y="Salinity") +
   Mytheme(size_labs = size_labs)
 
 # temp_insitu_11m
 ts_temp <- d_all %>%
-  ggplot(aes(x = datetime, y = temp_insitu_11m), na.rm=TRUE) +
+  ggplot(aes(x = datetime, y = temp_insitu_11m), na.rm = TRUE) +
   scale_x_datetime(breaks = date_breaks("1 year"), labels = date_format("%Y")) +
-  geom_point(colour="blue", alpha=alpha, na.rm=TRUE, size=size_point) + 
+  geom_point(colour="blue", alpha = alpha, na.rm = TRUE, size = size_point) + 
   labs(title="In situ temperature 11 m",x="", y="Temperature (°C)") +
   Mytheme(size_labs = size_labs)
 
 # PAR
 ts_par_air <- d_all %>%
-  ggplot(aes(x = datetime, y = par_air), na.rm=TRUE) +
+  ggplot(aes(x = datetime, y = par_air), na.rm = TRUE) +
   scale_x_datetime(breaks = date_breaks("1 year"), labels = date_format("%Y")) +
-  geom_point(colour="blue", alpha=alpha, na.rm=TRUE, size=size_point) + 
+  geom_point(colour="blue", alpha = alpha, na.rm = TRUE, size = size_point) + 
   labs(title="Atmospheric PAR",x="", y="PAR (umol m-2 s-1)") +
   Mytheme(size_labs = size_labs)
 
@@ -3953,8 +3953,8 @@ ts_pCO2 <- d_all %>%
   ggplot() +
   scale_x_datetime(breaks = date_breaks("1 year"), labels = date_format("%Y")) +
   geom_point(aes(x = datetime, y = pco2_fb), 
-             colour="blue", alpha=alpha, na.rm=TRUE, size=size_point) + 
-  geom_point(aes(x = datetime, y = pco2_calc_fb), colour="red", alpha=alpha, na.rm=TRUE, size=size_point*3) + 
+             colour="blue", alpha = alpha, na.rm = TRUE, size = size_point) + 
+  geom_point(aes(x = datetime, y = pco2_calc_fb), colour="red", alpha = alpha, na.rm = TRUE, size = size_point*3) + 
   labs(title="Measured (blue) and calculated (CT+AT; red) pCO2",x="", y="pCO2 (uatm)") +
   Mytheme(size_labs = size_labs)
 
@@ -3962,10 +3962,10 @@ ts_pCO2 <- d_all %>%
 ts_pH <- d_all %>% 
   ggplot() +
   scale_x_datetime(breaks = date_breaks("1 year"), labels = date_format("%Y")) +
-  geom_point(aes(x = datetime, y = pHint_tot_sf, col = depth), alpha=alpha, na.rm=TRUE, size=size_point) + 
+  geom_point(aes(x = datetime, y = pHint_tot_sf, col = depth), alpha = alpha, na.rm = TRUE, size = size_point) + 
   scale_colour_gradient(name = "Depth (m)", low = "#56B1F7", high = "#132B43") + # reverse colors
   guides(colour = guide_colourbar(reverse = TRUE)) + # reverse colour bar
-  geom_point(aes(x = datetime, y = ph_s_sf_temp_insi), colour="red", alpha=alpha, na.rm=TRUE, size=size_point*3) + 
+  geom_point(aes(x = datetime, y = ph_s_sf_temp_insi), colour="red", alpha = alpha, na.rm = TRUE, size = size_point*3) + 
   labs(title="In situ pH, spectrophotometric pH in red))",x="", y=expression(paste(pH[T]))) +
   Mytheme(size_labs = size_labs) +
   theme(legend.position = c(0.1, 0.5),
@@ -3973,10 +3973,10 @@ ts_pH <- d_all %>%
 
 # AT
 ts_at <- d_all %>%
-  ggplot(aes(x = datetime, y = at_calc), na.rm=TRUE) +
+  ggplot(aes(x = datetime, y = at_calc), na.rm = TRUE) +
   scale_x_datetime(breaks = date_breaks("1 year"), labels = date_format("%Y")) +
-  geom_point(colour="blue", alpha=alpha, na.rm=TRUE, size=size_point) + 
-  geom_point(aes(x = datetime, y = at), colour="red", alpha=alpha, na.rm=TRUE, size=size_point*3) + 
+  geom_point(colour="blue", alpha = alpha, na.rm = TRUE, size = size_point) + 
+  geom_point(aes(x = datetime, y = at), colour="red", alpha = alpha, na.rm = TRUE, size = size_point*3) + 
   labs(title="Total alkalinity calculated from salinity (blue) and discrete measurements (red)", x="", y="AT (umol/kg)") +
   Mytheme(size_labs = size_labs)
 
@@ -4035,40 +4035,40 @@ d_bp <- d_bp %>%
                                             at_calc > dec_at_calc[2], at_calc, NA))
 ts_sal_bp <- d_bp %>%
   ggplot(aes(x = month(x = datetime, label = TRUE, abbr = TRUE), y = sal_fb)) +
-  geom_boxplot(notch=FALSE, size=0.2, fill="blue", outlier.shape = NA, na.rm=TRUE) +
-  geom_point(aes(x = month(x = datetime, label = TRUE, abbr = TRUE), y = ext_sal_fb), col = "lightblue", size = size_point, na.rm=TRUE) +
+  geom_boxplot(notch=FALSE, size=0.2, fill="blue", outlier.shape = NA, na.rm = TRUE) +
+  geom_point(aes(x = month(x = datetime, label = TRUE, abbr = TRUE), y = ext_sal_fb), col = "lightblue", size = size_point, na.rm = TRUE) +
   labs(y = "Salinity", x=NULL, title=NULL) +
   Mytheme() +
   theme(panel.grid.major.x = element_blank(),
         aspect.ratio=0.5)
 ts_temp_bp <- d_bp %>%
   ggplot(aes(x = month(x = datetime, label = TRUE, abbr = TRUE), y = temp_insitu_11m)) +
-  geom_boxplot(notch=FALSE, size=0.2, fill="blue", outlier.shape = NA, na.rm=TRUE) +
-  geom_point(aes(x = month(x = datetime, label = TRUE, abbr = TRUE), y = ext_temp_insitu_11m), col = "lightblue", size = size_point, na.rm=TRUE) +
+  geom_boxplot(notch=FALSE, size=0.2, fill="blue", outlier.shape = NA, na.rm = TRUE) +
+  geom_point(aes(x = month(x = datetime, label = TRUE, abbr = TRUE), y = ext_temp_insitu_11m), col = "lightblue", size = size_point, na.rm = TRUE) +
   labs(y = "Temperature", x=NULL, title=NULL) +
   Mytheme() +
   theme(panel.grid.major.x = element_blank(),
         aspect.ratio=0.5)
 ts_pco2_bp <- d_bp %>%
   ggplot(aes(x = month(x = datetime, label = TRUE, abbr = TRUE), y = pco2_fb)) +
-  geom_boxplot(notch=FALSE, size=0.2, fill="blue", outlier.shape = NA, na.rm=TRUE) +
-  geom_point(aes(x = month(x = datetime, label = TRUE, abbr = TRUE), y = ext_pco2_fb), col = "lightblue", size = size_point, na.rm=TRUE) +
+  geom_boxplot(notch=FALSE, size=0.2, fill="blue", outlier.shape = NA, na.rm = TRUE) +
+  geom_point(aes(x = month(x = datetime, label = TRUE, abbr = TRUE), y = ext_pco2_fb), col = "lightblue", size = size_point, na.rm = TRUE) +
   labs(y = expression(paste(pCO[2])), x=NULL, title=NULL) +
   Mytheme() +
   theme(panel.grid.major.x = element_blank(),
         aspect.ratio=0.5)
 ts_pH_bp <- d_bp %>%
   ggplot(aes(x = month(x = datetime, label = TRUE, abbr = TRUE), y = pHint_tot_sf)) +
-  geom_boxplot(notch=FALSE, size=0.2, fill="blue", outlier.shape = NA, na.rm=TRUE) +
-  geom_point(aes(x = month(x = datetime, label = TRUE, abbr = TRUE), y = ext_pHint_tot_sf), col = "lightblue", size = size_point, na.rm=TRUE) +
+  geom_boxplot(notch=FALSE, size=0.2, fill="blue", outlier.shape = NA, na.rm = TRUE) +
+  geom_point(aes(x = month(x = datetime, label = TRUE, abbr = TRUE), y = ext_pHint_tot_sf), col = "lightblue", size = size_point, na.rm = TRUE) +
   labs(y = expression(paste(pH[T])), x=NULL, title=NULL) +
   Mytheme() +
   theme(panel.grid.major.x = element_blank(),
         aspect.ratio=0.5)
 ts_at_bp <- d_bp %>%
   ggplot(aes(x = month(x = datetime, label = TRUE, abbr = TRUE), y = at_calc)) +
-  geom_boxplot(notch=FALSE, size=0.2, fill="blue", outlier.shape = NA, na.rm=TRUE) +
-  geom_point(aes(x = month(x = datetime, label = TRUE, abbr = TRUE), y = ext_at_calc), col = "lightblue", size = size_point, na.rm=TRUE) +
+  geom_boxplot(notch=FALSE, size=0.2, fill="blue", outlier.shape = NA, na.rm = TRUE) +
+  geom_point(aes(x = month(x = datetime, label = TRUE, abbr = TRUE), y = ext_at_calc), col = "lightblue", size = size_point, na.rm = TRUE) +
   labs(y = "Total alkalinity", x=NULL, title=NULL) +
   Mytheme() +
   theme(panel.grid.major.x = element_blank(),
