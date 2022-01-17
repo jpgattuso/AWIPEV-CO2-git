@@ -2876,7 +2876,7 @@ carb_s_2 <- carb(15, mean_at*1e-6, mean_ct*1e-6, S = mean_sal, T = mean_temp, P 
 diff_ls_2 <- carb_l_2 - carb_s_2
 # summary
 const_choice <- bind_rows(diff_ls_1, diff_ls_2) %>% 
-  dplyr::mutate(flag = c("pCO2 and ALK", "ALK and DIC"),
+  dplyr::mutate(flag = c("pCO2-AT", "AT-CT"),
                 S = mean_sal,
                 T = mean_temp,
                 DIC = DIC * 1e6
@@ -2885,7 +2885,7 @@ const_choice <- bind_rows(diff_ls_1, diff_ls_2) %>%
   dplyr::bind_cols(errors)
 ```
 
-### K1K2 using pCO2 and AT
+### All K1K2 using pCO2-AT
 
 ```{r impact of constants using FerryBox pCO2 and at, echo=FALSE, warning=FALSE, message=FALSE}
 tmp <- d_all %>% 
@@ -3011,14 +3011,6 @@ k1k2_pco2_at <- list(mean_discrete = mean_discrete, const_choice = const_choice,
 save(k1k2_pco2_at, file="reports/k1k2_pco2_at.RData")
 ```
 
-#### Difference Lueker vs Sulpis
-
-Using the following using mean discrete values:
-`r knitr::kable(mean_discrete, digits = c(1, 1, 0, 1, 1), caption = "Mean discrete values.", format = "simple")`
-
-The differences are:
-`r knitr::kable(const_choice, digits = c(0, 3, 1, 1, 3, 3, 1, 1, 1), caption = "Lueker minus Sulpis. e indicates typical errors estimated with seacarb.", format = "simple")`
-
 The discrete values of pCO2, AT, salinity and temperature in the
 FerryBox were used to calculate pH using the formulations for K1 and K2
 of Lueker et al. (2000) and Sulpis et al. (2020). The differences
@@ -3034,8 +3026,6 @@ induced by the choice of the carbonic acid constants are:
     the uncertainty calculated with seacarb
     (`r round(const_choice[1, 8], digits = 1)`)
 -   negligible for OmegaAragonite
-
-#### Difference between all formulations and measured pH
 
 `r knitr::kable(diff_ls_quant, digits = c(0, rep(3, 5)), caption = "Lueker minus Sulpis using discrete Ferrybox data.", format = "simple")`
 
@@ -3054,7 +3044,7 @@ according to seacarb (`r round(errors_pco2_at$pH, digits=3)`).
 `r knitr::kable(diff_table_pco2_at, digits = 3, caption = "Difference between spectrophotometric pH and pH calculated with pCO2 and AT using different formulations for K1 and K2.", format = "simple")`
 `r include_graphics("figures/k1k2_all_pco2_at.png")`
 
-### K1K2 using CT and AT
+### All K1K2 using CT and AT
 
 ```{r impact of constants using FerryBox ct and at, echo=FALSE, warning=FALSE, message=FALSE}
 tmp <- d_all %>% 
@@ -3175,16 +3165,6 @@ k1k2_at_ct <- list(errors_at_ct = errors_at_ct,
 save(k1k2_at_ct, file="reports/k1k2_at_ct.RData")
 ```
 
-#### Difference Lueker vs Sulpis
-
-Using the following using mean discrete values:
-`r knitr::kable(mean_discrete, digits = c(1, 1, 0, 1, 1), caption = "Mean discrete values.", format = "simple")`
-
-The differences are:
-`r knitr::kable(const_choice, digits = c(0, 3, 1, 1, 3, 3, 1, 1, 1), caption = "Lueker minus Sulpis. e indicates typical errors estimated with seacarb.", format = "simple")`
-
-#### Difference between all formulations and measured pH
-
 `r knitr::kable(diff_table_at_ct, digits = 3, caption = "Difference between spectrophotometric pH and pH calculated with AT and CT using different formulations for K1 and K2.", format = "simple")`
 `r include_graphics("figures/k1k2_all_at_ct.png")`
 
@@ -3202,6 +3182,14 @@ the uncertainty for pH calculated from AT and CT according to seacarb
 (`r round(errors_at_ct$pH, digits=3)`). The differences found with the
 other formulations are, on average, slightly lower than the uncertainty
 for pH calculated from AT and CT according to seacarb.
+
+### Lueker vs Sulpis discrete
+
+Using the following using mean discrete values:
+`r knitr::kable(mean_discrete, digits = c(1, 1, 0, 1, 1), caption = "Mean discrete values.", format = "simple")`
+
+The differences are:
+`r knitr::kable(const_choice, digits = c(0, 3, 1, 1, 3, 3, 1, 1, 1), caption = "Lueker minus Sulpis. e indicates typical errors estimated with seacarb.", format = "simple")`
 
 ## Stratification
 ```{r, echo=FALSE, message= FALSE, warning=FALSE}
