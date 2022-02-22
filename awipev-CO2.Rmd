@@ -2891,7 +2891,7 @@ errors <- tibble(
 
 ### All K1K2 using pCO2-AT
 
-```{r impact of constants using FerryBox pCO2 and at, echo=FALSE, warning=FALSE, message=FALSE}
+```{r impact of constants on spec pH using FerryBox pCO2 and at, echo=FALSE, warning=FALSE, message=FALSE}
 tmp <- d_all %>% 
   tidyr::drop_na(ph_s_dur_temp_fb, pco2_fb, at, sal_fb_mix, temp_fb) %>% 
   dplyr::select(datetime, ph_s_dur_temp_fb, pco2_fb, at, sal_fb_mix, temp_fb) %>% 
@@ -3056,7 +3056,7 @@ according to seacarb (see above; `r round(errors_pco2_at$pH, digits=4)`).
 
 ### All K1K2 using CT and AT
 
-```{r impact of constants using FerryBox ct and at, echo=FALSE, warning=FALSE, message=FALSE}
+```{r impact of constants on spec pH using FerryBox ct and at, echo=FALSE, warning=FALSE, message=FALSE}
 tmp <- d_all %>% 
   tidyr::drop_na(ph_s_dur_temp_fb, ct, at, sal_fb_mix, temp_fb) %>% 
   dplyr::select(datetime, ph_s_dur_temp_fb, ct, at, sal_fb_mix, temp_fb) %>% 
