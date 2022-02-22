@@ -2888,8 +2888,94 @@ errors <- tibble(
 
 `r knitr::kable(errors, digits = c(0, 1, 1, 1, 1, 1, 3, 1, 1, 3), caption = "Typical errors estimated with seacarb using the mean discrete values of the FerryBox samples.", format = "simple")`
 
+### pH and CT using all_pCO2-AT
 
-### pH with all K1K2 using pCO2-AT
+```{r pH and CT with all K1K2 using pCO2-AT, echo=FALSE, warning=FALSE, message=FALSE}
+tmp <- d_all %>% 
+  dplyr::select(datetime, pco2_fb, at, sal_fb_mix, temp_fb) %>% 
+  tidyr::drop_na(pco2_fb, at, sal_fb_mix, temp_fb) %>% 
+# This is an important adjustement for pco2_fb on 2019-06-07 09:00:00
+# it is too high compared with ph_s_dur. Looking at the dygraph suggests that there has been a peak just before that time and that the values were coming back down. This is this in accordance with pco2_calc_fb calculated from 
+dplyr::mutate(pco2_fb = ifelse(datetime == as.POSIXct("2019-06-07 09:00:00"), 203, pco2_fb))
+# Using Lueker  
+carb_l <- carb(flag = 24, var1 = tmp$pco2_fb, var2 = tmp$at * 1e-6, S = tmp$sal_fb_mix, 
+               T = tmp$temp_fb, P = 0, Pt = 0, Sit = 0, k1k2 = "l", kf = "dg", ks = "d", 
+               pHscale = "T", b = "u74")
+# normalize Lueker-derived pH at 4°C
+carb_l$pH <- pHinsi(pH = carb_l$pH, ALK = carb_l$ALK, Tinsi = 4, Tlab = carb_l$T, Pinsi = 0, 
+                         S = carb_l$S, Pt = 0, Sit = 0, k1k2 = "l", kf = "dg", ks="d", 
+                         pHscale = "T", b="u74")
+# Using Sulpis
+carb_s <- carb(flag = 24, var1 = tmp$pco2_fb, var2 = tmp$at * 1e-6, S = tmp$sal_fb_mix, 
+               T = tmp$temp_fb, P = 0, Pt = 0, Sit = 0, k1k2 = "s20", kf = "dg", ks = "d", 
+               pHscale = "T", b = "u74")
+# normalize Sulpis-derived pH at 4°C
+carb_s$pH <- pHinsi(pH = carb_s$pH, ALK = carb_s$ALK, Tinsi = 4, Tlab = carb_s$T, Pinsi = 0, 
+                         S = carb_s$S, Pt = 0, Sit = 0, k1k2 = "s20", kf = "dg", ks="d", 
+                         pHscale = "T", b="u74")
+# Using Papadimitriou
+carb_p <- carb(flag = 24, var1 = tmp$pco2_fb, var2 = tmp$at * 1e-6, S = tmp$sal_fb_mix, 
+               T = tmp$temp_fb, P = 0, Pt = 0, Sit = 0, k1k2 = "p18", kf = "dg", ks = "d", 
+               pHscale = "T", b = "u74")
+# normalize Papadimitriou-derived pH at 4°C
+carb_p$pH <- pHinsi(pH = carb_p$pH, ALK = carb_p$ALK, Tinsi = 4, Tlab = carb_p$T, Pinsi = 0, 
+                         S = carb_p$S, Pt = 0, Sit = 0, k1k2 = "p18", kf = "dg", ks="d", 
+                         pHscale = "T", b="u74")
+# Using Millero et al. (2002)
+carb_m <- carb(flag = 24, var1 = tmp$pco2_fb, var2 = tmp$at * 1e-6, S = tmp$sal_fb_mix, 
+               T = tmp$temp_fb, P = 0, Pt = 0, Sit = 0, k1k2 = "m02", kf = "dg", ks = "d", 
+               pHscale = "T", b = "u74")
+# normalize Millero et al. (2002)-derived pH at 4°C
+carb_m$pH <- pHinsi(pH = carb_m$pH, ALK = carb_m$ALK, Tinsi = 4, Tlab = carb_m$T, Pinsi = 0, 
+                         S = carb_m$S, Pt = 0, Sit = 0, k1k2 = "m02", kf = "dg", ks="d", 
+                         pHscale = "T", b="u74")
+# calculate difference Lueker - Sulpis
+diff_ls <- as_tibble(carb_l - carb_s) %>% 
+  dplyr::rename(delta_ph = pH, delta_ct = DIC, delta_OmegaAragonite = OmegaAragonite) %>%
+  dplyr::select(delta_ph, delta_ct, delta_OmegaAragonite) %>% 
+  dplyr::mutate(deltas = "L-S", .before = 1)
+# calculate difference Lueker - Papadimitriou
+diff_lp <- as_tibble(carb_l - carb_p) %>% 
+  dplyr::rename(delta_ph = pH, delta_ct = DIC, delta_OmegaAragonite = OmegaAragonite) %>%
+  dplyr::select(delta_ph, delta_ct, delta_OmegaAragonite) %>% 
+  dplyr::mutate(deltas = "L-P", .before = 1)
+# calculate difference Lueker - Millero
+diff_lm <- as_tibble(carb_l - carb_m) %>% 
+  dplyr::rename(delta_ph = pH, delta_ct = DIC, delta_OmegaAragonite = OmegaAragonite) %>%
+  dplyr::select(delta_ph, delta_ct, delta_OmegaAragonite) %>% 
+  dplyr::mutate(deltas = "L-M", .before = 1)
+# bind and plot
+diff_all <- dplyr::bind_rows(diff_ls, diff_lp, diff_lm) %>% 
+  dplyr::mutate(delta_ct = delta_ct * 1e6)
+diff_all_long <- diff_all %>% 
+  tidyr::pivot_longer(-deltas, names_to = "variable")
+p <- ggplot(diff_all_long, aes(x=factor(deltas), y=value))+
+  geom_boxplot(notch=FALSE, size=0.2, fill="grey50", outlier.color = "blue", outlier.size = 0.3) +
+  labs(title = "", x = "Depth (m)", y= "delta") +
+  facet_wrap(vars(variable), scales = "free_y") +
+  Mytheme()
+# calculate descriptive statistics
+diff_ls_quant <- tibble(pH = as.numeric(summary(diff_ls$delta_ph)),
+                        CT = as.numeric(summary(diff_ls$delta_ct * 1e6)),
+                        OmegaAragonite = as.numeric(summary(diff_ls$delta_OmegaAragonite))) %>%
+  dplyr::mutate(var = c("Min", "Q1", "Median", "Mean", "Q3", "Max"), .before = 1)
+diff_lp_quant <- tibble(pH = as.numeric(summary(diff_lp$delta_ph)),
+                        CT = as.numeric(summary(diff_lp$delta_ct * 1e6)),
+                        OmegaAragonite = as.numeric(summary(diff_ls$delta_OmegaAragonite)))%>%
+  dplyr::mutate(var = c("Min", "Q1", "Median", "Mean", "Q3", "Max"), .before = 1)
+diff_lm_quant <- tibble(pH = as.numeric(summary(diff_lm$delta_ph)),
+                        CT = as.numeric(summary(diff_lm$delta_ct * 1e6)),
+                        OmegaAragonite = as.numeric(summary(diff_ls$delta_OmegaAragonite)))%>%
+  dplyr::mutate(var = c("Min", "Q1", "Median", "Mean", "Q3", "Max"), .before = 1)
+
+ggsave(filename = "figures/k1k2_all_pco2_at.png", plot = p, width = 25, height = 20, units = "cm")
+```
+`r knitr::kable(diff_ls_quant, digits = c(0, rep(3, 5)), caption = "Lueker minus Sulpis using all pCO2 data.", format = "simple")`
+`r knitr::kable(diff_ls_quant, digits = c(0, rep(3, 5)), caption = "Lueker minus Papadimitriou using all pCO2 data.", format = "simple")`
+`r knitr::kable(diff_ls_quant, digits = c(0, rep(3, 5)), caption = "Lueker minus Millero using all pCO2 data.", format = "simple")`
+`r include_graphics("figures/k1k2_all_pco2_at.png")`
+
+### pH using discrete pCO2-AT
 
 ```{r pH with all K1K2 using pCO2-AT, echo=FALSE, warning=FALSE, message=FALSE}
 tmp <- d_all %>% 
@@ -3006,7 +3092,7 @@ p3 <- tmp2 %>%
   labs(x = "Ferrybox temperature (°C)", y = "Spec pH - calculated pH (units)") +
   theme(legend.title = element_blank())
 p <- (p1 + p2)# / p3
-ggsave(filename = "figures/k1k2_all_pco2_at.png", plot = p, width = 25, height = 20, units = "cm")
+ggsave(filename = "figures/k1k2_discrete_pco2_at.png", plot = p, width = 25, height = 20, units = "cm")
 
 # save elements for k1k2 report
 k1k2_pco2_at <- list(mean_discrete = mean_discrete, tmp2 = tmp2,
@@ -3052,9 +3138,9 @@ times larger than the uncertainty for pH calculated from pCO2 and AT
 according to seacarb (see above; `r round(errors_pco2_at$pH, digits=4)`).
 
 `r knitr::kable(diff_table_pco2_at, digits = 3, caption = "Difference between spectrophotometric pH and pH calculated with pCO2 and AT using different formulations for K1 and K2.", format = "simple")`
-`r include_graphics("figures/k1k2_all_pco2_at.png")`
+`r include_graphics("figures/k1k2_discrete_pco2_at.png")`
 
-### pH with all K1K2 using CT and AT
+### pH using discreteCT and AT
 
 ```{r pH with all K1K2 using CT and AT, echo=FALSE, warning=FALSE, message=FALSE}
 tmp <- d_all %>% 
@@ -3167,7 +3253,7 @@ p3 <- tmp2 %>%
   labs(x = "Ferrybox temperature (°C)", y = "Spec pH - calculated pH (units)") +
   theme(legend.title = element_blank())
 p <- (p1 + p2) / p3
-ggsave(filename = "figures/k1k2_all_at_ct.png", plot = p, width = 25, height = 20, units = "cm")
+ggsave(filename = "figures/k1k2_discrete_at_ct.png", plot = p, width = 25, height = 20, units = "cm")
 
 # save elements for k1k2 report
 k1k2_at_ct <- list(errors_at_ct = errors_at_ct,
@@ -3212,7 +3298,7 @@ for pH calculated from AT and CT according to seacarb.
 
 `r knitr::kable(diff_table_at_ct, digits = 3, caption = "Difference between spectrophotometric pH and pH calculated with AT and CT using different formulations for K1 and K2.", format = "simple")`
 
-`r include_graphics("figures/k1k2_all_at_ct.png")`
+`r include_graphics("figures/k1k2_discrete_at_ct.png")`
 
 ## Stratification
 ```{r, echo=FALSE, message= FALSE, warning=FALSE}
