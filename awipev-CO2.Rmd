@@ -2889,9 +2889,9 @@ errors <- tibble(
 `r knitr::kable(errors, digits = c(0, 1, 1, 1, 1, 1, 3, 1, 1, 3), caption = "Typical errors estimated with seacarb using the mean discrete values of the FerryBox samples.", format = "simple")`
 
 
-### All K1K2 using pCO2-AT
+### pH with all K1K2 using pCO2-AT
 
-```{r impact of constants on spec pH using FerryBox pCO2 and at, echo=FALSE, warning=FALSE, message=FALSE}
+```{r pH with all K1K2 using pCO2-AT, echo=FALSE, warning=FALSE, message=FALSE}
 tmp <- d_all %>% 
   tidyr::drop_na(ph_s_dur_temp_fb, pco2_fb, at, sal_fb_mix, temp_fb) %>% 
   dplyr::select(datetime, ph_s_dur_temp_fb, pco2_fb, at, sal_fb_mix, temp_fb) %>% 
@@ -3054,9 +3054,9 @@ according to seacarb (see above; `r round(errors_pco2_at$pH, digits=4)`).
 `r knitr::kable(diff_table_pco2_at, digits = 3, caption = "Difference between spectrophotometric pH and pH calculated with pCO2 and AT using different formulations for K1 and K2.", format = "simple")`
 `r include_graphics("figures/k1k2_all_pco2_at.png")`
 
-### All K1K2 using CT and AT
+### pH with all K1K2 using CT and AT
 
-```{r impact of constants on spec pH using FerryBox ct and at, echo=FALSE, warning=FALSE, message=FALSE}
+```{r pH with all K1K2 using CT and AT, echo=FALSE, warning=FALSE, message=FALSE}
 tmp <- d_all %>% 
   tidyr::drop_na(ph_s_dur_temp_fb, ct, at, sal_fb_mix, temp_fb) %>% 
   dplyr::select(datetime, ph_s_dur_temp_fb, ct, at, sal_fb_mix, temp_fb) %>% 
