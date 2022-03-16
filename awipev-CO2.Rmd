@@ -73,7 +73,8 @@ fig_nums <- captioner()
 table_nums <- captioner(prefix = "Table")
 
 #define who is the user and define path
-if (Sys.getenv("LOGNAME") == "gattuso") path = "../../pCloud\ Sync/Documents/experiments/exp168_awipev-CO2/"
+#if (Sys.getenv("LOGNAME") == "gattuso") path = "../../pCloud\ Sync/Documents/experiments/exp168_awipev-CO2/"
+if (Sys.getenv("LOGNAME") == "gattuso") path = "../../Documents/experiments/exp168_awipev-CO2/"
 if (Sys.getenv("LOGNAME") == "samir") path = "../../pCloud\ Sync/exp168_awipev-CO2/"
 
 #################### which.closest function
@@ -2949,7 +2950,7 @@ diff_all <- dplyr::bind_rows(diff_ls, diff_lp, diff_lm) %>%
   dplyr::mutate(delta_ct = delta_ct * 1e6)
 diff_all_long <- diff_all %>% 
   tidyr::pivot_longer(-deltas, names_to = "variable") %>% 
-  dplyr::mutate(variable = forcats::fct_relevel(variable, 'delta_ph', 'delta_ct', 'delta_OmegaAragonite'), variable = fct_recode(variable, "'Delta" pH"' = "delta_ph", 'C[T]' = "delta_ct",'Omega[a]' = "delta_OmegaAragonite"))
+  dplyr::mutate(variable = forcats::fct_relevel(variable, 'delta_ph', 'delta_ct', 'delta_OmegaAragonite'), variable = fct_recode(variable, 'DeltapH' = "delta_ph", 'C[T]' = "delta_ct",'Omega[a]' = "delta_OmegaAragonite"))
 
 p <- ggplot(diff_all_long, aes(x = forcats::fct_relevel(deltas, 'L00-S20', 'L00-P18', 'L00-M02'), y=value))+
   geom_boxplot(notch=FALSE, size=0.2, fill="grey50", outlier.color = "blue", outlier.size = 0.3) +
@@ -3833,7 +3834,7 @@ tmp <-
   tmp$datetime <- lubridate::round_date(tmp$datetime, unit="1 minutes")
 atm_co2_new <- bind_rows(atm_co2_new, tmp)
   }
-# combine the two sources of CO2 data
+ # combine the two sources of CO2 data
 # the new source has missing data in 2018, so the data from the old source
 # are used for 2018
 atm_co2 <- dplyr::full_join(atm_co2_new, atm_co2_old, by = "datetime")
