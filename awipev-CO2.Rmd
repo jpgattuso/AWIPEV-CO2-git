@@ -74,7 +74,7 @@ table_nums <- captioner(prefix = "Table")
 
 #define who is the user and define path
 #if (Sys.getenv("LOGNAME") == "gattuso") path = "../../pCloud\ Sync/Documents/experiments/exp168_awipev-CO2/"
-if (Sys.getenv("LOGNAME") == "gattuso") path = "../../Documents/experiments/exp168_awipev-CO2/"
+if (Sys.getenv("LOGNAME") == "gattuso") path = "../../kDrive/Documents/experiments/exp168_awipev-CO2/"
 if (Sys.getenv("LOGNAME") == "samir") path = "../../pCloud\ Sync/exp168_awipev-CO2/"
 
 #################### which.closest function
