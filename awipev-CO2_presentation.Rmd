@@ -117,3 +117,15 @@ Nevertheless:
 ## **Time series of key variables**
 ![ ](figures/time_series.png)
 
+# **Conclusion**
+
+- **First** high-frequency time series of the carbonate system in the Arctic 
+- **Positive aspects**: 
+  - Excellent support from AWIPEV staff but work overload
+  - IPEV support secured for another 4-year period (2019-2022)
+- **Logistical difficulties**:
+  - Challenging environment; divers needed to sort out issues
+  - Difficult and costly to gather a team and organize field trip at short notice
+  - Winter sampling essential (once a month this season, more frequently would be more desirable)
+  - Demanding for AWIPEV staff
+  - IPEV does not cover the cost of analyses required for calibration (ca. 1000 €)
