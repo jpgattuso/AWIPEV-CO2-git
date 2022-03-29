@@ -114,8 +114,30 @@ Nevertheless:
 
 ***
 
+## **Total alkalinity vs salinity relationship**
+![ ](figures/p_at_s.png)
+
+***
+
 ## **Time series of key variables**
 ![ ](figures/time_series.png)
+
+***
+
+## **Monthly means**
+![ ](figures/ts_boxplots.png)
+
+***
+
+## **Consistency**
+![ ](figures/pco2_calc_meas.png)
+
+***
+
+## **Water column stratification**
+![ ](figures/deltas.png)
+
+***
 
 # **Conclusion**
 
