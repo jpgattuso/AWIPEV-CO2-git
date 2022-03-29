@@ -3995,8 +3995,8 @@ pangaea <- as_tibble(d_all) %>%
                 ct = ct, 
                 ph_s_sf_t_insi = ph_s_sf_temp_insi, 
                 ph_s_dur_t_fb = ph_s_dur_temp_fb,
-                pco2 = pco2_fb,
-                pco2_calc = pco2_calc_fb,
+                pco2 = pco2_fb_insi_temp,
+                pco2_calc = pco2_calc_fb_insi_temp,
                 pH_sf = pHint_tot_sf,
                 pH_dur = pH_dur,
                 ph_calc = ph_calc_fb
@@ -4010,17 +4010,17 @@ write_csv(pangaea, path = paste0(path, "fb_data/pangaea.csv"))
 # t_11m = temperature in situ at 11 m
 # t_ctd = temperature in situ (profiler), 
 # t_fb = temperature in FerryBox 
-# t_sf = temperature SeaFET (profiler), °C
+# t_sf = temperature SeaFET (profiler)
 # at = total alkalinity, discrete measurements (FerryBox)
 # at_calc = total alkalinity, calculated from salinity
 # ct = dissolved inorganic carbon, discrete measurements (FerryBox)
-# ph_s_sf_t_insi = pH spectrophotometric SeaFET in situ (11 m)
-# ph_s_dur_t_fb = pH spectrophotometric Durafet in FerryBox
-# pco2 = pCO2 in Ferrybox
-# pco2_calc = pCO2 calculated in the FerryBox calculated from discrete measurments of AT and CT
-# pH_sf = pH SeaFET at in situ temperature (profiler)
+# ph_s_sf_t_insi = spectrophotometric pH in situ at in situ temperature 
+# ph_s_dur_t_fb = spectrophotometric pH in FerryBox at FerryBox temperature
+# pco2 = pCO2 in Ferrybox expressed at in situ temperature
+# pco2_calc = pCO2 in the FerryBox calculated from discrete measurements of AT and CT and expressed at in situ temperature
+# pH_sf = pH seaFET at in situ temperature (profiler)
 # ph_dur = pH Durafet at FerryBox temperature (FerryBox)
-# ph_calc = pH at fb temp calculated from CT and AT samples collected at the FerryBox
+# ph_calc = pH at FerryBox temperature calculated from CT and AT in the FerryBox
 ```
 
 ### Whole time series plot
@@ -4057,21 +4057,21 @@ ts_par_air <- d_all %>%
 ts_pCO2 <- d_all %>%
   ggplot() +
   scale_x_datetime(breaks = date_breaks("1 year"), labels = date_format("%Y")) +
-  geom_point(aes(x = datetime, y = pco2_fb), 
+  geom_point(aes(x = datetime, y = pco2_fb_insi_temp), 
              colour="blue", alpha = alpha, na.rm = TRUE, size = size_point) + 
-  geom_point(aes(x = datetime, y = pco2_calc_fb), colour="red", alpha = alpha, na.rm = TRUE, size = size_point*3) + 
-  labs(title="Measured (blue) and calculated (CT+AT; red) pCO2",x="", y="pCO2 (uatm)") +
+  geom_point(aes(x = datetime, y = pco2_calc_fb_insi_temp), colour="red", alpha = alpha, na.rm = TRUE, size = size_point*3) + 
+  labs(title="pCO2 at in situ temperature (measured in blue; calculated from CT and AT in red)",x="", y="pCO2 (uatm)") +
   Mytheme(size_labs = size_labs)
 
 # SEAFET pH
 ts_pH <- d_all %>% 
+  dplyr::filter(depth > 8) %>% 
   ggplot() +
   scale_x_datetime(breaks = date_breaks("1 year"), labels = date_format("%Y")) +
-  geom_point(aes(x = datetime, y = pHint_tot_sf, col = depth), alpha = alpha, na.rm = TRUE, size = size_point) + 
-  scale_colour_gradient(name = "Depth (m)", low = "#56B1F7", high = "#132B43") + # reverse colors
-  guides(colour = guide_colourbar(reverse = TRUE)) + # reverse colour bar
+  geom_point(aes(x = datetime, y = pHint_tot_sf), 
+             colour="blue", alpha = alpha, na.rm = TRUE, size = size_point) + 
   geom_point(aes(x = datetime, y = ph_s_sf_temp_insi), colour="red", alpha = alpha, na.rm = TRUE, size = size_point*3) + 
-  labs(title="In situ pH, spectrophotometric pH in red))",x="", y=expression(paste(pH[T]))) +
+  labs(title="In situ pH below 8 m at in situ temperature (seaFET in blue; spectrophotometric in red)", x = "", y=expression(paste(pH[T]))) +
   Mytheme(size_labs = size_labs) +
   theme(legend.position = c(0.1, 0.5),
         legend.key.height = unit(0.5, 'cm'))
@@ -4082,11 +4082,11 @@ ts_at <- d_all %>%
   scale_x_datetime(breaks = date_breaks("1 year"), labels = date_format("%Y")) +
   geom_point(colour="blue", alpha = alpha, na.rm = TRUE, size = size_point) + 
   geom_point(aes(x = datetime, y = at), colour="red", alpha = alpha, na.rm = TRUE, size = size_point*3) + 
-  labs(title="Total alkalinity calculated from salinity (blue) and discrete measurements (red)", x="", y="AT (umol/kg)") +
+  labs(title="Total alkalinity (calculated from salinity in blue; discrete measurements in red)", x="", y="AT (umol/kg)") +
   Mytheme(size_labs = size_labs)
 
 # Combine plots
-g <- (ts_sal / ts_temp / ts_par_air / ts_pCO2 / ts_pH / ts_at)
+g <- (ts_sal / ts_temp / ts_pCO2  / ts_pH / ts_at)
 g <- g + plot_annotation(tag_levels = 'A')
 ggsave(filename = "figures/time_series.png", plot = g, width = 15, height = 30, units = "cm")
 rm(list = ls(pattern = "ts_")) #delete big ggplot objects
