@@ -31,7 +31,7 @@ awipev-CO2.html
 awipev-CO2_presentation.html
 
 # Ignore png and figures
-figures/
+#figures/
 presentation_old/
 #*.tex
 #*.png
