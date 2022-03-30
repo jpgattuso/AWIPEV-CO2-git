@@ -26,16 +26,18 @@ vignettes/*.pdf
 rsconnect/
 .Rproj.user
 # Ignore html
-*.html
+#*.html
 awipev-CO2.html
+awipev-CO2_presentation.html
+
 # Ignore png and figures
 figures/
-old/
-*.tex
-*.png
+presentation_old/
+#*.tex
+#*.png
 *.log
 figures/*.png
-reports/
+#reports/
 # Ignore others
 .DS_Store
 *.js
