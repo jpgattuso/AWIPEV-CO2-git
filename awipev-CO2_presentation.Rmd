@@ -85,6 +85,8 @@ Fransner et al. (2022)
 ## **Instruments in the FerryBox**
 ![ ](images/container.png)
 
+![ ](images/intake.png)
+
 ![ ](images/ferrybox.jpg)
 
 ## seaFET pH on the REMOS
@@ -98,6 +100,8 @@ Fransner et al. (2022)
 ***
 
 ## **Availability of data**
+:::: {style="display: flex;"}
+::: {class='col-md-4'}
 Many challenges:
 
 - extreme environmental conditions
@@ -107,10 +111,15 @@ Many challenges:
 - No access for extended periods of time during the Covid-19 pandemic
 
 Nevertheless:
+
 - data usable 50 to 76% of the time during the period of measurement
 - pCO<sub>2</sub> and pH data are available throughout the year and well distributed across months, including winter months
+:::
+::: {class='col-md-8'}
 
 ![ ](figures/availability.png){ width=70% }
+:::
+::::
 
 ***
 
@@ -135,8 +144,9 @@ Nevertheless:
 ***
 
 ## **Water column stratification**
-![ ](figures/deltas.png)
-
+#::: {style="text-align:center" markdown="1"}
+  ![ ](figures/deltas.png)
+#:::
 ***
 
 # **Conclusion**
