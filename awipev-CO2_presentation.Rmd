@@ -168,14 +168,29 @@ Nevertheless:
 ***
 
 ## **Consistency**
+
+::: {style="text-align:center" markdown="1"}
 ![ ](figures/pco2_calc_meas.png)
+:::
 
 ***
 
 ## **Water column stratification**
-::: {style="text-align:center" markdown="1"}
+
+:::: {style="display: flex;"}
+::: {class='col-md-5'}
+
+- Weird profiling
+- Salinity in the bottom layer (8 to 12 m) is up to 1 unit higher than in the surface layer (0 to 4 m) in summer, 0.7 unit lower in Dec and similar in both layers at other times
+- Temperature is lower by up to 2.7°C in the deep layer from Mar to Sep and higher by up to 2.4 °C in Nov-Jan
+- Density is almost always higher in the bottom than in the surface layer.
+
+:::
+::: {class='col-md-5'}
+
   ![ ](figures/deltas.png)
 :::
+::::
 
 ***
 
