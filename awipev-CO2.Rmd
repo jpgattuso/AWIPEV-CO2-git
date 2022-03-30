@@ -2711,7 +2711,7 @@ ts_po4_bp <- d_all %>%
   ggplot(aes(x = month(x = datetime, label = TRUE, abbr = TRUE), y = po4)) +
   #geom_violin(fill='lightblue', alpha=0.5, size=0.2, trim = TRUE, na.rm = TRUE) +
   geom_boxplot(notch=FALSE, size=0.2, fill="grey50", outlier.color = "blue", outlier.size = 0.3, na.rm = TRUE) +
-  labs(y = "po4", x=NULL, title=NULL) +
+  labs(y = "PO4", x=NULL, title=NULL) +
   Mytheme() +
   theme(panel.grid.major.x = element_blank())
 
@@ -2719,10 +2719,12 @@ ts_Si_bp <- d_all %>%
   ggplot(aes(x = month(x = datetime, label = TRUE, abbr = TRUE), y = si)) +
   #geom_violin(fill='lightblue', alpha=0.5, size=0.2, trim = TRUE, na.rm = TRUE) +
   geom_boxplot(notch=FALSE, size=0.2, fill="grey50", outlier.color = "blue", outlier.size = 0.3, na.rm = TRUE) +
-  labs(y = "si", x=NULL, title=NULL) +
+  labs(y = "Si", x=NULL, title=NULL) +
   Mytheme() +
   theme(panel.grid.major.x = element_blank())
-ts_po4_bp + ts_Si_bp
+p <- ts_po4_bp + ts_Si_bp
+ggsave(filename = "figures/nutrients.png", plot = p, width = 25, height = 20, units = "cm")
+
 # Effects of changes in po4 and si
 # 1st cakculate mean values
 means <- d_all %>% 
@@ -3988,7 +3990,6 @@ pangaea <- as_tibble(d_all) %>%
                 `t_11m [°C]` = temp_insitu_11m,
                 `t_ctd [°C]` = temp_insitu_ctd, 
                 `t_fb [°C]` = temp_fb, 
-                `t_s [°C]` = temp_fb,
                 `t_sf [°C]` = temp_sf, 
                 `at [umol kg-1]` = at, 
                 `at_calc [umol kg-1]` = at_calc,
@@ -4006,17 +4007,17 @@ write_csv(pangaea, file = paste0(path, "fb_data/pangaea.csv"))
 # Metadata Pangaea
 # pressure = pressure in situ (profiler)
 # s_insitu = salinity in situ (profiler)
-# s_fb = salinity in FerryBox 
-# t_11m = temperature in situ at 11 m
+# s_fb = salinity (static at 11 m) 
+# t_11m = temperature in situ (static at 11 m)
 # t_ctd = temperature in situ (profiler), 
-# t_fb = temperature in FerryBox 
+# t_fb = temperature (FerryBox)
 # t_sf = temperature SeaFET (profiler)
 # at = total alkalinity, discrete measurements (FerryBox)
 # at_calc = total alkalinity, calculated from salinity
 # ct = dissolved inorganic carbon, discrete measurements (FerryBox)
-# ph_s_sf_t_insi = spectrophotometric pH in situ at in situ temperature 
-# ph_s_dur_t_fb = spectrophotometric pH in FerryBox at FerryBox temperature
-# pco2 = pCO2 in Ferrybox expressed at in situ temperature
+# ph_s_sf_t_insi = spectrophotometric pH in situ at in situ temperature (profiler)
+# ph_s_dur_t_fb = spectrophotometric pH in FerryBox at FerryBox temperature (FerryBox)
+# pco2 = pCO2 in Ferrybox expressed at in situ temperature (FerryBox)
 # pco2_calc = pCO2 in the FerryBox calculated from discrete measurements of AT and CT and expressed at in situ temperature
 # pH_sf = pH seaFET at in situ temperature (profiler)
 # ph_dur = pH Durafet at FerryBox temperature (FerryBox)
