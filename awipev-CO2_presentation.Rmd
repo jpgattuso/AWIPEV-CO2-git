@@ -82,7 +82,7 @@ Fransner et al. (2022)
   - DURAFET pH sensor in the FerryBox
   - Discrete pH samples once a month for calibration
 - Regular maintenance twice a year (except during the Covid-19 pandemic)
-- Came to an end in December 2021 
+- Came to an end in December 2021
 
 ## **Instruments in the FerryBox**
 ![ ](images/container.png){width="50%"}
