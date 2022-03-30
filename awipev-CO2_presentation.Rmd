@@ -123,6 +123,35 @@ Nevertheless:
 
 ***
 
+## **Nutrients**
+:::: {style="display: flex;"}
+::: {class='col-md-4'}
+
+- 90 phosphate and 133 silicate data kindly provided by van de Poll (unpubl.)
+- PO4 and Si vary by a factor 10 along a composite year
+- disregarding nutrients does not generate large differences:
+  - pCO2-AT pair, differences in pH, CT and OmegaA: < 0.001 unit, 0.7 umol/kg and <0.01
+  - CT-AT pair: differences in pH, pCO2 and OmegaA: 0.002 units, 1.5 uatm and <0.01
+:::
+::: {class='col-md-8'}
+![ ](figures/nutrients.png)
+:::
+::::
+
+***
+
+## **K1 and K2**
+
+- Big issue in the Arctic due to low temperature and salinity (Sulpis et al., 2020) 
+- Lueker et al. (2000), which are recommended by the community (Jiang et al., 2022) derived in lab conditions with no temperature value < 2 °C. Overestimates K1 and K2 at temperatures below about 8 °C
+- Millero et al. (2002) and Sulpis et al. (2020) based on large (> 900) field data sets that include cold temperature values
+- Papadimitriou et al. (2018), obtained in the laboratory, also cover cold temperatures
+- Formulations of Papadimitriou et al. (2018) perform better here but seldom used
+- Hence, we used the facto standard of Lueker et al. (2000)
+
+
+***
+
 ## **Total alkalinity vs salinity relationship**
 ![ ](figures/p_at_s.png)
 
@@ -144,9 +173,10 @@ Nevertheless:
 ***
 
 ## **Water column stratification**
-#::: {style="text-align:center" markdown="1"}
+::: {style="text-align:center" markdown="1"}
   ![ ](figures/deltas.png)
-#:::
+:::
+
 ***
 
 # **Conclusion**
