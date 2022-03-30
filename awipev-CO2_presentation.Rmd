@@ -1,21 +1,22 @@
 ---
 title: "**First high-frequency time series of carbonate chemistry in the Arctic**" 
-author: "**Jean-Pierre Gattuso**^1,2^ and Samir Alliouane^1^ and Philipp Fisher^3^"
+author: "Jean-Pierre Gattuso^1,2^ and Samir Alliouane^1^ and Philipp Fisher^3^"
 date: '`r format(Sys.Date(), "%d %B %Y")`'
 output:
   html_document:
     # code_folding: show
 #    css: acid.css
-    fig_caption: yes
-    fig_width: 2
-    fig_height: 2
+    fig_caption: no
+    #fig_width: 2
+    #fig_height: 2
     highlight: default    
     number_sections: no
-    theme: yeti
+    #theme: yeti
+    theme: cerulean
     toc: no
     toc_float: no
 fontsize: 32pt
-language: Australian
+#language: Australian
 #css: acid.css
 ## mainfont: PT Serif  
 ## monofont: PT Mono
@@ -64,8 +65,9 @@ h1,h2,h3,h4,h5,h6{
 ***
 
 Fransner et al. (2022)
+
 ![ ](images/map_fransner.png){width="50%"}
-![ ](images/pH_fransner.png)
+![ ](images/pH_fransner.png){width="50%"}
 
 ***
 
@@ -83,23 +85,23 @@ Fransner et al. (2022)
 - Came to an end in December 2021
 
 ## **Instruments in the FerryBox**
-![ ](images/container.png)
+![ ](images/container.png){width="50%"}
 
-![ ](images/intake.png)
+![ ](images/intake.png){width="50%"}
 
-![ ](images/ferrybox.jpg)
+![ ](images/ferrybox.jpg){width="50%"}
 
 ## seaFET pH on the REMOS
 ![ ](images/seafet.png)
 
 ***
 
-## No longer in real-time: https://awipev-co2.obs-vlfr.fr
+# No longer in real-time: https://awipev-co2.obs-vlfr.fr
 ![ ](images/web_page.png)
 
 ***
 
-## **Availability of data**
+# **Availability of data**
 :::: {style="display: flex;"}
 ::: {class='col-md-4'}
 Many challenges:
@@ -123,7 +125,7 @@ Nevertheless:
 
 ***
 
-## **Nutrients**
+# **Nutrients**
 :::: {style="display: flex;"}
 ::: {class='col-md-4'}
 
@@ -140,7 +142,7 @@ Nevertheless:
 
 ***
 
-## **K1 and K2**
+# **K1 and K2**
 
 - Big issue in the Arctic due to low temperature and salinity (Sulpis et al., 2020) 
 - Lueker et al. (2000), which are recommended by the community (Jiang et al., 2022) derived in lab conditions with no temperature value < 2 °C. Overestimates K1 and K2 at temperatures below about 8 °C
@@ -152,30 +154,30 @@ Nevertheless:
 
 ***
 
-## **Total alkalinity vs salinity relationship**
+# **Total alkalinity vs salinity relationship**
 ![ ](figures/p_at_s.png)
 
 ***
 
-## **Time series of key variables**
+# **Time series of key variables**
 ![ ](figures/time_series.png)
 
 ***
 
-## **Monthly means**
+# **Monthly means**
 ![ ](figures/ts_boxplots.png)
 
 ***
 
-## **Consistency**
+# **Consistency**
 
-::: {style="text-align:center" markdown="1"}
+<!-- ::: {style="text-align:center" markdown="1"} -->
 ![ ](figures/pco2_calc_meas.png)
-:::
+<!-- ::: -->
 
 ***
 
-## **Water column stratification**
+# **Water column stratification**
 
 :::: {style="display: flex;"}
 ::: {class='col-md-5'}
@@ -194,15 +196,33 @@ Nevertheless:
 
 ***
 
+# **Air-sea CO<sub>2</sub> flux**
+
+  ![ ](figures/air-sea_CO2_flux.png)
+
+***
+
 # **Conclusion**
 
-- **First** high-frequency time series of the carbonate system in the Arctic 
 - **Positive aspects**: 
-  - Excellent support from AWIPEV staff but work overload
-  - IPEV support secured for another 4-year period (2019-2022)
+  - **First** high-frequency time series of the carbonate system in the Arctic 
+  - Excellent support from AWIPEV staff until 2020
 - **Logistical difficulties**:
   - Challenging environment; divers needed to sort out issues
   - Difficult and costly to gather a team and organize field trip at short notice
   - Winter sampling essential (once a month this season, more frequently would be more desirable)
-  - Demanding for AWIPEV staff
   - IPEV does not cover the cost of analyses required for calibration (ca. 1000 €)
+  
+  ***
+
+# **Acknowledgements**
+
+- AWIPEV staff until 2020
+- Numerous AWI divers
+- SNAPO-CO2
+- Willem H. van de Poll who provided nutrient data
+- Coastal Observing System for Northern and Arctic Seas (COSYNA)
+- Helmholtz large-scale infrastructure projects ACROSS and MOSES
+- French Polar Institute (IPEV) 
+- EU projects Jericho-Next, INTAROS and FACE-IT
+- Ove Hermansen, Cathrine Lund Myhre, and Stephen Platt at Norwegian institute for air research (NILU) for their assistance with atmospheric CO2 data from the Zeppelin observatory, as well as the Integrated Carbon Observing System (ICOS)-Norway, Norwegian Research Council project NFR-207587, and the Norwegian Environment Agency
