@@ -38,3 +38,4 @@ figures/*.png
 reports/
 # Ignore others
 .DS_Store
+*.js

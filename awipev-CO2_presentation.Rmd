@@ -1,0 +1,153 @@
+---
+title: "**First high-frequency time series of carbonate chemistry in the Arctic**" 
+author: "**Jean-Pierre Gattuso**^1,2^ and Samir Alliouane^1^ and Philipp Fisher^3^"
+date: '`r format(Sys.Date(), "%d %B %Y")`'
+output:
+  html_document:
+    # code_folding: show
+#    css: acid.css
+    fig_caption: yes
+    fig_width: 2
+    fig_height: 2
+    highlight: default    
+    number_sections: no
+    theme: yeti
+    toc: no
+    toc_float: no
+fontsize: 32pt
+language: Australian
+#css: acid.css
+## mainfont: PT Serif  
+## monofont: PT Mono
+#csl: frontiers.csl
+## sansfont: PT Sans
+#bibliography: ArcticKelp.bib
+## papersize: A4
+---
+<!-- <style type="text/css"> -->
+<!-- .main-container { -->
+<!--   max-width: 100% !important; -->
+<!--   margin: auto; -->
+<!-- } -->
+</style>
+<style type="text/css">
+.main-container {
+  max-width: 100% !important;
+  margin: auto;
+}
+body{
+  font-size: 24pt;
+}
+h1,h2,h3,h4,h5,h6{
+  font-size: 32pt;
+}
+</style>
+
+^1^Laboratoire d'Océanographie de Villefranche, CNRS-Sorbonne Université\
+^2^Iddri, Sciences Po\
+^3^Alfred Wegener Institute for Polar and Marine Research\
+
+```{r set-up, echo=FALSE, warning=FALSE, message=FALSE, include=FALSE}
+  #if (Sys.getenv("LOGNAME") == "gattuso") path = "."
+```
+
+![](images/AWIPEV-Logo.jpg){width="250px"}
+
+***
+# **Introduction**
+
+- CO<sub>2</sub> is an acid gas (it produces a weak acid when combined with water)
+- Each of us adds 4 kg CO<sub>2</sub> per day to the ocean (increasing acidity, reducing pH)
+- Arctic surface water will become corrosive for aragonite: 50% in 2050, 100% in 2100
+- Critical to document the changes but no high frequency time-series
+
+***
+
+Fransner et al. (2022)
+![ ](images/map_fransner.png){width="50%"}
+![ ](images/pH_fransner.png)
+
+***
+
+# **Instruments installed** 
+
+- Water pumped from 12 m water depth at Ny-Ålesund
+- **July 2015**: Two pCO<sub>2</sub> sensors rotating every year (in FerryBox, 1 min) 
+- **February 2016**: Total alkalinity analyser (in FerryBox, 90 min) but lots of technical issues
+- For calibration and quality insurance: weekly discrete samples for high-precision measurements of dissolved inorganic carbon and total alkalinity
+- **August 2017**: pH measurements
+  - Continuous measurements in fjord water (seaFET)
+  - DURAFET pH sensor in the FerryBox
+  - Discrete pH samples once a month for calibration
+- Regular maintenance twice a year (except during the Covid-19 pandemic)
+- Came to an end in December 2021
+
+## **Instruments in the FerryBox**
+![ ](images/container.png)
+
+![ ](images/ferrybox.jpg)
+
+## seaFET pH on the REMOS
+![ ](images/seafet.png)
+
+***
+
+## No longer in real-time: https://awipev-co2.obs-vlfr.fr
+![ ](images/web_page.png)
+
+***
+
+## **Availability of data**
+Many challenges:
+
+- extreme environmental conditions
+- frozen pipes
+- damages resulting from icebergs pounding on the field instruments
+- weeks to months waiting for warmer temperatures to deice or to fly technical staff, including divers
+- No access for extended periods of time during the Covid-19 pandemic
+
+Nevertheless:
+- data usable 50 to 76% of the time during the period of measurement
+- pCO<sub>2</sub> and pH data are available throughout the year and well distributed across months, including winter months
+
+![ ](figures/availability.png){ width=70% }
+
+***
+
+## **Total alkalinity vs salinity relationship**
+![ ](figures/p_at_s.png)
+
+***
+
+## **Time series of key variables**
+![ ](figures/time_series.png)
+
+***
+
+## **Monthly means**
+![ ](figures/ts_boxplots.png)
+
+***
+
+## **Consistency**
+![ ](figures/pco2_calc_meas.png)
+
+***
+
+## **Water column stratification**
+![ ](figures/deltas.png)
+
+***
+
+# **Conclusion**
+
+- **First** high-frequency time series of the carbonate system in the Arctic 
+- **Positive aspects**: 
+  - Excellent support from AWIPEV staff but work overload
+  - IPEV support secured for another 4-year period (2019-2022)
+- **Logistical difficulties**:
+  - Challenging environment; divers needed to sort out issues
+  - Difficult and costly to gather a team and organize field trip at short notice
+  - Winter sampling essential (once a month this season, more frequently would be more desirable)
+  - Demanding for AWIPEV staff
+  - IPEV does not cover the cost of analyses required for calibration (ca. 1000 €)
