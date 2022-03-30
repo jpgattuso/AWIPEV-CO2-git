@@ -741,7 +741,7 @@ processed data are open access and available at
 ::: {style="text-align:center" markdown="1"}
 <img src="./images/Container.png" width="200" height="200"/>
 <img src="./images/Intake.png" width="200" height="200"/>
-<img src="./images/2018-04-17_Ferrybox2.jpg" width="200" height="200"/>
+<img src="./images/ferrybox.jpg" width="200" height="200"/>
 :::
 
 ### **Continuous and semi-continuous measurements**
@@ -3981,28 +3981,28 @@ d_all <- d_all %>%
 saveRDS(file= paste0(path, "fb_data/d_all.rds"), d_all)
 
 pangaea <- as_tibble(d_all) %>% 
-  dplyr::select(datetime, depth, sal_insitu_ctd, sal_fb, temp_insitu_11m, temp_insitu_ctd, temp_fb, temp_sf, at, ct, ph_s_sf_temp_insi, ph_s_dur_temp_fb, ph_calc_fb, pco2_fb, pco2_calc_fb, at_calc, pH_dur, pHint_tot_sf) %>%
-  dplyr::rename(pressure = depth,
-                s_insitu = sal_insitu_ctd,
-                s_fb = sal_fb, 
-                t_11m = temp_insitu_11m,
-                t_ctd = temp_insitu_ctd, 
-                t_fb = temp_fb, 
-                t_s = temp_fb,
-                t_sf = temp_sf, 
-                at = at, 
-                at_calc = at_calc,
-                ct = ct, 
-                ph_s_sf_t_insi = ph_s_sf_temp_insi, 
-                ph_s_dur_t_fb = ph_s_dur_temp_fb,
-                pco2 = pco2_fb_insi_temp,
-                pco2_calc = pco2_calc_fb_insi_temp,
-                pH_sf = pHint_tot_sf,
-                pH_dur = pH_dur,
-                ph_calc = ph_calc_fb
+  dplyr::select(datetime, depth, sal_insitu_ctd, sal_fb, temp_insitu_11m, temp_insitu_ctd, temp_fb, temp_sf, at, ct, ph_s_sf_temp_insi, ph_s_dur_temp_fb, ph_calc_fb, pco2_fb_insi_temp, pco2_calc_fb_insi_temp, at_calc, pH_dur, pHint_tot_sf) %>%
+  dplyr::rename(`pressure [dbar]` = depth,
+                `s_insitu [unit]` = sal_insitu_ctd,
+                `s_fb [unit]` = sal_fb, 
+                `t_11m [°C]` = temp_insitu_11m,
+                `t_ctd [°C]` = temp_insitu_ctd, 
+                `t_fb [°C]` = temp_fb, 
+                `t_s [°C]` = temp_fb,
+                `t_sf [°C]` = temp_sf, 
+                `at [umol kg-1]` = at, 
+                `at_calc [umol kg-1]` = at_calc,
+                `ct [umol kg-1]` = ct, 
+                `ph_s_sf_t_insi [total scale]` = ph_s_sf_temp_insi, 
+                `ph_s_dur_t_fb [total scale]` = ph_s_dur_temp_fb,
+                `pco2 [uatm]` = pco2_fb_insi_temp,
+                `pco2_calc [uatm]` = pco2_calc_fb_insi_temp,
+                `pH_sf [total scale]` = pHint_tot_sf,
+                `pH_dur [total scale]` = pH_dur,
+                `pH_calc [total scale]` = ph_calc_fb
                 )
 saveRDS(file= paste0(path, "fb_data/pangaea.rds"), pangaea)
-write_csv(pangaea, path = paste0(path, "fb_data/pangaea.csv"))
+write_csv(pangaea, file = paste0(path, "fb_data/pangaea.csv"))
 # Metadata Pangaea
 # pressure = pressure in situ (profiler)
 # s_insitu = salinity in situ (profiler)
@@ -4408,11 +4408,6 @@ gc() #garbage collection
 -   **2016-02-28**: *p*CO~2~ analyser (S/N CO2FT-0215-001) was sent to
     calibration and the second *p*CO~2~ analyser (S/N: CO2FT-0515-001)
     have been installed.
-
-::: {style="text-align:center" markdown="1"}
-<img src="./images/2016-04-04_leakage_AT_analyser1.jpg" width="200" height="200"/>
-<img src="./images/2016-04-04_leakage_AT_analyser3.jpg" width="200" height="200"/>
-:::
 
 ## Script + data
 
