@@ -9,7 +9,7 @@ editor_options:
     wrap: 72
 ---
 
-![](Images/AWIPEV-Logo.jpg){width="250px"}
+![](images/AWIPEV-Logo.jpg){width="250px"}
 
 ```{r set-up, echo=FALSE, warning=FALSE, message=FALSE, include=FALSE}
 Sys.setlocale("LC_ALL", "en_US.UTF-8")
@@ -739,9 +739,9 @@ processed data are open access and available at
 <http://codm.hzg.de/codm>.
 
 ::: {style="text-align:center" markdown="1"}
-<img src="./Images/Container.png" width="200" height="200"/>
-<img src="./Images/Intake.png" width="200" height="200"/>
-<img src="./Images/2018-04-17_Ferrybox2.jpg" width="200" height="200"/>
+<img src="./images/Container.png" width="200" height="200"/>
+<img src="./images/Intake.png" width="200" height="200"/>
+<img src="./images/2018-04-17_Ferrybox2.jpg" width="200" height="200"/>
 :::
 
 ### **Continuous and semi-continuous measurements**
@@ -3910,8 +3910,8 @@ p_f_air_sea <- ggplot(data = d_all) +
   geom_point(aes(x = datetime, y = f_air_sea), col = "blue", size = 0.15, na.rm = TRUE) +
   labs(title = "Air-sea CO2 flux (all data)", x = "Time", y = "CO2 (mmol/(m2 h))") +
   Mytheme(size_labs = 8)
-#p_f_air_sea
-#ggsave(filename = "figures/f_air_sea.png", plot = f_air_sea, width = 20, units = "cm")
+p_f_air_sea
+ggsave(filename = "figures/f_air_sea.png", plot = f_air_sea, width = 20, units = "cm")
 
 air_sea_day <- d_all %>%
   dplyr::select(datetime, f_air_sea) %>%
@@ -3924,8 +3924,8 @@ p_f_air_sea_d <- ggplot(data = air_sea_day) +
   geom_point(aes(x = day, y = f_air_sea), col = "blue", size = 0.15, na.rm = TRUE) +
   labs(title = "Air-sea CO2 flux (per day)", x = "Julian day", y = "CO2 (mmol/(m2 d))") +
   Mytheme(size_labs = 8)
-#p_f_air_sea_d
-#ggsave(filename = "figures/f_air_sea_d.png", plot = p_f_air_sea_d, width = 20, units = "cm")
+p_f_air_sea_d
+ggsave(filename = "figures/f_air_sea_d.png", plot = p_f_air_sea_d, width = 20, units = "cm")
 
 air_sea_month <- d_all %>%
   dplyr::select(monthd, f_air_sea) %>%
@@ -3941,8 +3941,8 @@ p_f_air_sea_m <- ggplot(data = air_sea_month) +
   #lims(y = c(-30, 0)) +
   labs(title = "Air-sea CO2 flux (per month)", x = "Month", y = "CO2 (mmol/(m2 month))") +
   Mytheme(size_labs = 8)
-#p_f_air_sea_m
-#ggsave(filename = "figures/f_air_sea_m.png", plot = p_f_air_sea_m, width = 20, units = "cm")
+p_f_air_sea_m
+ggsave(filename = "figures/f_air_sea_m.png", plot = p_f_air_sea_m, width = 20, units = "cm")
 
 p <- p_f_air_sea / p_f_air_sea_d / p_f_air_sea_m
 ggsave(filename = "figures/air-sea_CO2_flux.png", plot = p, width = 20, units = "cm")
@@ -4410,8 +4410,8 @@ gc() #garbage collection
     have been installed.
 
 ::: {style="text-align:center" markdown="1"}
-<img src="./Images/2016-04-04_leakage_AT_analyser1.jpg" width="200" height="200"/>
-<img src="./Images/2016-04-04_leakage_AT_analyser3.jpg" width="200" height="200"/>
+<img src="./images/2016-04-04_leakage_AT_analyser1.jpg" width="200" height="200"/>
+<img src="./images/2016-04-04_leakage_AT_analyser3.jpg" width="200" height="200"/>
 :::
 
 ## Script + data
@@ -4756,4 +4756,4 @@ A la main dans le terminal, cela donne :
     [awipev\@awipev-co2.obs-vlfr.fr](mailto:awipev@awipev-co2.obs-vlfr.fr){.email}
 -   cd; bash web/awipev-co2.sh
 
-![](Images/awipev_server_arborescence.jpg){width="65%"}
+![](images/awipev_server_arborescence.jpg){width="65%"}
