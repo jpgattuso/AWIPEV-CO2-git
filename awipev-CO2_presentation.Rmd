@@ -45,6 +45,9 @@ body{
 h1,h2,h3,h4,h5,h6{
   font-size: 32pt;
 }
+h2,h3,h4,h5,h6{
+  font-size: 28pt;
+}
 .blackbox {
   padding: 1em;
   background: LightYellow;
@@ -68,6 +71,8 @@ h1,h2,h3,h4,h5,h6{
 
 ![](images/AWIPEV-Logo.jpg){width="500px"}
 
+<br><br><br><br><br><br><br><br><br><br><br><br><br>
+
 ***
 
 :::: {.blackbox data-latex=""}
@@ -81,7 +86,7 @@ h1,h2,h3,h4,h5,h6{
 - **Undersaturation** of surface water with respect to aragonite ﬁrst reported in 2008 in the Canada Basin; due to the decrease of salinity and degradation of organic matter
 - **No** fewer observations than elsewhere for carbonate variables: 11.6% of the SOCAT pCO<sub>2</sub> records and 9.1% of the GLODAP C<sub>T</sub> records are from the Arctic Ocean which is only about 4.3% of the global ocean surface
 <!-- - Coastal data relatively well represented in both products (25% and 10% of the SOCAT and SOCAT Arctic data, respectively) -->
-- **Uneven distribution**: 71.5% of the SOCAT pCO<sub>2</sub> data and 72% of the GLODAP C<sub>T</sub> data collected Jun-Sep). Few to very few data Dec-Mar.
+- **Uneven time distribution**: 71.5% of the SOCAT pCO<sub>2</sub> data and 72% of the GLODAP C<sub>T</sub> data collected Jun-Sep. Few to very few data Dec-Mar.
 - Critical to document the changes but no high frequency multi-year time-series
 :::
 
@@ -145,7 +150,7 @@ Platt et al. (2022)
 # **Availability of data**
 :::: {style="display: flex;"}
 ::: {class='col-md-4'}
-Many challenges:
+## Many challenges:
 
 - extreme environmental conditions
 - frozen pipes
@@ -153,7 +158,7 @@ Many challenges:
 - weeks to months waiting for warmer temperatures to deice or to fly technical staff, including divers
 - No access for extended periods of time during the Covid-19 pandemic
 
-Nevertheless:
+## Nevertheless:
 
 - data usable 50 to 76% of the time during the period of measurement
 - pCO<sub>2</sub> and pH data are available throughout the year and well distributed across months, including winter months
@@ -250,13 +255,13 @@ r2 = 0.81
 # **Conclusion**
 
 - **Positive aspects**: 
-  - **First** multi-year, high-frequency time series of the carbonate system in the Arctic 
+  - First multi-year, high-frequency time series of the carbonate system in the Arctic 
   - Excellent support from AWIPEV staff until 2020
 - **Logistical difficulties**:
   - Winter sampling essential
   - Challenging environment; divers needed to sort out issues
-  - Difficult and costly to gather a team and organize field trip at short notice
-  - New regulation for using HgCl<sub>2</sub> and transporting poisoned samples
+  - Difficult and costly to gather a team and organize field trip on short notice
+  - New regulation for the use HgCl<sub>2</sub> and transportation of poisoned samples
 
 :::
   
