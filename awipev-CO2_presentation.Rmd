@@ -1,11 +1,11 @@
 ---
 title: "**First high-frequency time series of carbonate chemistry in the Arctic**" 
-author: "Jean-Pierre Gattuso^1,2^ and Samir Alliouane^1^ and Philipp Fisher^3^"
+author: "Jean-Pierre Gattuso^1,2^, Samir Alliouane^1^ & Philipp Fisher^3^"
 date: '`r format(Sys.Date(), "%d %B %Y")`'
 output:
   html_document:
     # code_folding: show
-#    css: acid.css
+    #css: acid.css
     fig_caption: no
     #fig_width: 2
     #fig_height: 2
@@ -15,7 +15,7 @@ output:
     theme: cerulean
     toc: no
     toc_float: no
-fontsize: 32pt
+    fontsize: 32pt
 #language: Australian
 #css: acid.css
 ## mainfont: PT Serif  
@@ -30,11 +30,14 @@ fontsize: 32pt
 <!--   max-width: 100% !important; -->
 <!--   margin: auto; -->
 <!-- } -->
-</style>
+<!-- </style> -->
 <style type="text/css">
 .main-container {
   max-width: 100% !important;
   margin: auto;
+}
+h1.title {
+  font-size: 50px;
 }
 body{
   font-size: 24pt;
@@ -42,7 +45,18 @@ body{
 h1,h2,h3,h4,h5,h6{
   font-size: 32pt;
 }
+.blackbox {
+  padding: 1em;
+  background: LightYellow;
+  color: black;
+  border: 0px solid orange;
+  border-radius: 10px;
+}
+.center {
+  text-align: center;
+}
 </style>
+
 
 ^1^Laboratoire d'Océanographie de Villefranche, CNRS-Sorbonne Université\
 ^2^Iddri, Sciences Po\
@@ -52,15 +66,24 @@ h1,h2,h3,h4,h5,h6{
   #if (Sys.getenv("LOGNAME") == "gattuso") path = "."
 ```
 
-![](images/AWIPEV-Logo.jpg){width="250px"}
+![](images/AWIPEV-Logo.jpg){width="500px"}
 
 ***
+
+:::: {.blackbox data-latex=""}
+
 # **Introduction**
 
-- CO<sub>2</sub> is an acid gas (it produces a weak acid when combined with water)
-- Each of us adds 4 kg CO<sub>2</sub> per day to the ocean (increasing acidity, reducing pH)
-- Arctic surface water will become corrosive for aragonite: 50% in 2050, 100% in 2100
-- Critical to document the changes but no high frequency time-series
+- Arctic region:  one of the "**reasons for concern**" of the IPCC.
+- Arctic Ocean: less than 1% of ocean water but receives 11% of the global runoff; 7-10% of the global burial of organic carbon
+- **SST** increased twice as fast as other regions; projections of up to +5.5 °C in 2100 
+- Projected decrease in surface **pH** by 2100 larger than elsewhere (-0.45 vs -0.06 to -0.32 units)
+- **Undersaturation** of surface water with respect to aragonite ﬁrst reported in 2008 in the Canada Basin; due to the decrease of salinity and degradation of organic matter
+- **No** fewer observations than elsewhere for carbonate variables: 11.6% of the SOCAT pCO<sub>2</sub> records and 9.1% of the GLODAP C<sub>T</sub> records are from the Arctic Ocean which is only about 4.3% of the global ocean surface
+<!-- - Coastal data relatively well represented in both products (25% and 10% of the SOCAT and SOCAT Arctic data, respectively) -->
+- **Uneven distribution**: 71.5% of the SOCAT pCO<sub>2</sub> data and 72% of the GLODAP C<sub>T</sub> data collected Jun-Sep). Few to very few data Dec-Mar.
+- Critical to document the changes but no high frequency multi-year time-series
+:::
 
 ***
 
@@ -71,35 +94,53 @@ Fransner et al. (2022)
 
 ***
 
-# **Instruments installed** 
+# **Study location** 
+![ ](images/map_platt.png)
 
-- Water pumped from 12 m water depth at Ny-Ålesund
+Platt et al. (2022)
+
+***
+
+:::: {.blackbox data-latex=""}
+# **Instrumental set-up** 
+
+- Water pumped at **11 m depth**
 - **July 2015**: Two pCO<sub>2</sub> sensors rotating every year (in FerryBox, 1 min) 
 - **February 2016**: Total alkalinity analyser (in FerryBox, 90 min) but lots of technical issues
-- For calibration and quality insurance: weekly discrete samples for high-precision measurements of dissolved inorganic carbon and total alkalinity
+- For calibration and quality insurance: weekly discrete samples for C<sub>T</sub> and A<sub>T</sub>
 - **August 2017**: pH measurements
   - Continuous measurements in fjord water (seaFET)
   - DURAFET pH sensor in the FerryBox
   - Discrete pH samples once a month for calibration
-- Regular maintenance twice a year (except during the Covid-19 pandemic)
+- Regular maintenance twice a year (except during Covid-19 pandemic)
 - Came to an end in December 2021
+:::
 
 ## **Instruments in the FerryBox**
-![ ](images/container.png){width="50%"}
 
-![ ](images/intake.png){width="50%"}
+:::: {style="display: flex;"}
+::: {class='col-md-4'}
+![ ](images/container.png)
+:::
 
-![ ](images/ferrybox.jpg){width="50%"}
+::: {class='col-md-4'}
+![ ](images/intake.png)
+:::
 
-## seaFET pH on the REMOS
+::: {class='col-md-4'}
+![ ](images/ferrybox.jpg)
+:::
+::::
+
+## **Instruments on the REMOS**
 ![ ](images/seafet.png)
 
 ***
 
-# No longer in real-time: https://awipev-co2.obs-vlfr.fr
-![ ](images/web_page.png)
+<!-- # No longer in real-time: https://awipev-co2.obs-vlfr.fr -->
+<!-- ![ ](images/web_page.png) -->
 
-***
+<!-- *** -->
 
 # **Availability of data**
 :::: {style="display: flex;"}
@@ -142,6 +183,7 @@ Nevertheless:
 
 ***
 
+:::: {.blackbox data-latex=""}
 # **K1 and K2**
 
 - Big issue in the Arctic due to low temperature and salinity (Sulpis et al., 2020) 
@@ -150,12 +192,14 @@ Nevertheless:
 - Papadimitriou et al. (2018), obtained in the laboratory, also cover cold temperatures
 - Formulations of Papadimitriou et al. (2018) perform better here but seldom used
 - Hence, we used the facto standard of Lueker et al. (2000)
-
+:::
 
 ***
 
 # **Total alkalinity vs salinity relationship**
-![ ](figures/p_at_s.png)
+r2 = 0.81
+
+![ ](figures/p_at_s.png){ width=50% height=50% }
 
 ***
 
@@ -172,7 +216,7 @@ Nevertheless:
 # **Consistency**
 
 <!-- ::: {style="text-align:center" markdown="1"} -->
-![ ](figures/pco2_calc_meas.png)
+![ ](figures/pco2_calc_meas.png){ width=70% height=70% }
 <!-- ::: -->
 
 ***
@@ -182,7 +226,7 @@ Nevertheless:
 :::: {style="display: flex;"}
 ::: {class='col-md-5'}
 
-- Weird profiling
+- Weird profiling approach
 - Salinity in the bottom layer (8 to 12 m) is up to 1 unit higher than in the surface layer (0 to 4 m) in summer, 0.7 unit lower in Dec and similar in both layers at other times
 - Temperature is lower by up to 2.7°C in the deep layer from Mar to Sep and higher by up to 2.4 °C in Nov-Jan
 - Density is almost always higher in the bottom than in the surface layer.
@@ -202,19 +246,23 @@ Nevertheless:
 
 ***
 
+:::: {.blackbox data-latex=""}
 # **Conclusion**
 
 - **Positive aspects**: 
-  - **First** high-frequency time series of the carbonate system in the Arctic 
+  - **First** multi-year, high-frequency time series of the carbonate system in the Arctic 
   - Excellent support from AWIPEV staff until 2020
 - **Logistical difficulties**:
+  - Winter sampling essential
   - Challenging environment; divers needed to sort out issues
   - Difficult and costly to gather a team and organize field trip at short notice
-  - Winter sampling essential (once a month this season, more frequently would be more desirable)
-  - IPEV does not cover the cost of analyses required for calibration (ca. 1000 €)
+  - New regulation for using HgCl<sub>2</sub> and transporting poisoned samples
+
+:::
   
   ***
 
+:::: {.blackbox data-latex=""}
 # **Acknowledgements**
 
 - AWIPEV staff until 2020
@@ -226,3 +274,4 @@ Nevertheless:
 - French Polar Institute (IPEV) 
 - EU projects Jericho-Next, INTAROS and FACE-IT
 - Ove Hermansen, Cathrine Lund Myhre, and Stephen Platt at Norwegian institute for air research (NILU) for their assistance with atmospheric CO2 data from the Zeppelin observatory, as well as the Integrated Carbon Observing System (ICOS)-Norway, Norwegian Research Council project NFR-207587, and the Norwegian Environment Agency
+:::
