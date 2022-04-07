@@ -1153,7 +1153,7 @@ salinity data.
 
 ```{r Discrete salinity vs TA, echo=FALSE, fig.align="center", message=FALSE, warning=FALSE, out.width="100%"}
 d_all_at_discrete <- d_all %>% #  To remove an outlier in red
-  dplyr::select(datetime, monthd,closest_datetime, at, sal_fb_mix)
+  dplyr::select(datetime, monthd, closest_datetime, at, sal_fb_mix)
 reg <- ggreg(
   xdata = d_all$sal_fb_mix,
   ydata = d_all$at,
@@ -1188,8 +1188,7 @@ d_all$at_calc <- slope_s_at * d_all$sal_fb_mix + intercept_s_at
 
 The relationship between titrated total alkalinity (references) and
 salinity is very good with an r2 of
-`r #round(summary(fit)$r.squared, digits=2)`. Need to compare with other
-relationships from the literature.
+`r round(reg$fit$rsquare, digits = 2)`. Need to compare with other relationships from the literature.
 
 ```{r plot Discrete salinity vs TA, echo=FALSE, warning=FALSE, message=FALSE, out.width="100%", fig.align="center"}
 # PLOT
