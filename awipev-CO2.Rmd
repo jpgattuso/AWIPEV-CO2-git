@@ -2381,12 +2381,15 @@ range_month <-
 tbl_summary(missing = "no",
             type = all_continuous() ~ "continuous2",
             statistic = all_continuous() ~ c(
-      "{mean} ({sd})",                             # line 1: mean and SD
-      "{median} ({p25}, {p75})",                   # line 2: median and IQR
-      "{min}, {max}")    ) %>% 
-  add_n() %>% 
-  modify_header(label = "**Variable**") %>%
-  bold_labels()# %>% 
+              "{mean}",    # line 1: mean and SD
+              "{median}",
+             # "{p25}, {p75})",  # line 2: median and IQR
+              "{min}",
+              "{max}")
+) #%>% 
+  #add_n() %>% 
+  #modify_header(label = "**Variable**") %>%
+  #bold_labels()# %>% 
   #as_gt()
 range_month
 
@@ -2396,14 +2399,6 @@ range_month
 #   group_by(montht) %>%
 #   my_skim()
 # print(range_month, include_summary = FALSE, width = 100)
-```
-```{r example}
-library(survival)
-patient_characteristics <-
-  trial %>%
-  select(trt, age, grade, response) %>%
-  tbl_summary(by = trt)  
-patient_characteristics
 ```
 
 ## pHs
