@@ -63,6 +63,8 @@ if (!require("pangaear")) install.packages("pangaear")
 library("pangaear")
 if (!require("latex2exp")) install.packages("latex2exp")
 library("latex2exp")
+if (!require("gtsummary")) install.packages("gtsummary")
+library("gtsummary")
 if (!require("todor")) install.packages("todor")
 library("todor")
 # todor::todor_file("awipev-CO2.Rmd")
@@ -2344,24 +2346,64 @@ tmp$pH_dur_temp_4 <- seacarb::pHinsi(pH=tmp$pH_dur, ALK=tmp$at, Tinsi=4, Tlab=tm
 d_all <- d_all %>% 
   left_join(tmp %>% dplyr::select(datetime, pH_dur_temp_4), by="datetime")
 ```
-## Range per months
+## Range per month
 
-```{r Range per month, eval = FALSE, echo=FALSE, message= FALSE, warning=FALSE}
-my_skim <- skim_with(numeric = sfl(ave = ~ mean(., na.rm = TRUE),
-                                   med = ~ median(., na.rm = TRUE),
-                                   min = ~ min(., na.rm = TRUE),
-                                   max = ~ max(., na.rm = TRUE),
-                                   q5 = ~ quantile(., 0.05, na.rm = TRUE),
-                                   q95 = ~ quantile(., 0.95, na.rm = TRUE)
-                                   ), 
-                     append = FALSE)
+```{r Range per month, eval = FALSE, echo=FALSE, message= FALSE, warning=FALSE, results = "asis"}
+# my_skim <- skim_with(numeric = sfl(ave = ~ mean(., na.rm = TRUE),
+#                                    med = ~ median(., na.rm = TRUE),
+#                                    min = ~ min(., na.rm = TRUE),
+#                                    max = ~ max(., na.rm = TRUE),
+#                                    q5 = ~ quantile(., 0.05, na.rm = TRUE),
+#                                    q95 = ~ quantile(., 0.95, na.rm = TRUE)
+#                                    ), 
+#                      append = FALSE)
+# 
+# range_month <-
+#   d_all %>%
+#   dplyr::select(montht, sal_fb_mix, temp_insitu_11m_mix, temp_insitu_11m, pHint_tot_sf_10m) %>% 
+#   group_by(montht) %>%
+#   summarise(across(everything(), list(min=min, max=max), na.rm=TRUE))
+# print(range_month)
+# 
+# range_month <-
+#   d_all %>%
+#   dplyr::select(montht, sal_fb_mix, temp_insitu_11m_mix, temp_insitu_11m, pHint_tot_sf_10m) %>% 
+#     group_by(montht) %>%
+#   summary()
+# print(range_month)
 
 range_month <-
   d_all %>%
-  dplyr::select(montht, sal_fb_mix, temp_insitu_11m_mix, temp_insitu_11m, pHint_tot_sf_10m) %>% 
-  group_by(montht) %>%
-  my_skim()
-kable(range_month, caption = "")
+  dplyr::select(sal_fb_mix) %>% 
+#  dplyr::select(montht, sal_fb_mix, temp_insitu_11m_mix, temp_insitu_11m, pHint_tot_sf_10m) %>% 
+    #group_by(montht) %>%
+#tbl_summary(by = montht, missing = "no",
+tbl_summary(missing = "no",
+            type = all_continuous() ~ "continuous2",
+            statistic = all_continuous() ~ c(
+      "{mean} ({sd})",                             # line 1: mean and SD
+      "{median} ({p25}, {p75})",                   # line 2: median and IQR
+      "{min}, {max}")    ) %>% 
+  add_n() %>% 
+  modify_header(label = "**Variable**") %>%
+  bold_labels()# %>% 
+  #as_gt()
+range_month
+
+# range_month <-
+#   d_all %>%
+#   dplyr::select(montht, sal_fb_mix, temp_insitu_11m_mix, temp_insitu_11m, pHint_tot_sf_10m) %>% 
+#   group_by(montht) %>%
+#   my_skim()
+# print(range_month, include_summary = FALSE, width = 100)
+```
+```{r example}
+library(survival)
+patient_characteristics <-
+  trial %>%
+  select(trt, age, grade, response) %>%
+  tbl_summary(by = trt)  
+patient_characteristics
 ```
 
 ## pHs
