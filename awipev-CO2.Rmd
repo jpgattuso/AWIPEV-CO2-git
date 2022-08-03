@@ -2349,29 +2349,6 @@ d_all <- d_all %>%
 ## Range per month
 
 ```{r Range per month, echo = FALSE, warning = FALSE}
-# my_skim <- skim_with(numeric = sfl(ave = ~ mean(., na.rm = TRUE),
-#                                    med = ~ median(., na.rm = TRUE),
-#                                    min = ~ min(., na.rm = TRUE),
-#                                    max = ~ max(., na.rm = TRUE),
-#                                    q5 = ~ quantile(., 0.05, na.rm = TRUE),
-#                                    q95 = ~ quantile(., 0.95, na.rm = TRUE)
-#                                    ), 
-#                      append = FALSE)
-# 
-# range_month <-
-#   d_all %>%
-#   dplyr::select(montht, sal_fb_mix, temp_insitu_11m_mix, temp_insitu_11m, pHint_tot_sf_10m) %>% 
-#   group_by(montht) %>%
-#   summarise(across(everything(), list(min=min, max=max), na.rm=TRUE))
-# print(range_month)
-# 
-# range_month <-
-#   d_all %>%
-#   dplyr::select(montht, sal_fb_mix, temp_insitu_11m_mix, temp_insitu_11m, pHint_tot_sf_10m) %>% 
-#     group_by(montht) %>%
-#   summary()
-# print(range_month)
-
 range_month <-
   d_all %>%
   dplyr::select(montht, sal_fb_mix, temp_insitu_11m_mix, temp_insitu_11m, pHint_tot_sf_10m) %>% 
@@ -2385,15 +2362,8 @@ tbl_summary(by = montht,
               "{p75}",
               "{min}",
               "{max}"),
-            digits = list(all_continuous() ~ c(2, 1, 1, 3)))
+            digits = list(sal_fb_mix ~ 1, temp_insitu_11m_mix ~ 1, temp_insitu_11m ~ 1, pHint_tot_sf_10m ~ 3))
 range_month
-
-# range_month <-
-#   d_all %>%
-#   dplyr::select(montht, sal_fb_mix, temp_insitu_11m_mix, temp_insitu_11m, pHint_tot_sf_10m) %>% 
-#   group_by(montht) %>%
-#   my_skim()
-# print(range_month, include_summary = FALSE, width = 100)
 ```
 
 ## pHs
