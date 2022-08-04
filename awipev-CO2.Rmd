@@ -899,7 +899,7 @@ ESSD paper.
 # SAL FerryBox and sal_fb_mix
 sal_xts <- dplyr::select(d_all, datetime, sal_fb, sal_fb_mix)
 sal_xts <- as.xts(sal_xts, order.by = sal_xts$datetime)
-dygraph(sal_xts, group = "awipev", main="Salinity (in FerryBox)", ylab="Salinity") %>%
+dygraph(sal_xts, group = "awipev", main="Salinity (FerryBox and mix)", ylab="Salinity") %>%
             dySeries("sal_fb", color = "blue", strokeWidth = 0, label = "sal_fb") %>%
             dySeries("sal_fb_mix", color = "red", strokeWidth = 0, label = "sal_fb_mix") %>%
 dyHighlight(highlightCircleSize = 8,highlightSeriesBackgroundAlpha =0.2,hideOnMouseOut =TRUE) %>%
@@ -907,6 +907,7 @@ dyHighlight(highlightCircleSize = 8,highlightSeriesBackgroundAlpha =0.2,hideOnMo
   dyLegend(show = "follow")   %>%
   dyAxis("y", valueRange = c(30, 37)) %>%
   dyRangeSelector(height = 30, dateWindow = NULL)
+
 # now remove outliers
 d_all <- d_all %>%
   dplyr::mutate(
@@ -925,8 +926,9 @@ d_all <- d_all %>%
 ```
 
 ### **Depth profile**
+This is done later.
 
-```{r Sal profile, echo=FALSE, message= FALSE, warning=FALSE, out.width="80%",fig.show='hold', fig.align="center"}
+```{r Sal profile, eval=FALSE, echo=FALSE, message= FALSE, warning=FALSE, out.width="80%",fig.show='hold', fig.align="center"}
 
 #SAL CTD profile
 sal_xts <- dplyr::select(d_all, datetime, sal_insitu_ctd_1m, sal_insitu_ctd_3m, sal_insitu_ctd_5m, sal_insitu_ctd_7m, sal_insitu_ctd_10m)
@@ -977,7 +979,7 @@ The salinity difference between 1 and 10 m ranges between `r min(tmp$range_diff,
 # REVIEW OK?
 reg <- ggreg(
   xdata = d_all$sal_insitu_ctd_10m,
-  ydata = d_all$sal_fb_mix,
+  ydata = d_all$sal_fb,
   type = "MA",
   plot = TRUE,
   title = "Comparison salinity",
@@ -2372,7 +2374,7 @@ Comparaison is done here with **corrected pHs** (**seaFET**, **durafet**
 and **calculated** (from AT/CT)) and normalized at 4°C with a total
 alkalinity of `r mean(d_all$at, na.rm = TRUE)` µmoles kg-1 (mean data).
 For information, mean temperatures in Ferrybox and *in situ* are
-repectively 3.5°C and 2.5°C.
+respectively 3.5°C and 2.5°C.
 
 ### **seaFET vs durafet pHs at 4°C (all > 8 m)**
 
@@ -4035,25 +4037,25 @@ alpha <- 1 #transparency
 size_labs <- 6 # font size labels
 
 ts_sal <- d_all %>%
-  ggplot(aes(x = datetime, y = sal_fb), na.rm = TRUE) +
+  ggplot(aes(x = datetime, y = sal_fb_mix), na.rm = TRUE) +
   scale_x_datetime(breaks = date_breaks("1 year"), labels = date_format("%Y")) +
-  geom_point(colour="blue", alpha = alpha, na.rm = TRUE, size = size_point) + 
-  labs(title="Salinity FerryBox",x="", y="Salinity") +
+  geom_point(colour="blue", alpha = alpha, na.rm = TRUE, size = size_point) +
+  labs(title="Salinity (below 8 m)",x="", y="Salinity") +
   Mytheme(size_labs = size_labs)
 
 # temp_insitu_11m
 ts_temp <- d_all %>%
   ggplot(aes(x = datetime, y = temp_insitu_11m), na.rm = TRUE) +
   scale_x_datetime(breaks = date_breaks("1 year"), labels = date_format("%Y")) +
-  geom_point(colour="blue", alpha = alpha, na.rm = TRUE, size = size_point) + 
-  labs(title="In situ temperature 11 m",x="", y="Temperature (°C)") +
+  geom_point(colour="blue", alpha = alpha, na.rm = TRUE, size = size_point) +
+  labs(title="In situ temperature (11 m)",x="", y="Temperature (°C)") +
   Mytheme(size_labs = size_labs)
 
 # PAR
 ts_par_air <- d_all %>%
   ggplot(aes(x = datetime, y = par_air), na.rm = TRUE) +
   scale_x_datetime(breaks = date_breaks("1 year"), labels = date_format("%Y")) +
-  geom_point(colour="blue", alpha = alpha, na.rm = TRUE, size = size_point) + 
+  geom_point(colour="blue", alpha = alpha, na.rm = TRUE, size = size_point) +
   labs(title="Atmospheric PAR",x="", y="PAR (umol m-2 s-1)") +
   Mytheme(size_labs = size_labs)
 
@@ -4062,9 +4064,11 @@ ts_pCO2 <- d_all %>%
   ggplot() +
   scale_x_datetime(breaks = date_breaks("1 year"), labels = date_format("%Y")) +
   geom_point(aes(x = datetime, y = pco2_fb_insi_temp), 
-             colour="blue", alpha = alpha, na.rm = TRUE, size = size_point) + 
+             colour="blue", alpha = alpha, na.rm = TRUE, size = size_point) +
   geom_point(aes(x = datetime, y = pco2_calc_fb_insi_temp), colour="red", alpha = alpha, na.rm = TRUE, size = size_point*3) + 
-  labs(title="pCO2 at in situ temperature (measured in blue; calculated from CT and AT in red)",x="", y="pCO2 (uatm)") +
+  labs(title=expression(paste(pCO[2], " at 11 m and in situ temperature")),
+       subtitle = "measured in blue; calculated from CT and AT in red",
+       x="", y=TeX("pCO$_2$ ($\\mu atm$)")) +
   Mytheme(size_labs = size_labs)
 
 # SEAFET pH
@@ -4075,7 +4079,9 @@ ts_pH <- d_all %>%
   geom_point(aes(x = datetime, y = pHint_tot_sf), 
              colour="blue", alpha = alpha, na.rm = TRUE, size = size_point) + 
   geom_point(aes(x = datetime, y = ph_s_sf_temp_insi), colour="red", alpha = alpha, na.rm = TRUE, size = size_point*3) + 
-  labs(title="In situ pH below 8 m at in situ temperature (seaFET in blue; spectrophotometric in red)", x = "", y=expression(paste(pH[T]))) +
+  labs(title="In situ pH below 8 m at in situ temperature", 
+       subtitle = "seaFET in blue; spectrophotometric in red",
+       x = "", y=expression(paste(pH[T]))) +
   Mytheme(size_labs = size_labs) +
   theme(legend.position = c(0.1, 0.5),
         legend.key.height = unit(0.5, 'cm'))
@@ -4084,20 +4090,19 @@ ts_pH <- d_all %>%
 ts_at <- d_all %>%
   ggplot(aes(x = datetime, y = at_calc), na.rm = TRUE) +
   scale_x_datetime(breaks = date_breaks("1 year"), labels = date_format("%Y")) +
-  geom_point(colour="blue", alpha = alpha, na.rm = TRUE, size = size_point) + 
+  geom_point(colour="blue", alpha = alpha, na.rm = TRUE, size = size_point) +
   geom_point(aes(x = datetime, y = at), colour="red", alpha = alpha, na.rm = TRUE, size = size_point*3) + 
-  labs(title="Total alkalinity (calculated from salinity in blue; discrete measurements in red)", x="", y="AT (umol/kg)") +
+  labs(title="Total alkalinity", 
+       subtitle = "calculated from salinity in blue; discrete measurements in red",
+       x="", y=TeX("$A_T$ ($\\mu mol\\phantom{x}kg^{-1})$")) +
   Mytheme(size_labs = size_labs)
 
 # Combine plots
-g <- (ts_sal / ts_temp / ts_pCO2  / ts_pH / ts_at)
+g1 <- (ts_sal / ts_temp / ts_pCO2  / ts_pH / ts_at)
 g <- g + plot_annotation(tag_levels = 'A')
-ggsave(filename = "figures/time_series.png", plot = g, width = 15, height = 30, units = "cm")
-rm(list = ls(pattern = "ts_")) #delete big ggplot objects
-gc() #garbage collection
-
-#save_plot(filename = "figures/time_series.png", plot = g)
-#g_cw <- cowplot::plot_grid(ts_sal, ts_temp, ts_par_air, ts_pCO2, ts_pH, ts_at, align='v', ncol=1)
+ggsave(filename = "figures/time_series.png", plot = g1, width = 15, height = 30, units = "cm")
+#rm(list = ls(pattern = "ts_")) #delete big ggplot objects
+#gc() #garbage collection
 ```
 
 ### Whole time series monthly box plots and stats
@@ -4106,10 +4111,10 @@ gc() #garbage collection
 size_point <- 0.5 # size of data points
 alpha <- 1 #transparency
 d_bp <- d_all %>% # just for this chunk
-  dplyr::select(datetime, sal_fb, temp_insitu_11m, pco2_fb, pHint_tot_sf, at_calc)
+  dplyr::select(datetime, sal_fb_mix, temp_insitu_11m, pco2_fb, pHint_tot_sf, at_calc)
 
 # Quantiles table
-Salinity <- round(quantile(d_bp$sal_fb, na.rm =TRUE), digits=1)
+Salinity <- round(quantile(d_bp$sal_fb_mix, na.rm =TRUE), digits=1)
 Temperature <- round(quantile(d_bp$temp_insitu_11m, na.rm =TRUE), digits=1)
 pco2 <- round(quantile(d_bp$pco2_fb, na.rm =TRUE), digits=1)
 pH <- round(quantile(d_bp$pHint_tot_sf, na.rm =TRUE), digits=3)
@@ -4123,30 +4128,43 @@ kable(tab_quartiles, caption = "Key quantiles") %>%
 
 # detection of extremes
 # calculate 1st and 9th deciles 
-dec_sal_fb <- quantile(d_bp$sal_fb, na.rm =TRUE, probs = c(0.1, 0.9))
+dec_sal_fb_mix <- quantile(d_bp$sal_fb_mix, na.rm =TRUE, probs = c(0.1, 0.9))
 dec_temp_insitu_11m <- quantile(d_bp$temp_insitu_11m, na.rm =TRUE, probs = c(0.1, 0.9))
 dec_pco2_fb <- quantile(d_bp$pco2_fb, na.rm =TRUE, probs = c(0.1, 0.9))
 dec_pHint_tot_sf <- quantile(d_bp$pHint_tot_sf, na.rm =TRUE, probs = c(0.1, 0.9))
 dec_at_calc <- quantile(d_bp$at_calc, na.rm =TRUE, probs = c(0.1, 0.9))
 
 # identify extremes
-d_bp <- d_bp %>% 
-  dplyr::mutate(ext_sal_fb = ifelse(sal_fb < dec_sal_fb[1] |
-                                            sal_fb > dec_sal_fb[2], sal_fb, NA),
-                ext_temp_insitu_11m = ifelse(temp_insitu_11m < dec_temp_insitu_11m[1] |
-                                            temp_insitu_11m > dec_temp_insitu_11m[2],
-                                            temp_insitu_11m, NA),
-                ext_pco2_fb = ifelse(pco2_fb < dec_pco2_fb[1] |
-                                            pco2_fb > dec_pco2_fb[2], pco2_fb, NA),
-                ext_pHint_tot_sf = ifelse(pHint_tot_sf < dec_pHint_tot_sf[1] |
-                                            pHint_tot_sf > dec_pHint_tot_sf[2], pHint_tot_sf, NA),
-                ext_at_calc = ifelse(at_calc < dec_at_calc[1] |
-                                            at_calc > dec_at_calc[2], at_calc, NA))
+d_bp <- d_bp %>%
+  dplyr::mutate(
+    ext_sal_fb_mix = ifelse(
+      sal_fb_mix < dec_sal_fb_mix[1] |
+        sal_fb_mix > dec_sal_fb_mix[2],
+      sal_fb_mix,
+      NA
+    ),
+    ext_temp_insitu_11m = ifelse(
+      temp_insitu_11m < dec_temp_insitu_11m[1] |
+        temp_insitu_11m > dec_temp_insitu_11m[2],
+      temp_insitu_11m,
+      NA
+    ),
+    ext_pco2_fb = ifelse(pco2_fb < dec_pco2_fb[1] |
+                           pco2_fb > dec_pco2_fb[2], pco2_fb, NA),
+    ext_pHint_tot_sf = ifelse(
+      pHint_tot_sf < dec_pHint_tot_sf[1] |
+        pHint_tot_sf > dec_pHint_tot_sf[2],
+      pHint_tot_sf,
+      NA
+    ),
+    ext_at_calc = ifelse(at_calc < dec_at_calc[1] |
+                           at_calc > dec_at_calc[2], at_calc, NA)
+  )
 ts_sal_bp <- d_bp %>%
-  ggplot(aes(x = month(x = datetime, label = TRUE, abbr = TRUE), y = sal_fb)) +
+  ggplot(aes(x = month(x = datetime, label = TRUE, abbr = TRUE), y = sal_fb_mix)) +
   geom_boxplot(notch=FALSE, size=0.2, fill="blue", outlier.shape = NA, na.rm = TRUE) +
-  geom_point(aes(x = month(x = datetime, label = TRUE, abbr = TRUE), y = ext_sal_fb), col = "lightblue", size = size_point, na.rm = TRUE) +
-  labs(y = "Salinity", x=NULL, title=NULL) +
+  geom_point(aes(x = month(x = datetime, label = TRUE, abbr = TRUE), y = ext_sal_fb_mix), col = "lightblue", size = size_point, na.rm = TRUE) +
+  labs(title="Salinity (< 8 m)", y = "Salinity", x=NULL) +
   Mytheme() +
   theme(panel.grid.major.x = element_blank(),
         aspect.ratio=0.5)
@@ -4154,7 +4172,7 @@ ts_temp_bp <- d_bp %>%
   ggplot(aes(x = month(x = datetime, label = TRUE, abbr = TRUE), y = temp_insitu_11m)) +
   geom_boxplot(notch=FALSE, size=0.2, fill="blue", outlier.shape = NA, na.rm = TRUE) +
   geom_point(aes(x = month(x = datetime, label = TRUE, abbr = TRUE), y = ext_temp_insitu_11m), col = "lightblue", size = size_point, na.rm = TRUE) +
-  labs(y = "Temperature", x=NULL, title=NULL) +
+  labs(title="In situ temperature (11 m)", y = "Temperature (°C)", x=NULL) +
   Mytheme() +
   theme(panel.grid.major.x = element_blank(),
         aspect.ratio=0.5)
@@ -4162,7 +4180,7 @@ ts_pco2_bp <- d_bp %>%
   ggplot(aes(x = month(x = datetime, label = TRUE, abbr = TRUE), y = pco2_fb)) +
   geom_boxplot(notch=FALSE, size=0.2, fill="blue", outlier.shape = NA, na.rm = TRUE) +
   geom_point(aes(x = month(x = datetime, label = TRUE, abbr = TRUE), y = ext_pco2_fb), col = "lightblue", size = size_point, na.rm = TRUE) +
-  labs(y = expression(paste(pCO[2])), x=NULL, title=NULL) +
+  labs(title=expression(paste(pCO[2], " at 11 m and in situ temperature")), y = TeX("pCO$_2$ ($\\mu atm$)"), x=NULL) +
   Mytheme() +
   theme(panel.grid.major.x = element_blank(),
         aspect.ratio=0.5)
@@ -4170,7 +4188,7 @@ ts_pH_bp <- d_bp %>%
   ggplot(aes(x = month(x = datetime, label = TRUE, abbr = TRUE), y = pHint_tot_sf)) +
   geom_boxplot(notch=FALSE, size=0.2, fill="blue", outlier.shape = NA, na.rm = TRUE) +
   geom_point(aes(x = month(x = datetime, label = TRUE, abbr = TRUE), y = ext_pHint_tot_sf), col = "lightblue", size = size_point, na.rm = TRUE) +
-  labs(y = expression(paste(pH[T])), x=NULL, title=NULL) +
+  labs(title="In situ pH below 8 m at in situ temperature", y = expression(paste(pH[T])), x=NULL) +
   Mytheme() +
   theme(panel.grid.major.x = element_blank(),
         aspect.ratio=0.5)
@@ -4178,14 +4196,22 @@ ts_at_bp <- d_bp %>%
   ggplot(aes(x = month(x = datetime, label = TRUE, abbr = TRUE), y = at_calc)) +
   geom_boxplot(notch=FALSE, size=0.2, fill="blue", outlier.shape = NA, na.rm = TRUE) +
   geom_point(aes(x = month(x = datetime, label = TRUE, abbr = TRUE), y = ext_at_calc), col = "lightblue", size = size_point, na.rm = TRUE) +
-  labs(y = "Total alkalinity", x=NULL, title=NULL) +
+  labs(title="Total alkalinity calculated from salinity", y = TeX("$A_T$ ($\\mu mol\\phantom{x}kg^{-1})$"), x=NULL) +
   Mytheme() +
   theme(panel.grid.major.x = element_blank(),
         aspect.ratio=0.5)
 # Combine plots
-g <- ts_sal_bp / ts_temp_bp / ts_pco2_bp / ts_pH_bp / ts_at_bp
+g2 <- (ts_sal_bp / ts_temp_bp / ts_pco2_bp / ts_pH_bp / ts_at_bp)
+g2 <- g + plot_annotation(tag_levels = 'A')
+ggsave(filename = "figures/ts_boxplots.png", plot = g2)
+#rm(list = ls(pattern = "ts_"), d_bp) #delete big ggplot objects and temp data
+#gc() #garbage collection
+```
+```{r fig ts and bp for paper}
+g <- (ts_sal / ts_temp / ts_pCO2  / ts_pH / ts_at) |
+  (ts_sal_bp / ts_temp_bp / ts_pco2_bp / ts_pH_bp / ts_at_bp)
 g <- g + plot_annotation(tag_levels = 'A')
-ggsave(filename = "figures/ts_boxplots.png", plot = g)
+ggsave(filename = "figures/ts_ts_boxplots.png", plot = g)
 rm(list = ls(pattern = "ts_"), d_bp) #delete big ggplot objects and temp data
 gc() #garbage collection
 ```
