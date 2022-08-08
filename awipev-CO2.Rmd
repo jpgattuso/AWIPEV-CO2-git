@@ -367,21 +367,26 @@ d <-
 # Flag 1 = collected on the pIer by Niskin and flag 0 = collected in the FB (normal collect)
  # And keep data with flag 0 for FB location
 d <- d %>%
-  dplyr::mutate(location_flag = ifelse(datetime == as.POSIXct("2016-04-21 09:25:00") | 
-                                         datetime == as.POSIXct("2016-02-10 14:00:00") | 
-                                         datetime == as.POSIXct("2016-02-17 09:20:00") |
-                                         datetime == as.POSIXct("2016-02-24 14:20:00") |
-                                         datetime == as.POSIXct("2016-02-04 09:30:00") |
-                                         datetime == as.POSIXct("2016-01-27 15:00:00") |
-                                         datetime == as.POSIXct("2016-01-13 13:45:00") |
-                                         datetime == as.POSIXct("2016-01-06 14:10:00") |
-                                         datetime == as.POSIXct("2015-12-24 10:45:00") |
-                                         datetime == as.POSIXct("2015-12-30 13:30:00") |
-                                         datetime == as.POSIXct("2018-01-05 15:20:00") |
-                                         datetime == as.POSIXct("2018-02-02 14:35:00") |
-                                         datetime == as.POSIXct("2018-03-02 14:10:00") |
-                                         datetime == as.POSIXct("2019-05-31 11:45:00"), 
-                                       1, 0))
+  dplyr::mutate(
+    location_flag = ifelse(
+      datetime == as.POSIXct("2016-04-21 09:25:00") |
+        datetime == as.POSIXct("2016-02-10 14:00:00") |
+        datetime == as.POSIXct("2016-02-17 09:20:00") |
+        datetime == as.POSIXct("2016-02-24 14:20:00") |
+        datetime == as.POSIXct("2016-02-04 09:30:00") |
+        datetime == as.POSIXct("2016-01-27 15:00:00") |
+        datetime == as.POSIXct("2016-01-13 13:45:00") |
+        datetime == as.POSIXct("2016-01-06 14:10:00") |
+        datetime == as.POSIXct("2015-12-24 10:45:00") |
+        datetime == as.POSIXct("2015-12-30 13:30:00") |
+        datetime == as.POSIXct("2018-01-05 15:20:00") |
+        datetime == as.POSIXct("2018-02-02 14:35:00") |
+        datetime == as.POSIXct("2018-03-02 14:10:00") |
+        datetime == as.POSIXct("2019-05-31 11:45:00"),
+      1,
+      0
+    )
+  )
 d <- d %>%
   dplyr::filter(location_flag == 0) %>% 
 # below we change the time of 2 discrete samplings during period 1 of seafet deployment
@@ -1334,14 +1339,13 @@ reg <- ggreg(
   type = "MA",
   plot = TRUE,
   title = "pCO2 normalized at in situ temperature",
-  #subtitle = "",
   xlab = latex2exp::TeX("Measured $pCO_{2}\\phantom{x}(\\mu atm)$"),
   ylab = latex2exp::TeX("Calculated $pCO_{2}\\phantom{x}(\\mu atm)$"),
   proplot = TRUE,
-  #ylim(c(30.5,35.5)) + xlim(c(28,35.5)),
   coord_fixed(ratio = 1)
 )
 print(reg$plot)
+pco2_calc_meas <- reg$plot
 ggsave(filename = "figures/pco2_calc_meas.png", plot = reg$plot)
 ```
 
@@ -1358,10 +1362,10 @@ line shows the line obtained by a major axis regression (Legendre, 2018-
 Pierre Legendre (2018). lmodel2: Model II Regression. R package version
 1.7-3. <https://CRAN.R-project.org/package=lmodel2>
 
-```{r plot measured vs calculated pCO2, echo=FALSE, warning=FALSE, message=FALSE, out.width='100%', fig.align="center"}
-print(reg$plot)
-rm(reg)
-```
+# ```{r plot measured vs calculated pCO2, echo=FALSE, warning=FALSE, message=FALSE, out.width='100%', fig.align="center"}
+# print(reg$plot)
+# rm(reg)
+# ```
 
 ### **pCO~2~ time series**
 
@@ -1454,7 +1458,7 @@ Measurement periodicity was set to 1 hour from 2018-02-02 to 2018-04-17
 it was then measured once every minute. pH calibration is based on
 monthly, when possible, discrete samples collected at 11 m that were
 analysed with spectrophotometric method in Villefranche by Samir
-Alliouane. Measurments were performed several months after sampling.
+Alliouane. Measurements were performed several months after sampling.
 When sampling was not possible in the vicinity of the sensor for
 practical reasons (in winter), sampling was done in the harbour and is
 not taken in consideration for calibration for spatial reasons. *Note
@@ -1501,7 +1505,7 @@ d_all <- d_all %>%
                                 ifelse(datetime >= sfinterv[3], 03, NA ))))
 
 # To make sf calibration against pH spectro, we need: sal - T insi - voltINT/EXT . If we missed one of these parameters, calibration will not run
-# Here we try to fill the gap when it is possible: make a mean with 4 previous/next hours available in the time serie. 
+# Here we try to fill the gap when it is possible: make a mean with 4 previous/next hours available in the time series. 
 # If the pH spectro is too far from a needed value, we decided to skip it for the calibration.
 
 # (1) Raw voltage INT + pHINT must be filtered from 2017-12-14 to 2018-01-08 < 8.04,
@@ -1669,31 +1673,6 @@ d_all <- d_all %>%
     temp_insitu_11m_mix
   ))
 
-#interpolation of salinity during gaps
-# # below is old code. now we use sal_insitu_ctd_mix
-# salinterp <-
-#   approx(
-#     d_all$datetime,
-#     d_all$sal_insitu_ctd,
-#     xout = d_all$datetime,
-#     method = "linear",
-#     rule = 2
-#   )
-# names(salinterp) <- c("datetime", "sal_insitu_ctd_interp")
-# salinterp <- as.data.frame(salinterp)
-# d_all$sal_insitu_ctd_interp <- salinterp$sal_insitu_ctd_interp
-# 
-# d_all <- d_all %>%
-#   dplyr::mutate(
-#     sal_insitu_ctd_interp =  ifelse(
-#       datetime > as.POSIXct("2018-04-16 07:00:00") &
-#         datetime < as.POSIXct("2018-04-24 22:00:00"),
-#       sal_insitu_ctd_interp,
-#       sal_insitu_ctd
-#     )
-#   )
-
-# above is old code. Now we use sal_insitu_ctd_mix
 salinterp <-
   approx(
     d_all$datetime,
@@ -1733,7 +1712,7 @@ calib_spectro_all <- sf_calib(calEint = d_all$voltINT, calEext = d_all$voltEXT, 
 # put number of deployment 
 calib_spectro_all$deployment_sf <- d_all$deployment_sf 
 
-# make the mean of E0 by period of deployement
+# make the mean of E0 by period of deployment
 calib_spectro_all <- group_by(calib_spectro_all, deployment_sf) %>%
   dplyr::summarise(E0int25 = mean(E0int25, na.rm = TRUE),
             E0ext25 = mean(E0ext25, na.rm = TRUE) 
@@ -1799,7 +1778,7 @@ kbl(calib_spectro)%>%
 
 Final calibrated seaFET pHT data (small green dots) are shown here after
 calibration with spectro measurements (red dots) according to each
-period of deployement, defined between 2 spectro measurements (shading
+period of deployment, defined between 2 spectro measurements (shading
 grey).
 
 We also defined a period of malfunction from **2017-12-14** to
@@ -1968,8 +1947,7 @@ dyOptions(
 #   dyRangeSelector(height = 30, dateWindow= c("2017-10-21 00:00:00", "2021-01-11 00:00:00"))
 ```
 
-pH INT - pH EXT was plotted here. From now on, one uses seaFET pH from the internal electrode calibrated
-with spec pH and seaFET data when the REMOS was below 8 m (pHint_tot_sf_10m). This unique pH variable is called pHint_tot_sf. All other pH variables are cleaned up. We also calculate pHint_tot_sf. at 4°C: pHint_tot_sf_temp_4.
+pH INT - pH EXT was plotted here. From now on, one uses seaFET pH from the internal electrode calibrated with spec pH and seaFET data when the REMOS was below 8 m (pHint_tot_sf_10m). This unique pH variable is called pHint_tot_sf. All other pH variables are cleaned up. We also calculate pHint_tot_sf at 4°C: pHint_tot_sf_temp_4.
 
 ```{r seafet clean up, echo=FALSE, message= FALSE, warning=FALSE, out.width="80%",fig.show='hold', fig.align="center"}
 d_all <- d_all %>%
