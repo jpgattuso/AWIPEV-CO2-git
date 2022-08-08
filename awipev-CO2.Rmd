@@ -3847,11 +3847,7 @@ atm_co2 <- dplyr::full_join(atm_co2_new, atm_co2_old, by = "datetime")
 atm_co2 <- atm_co2 %>% 
   dplyr::rename(co2_air_new = co2_air.x, co2_air_old = co2_air.y) %>%
   dplyr::mutate(co2_air = ifelse(year(atm_co2$datetime) == 2020, co2_air_new, co2_air_old))
-# Below was an attempt to smooth but
-# zz <- as_tsibble(atm_co2) %>% 
-#   mutate(smoothed_co2_air = slide_dbl(co2_air, .f = mean, .before = 12, .after = 12, .complete = TRUE))
-# ggplot(zz) +
-#   geom_line(aes(x = datetime, y = smoothed_co2_air))
+
 d_all <- dplyr::left_join(d_all, dplyr::select(atm_co2, datetime, co2_air), by = "datetime") %>% 
   dplyr::select(sort(current_vars()))
 
@@ -3860,11 +3856,9 @@ p_atm_co2 <- d_all %>%
   #tidyr::pivot_longer(cols = c(pco2_air, pco2_air_old), names_to = "dataset", values_to = "pco2") %>% 
   ggplot() +
   geom_point(aes(x = datetime, y = co2_air), col = "blue", size = 0.15, na.rm = TRUE) +
-  #facet_grid(rows = vars(dataset)) +
-  #geom_point(aes(x = datetime, y = pco2_air_old), col = "grey", size = 0.15, na.rm = TRUE) +
   labs(title = "Atmospheric CO2 at Zeppelin", x = "Time", y = "CO2 (ppm)") +
   Mytheme(size_labs = 8)
-#p_atm_co2
+p_atm_co2
 ggsave(filename = "figures/atm_co2.png", plot = p_atm_co2, width = 20, units = "cm")
 ```
 
@@ -4099,7 +4093,7 @@ ts_at <- d_all %>%
 
 # Combine plots
 g1 <- (ts_sal / ts_temp / ts_pCO2  / ts_pH / ts_at)
-g <- g + plot_annotation(tag_levels = 'A')
+g1 <- g1 + plot_annotation(tag_levels = 'A')
 ggsave(filename = "figures/time_series.png", plot = g1, width = 15, height = 30, units = "cm")
 #rm(list = ls(pattern = "ts_")) #delete big ggplot objects
 #gc() #garbage collection
@@ -4202,7 +4196,7 @@ ts_at_bp <- d_bp %>%
         aspect.ratio=0.5)
 # Combine plots
 g2 <- (ts_sal_bp / ts_temp_bp / ts_pco2_bp / ts_pH_bp / ts_at_bp)
-g2 <- g + plot_annotation(tag_levels = 'A')
+g2 <- g2 + plot_annotation(tag_levels = 'A')
 ggsave(filename = "figures/ts_boxplots.png", plot = g2)
 #rm(list = ls(pattern = "ts_"), d_bp) #delete big ggplot objects and temp data
 #gc() #garbage collection
