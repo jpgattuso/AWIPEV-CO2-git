@@ -395,6 +395,19 @@ d <- d %>%
                                      datetime == as.POSIXct("2017-11-28 09:15:00") ~ as.POSIXct("2017-11-28 13:00:00"),
                    TRUE ~ datetime))
 
+
+######
+# below quality flag of spec pH is changed from 2 (good) to 3 (questionable)
+# on 2018-09-11 and 2019-07-12 because after calibration, 
+# the difference between pH measured and calibrated seafet pH i large.
+d <- d %>% 
+  dplyr::mutate(qflag_ph_s_sf = ifelse((lubridate::date(datetime) == as.POSIXct("2018-09-11") | lubridate::date(datetime) == as.POSIXct("2019-07-12")), 3, 2))# %>% 
+  # dplyr::filter((lubridate::date(datetime) == as.POSIXct("2018-09-11") |
+  #               lubridate::date(datetime) == as.POSIXct("2019-07-12"))) %>% 
+  # dplyr::select(datetime, qflag_ph_s_sf)
+
+####
+
 # Keep only flag = 2 for at/ct analysis 
 # Keep only flag = 2 for pH durafet and seaFET.
 d <- d %>%
@@ -1896,9 +1909,8 @@ rm(seafet_depth_xts)
 
 Quality control plots :
 
-Offset between calibrated seaFET data and pH spectro. The offset must be between -0.2 and 0.2 pH units. "differences between calibrated sensor pH values and values obtained from discrete, check samples can be expected to be as small as 0.02 pH units, and perhaps less." (McLaughlin et al. 2017).
-
 ```{r seaFET quality control pH 1, echo=FALSE, warning = FALSE, message = FALSE, out.width='100%'}
+
 #Offset between seafet pH and spec pH (Fig. 2 Kapsenberg et al.)
 ph_sf <- d_all%>%
   dplyr::select(datetime, ph_s_sf_temp_insi, pHint_tot_sf_10m) %>%
@@ -1924,7 +1936,26 @@ dyOptions(
     useDataTimezone = TRUE,
     digitsAfterDecimal = 4) %>%
   dyRangeSelector(height = 30, dateWindow= c("2017-10-21 00:00:00", "2021-01-11 00:00:00"))
+
+offset_ph <- ph_sf %>% 
+  drop_na() %>% 
+  ggplot() +
+  geom_point(aes(x=datetime, y=diff_spec_sf, color="blue"), size=2) +
+  # annotate("text", x = dat_dur$datetime[3], y =-0.16, label = "offset mean", color="red")+
+  geom_hline(yintercept=0, size=0.3) +
+  geom_hline(yintercept=-0.02, size=0.3, linetype = "dashed") +
+  geom_hline(yintercept=0.02, size=0.3, linetype = "dashed") +
+  labs(x = NULL, y=expression(paste(pH[T], " difference")), title = NULL) +
+  #scale_x_datetime(date_breaks="years", date_minor_breaks="3 months", labels=date_format("%b %Y")) +
+  Mytheme() + 
+  #theme(panel.grid.major.x = element_blank(), axis.text.x = element_text(angle = 45, hjust = 1)) +
+scale_colour_discrete(guide="none")
+print(offset_ph)
+ggsave(filename = "figures/offset_ph.png", plot = offset_ph, width = 25, height = 20, units = "cm")
 ```
+Offset between calibrated seaFET data and pH spectro. The offset must be between -0.2 and 0.2 pH units. "differences between calibrated sensor pH values and values obtained from discrete, check samples can be expected to be as small as 0.02 pH units, and perhaps less." (McLaughlin et al. 2017).
+
+Initially (before 2022-08-09), there was 2 outiers on 209-07-12 and 2018+09-11. On 2022-08-09, code was addeed above to put a no good qf (3) in order to eliminate those two oiutliers. Now we are fine. The average offset is 'r average_offset'.
 
 ```{r seaFET quality control pH 2, echo=FALSE, warning = FALSE, message = FALSE, out.width='100%'}
 # # COMMENTED BECAUSE INT-EXT NOT NEEDED
