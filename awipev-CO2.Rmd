@@ -67,6 +67,8 @@ if (!require("gtsummary")) install.packages("gtsummary")
 library("gtsummary")
 if (!require("todor")) install.packages("todor")
 library("todor")
+if (!require("ggpmisc")) install.packages("ggpmisc")
+library("ggpmisc")
 # todor::todor_file("awipev-CO2.Rmd")
 
 knitr::opts_chunk$set(echo = TRUE)
@@ -92,8 +94,7 @@ qq <- function (data, digits) {
 
 #################### Regression function
 # function regression plot with equation (MA or OLS) in title
-ggreg <- function (xdata, ydata, type = "OLS", plot = TRUE, title = "title", xlab = "x", 
-                   ylab = "y", proplot = TRUE, ...) 
+ggreg <- function (xdata, ydata, type = "OLS", plot = TRUE, title = "title", xlab = "x", ylab = "y", proplot = TRUE, ...) 
   { # x and y are the names of the variables
   fit_data <- tibble(xdata, ydata)
   colnames(fit_data) = c("xdata", "ydata")
@@ -1193,14 +1194,14 @@ print(reg$plot)
 ggsave(filename = "figures/at_s.png", plot = reg$plot, width = 25, height = 20, units = "cm")
 
 # Same plot for paper
-p_at_s <- d_all_at_discrete %>% 
+at_s <- d_all_at_discrete %>% 
   drop_na() %>% 
   ggplot(aes(x = sal_fb_mix, y = at)) +
   geom_point(col="blue", size = 0.5) +
   labs(x="Salinity", y=TeX("Total alkalinity ($\\mu mol\\phantom{x}kg^{-1})$"))  +
-  stat_smooth(method = "lm", col = "blue", size = 0.5) +
+  stat_smooth(method = "lm", se=FALSE, col = "blue", size = 0.5) +
   Mytheme(size_labs = 9)
-ggsave(filename = "figures/p_at_s.png", plot = p_at_s, width = 7, height = 7, units = "cm")
+ggsave(filename = "figures/at_s.png", plot = at_s, width = 7, height = 7, units = "cm")
 
 # Salinity is a predictor of AT -> using the regression defined above
 slope_s_at <- slope_s_at <- reg$fit$regression.results[3][[1]][1] # OLS
@@ -1265,7 +1266,7 @@ rm(at_contros_calc_xts)
 There are a lot of outliers in the 4th period (since the new analyzer
 was set up in Nov. 2018). We use the desplike function to remove them.
 
-## *p*CO~2~ and *f*CO~2~
+## pCO~2~ and fCO~2~
 
 The HydroC CO~2~ FT sensor (S/N: CO2FT-0215-001) was bought from Contros
 (Germany) in February 2015. It was deployed in the FerryBox with other
@@ -1358,8 +1359,20 @@ reg <- ggreg(
   coord_fixed(ratio = 1)
 )
 print(reg$plot)
-pco2_calc_meas <- reg$plot
-ggsave(filename = "figures/pco2_calc_meas.png", plot = reg$plot)
+
+# for paper
+pco2_calc_meas <- d_all %>% 
+  dplyr::select(pco2_fb_insi_temp, pco2_calc_fb_insi_temp) %>% 
+  drop_na() %>% 
+  ggplot(aes(x = pco2_fb_insi_temp, y = pco2_calc_fb_insi_temp)) +
+  geom_point(col="blue", size = 0.5) +
+  labs(x=latex2exp::TeX("Measured $pCO_{2}\\phantom{x}(\\mu atm)$"),
+       y= latex2exp::TeX("Calculated $pCO_{2}\\phantom{x}(\\mu atm)$"))  +
+  ggpmisc::stat_ma_line(method = "lmodel2:MA", se = FALSE, size = 1) +
+  ggpmisc::stat_ma_eq(aes(label = after_stat(eq.label))) +
+#stat_smooth(method = "lm", se=FALSE, col = "blue", size = 0.5) +
+  theme_bw() + Mytheme(size_labs = 9)
+ggsave(filename = "figures/pco2_calc_meas.png", plot = pco2_calc_meas, width = 25, height = 25, units = "cm")
 ```
 
 The relationship between the measured (Contros) and calculated pCO2
@@ -1375,10 +1388,6 @@ line shows the line obtained by a major axis regression (Legendre, 2018-
 Pierre Legendre (2018). lmodel2: Model II Regression. R package version
 1.7-3. <https://CRAN.R-project.org/package=lmodel2>
 
-# ```{r plot measured vs calculated pCO2, echo=FALSE, warning=FALSE, message=FALSE, out.width='100%', fig.align="center"}
-# print(reg$plot)
-# rm(reg)
-# ```
 
 ### **pCO~2~ time series**
 
@@ -1941,21 +1950,18 @@ offset_ph <- ph_sf %>%
   drop_na() %>% 
   ggplot() +
   geom_point(aes(x=datetime, y=diff_spec_sf, color="blue"), size=2) +
-  # annotate("text", x = dat_dur$datetime[3], y =-0.16, label = "offset mean", color="red")+
   geom_hline(yintercept=0, size=0.3) +
   geom_hline(yintercept=-0.02, size=0.3, linetype = "dashed") +
   geom_hline(yintercept=0.02, size=0.3, linetype = "dashed") +
   labs(x = NULL, y=expression(paste(pH[T], " difference")), title = NULL) +
-  #scale_x_datetime(date_breaks="years", date_minor_breaks="3 months", labels=date_format("%b %Y")) +
-  Mytheme() + 
+  Mytheme(size_labs = 12, face_font = "plain") + 
   #theme(panel.grid.major.x = element_blank(), axis.text.x = element_text(angle = 45, hjust = 1)) +
-scale_colour_discrete(guide="none")
-print(offset_ph)
-ggsave(filename = "figures/offset_ph.png", plot = offset_ph, width = 25, height = 20, units = "cm")
+  scale_colour_discrete(guide="none")
+ggsave(filename = "figures/offset_ph.png", plot = offset_ph, width = 10, height = 10, units = "cm")
 ```
 Offset between calibrated seaFET data and pH spectro. The offset must be between -0.2 and 0.2 pH units. "differences between calibrated sensor pH values and values obtained from discrete, check samples can be expected to be as small as 0.02 pH units, and perhaps less." (McLaughlin et al. 2017).
 
-Initially (before 2022-08-09), there was 2 outiers on 209-07-12 and 2018+09-11. On 2022-08-09, code was addeed above to put a no good qf (3) in order to eliminate those two oiutliers. Now we are fine. The average offset is 'r average_offset'.
+Initially (before 2022-08-09), there was 2 outliers on 2019-07-12 and 2018-09-11. On 2022-08-09, code was added above to put a no good qf (3) in order to eliminate those two outliers. Now we are fine. The average offset is `r round(average_offset, digits = 4)`. It considerably improve the plot "pH spectro vs pH seafet (at in situ temperature)".
 
 ```{r seaFET quality control pH 2, echo=FALSE, warning = FALSE, message = FALSE, out.width='100%'}
 # # COMMENTED BECAUSE INT-EXT NOT NEEDED
@@ -2469,19 +2475,23 @@ reg <- ggreg(
 print(reg$plot + xlim(c(7.8, 8.35)) + ylim(c(7.8, 8.35)))
 ```
 
-```{r pHs comparaison sf spectro, echo=FALSE, message= FALSE, warning=FALSE}
+### **Spectro vs seafet**
+```{r, echo=FALSE, message= FALSE, warning=FALSE}
 # Spectro / seafet
 reg <- ggreg(
   xdata = d_all$ph_s_sf_temp_insi,
   ydata = d_all$pHint_tot_sf,
   type = "MA",
   plot = TRUE,
-  title = "pH spectro vs pH seafet (at in situ temperature)",
-  xlab = "pH spectro",
-  ylab = "pH seafet",
+  title = "pH spec. vs pH seafet (at in situ temperature)",
+  xlab = "Spectrophotometric pH",
+  ylab = "SeaFET pH",
   proplot = TRUE
 )
-print(reg$plot + xlim(c(8, 8.25)) + ylim(c(8, 8.25)))
+pHspec_pHcalc <- reg$plot + xlim(c(8.05, 8.20)) + ylim(c(8.05, 8.20))
+p
+#print(reg$plot + xlim(c(8, 8.25)) + ylim(c(8, 8.25)))
+ggsave(filename = "figures/pHspec_pHcalc.png", plot = pHspec_pHcalc)
 ```
 
 ## SNAPO-CO2
@@ -4210,7 +4220,18 @@ ggsave(filename = "figures/ts_boxplots.png", plot = g2)
 #rm(list = ls(pattern = "ts_"), d_bp) #delete big ggplot objects and temp data
 #gc() #garbage collection
 ```
-```{r fig ts and bp for paper}
+
+###Combined plot for paper
+
+```{r, echo=FALSE, message= FALSE, warning=FALSE}
+g <- (at_s / pco2_calc_meas / offset_ph / pHspec_pHcalc)
+g <- g + plot_annotation(tag_levels = 'A')
+ggsave(filename = "figures/pco2_ph_etc.png", plot = g)
+g
+```
+
+###Time series and boxplots for paper
+```{r }
 g <- (ts_sal / ts_temp / ts_pCO2  / ts_pH / ts_at) |
   (ts_sal_bp / ts_temp_bp / ts_pco2_bp / ts_pH_bp / ts_at_bp)
 g <- g + plot_annotation(tag_levels = 'A')
