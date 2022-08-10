@@ -1193,15 +1193,31 @@ reg <- ggreg(
 print(reg$plot)
 ggsave(filename = "figures/at_s.png", plot = reg$plot, width = 25, height = 20, units = "cm")
 
-# Same plot for paper
+# # Same plot for paper
+# at_s <- d_all_at_discrete %>% 
+#   drop_na() %>% 
+#   ggplot(aes(x = sal_fb_mix, y = at)) +
+#   geom_point(col="blue", size = 0.5) +
+#   labs(x="Salinity", y=latex2exp::TeX("Total alkalinity ($\\mu mol\\phantom{x}kg^{-1})$"))  +
+#   stat_smooth(method = "lm", se=FALSE, col = "blue", size = 0.5) +
+#   Mytheme(size_labs = 9)
+# ggsave(filename = "figures/at_s.png", plot = at_s, width = 7, height = 7, units = "cm")
+
+# for paper
 at_s <- d_all_at_discrete %>% 
+  dplyr::select(sal_fb_mix, at) %>% 
   drop_na() %>% 
   ggplot(aes(x = sal_fb_mix, y = at)) +
   geom_point(col="blue", size = 0.5) +
-  labs(x="Salinity", y=TeX("Total alkalinity ($\\mu mol\\phantom{x}kg^{-1})$"))  +
-  stat_smooth(method = "lm", se=FALSE, col = "blue", size = 0.5) +
-  Mytheme(size_labs = 9)
-ggsave(filename = "figures/at_s.png", plot = at_s, width = 7, height = 7, units = "cm")
+  labs(x= latex2exp::TeX("Salinity"),
+       y= latex2exp::TeX("Total alkalinity ($\\mu mol\\phantom{x}kg^{-1})$"))  +
+  ggpmisc::stat_ma_line(method = "lmodel2:OLS", se = FALSE, size = 1) +
+  ggpmisc::stat_ma_eq(method = "lmodel2:OLS", aes(label = after_stat(eq.label))) +
+#stat_smooth(method = "lm", se=FALSE, col = "blue", size = 0.5) +
+  theme_bw() + Mytheme(size_labs = 9) + theme(aspect.ratio=1) + 
+  coord_fixed()
+at_s
+ggsave(filename = "figures/figures/at_s.png", plot = at_s, width = 25, height = 25, units = "cm")
 
 # Salinity is a predictor of AT -> using the regression defined above
 slope_s_at <- slope_s_at <- reg$fit$regression.results[3][[1]][1] # OLS
@@ -1213,7 +1229,7 @@ The relationship between titrated total alkalinity (references) and
 salinity is very good with an r2 of
 `r round(reg$fit$rsquare, digits = 2)`. Need to compare with other relationships from the literature.
 
-```{r plot Discrete salinity vs TA, echo=FALSE, warning=FALSE, message=FALSE, out.width="100%", fig.align="center"}
+```{r plot Discrete salinity vs TA, eval, FALSE, echo=FALSE, warning=FALSE, message=FALSE, out.width="100%", fig.align="center"}
 # PLOT
 print(p_at_s)
 rm(p_at_s)
@@ -1369,9 +1385,9 @@ pco2_calc_meas <- d_all %>%
   labs(x=latex2exp::TeX("Measured $pCO_{2}\\phantom{x}(\\mu atm)$"),
        y= latex2exp::TeX("Calculated $pCO_{2}\\phantom{x}(\\mu atm)$"))  +
   ggpmisc::stat_ma_line(method = "lmodel2:MA", se = FALSE, size = 1) +
-  ggpmisc::stat_ma_eq(aes(label = after_stat(eq.label))) +
-#stat_smooth(method = "lm", se=FALSE, col = "blue", size = 0.5) +
-  theme_bw() + Mytheme(size_labs = 9)
+  ggpmisc::stat_ma_eq(method = "lmodel2:MA", aes(label = after_stat(eq.label))) + geom_abline(slope = 1, intercept = 0, linetype = "dashed") +  
+  theme_bw() + Mytheme(size_labs = 9) + theme(aspect.ratio = 1) +
+  coord_fixed(ratio = 1, xlim = NULL, ylim = NULL, expand = TRUE, clip = "on")
 ggsave(filename = "figures/pco2_calc_meas.png", plot = pco2_calc_meas, width = 25, height = 25, units = "cm")
 ```
 
@@ -1954,10 +1970,10 @@ offset_ph <- ph_sf %>%
   geom_hline(yintercept=-0.02, size=0.3, linetype = "dashed") +
   geom_hline(yintercept=0.02, size=0.3, linetype = "dashed") +
   labs(x = NULL, y=expression(paste(pH[T], " difference")), title = NULL) +
-  Mytheme(size_labs = 12, face_font = "plain") + 
-  #theme(panel.grid.major.x = element_blank(), axis.text.x = element_text(angle = 45, hjust = 1)) +
-  scale_colour_discrete(guide="none")
-ggsave(filename = "figures/offset_ph.png", plot = offset_ph, width = 10, height = 10, units = "cm")
+  Mytheme(size_labs = 9, face_font = "plain")+ theme(aspect.ratio=1)  + 
+  scale_colour_discrete(guide="none") + 
+  coord_fixed()
+ggsave(filename = "figures/offset_ph.png", plot = offset_ph, width = 25, height = 25, units = "cm")
 ```
 Offset between calibrated seaFET data and pH spectro. The offset must be between -0.2 and 0.2 pH units. "differences between calibrated sensor pH values and values obtained from discrete, check samples can be expected to be as small as 0.02 pH units, and perhaps less." (McLaughlin et al. 2017).
 
@@ -2492,6 +2508,21 @@ pHspec_pHcalc <- reg$plot + xlim(c(8.05, 8.20)) + ylim(c(8.05, 8.20))
 p
 #print(reg$plot + xlim(c(8, 8.25)) + ylim(c(8, 8.25)))
 ggsave(filename = "figures/pHspec_pHcalc.png", plot = pHspec_pHcalc)
+
+
+pHspec_pHcalc <- d_all %>% 
+  dplyr::select(ph_s_sf_temp_insi, pHint_tot_sf) %>% 
+  drop_na() %>% 
+  ggplot(aes(x = ph_s_sf_temp_insi, y = pHint_tot_sf)) +
+  geom_point(col="blue", size = 0.5) +
+  labs(x="Spectrophotometric pH",
+       y= "SeaFET pH")  +
+  ggpmisc::stat_ma_line(method = "lmodel2:MA", se = FALSE, size = 1) +
+  ggpmisc::stat_ma_eq(method = "lmodel2:MA", aes(label = after_stat(eq.label), digits = 4)) +
+  geom_abline(slope = 1, intercept = 0, linetype = "dashed") +  
+  theme_bw() + Mytheme(size_labs = 9) + theme(aspect.ratio = 1) +
+  coord_fixed(ratio = 1, xlim = NULL, ylim = NULL, expand = TRUE, clip = "on")
+ggsave(filename = "figures/pHspec_pHcalc.png", plot = pHspec_pHcalc, width = 25, height = 25, units = "cm")
 ```
 
 ## SNAPO-CO2
@@ -4224,7 +4255,7 @@ ggsave(filename = "figures/ts_boxplots.png", plot = g2)
 ###Combined plot for paper
 
 ```{r, echo=FALSE, message= FALSE, warning=FALSE}
-g <- (at_s / pco2_calc_meas / offset_ph / pHspec_pHcalc)
+g <- (at_s | pco2_calc_meas) / (offset_ph | pHspec_pHcalc)
 g <- g + plot_annotation(tag_levels = 'A')
 ggsave(filename = "figures/pco2_ph_etc.png", plot = g)
 g
