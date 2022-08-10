@@ -1212,8 +1212,7 @@ at_s <- d_all_at_discrete %>%
   labs(x= latex2exp::TeX("Salinity"),
        y= latex2exp::TeX("Total alkalinity ($\\mu mol\\phantom{x}kg^{-1})$"))  +
   ggpmisc::stat_ma_line(method = "lmodel2:OLS", se = FALSE, size = 1) +
-  ggpmisc::stat_ma_eq(method = "lmodel2:OLS", aes(label = after_stat(eq.label))) +
-#stat_smooth(method = "lm", se=FALSE, col = "blue", size = 0.5) +
+  #ggpmisc::stat_ma_eq(method = "lmodel2:OLS", aes(label = after_stat(eq.label))) +
   theme_bw() + Mytheme(size_labs = 9) + theme(aspect.ratio=1) + 
   coord_fixed()
 at_s
@@ -1229,10 +1228,10 @@ The relationship between titrated total alkalinity (references) and
 salinity is very good with an r2 of
 `r round(reg$fit$rsquare, digits = 2)`. Need to compare with other relationships from the literature.
 
-```{r plot Discrete salinity vs TA, eval, FALSE, echo=FALSE, warning=FALSE, message=FALSE, out.width="100%", fig.align="center"}
+```{r plot Discrete salinity vs TA, eval=FALSE, echo=FALSE, warning=FALSE, message=FALSE, out.width="100%", fig.align="center"}
 # PLOT
-print(p_at_s)
-rm(p_at_s)
+# print(p_at_s)
+# rm(p_at_s)
 ```
 
 #### **Final TA re-calculated data (Salinity relationship)**
@@ -1385,7 +1384,7 @@ pco2_calc_meas <- d_all %>%
   labs(x=latex2exp::TeX("Measured $pCO_{2}\\phantom{x}(\\mu atm)$"),
        y= latex2exp::TeX("Calculated $pCO_{2}\\phantom{x}(\\mu atm)$"))  +
   ggpmisc::stat_ma_line(method = "lmodel2:MA", se = FALSE, size = 1) +
-  ggpmisc::stat_ma_eq(method = "lmodel2:MA", aes(label = after_stat(eq.label))) + geom_abline(slope = 1, intercept = 0, linetype = "dashed") +  
+  #ggpmisc::stat_ma_eq(method = "lmodel2:MA", aes(label = after_stat(eq.label))) + geom_abline(slope = 1, intercept = 0, linetype = "dashed") +  
   theme_bw() + Mytheme(size_labs = 9) + theme(aspect.ratio = 1) +
   coord_fixed(ratio = 1, xlim = NULL, ylim = NULL, expand = TRUE, clip = "on")
 ggsave(filename = "figures/pco2_calc_meas.png", plot = pco2_calc_meas, width = 25, height = 25, units = "cm")
@@ -2518,7 +2517,7 @@ pHspec_pHcalc <- d_all %>%
   labs(x="Spectrophotometric pH",
        y= "SeaFET pH")  +
   ggpmisc::stat_ma_line(method = "lmodel2:MA", se = FALSE, size = 1) +
-  ggpmisc::stat_ma_eq(method = "lmodel2:MA", aes(label = after_stat(eq.label), digits = 4)) +
+  #ggpmisc::stat_ma_eq(method = "lmodel2:MA", aes(label = after_stat(eq.label), digits = 4)) +
   geom_abline(slope = 1, intercept = 0, linetype = "dashed") +  
   theme_bw() + Mytheme(size_labs = 9) + theme(aspect.ratio = 1) +
   coord_fixed(ratio = 1, xlim = NULL, ylim = NULL, expand = TRUE, clip = "on")
@@ -3412,8 +3411,10 @@ sal_delta_plt <- tmp_delta %>%
   scale_y_continuous("Salinity", limits = c(-1.1, 0.8), expand = c(0, 0)) +
   geom_col(fill="blue") +
   geom_hline(yintercept = 0) +
-  annotate("text", x = 2, y = 0.65, label = substitute("S"["surface"] ~ "> S"["deep"])) +
-  annotate("text", x = 2, y = -0.9, label = substitute("S"["surface"] ~ "< S"["deep"])) +
+  annotate("text", x = 2, y = 0.65, parse = TRUE, label = "S['surface'] > S['deep']") +
+  annotate("text", x = 2, y = -0.9, parse = TRUE, label = "S['surface'] <  S['deep']") +
+#  annotate("text", x = 2, y = 0.65, label = substitute("S"["surface"] ~ "> S"["deep"])) +
+#  annotate("text", x = 2, y = -0.9, label = substitute("S"["surface"] ~ "< S"["deep"])) +
   Mytheme(size_labs = 12) +
   theme(panel.grid.major.x = element_blank(), panel.grid.major.y = element_blank(),
         panel.grid.minor.y = element_blank())
@@ -3463,8 +3464,10 @@ temp_delta_plt <- tmp_delta %>%
   scale_y_continuous("Temperature", limits = c(-2.1, 0.5), expand = c(0, 0)) +
   geom_col(fill="blue") +
   geom_hline(yintercept = 0) +
-  annotate("text", x = 2, y = 0.3, label = substitute("T"["surface"] ~ "> T"["deep"])) +
-  annotate("text", x = 2, y = -1.8, label = substitute("T"["surface"] ~ "< T"["deep"])) +
+  annotate("text", x = 2, y = 0.3, parse = TRUE, label = "S['surface'] > S['deep']") +
+  annotate("text", x = 2, y = -1.8, parse = TRUE, label = "S['surface'] <  S['deep']") +
+  # annotate("text", x = 2, y = 0.3, label = substitute("T"["surface"] ~ "> T"["deep"])) +
+  # annotate("text", x = 2, y = -1.8, label = substitute("T"["surface"] ~ "< T"["deep"])) +
   Mytheme(size_labs = 12) +
   theme(panel.grid.major.x = element_blank(), panel.grid.major.y = element_blank(),
         panel.grid.minor.y = element_blank())
@@ -3525,8 +3528,10 @@ den_delta_plt <- tmp_delta %>%
   scale_y_continuous("Density", limits = c(-1.5, 0.5), expand = c(0, 0)) +
   geom_col(fill="blue") +
   geom_hline(yintercept = 0) +
-  annotate("text", x = 2, y = 0.25, label = substitute("D"["surface"] ~ "> D"["deep"])) +
-  annotate("text", x = 2, y = -1.2, label = substitute("D"["surface"] ~ "< D"["deep"])) +
+  annotate("text", x = 2, y = 0.25, parse = TRUE, label = "S['surface'] > S['deep']") +
+  annotate("text", x = 2, y = -1.2, parse = TRUE, label = "S['surface'] <  S['deep']") +
+  # annotate("text", x = 2, y = 0.25, label = substitute("D"["surface"] ~ "> D"["deep"])) +
+  # annotate("text", x = 2, y = -1.2, label = substitute("D"["surface"] ~ "< D"["deep"])) +
   Mytheme(size_labs = 12) +
   theme(panel.grid.major.x = element_blank(), panel.grid.major.y = element_blank(),
         panel.grid.minor.y = element_blank())
@@ -3578,8 +3583,10 @@ pHinsi_delta_plt <- tmp_delta %>%
   scale_y_continuous(substitute("pH"["T"] ~ "at in situ temp."), limits = c(-0.07, 0.03), expand = c(0, 0)) +
   geom_col(fill="blue") +
   geom_hline(yintercept = 0) +
-  annotate("text", x = 1.5, y = 0.02, label = substitute("pH"["surface"] ~ "> pH"["deep"])) +
-  annotate("text", x = 1.5, y = -0.06, label = substitute("pH"["surface"] ~ "< pH"["deep"])) +
+  annotate("text", x = 1.5, y = 0.02, parse = TRUE, label = "S['surface'] > S['deep']") +
+  annotate("text", x = 1.5, y = -0.06, parse = TRUE, label = "S['surface'] <  S['deep']") +
+  # annotate("text", x = 1.5, y = 0.02, label = substitute("pH"["surface"] ~ "> pH"["deep"])) +
+  # annotate("text", x = 1.5, y = -0.06, label = substitute("pH"["surface"] ~ "< pH"["deep"])) +
   Mytheme(size_labs = 12) +
   theme(panel.grid.major.x = element_blank(), panel.grid.major.y = element_blank(),
         panel.grid.minor.y = element_blank())
@@ -3630,8 +3637,10 @@ pH_delta_plt <- tidyr::drop_na(tmp_delta) %>%
   scale_y_continuous(substitute("pH"["T"] ~ "at 4°C"), limits = c(-0.2, 0.1), expand = c(0, 0)) +
   geom_col(fill="blue") +
   geom_hline(yintercept = 0) +
-  annotate("text", x = 1.5, y = 0.8, label = substitute("pH"["surface"] ~ "> pH"["deep"])) +
-  annotate("text", x = 1.5, y = -0.15, label = substitute("pH"["surface"] ~ "< pH"["deep"])) +
+  annotate("text", x = 1.5, y = 0.8, parse = TRUE, label = "S['surface'] > S['deep']") +
+  annotate("text", x = 1.5, y = -0.15, parse = TRUE, label = "S['surface'] <  S['deep']") +
+  # annotate("text", x = 1.5, y = 0.8, label = substitute("pH"["surface"] ~ "> pH"["deep"])) +
+  # annotate("text", x = 1.5, y = -0.15, label = substitute("pH"["surface"] ~ "< pH"["deep"])) +
   Mytheme(size_labs = 12) +
   theme(panel.grid.major.x = element_blank(), panel.grid.major.y = element_blank(),
         panel.grid.minor.y = element_blank())
@@ -4256,7 +4265,7 @@ ggsave(filename = "figures/ts_boxplots.png", plot = g2)
 
 ```{r, echo=FALSE, message= FALSE, warning=FALSE}
 g <- (at_s | pco2_calc_meas) / (offset_ph | pHspec_pHcalc)
-g <- g + plot_annotation(tag_levels = 'A')
+g <- g + patchwork::plot_annotation(tag_levels = 'A')
 ggsave(filename = "figures/pco2_ph_etc.png", plot = g)
 g
 ```
