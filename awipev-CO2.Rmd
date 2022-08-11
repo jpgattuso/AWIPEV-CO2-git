@@ -1381,12 +1381,14 @@ pco2_calc_meas <- d_all %>%
   drop_na() %>% 
   ggplot(aes(x = pco2_fb_insi_temp, y = pco2_calc_fb_insi_temp)) +
   geom_point(col="blue", size = 0.5) +
+  xlim(180, 420) + ylim(180, 420) +
   labs(x=latex2exp::TeX("Measured $pCO_{2}\\phantom{x}(\\mu atm)$"),
        y= latex2exp::TeX("Calculated $pCO_{2}\\phantom{x}(\\mu atm)$"))  +
   ggpmisc::stat_ma_line(method = "lmodel2:MA", se = FALSE, size = 1) +
-  #ggpmisc::stat_ma_eq(method = "lmodel2:MA", aes(label = after_stat(eq.label))) + geom_abline(slope = 1, intercept = 0, linetype = "dashed") +  
+  #ggpmisc::stat_ma_eq(method = "lmodel2:MA", aes(label = after_stat(eq.label))) +
+  geom_abline(slope = 1, intercept = 0, linetype = "dashed") +  
   theme_bw() + Mytheme(size_labs = 9) + theme(aspect.ratio = 1) +
-  coord_fixed(ratio = 1, xlim = NULL, ylim = NULL, expand = TRUE, clip = "on")
+  coord_fixed(ratio = 1, expand = TRUE, clip = "on")
 ggsave(filename = "figures/pco2_calc_meas.png", plot = pco2_calc_meas, width = 25, height = 25, units = "cm")
 ```
 
@@ -2514,13 +2516,14 @@ pHspec_pHcalc <- d_all %>%
   drop_na() %>% 
   ggplot(aes(x = ph_s_sf_temp_insi, y = pHint_tot_sf)) +
   geom_point(col="blue", size = 0.5) +
+  xlim(8.05, 8.18) + ylim(8.05, 8.18) +
   labs(x="Spectrophotometric pH",
        y= "SeaFET pH")  +
   ggpmisc::stat_ma_line(method = "lmodel2:MA", se = FALSE, size = 1) +
   #ggpmisc::stat_ma_eq(method = "lmodel2:MA", aes(label = after_stat(eq.label), digits = 4)) +
   geom_abline(slope = 1, intercept = 0, linetype = "dashed") +  
   theme_bw() + Mytheme(size_labs = 9) + theme(aspect.ratio = 1) +
-  coord_fixed(ratio = 1, xlim = NULL, ylim = NULL, expand = TRUE, clip = "on")
+  coord_fixed(ratio = 1, expand = TRUE, clip = "on")
 ggsave(filename = "figures/pHspec_pHcalc.png", plot = pHspec_pHcalc, width = 25, height = 25, units = "cm")
 ```
 
