@@ -1219,21 +1219,49 @@ salinity is very good with an r2 of
 `r round(reg$fit$rsquare, digits = 2)` (`r N = reg$fit$n`). Need to compare with other relationships from the literature.
 
 #### **Is there a seasonal change in the AT vs S relationship**
-```{r, eval=FALSE, echo=FALSE, warning=FALSE, message=FALSE, out.width="100%", fig.align="center"}
-tmp <- d_all_at_discrete %>% 
+```{r, eval=TRUE, echo=FALSE, warning=FALSE, message=FALSE, out.width="100%", fig.align="center"}
+d_all_at_discrete <- d_all_at_discrete %>% 
   dplyr::select(sal_fb_mix, at) %>% 
   drop_na() %>% 
-  dplyr::mutate(cutoff = ifelse(sal_fb_mix < 34.5, "below", "above")) %>% 
-  ggplot(aes(x = sal_fb_mix, y = at)) +
-  geom_point(col="blue", size = 0.5) +
-  facet_grid(cutoff ~.) +
-  labs(x= latex2exp::TeX("Salinity"),
-       y= latex2exp::TeX("Total alkalinity ($\\mu mol\\phantom{x}kg^{-1})$"))  +
-  ggpmisc::stat_ma_line(method = "lmodel2:OLS", se = FALSE, size = 1) +
-  ggpmisc::stat_ma_eq(method = "lmodel2:OLS", aes(label = after_stat(eq.label))) +
-  theme_bw() + Mytheme(size_labs = 9) + theme(aspect.ratio=1) + 
-  coord_fixed()
+  dplyr::mutate(cutoff = ifelse(sal_fb_mix < 34.5, "below", "above"))
+below <- d_all_at_discrete %>% 
+  dplyr::filter(cutoff == "below")
+reg_below <- ggreg(
+  xdata = below$sal_fb_mix,
+  ydata = below$at,
+  type = "OLS",
+  plot = TRUE,
+  title = "Discrete total alkalinity vs salinity below 34.5",
+  #subtitle = "",
+  xlab = "Salinity",
+  ylab = TeX("Total alkalinity ($\\mu mol\\phantom{x}kg^{-1})$"),
+  proplot = TRUE,
+  #ylim(c(30.5,35.5)) + xlim(c(28,35.5)),
+  coord_fixed(ratio = 1)
+)
+print(reg_below$plot)
+
+above <- d_all_at_discrete %>% 
+  dplyr::filter(cutoff == "above")
+reg_above <- ggreg(
+  xdata = above$sal_fb_mix,
+  ydata = above$at,
+  type = "OLS",
+  plot = TRUE,
+  title = "Discrete total alkalinity vs salinity above 34.5",
+  #subtitle = "",
+  xlab = "Salinity",
+  ylab = TeX("Total alkalinity ($\\mu mol\\phantom{x}kg^{-1})$"),
+  proplot = TRUE,
+  #ylim(c(30.5,35.5)) + xlim(c(28,35.5)),
+  coord_fixed(ratio = 1)
+)
+print(reg_above$plot)
+g <- reg_below$plot | reg_above$plot
+g
 ```
+
+Splitting the data below and above salinity 34.5, as done by Nondal et al. (2009), does not prove useful (data not shown). It degrades r2 (0.74 and 0.3 vs 0.81), degrades rmse or marginally improves the rmse (19 and 13.6 vs 16.8).
 
 #### **Final TA re-calculated data (Salinity relationship)**
 
