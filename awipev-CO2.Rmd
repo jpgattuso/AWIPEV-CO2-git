@@ -96,15 +96,14 @@ qq <- function (data, digits) {
 # function regression plot with equation (MA or OLS) in title
 ggreg <- function (xdata, ydata, type = "OLS", plot = TRUE, title = "title", xlab = "x", ylab = "y", proplot = TRUE, ...) 
   { # x and y are the names of the variables
-  fit_data <- tibble(xdata, ydata)
-  colnames(fit_data) = c("xdata", "ydata")
+  fit_data <- tibble(xdata = xdata, ydata = ydata)
   fit <- print(lmodel2::lmodel2(ydata ~ xdata))
 if (type == "OLS") ty = 1 #one selects OLS only
 if (type == "MA") ty = 2 #one selects MA only
 intercept <- fit$regression.results$Intercept[ty]
 slope <- fit$regression.results$Slope[ty]
-predicted <- fit$regression.results$Intercept[1] + xdata * fit$regression.results$Slope[1]
-error <- xdata - predicted
+predicted <- intercept + xdata * slope
+error <- ydata - predicted
 if (plot == TRUE) {
   plt <- ggplot(data = fit_data, aes(x = xdata, y = ydata)) + 
   geom_point(na.rm = TRUE, size = 2, colour = "blue") +
@@ -1166,7 +1165,7 @@ step changes. Last analyser repaired by Contros was installed back in
 the FB on 2018-07-31. This was the 3rd analyser on site. Even with this
 instrument, data collection didn't show satisfaction.
 
-### **Discrete total alkalinity (reference) vs salinity relationship**
+### **Discrete total alkalinity vs salinity **
 
 In the previous part, missing TA were interpolated with a linear model.
 This does not reflect the natural variability of TA. For this reason,
@@ -1174,12 +1173,14 @@ missing TA is now calculated from salinity data by making a relationship
 between the same reference TA samples as in the previous part and
 salinity data.
 
-```{r Discrete salinity vs TA, echo=FALSE, fig.align="center", message=FALSE, warning=FALSE, out.width="100%"}
+```{r, echo=FALSE, fig.align="center", message=FALSE, warning=FALSE, out.width="100%"}
 d_all_at_discrete <- d_all %>% #  To remove an outlier in red
-  dplyr::select(datetime, monthd, closest_datetime, at, sal_fb_mix)
+  dplyr::select(at, sal_fb_mix) %>% 
+  drop_na()
+  #dplyr::select(datetime, monthd, closest_datetime, at, sal_fb_mix)
 reg <- ggreg(
-  xdata = d_all$sal_fb_mix,
-  ydata = d_all$at,
+  xdata = d_all_at_discrete$sal_fb_mix,
+  ydata = d_all_at_discrete$at,
   type = "OLS",
   plot = TRUE,
   title = "Discrete total alkalinity vs salinity",
@@ -1191,17 +1192,7 @@ reg <- ggreg(
   coord_fixed(ratio = 1)
 )
 print(reg$plot)
-ggsave(filename = "figures/at_s.png", plot = reg$plot, width = 25, height = 20, units = "cm")
-
-# # Same plot for paper
-# at_s <- d_all_at_discrete %>% 
-#   drop_na() %>% 
-#   ggplot(aes(x = sal_fb_mix, y = at)) +
-#   geom_point(col="blue", size = 0.5) +
-#   labs(x="Salinity", y=latex2exp::TeX("Total alkalinity ($\\mu mol\\phantom{x}kg^{-1})$"))  +
-#   stat_smooth(method = "lm", se=FALSE, col = "blue", size = 0.5) +
-#   Mytheme(size_labs = 9)
-# ggsave(filename = "figures/at_s.png", plot = at_s, width = 7, height = 7, units = "cm")
+#ggsave(filename = "figures/at_s.png", plot = reg$plot, width = 25, height = 20, units = "cm")
 
 # for paper
 at_s <- d_all_at_discrete %>% 
@@ -1227,10 +1218,21 @@ The relationship between titrated total alkalinity (references) and
 salinity is very good with an r2 of
 `r round(reg$fit$rsquare, digits = 2)` (`r N = reg$fit$n`). Need to compare with other relationships from the literature.
 
-```{r plot Discrete salinity vs TA, eval=FALSE, echo=FALSE, warning=FALSE, message=FALSE, out.width="100%", fig.align="center"}
-# PLOT
-# print(p_at_s)
-# rm(p_at_s)
+#### **Is there a seasonal change in the AT vs S relationship**
+```{r, eval=FALSE, echo=FALSE, warning=FALSE, message=FALSE, out.width="100%", fig.align="center"}
+tmp <- d_all_at_discrete %>% 
+  dplyr::select(sal_fb_mix, at) %>% 
+  drop_na() %>% 
+  dplyr::mutate(cutoff = ifelse(sal_fb_mix < 34.5, "below", "above")) %>% 
+  ggplot(aes(x = sal_fb_mix, y = at)) +
+  geom_point(col="blue", size = 0.5) +
+  facet_grid(cutoff ~.) +
+  labs(x= latex2exp::TeX("Salinity"),
+       y= latex2exp::TeX("Total alkalinity ($\\mu mol\\phantom{x}kg^{-1})$"))  +
+  ggpmisc::stat_ma_line(method = "lmodel2:OLS", se = FALSE, size = 1) +
+  ggpmisc::stat_ma_eq(method = "lmodel2:OLS", aes(label = after_stat(eq.label))) +
+  theme_bw() + Mytheme(size_labs = 9) + theme(aspect.ratio=1) + 
+  coord_fixed()
 ```
 
 #### **Final TA re-calculated data (Salinity relationship)**
