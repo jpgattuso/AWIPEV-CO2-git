@@ -1966,12 +1966,12 @@ dyOptions(
 offset_ph <- ph_sf %>% 
   drop_na() %>% 
   ggplot() +
-  geom_point(aes(x=datetime, y=diff_spec_sf, color="blue"), size=2) +
+  geom_point(aes(x=datetime, y=diff_spec_sf), size=1, color="blue") +
   geom_hline(yintercept=0, size=0.3) +
   geom_hline(yintercept=-0.02, size=0.3, linetype = "dashed") +
   geom_hline(yintercept=0.02, size=0.3, linetype = "dashed") +
-  labs(x = NULL, y=expression(paste(pH[T], " difference")), title = NULL) +
-  Mytheme(size_labs = 9, face_font = "plain")+ theme(aspect.ratio=1)  + 
+  labs(x = "Date", y=expression(paste(pH[T], " difference")), title = NULL) +
+  Mytheme(size_labs = 9, face_font = "plain") + theme(aspect.ratio=1)  + 
   scale_colour_discrete(guide="none") + 
   coord_fixed()
 ggsave(filename = "figures/offset_ph.png", plot = offset_ph, width = 25, height = 25, units = "cm")
