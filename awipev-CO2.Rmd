@@ -1215,7 +1215,6 @@ at_s <- d_all_at_discrete %>%
   #ggpmisc::stat_ma_eq(method = "lmodel2:OLS", aes(label = after_stat(eq.label))) +
   theme_bw() + Mytheme(size_labs = 9) + theme(aspect.ratio=1) + 
   coord_fixed()
-at_s
 ggsave(filename = "figures/figures/at_s.png", plot = at_s, width = 25, height = 25, units = "cm")
 
 # Salinity is a predictor of AT -> using the regression defined above
@@ -1226,7 +1225,7 @@ d_all$at_calc <- slope_s_at * d_all$sal_fb_mix + intercept_s_at
 
 The relationship between titrated total alkalinity (references) and
 salinity is very good with an r2 of
-`r round(reg$fit$rsquare, digits = 2)`. Need to compare with other relationships from the literature.
+`r round(reg$fit$rsquare, digits = 2)` (`r N = reg$fit$n`). Need to compare with other relationships from the literature.
 
 ```{r plot Discrete salinity vs TA, eval=FALSE, echo=FALSE, warning=FALSE, message=FALSE, out.width="100%", fig.align="center"}
 # PLOT
@@ -1396,7 +1395,7 @@ The relationship between the measured (Contros) and calculated pCO2
 (blue line) is relatively poor. It is far from the 1:1 relationship
 (black dashed line). The slope is
 `r signif(reg$fit$regression.results[2,3], 3)`) and its 95% confidence
-interval does include 1; r2 is `r round(reg$fit$rsquare, digits=2)`.
+interval does include 1; r2 is `r round(reg$fit$rsquare, digits=2)  (`r N = reg$fit$n`)`.
 
 **Figure legend**: pCO2 calculated from AT and CT as a function of pCO2
 measured using a Contros sensor. All data are normalized at in situ
@@ -2526,6 +2525,11 @@ pHspec_pHcalc <- d_all %>%
   coord_fixed(ratio = 1, expand = TRUE, clip = "on")
 ggsave(filename = "figures/pHspec_pHcalc.png", plot = pHspec_pHcalc, width = 25, height = 25, units = "cm")
 ```
+The relationship between spectrophotometric pH and SeaFET pH) and 
+(blue line) is relatively good The slope is
+`r signif(reg$fit$regression.results[2,3], 3)`) and its 95% confidence
+interval does include 1; r2 is `r round(reg$fit$rsquare, digits=2)  (`r N = reg$fit$n`)`.
+
 
 ## SNAPO-CO2
 
