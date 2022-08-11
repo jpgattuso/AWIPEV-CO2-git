@@ -1239,8 +1239,6 @@ reg_below <- ggreg(
   #ylim(c(30.5,35.5)) + xlim(c(28,35.5)),
   coord_fixed(ratio = 1)
 )
-print(reg_below$plot)
-
 above <- d_all_at_discrete %>% 
   dplyr::filter(cutoff == "above")
 reg_above <- ggreg(
@@ -1256,7 +1254,6 @@ reg_above <- ggreg(
   #ylim(c(30.5,35.5)) + xlim(c(28,35.5)),
   coord_fixed(ratio = 1)
 )
-print(reg_above$plot)
 g <- reg_below$plot | reg_above$plot
 g
 ```
@@ -2534,13 +2531,12 @@ reg <- ggreg(
   ylab = "SeaFET pH",
   proplot = TRUE
 )
-pHspec_pHcalc <- reg$plot + xlim(c(8.05, 8.20)) + ylim(c(8.05, 8.20))
-p
-#print(reg$plot + xlim(c(8, 8.25)) + ylim(c(8, 8.25)))
-ggsave(filename = "figures/pHspec_pHcalc.png", plot = pHspec_pHcalc)
+pHspec_pHseafet <- reg$plot + xlim(c(8.05, 8.20)) + ylim(c(8.05, 8.20))
+pHspec_pHseafet
+#ggsave(filename = "figures/pHspec_pHcalc.png", plot = pHspec_pHcalc)
 
 
-pHspec_pHcalc <- d_all %>% 
+pHspec_pHseafet <- d_all %>% 
   dplyr::select(ph_s_sf_temp_insi, pHint_tot_sf) %>% 
   drop_na() %>% 
   ggplot(aes(x = ph_s_sf_temp_insi, y = pHint_tot_sf)) +
@@ -2553,13 +2549,23 @@ pHspec_pHcalc <- d_all %>%
   geom_abline(slope = 1, intercept = 0, linetype = "dashed") +  
   theme_bw() + Mytheme(size_labs = 9) + theme(aspect.ratio = 1) +
   coord_fixed(ratio = 1, expand = TRUE, clip = "on")
-ggsave(filename = "figures/pHspec_pHcalc.png", plot = pHspec_pHcalc, width = 25, height = 25, units = "cm")
+ggsave(filename = "figures/pHspec_pHseafet.png", plot = pHspec_pHseafet, width = 25, height = 25, units = "cm")
 ```
 The relationship between spectrophotometric pH and SeaFET pH) and 
 (blue line) is relatively good The slope is
 `r signif(reg$fit$regression.results[2,3], 3)`) and its 95% confidence
 interval does include 1; r2 is `r round(reg$fit$rsquare, digits=2)  (`r N = reg$fit$n`)`.
 
+### **Spectro vs calculated AT-CT**
+```{r, eval=FALSE, echo=FALSE, message= FALSE, warning=FALSE}
+# do not run because only 2 data points available...
+dplyr::select(d_all, datetime, ph_s_sf_temp_4) %>% drop_na()
+dplyr::select(d_all, datetime, pH_calc_fb_temp_4) %>% dplyr::filter(datetime > as.POSIXct ("2017-08-23")) %>% drop_na()
+
+tmp <- d_all %>% 
+  dplyr::select(ph_s_sf_temp_4, pH_calc_fb_temp_4) %>% 
+  drop_na()
+```
 
 ## SNAPO-CO2
 
@@ -4301,7 +4307,7 @@ ggsave(filename = "figures/ts_boxplots.png", plot = g2)
 ###Combined plot for paper
 
 ```{r, echo=FALSE, message= FALSE, warning=FALSE}
-g <- (at_s | pco2_calc_meas) / (offset_ph | pHspec_pHcalc)
+g <- (at_s | pco2_calc_meas) / (offset_ph | pHspec_pHseafet)
 g <- g + patchwork::plot_annotation(tag_levels = 'A')
 ggsave(filename = "figures/pco2_ph_etc.png", plot = g)
 g
