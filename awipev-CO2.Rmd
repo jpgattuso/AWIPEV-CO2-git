@@ -1422,7 +1422,7 @@ The relationship between the measured (Contros) and calculated pCO2
 (blue line) is relatively poor. It is far from the 1:1 relationship
 (black dashed line). The slope is
 `r signif(reg$fit$regression.results[2,3], 3)`) and its 95% confidence
-interval does include 1; r2 is `r round(reg$fit$rsquare, digits=2)  (`r N = reg$fit$n`)`.
+interval does include 1; r2 is `r round(reg$fit$rsquare, digits=2)`  (`r N = reg$fit$n`)`.
 
 **Figure legend**: pCO2 calculated from AT and CT as a function of pCO2
 measured using a Contros sensor. All data are normalized at in situ
@@ -2554,7 +2554,7 @@ ggsave(filename = "figures/pHspec_pHseafet.png", plot = pHspec_pHseafet, width =
 The relationship between spectrophotometric pH and SeaFET pH) and 
 (blue line) is relatively good The slope is
 `r signif(reg$fit$regression.results[2,3], 3)`) and its 95% confidence
-interval does include 1; r2 is `r round(reg$fit$rsquare, digits=2)  (`r N = reg$fit$n`)`.
+interval does include 1; r2 is `r round(reg$fit$rsquare, digits=2)`  (`r N = reg$fit$n`)`.
 
 ### **Spectro vs calculated AT-CT**
 ```{r, eval=FALSE, echo=FALSE, message= FALSE, warning=FALSE}
@@ -3407,7 +3407,7 @@ for pH calculated from AT and CT according to seacarb.
 
 ## Stratification
 ```{r, echo=FALSE, message= FALSE, warning=FALSE}
-# # we look at the distribution of data
+# we look at the distribution of data
 depth_labels <- c("0-2", "2-4", "4-6", "6-8", ">8")
 # we look at salinity all depths
 tmp <- d_all %>% 
@@ -3456,8 +3456,6 @@ sal_delta_plt <- tmp_delta %>%
   geom_hline(yintercept = 0) +
   annotate("text", x = 2, y = 0.65, parse = TRUE, label = "S['surface'] > S['deep']") +
   annotate("text", x = 2, y = -0.9, parse = TRUE, label = "S['surface'] <  S['deep']") +
-#  annotate("text", x = 2, y = 0.65, label = substitute("S"["surface"] ~ "> S"["deep"])) +
-#  annotate("text", x = 2, y = -0.9, label = substitute("S"["surface"] ~ "< S"["deep"])) +
   Mytheme(size_labs = 12) +
   theme(panel.grid.major.x = element_blank(), panel.grid.major.y = element_blank(),
         panel.grid.minor.y = element_blank())
@@ -3507,10 +3505,8 @@ temp_delta_plt <- tmp_delta %>%
   scale_y_continuous("Temperature", limits = c(-2.1, 0.5), expand = c(0, 0)) +
   geom_col(fill="blue") +
   geom_hline(yintercept = 0) +
-  annotate("text", x = 2, y = 0.3, parse = TRUE, label = "S['surface'] > S['deep']") +
-  annotate("text", x = 2, y = -1.8, parse = TRUE, label = "S['surface'] <  S['deep']") +
-  # annotate("text", x = 2, y = 0.3, label = substitute("T"["surface"] ~ "> T"["deep"])) +
-  # annotate("text", x = 2, y = -1.8, label = substitute("T"["surface"] ~ "< T"["deep"])) +
+  annotate("text", x = 2, y = 0.3, parse = TRUE, label = "T['surface'] > T['deep']") +
+  annotate("text", x = 2, y = -1.8, parse = TRUE, label = "T['surface'] <  T['deep']") +
   Mytheme(size_labs = 12) +
   theme(panel.grid.major.x = element_blank(), panel.grid.major.y = element_blank(),
         panel.grid.minor.y = element_blank())
@@ -3571,10 +3567,8 @@ den_delta_plt <- tmp_delta %>%
   scale_y_continuous("Density", limits = c(-1.5, 0.5), expand = c(0, 0)) +
   geom_col(fill="blue") +
   geom_hline(yintercept = 0) +
-  annotate("text", x = 2, y = 0.25, parse = TRUE, label = "S['surface'] > S['deep']") +
-  annotate("text", x = 2, y = -1.2, parse = TRUE, label = "S['surface'] <  S['deep']") +
-  # annotate("text", x = 2, y = 0.25, label = substitute("D"["surface"] ~ "> D"["deep"])) +
-  # annotate("text", x = 2, y = -1.2, label = substitute("D"["surface"] ~ "< D"["deep"])) +
+  annotate("text", x = 2, y = 0.25, parse = TRUE, label = "D['surface'] > D['deep']") +
+  annotate("text", x = 2, y = -1.2, parse = TRUE, label = "D['surface'] <  D['deep']") +
   Mytheme(size_labs = 12) +
   theme(panel.grid.major.x = element_blank(), panel.grid.major.y = element_blank(),
         panel.grid.minor.y = element_blank())
@@ -3595,18 +3589,22 @@ print(p)
 summary(aov(tmp$pHint_tot_sf ~ tmp$depth_group * tmp$montht))
 
 # we look at pHint_tot_sf 0 to 4 m vs more than 8 m
-tmp <- d_all %>% 
+tmp <- d_all %>%
   dplyr::select(montht, pHint_tot_sf, depth_group) %>%
-  dplyr::mutate(depth_group2 = as.factor(case_when(depth_group == '0-2' | depth_group == '2-4' ~ '0-4',
-                                                   depth_group == '>8' ~ '8-12'))) %>% 
-  dplyr::filter(depth_group2 == '0-4' | depth_group2 == '8-12') %>% 
+  dplyr::mutate(depth_group2 = as.factor(
+    case_when(
+      depth_group == '0-2' | depth_group == '2-4' ~ '0-4',
+      depth_group == '>8' ~ '8-12'
+    )
+  )) %>%
+  dplyr::filter(depth_group2 == '0-4' | depth_group2 == '8-12') %>%
   dplyr::group_by(depth_group2, montht)
 summary(aov(tmp$pHint_tot_sf ~ tmp$depth_group2 * tmp$montht))
 
-tmp_delta <- tmp %>% 
-  group_by(depth_group2, montht) %>% 
-  dplyr::summarise(pH_tot_sf_med = median(pHint_tot_sf, na.rm = TRUE)) %>% 
-  tidyr::pivot_wider(names_from = depth_group2, values_from = pH_tot_sf_med) %>% 
+tmp_delta <- tmp %>%
+  group_by(depth_group2, montht) %>%
+  dplyr::summarise(pH_tot_sf_med = median(pHint_tot_sf, na.rm = TRUE)) %>%
+  tidyr::pivot_wider(names_from = depth_group2, values_from = pH_tot_sf_med) %>%
   dplyr::rename(median0_4m = "0-4",
                 median8_12m = "8-12") %>%   dplyr::mutate(pH_tot_sf_med_delta = median0_4m - median8_12m)
 kable(tmp_delta, digits = 3, caption = "Median seafet pH with (median0_4m - median8_12m)")
@@ -3621,15 +3619,12 @@ print(p)
 
 pHinsi_delta_plt <- tmp_delta %>% 
   ggplot(aes(x=montht, y=pH_tot_sf_med_delta)) +
-  #labs(y = substitute("pH"["T"] ~ "at in situ temp."), x = "Month") +
   scale_x_discrete("Month") +
   scale_y_continuous(substitute("pH"["T"] ~ "at in situ temp."), limits = c(-0.07, 0.03), expand = c(0, 0)) +
   geom_col(fill="blue") +
   geom_hline(yintercept = 0) +
-  annotate("text", x = 1.5, y = 0.02, parse = TRUE, label = "S['surface'] > S['deep']") +
-  annotate("text", x = 1.5, y = -0.06, parse = TRUE, label = "S['surface'] <  S['deep']") +
-  # annotate("text", x = 1.5, y = 0.02, label = substitute("pH"["surface"] ~ "> pH"["deep"])) +
-  # annotate("text", x = 1.5, y = -0.06, label = substitute("pH"["surface"] ~ "< pH"["deep"])) +
+  annotate("text", x = 1.5, y = 0.02, parse = TRUE, label = "pH['surface'] > pH['deep']") +
+  annotate("text", x = 1.5, y = -0.06, parse = TRUE, label = "pH['surface'] <  pH['deep']") +
   Mytheme(size_labs = 12) +
   theme(panel.grid.major.x = element_blank(), panel.grid.major.y = element_blank(),
         panel.grid.minor.y = element_blank())
@@ -3675,15 +3670,12 @@ print(p)
 
 pH_delta_plt <- tidyr::drop_na(tmp_delta) %>% 
   ggplot(aes(x=montht, y=pH_tot_sf_med_delta)) +
-  #labs(y = substitute("pH"["T"] ~ "at in situ temp."), x = "Month") +
   scale_x_discrete("Month", expand = c(0, 0)) +
-  scale_y_continuous(substitute("pH"["T"] ~ "at 4°C"), limits = c(-0.2, 0.1), expand = c(0, 0)) +
+  scale_y_continuous(substitute("pH"["T"] ~ "at 4°C"), limits = c(-0.2, 0.2), expand = c(0, 0)) +
   geom_col(fill="blue") +
   geom_hline(yintercept = 0) +
-  annotate("text", x = 1.5, y = 0.8, parse = TRUE, label = "S['surface'] > S['deep']") +
-  annotate("text", x = 1.5, y = -0.15, parse = TRUE, label = "S['surface'] <  S['deep']") +
-  # annotate("text", x = 1.5, y = 0.8, label = substitute("pH"["surface"] ~ "> pH"["deep"])) +
-  # annotate("text", x = 1.5, y = -0.15, label = substitute("pH"["surface"] ~ "< pH"["deep"])) +
+  annotate("text", x = 1.5, y = 0.8, parse = TRUE, label = "pH['surface'] > pH['deep']") +
+  annotate("text", x = 1.5, y = -0.15, parse = TRUE, label = "pH['surface'] < pH['deep']") +
   Mytheme(size_labs = 12) +
   theme(panel.grid.major.x = element_blank(), panel.grid.major.y = element_blank(),
         panel.grid.minor.y = element_blank())
