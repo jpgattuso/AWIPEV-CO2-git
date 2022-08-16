@@ -3893,11 +3893,36 @@ calculated by day, then by month, then by year.
 seaFET pH is significantly different at the surface and depth. It should
 therefore be the same for pCO2.
 
-Let's look first at the stratification (salinity, temperature and
-density).
+Let's look at the stratification tab above (salinity, temperature, density and pH).
 
-```{r atmospheric CO2 Zeppelin, echo=FALSE, message= FALSE, warning=FALSE}
+
+## pCO2 from pH and AT 0-4m
+If one calculates pCO2 from seafet pH and AT (from salinity) between 0-4 m, do we get better estimates of air-sea CO2 fluxes?
+
+```{r}
+size_point <- 0.3 # size of data points
+alpha <- 1 #transparency
+size_labs <- 6 # font size labels
+
+tmp <- d_all %>% 
+  dplyr::select(datetime, pHint_tot_sf, sal_insitu_ctd, temp_insitu_ctd) %>% 
+  drop_na() %>% 
+  dplyr::mutate(at_0_4m = (intercept_s_at + slope_s_at * sal_insitu_ctd) * 1e-6,
+                pco2_0_4m = seacarb::carb(flag=8, var1=pHint_tot_sf, var2=tmp$at_0_4m)$pCO2)
+ts_pCO2_calc <- tmp %>%
+  ggplot() +
+  scale_x_datetime(breaks = date_breaks("1 year"), labels = date_format("%Y")) +
+  geom_point(aes(x = datetime, y = pco2_0_4m), 
+             colour="blue", alpha = alpha, na.rm = TRUE, size = size_point) +
+  labs(title=expression(paste(pCO[2], "calc at 0-4 m and in situ temperature")),
+       x="", y=TeX("pCO$_2$ ($\\mu atm$)")) +
+  Mytheme(size_labs = size_labs)
+ts_pCO2_calc
+```
+
+
 ## Atmospheric CO2 Zeppelin
+```{r atmospheric CO2 Zeppelin, echo=FALSE, message= FALSE, warning=FALSE}
 # downloaded 2020-08-19 from https://gaw.kishou.go.jp/search/file/0054-6001-1001-01-01-9999
 # value:units : ppm
 # value:long_name : measured_mole_fraction_of_trace_gas_in_dry_air
