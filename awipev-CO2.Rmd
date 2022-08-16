@@ -3732,63 +3732,109 @@ pH_delta_plt <- tidyr::drop_na(tmp_delta) %>%
   theme(panel.grid.major.x = element_blank(), panel.grid.major.y = element_blank(),
         panel.grid.minor.y = element_blank())
 
-# we look at pCO2 normalized at 4°C at all depths
+# we look at pCO2  at all depths
 # calculate fCO2 from pH and salinity-derived AT
-  dplyr::select(datetime, depth, pHint_tot_sf, sal_insitu_ctd, temp_insitu_ctd) %>% 
-  drop_na() %>% 
-  dplyr::mutate(at_0_4m = (intercept_s_at + slope_s_at * sal_insitu_ctd) * 1e-6,
-                pco2_0_4m = seacarb::carb(flag=8, var1=pHint_tot_sf, var2=tmp$at_0_4m)$pCO2)
+tmp <- d_all %>%
+  dplyr::select(datetime,
+                montht,
+                depth_group,
+                depth,
+                pHint_tot_sf,
+                sal_insitu_ctd,
+                temp_insitu_ctd) %>%
+  drop_na() %>%
+  dplyr::mutate(
+    at_sf = (intercept_s_at + slope_s_at * sal_insitu_ctd) * 1e-6,
+    fco2_sf = seacarb::carb(
+      flag = 8,
+      var1 = pHint_tot_sf,
+      var2 = at_sf,
+      S = sal_insitu_ctd,
+      T = temp_insitu_ctd,
+      Patm = 1,
+      P = depth / 10,
+      Pt = 0,
+      Sit = 0,
+      k1k2 = "l",
+      kf = "dg",
+      ks = "d",
+      pHscale = "T",
+      b = "u74"
+    )$fCO2
+  ) %>% 
+  dplyr::select(datetime, fco2_sf)
+d_all <- left_join(d_all, tmp, by = "datetime")
 tmp <- d_all %>% 
-  dplyr::select(montht, pHint_tot_sf_temp_4, depth_group) %>%
+  dplyr::select(montht, fco2_sf, depth_group) %>%
   tidyr::drop_na() %>% 
   dplyr::filter(depth_group != "NA") %>% 
   group_by(depth_group, montht)
 p <- tmp %>% 
-  ggplot(aes(x=as.factor(depth_group), y = pHint_tot_sf_temp_4)) +
+  ggplot(aes(x=as.factor(depth_group), y = fco2_sf)) +
   geom_boxplot(notch=FALSE, size=0.2, fill="grey50", outlier.color = "blue", outlier.size = 0.3) +
-  labs(title = "pHint_tot_sf at 4°C vs depth", x = "Depth (m)", y= "pH at 4°C (units)") +
+  labs(title = "fco2_sf vs depth", x = "Depth (m)", y= "fCO2 (uatm)") +
   scale_x_discrete(labels = depth_labels) +
   facet_wrap(vars(montht), scale = "free_y")
 print(p)
-summary(aov(tmp$pHint_tot_sf_temp_4 ~ tmp$depth_group * tmp$montht))
+summary(aov(tmp$fco2_sf ~ tmp$depth_group * tmp$montht))
 
-# we look at pHint_tot_sf normalized at 4°C  0 to 4 m vs more than 8 m
-tmp <- d_all %>% 
-  dplyr::select(montht, pHint_tot_sf_temp_4, depth_group) %>%
-  dplyr::mutate(depth_group2 = as.factor(case_when(depth_group == '0-2' | depth_group == '2-4' ~ '0-4',
-                                                   depth_group == '>8' ~ '8-12'))) %>% 
-  dplyr::filter(depth_group2 == '0-4' | depth_group2 == '8-12') %>% 
+# we look at fCO2 0 to 4 m vs more than 8 m
+tmp <- d_all %>%
+  dplyr::select(montht, fco2_sf, depth_group) %>%
+  dplyr::mutate(depth_group2 = as.factor(
+    case_when(
+      depth_group == '0-2' | depth_group == '2-4' ~ '0-4',
+      depth_group == '>8' ~ '8-12'
+    )
+  )) %>%
+  dplyr::filter(depth_group2 == '0-4' | depth_group2 == '8-12') %>%
   dplyr::group_by(depth_group2, montht)
-summary(aov(tmp$pHint_tot_sf_temp_4 ~ tmp$depth_group2 * tmp$montht))
+summary(aov(tmp$fco2_sf ~ tmp$depth_group2 * tmp$montht))
 
-tmp_delta <- tmp %>% 
-  group_by(depth_group2, montht) %>% 
-  dplyr::summarise(pH_tot_sf_med = median(pHint_tot_sf_temp_4, na.rm = TRUE)) %>% 
-  tidyr::pivot_wider(names_from = depth_group2, values_from = pH_tot_sf_med) %>% 
+tmp_delta <- tmp %>%
+  group_by(depth_group2, montht) %>%
+  dplyr::summarise(fco2_sf_med = median(fco2_sf, na.rm = TRUE)) %>%
+  tidyr::pivot_wider(names_from = depth_group2, values_from = fco2_sf_med) %>%
   dplyr::rename(median0_4m = "0-4",
-                median8_12m = "8-12") %>%   dplyr::mutate(pH_tot_sf_med_delta = median0_4m - median8_12m)
-kable(tmp_delta, digits = 3, caption = "Median seafet pH at 4°C with (median0_4m - median8_12m)")
+                median8_12m = "8-12") %>%   dplyr::mutate(fco2_sf_med_delta = median0_4m - median8_12m)
+kable(tmp_delta, digits = 3, caption = "Median seafet fCO2 with (median0_4m - median8_12m)")
 
 p <- tidyr::drop_na(tmp) %>% 
-  ggplot(aes(x=as.factor(depth_group2), y = pHint_tot_sf_temp_4)) +
+  ggplot(aes(x=as.factor(depth_group2), y = fco2_sf)) +
   geom_boxplot(notch=FALSE, size=0.2, fill="grey50", outlier.color = "blue", outlier.size = 0.3) +
   labs(title = "pH at 4°C vs depth", x = "Depth (m)", y= "pHint_tot_sf") +
   facet_wrap(vars(montht), scale = "free_y")
 print(p)
 
-pH_delta_plt <- tidyr::drop_na(tmp_delta) %>% 
-  ggplot(aes(x=montht, y=pH_tot_sf_med_delta)) +
+fco2_delta_plt <- tmp_delta %>%
+  ggplot(aes(x = montht, y = fco2_sf_med_delta)) +
   scale_x_discrete("Month", expand = c(0, 0)) +
-  scale_y_continuous(substitute("pH"["T"] ~ "at 4°C"), limits = c(-0.2, 0.2), expand = c(0, 0)) +
-  geom_col(fill="blue") +
+  scale_y_continuous(substitute("fCO"["2"]), limits = c(-45, 10)) +
+  geom_col(fill = "blue") +
   geom_hline(yintercept = 0) +
-  annotate("text", x = 1.5, y = 0.8, parse = TRUE, label = "pH['surface'] > pH['deep']") +
-  annotate("text", x = 1.5, y = -0.15, parse = TRUE, label = "pH['surface'] < pH['deep']") +
+  annotate(
+    "text",
+    x = 2.5,
+    y = 5,
+    parse = TRUE,
+    label = "fCO['2 surface'] > fCO['2 deep']"
+  ) +
+  annotate(
+    "text",
+    x = 2.5,
+    y = -40,
+    parse = TRUE,
+    label = "fCO['2 surface'] < fCO['2 deep']"
+  ) +
   Mytheme(size_labs = 12) +
-  theme(panel.grid.major.x = element_blank(), panel.grid.major.y = element_blank(),
-        panel.grid.minor.y = element_blank())
+  theme(
+    panel.grid.major.x = element_blank(),
+    panel.grid.major.y = element_blank(),
+    panel.grid.minor.y = element_blank()
+  )
+fco2_delta_plt
 # all deltas
-deltas_plt <- sal_delta_plt / temp_delta_plt / den_delta_plt / pH_delta_plt
+deltas_plt <- sal_delta_plt / temp_delta_plt / den_delta_plt / fco2_delta_plt
 deltas_plt <- deltas_plt + plot_annotation(tag_levels = 'a')
 print(deltas_plt)
 ggsave(filename = "figures/deltas.png", plot = deltas_plt, width = 15, height = 20, units = "cm")
@@ -3996,35 +4042,7 @@ To calculate the air-sea CO2 flux, we use:
 Since there are many gaps, a climatological year is used: air-sea flux
 calculated by day, then by month, then by year.
 
-seaFET pH is significantly different at the surface and depth. It should
-therefore be the same for pCO2.
-
-Let's look at the stratification tab above (salinity, temperature, density and pH).
-
-
-## pCO2 from pH and AT 0-4m
-If one calculates pCO2 from seafet pH and AT (from salinity) between 0-4 m, do we get better estimates of air-sea CO2 fluxes?
-
-```{r}
-size_point <- 0.3 # size of data points
-alpha <- 1 #transparency
-size_labs <- 6 # font size labels
-
-tmp <- d_all %>% 
-  dplyr::select(datetime, pHint_tot_sf, sal_insitu_ctd, temp_insitu_ctd) %>% 
-  drop_na() %>% 
-  dplyr::mutate(at_0_4m = (intercept_s_at + slope_s_at * sal_insitu_ctd) * 1e-6,
-                pco2_0_4m = seacarb::carb(flag=8, var1=pHint_tot_sf, var2=tmp$at_0_4m)$pCO2)
-ts_pCO2_calc <- tmp %>%
-  ggplot() +
-  scale_x_datetime(breaks = date_breaks("1 year"), labels = date_format("%Y")) +
-  geom_point(aes(x = datetime, y = pco2_0_4m), 
-             colour="blue", alpha = alpha, na.rm = TRUE, size = size_point) +
-  labs(title=expression(paste(pCO[2], "calc at 0-4 m and in situ temperature")),
-       x="", y=TeX("pCO$_2$ ($\\mu atm$)")) +
-  Mytheme(size_labs = size_labs)
-ts_pCO2_calc
-```
+Let's look at the stratification tab above (salinity, temperature, density and fCO2): fCO2 is generally higher in the bottom layer than in the surface layer (note that no data is available in May, June and July). Which means that the air-sea CO2 fluxes calculated with pCO2 at 11 m are overestimated.
 
 
 ## Atmospheric CO2 Zeppelin
