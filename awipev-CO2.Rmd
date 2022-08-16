@@ -4207,8 +4207,34 @@ The annual air-sea CO2 flux is
 `r round(sum(air_sea_month$f_air_sea), digits = 0)` mol/(m2 year).
 
 ## Miscellaneous
+### OmegaAragonite
+OmegaAragonite is calculated using at_calc and pCO2
+```{r, fig.width=10, fig.height=10, echo=FALSE, message= FALSE}
+# we calculate it from at_calc and pCO2
+# nuts are not taken into consideration
+tmp <- d_all %>% # just for this chunk
+  dplyr::select(datetime, monthd, sal_fb_mix, temp_fb, pco2_fb, at_calc) %>% 
+  tidyr::drop_na() %>% 
+  dplyr::mutate(OmegaAragonite = seacarb::carb(
+    flag = 24, var1 = pco2_fb, var2 = at_calc*1e-6, S=sal_fb_mix, T=temp_fb, 
+    Patm=1, P=1.1, Pt=0, Sit=0, k1k2="l", kf="dg", ks="d", pHscale="T", b="u74")$OmegaAragonite)
+#plot
+size_point <- 0.3 # size of data points
+alpha <- 1 #transparency
+size_labs <- 6 # font size labels
 
-###Save all
+ts_oa <- tmp %>%
+  ggplot(aes(x = datetime, y = OmegaAragonite), na.rm = TRUE) +
+  scale_x_datetime(breaks = date_breaks("1 year"), labels = date_format("%Y")) +
+  geom_point(colour="blue", alpha = alpha, na.rm = TRUE, size = size_point) +
+  labs(title="Aragonite saturation state (11 m)",x="", y=latex2exp::TeX("$\\Omega)$")) +
+  Mytheme(size_labs = size_labs)
+print(ts_oa)
+ggsave(filename = "figures/OmegaAragonite.png", plot = ts_oa, width = 15, height = 30, units = "cm")
+```
+
+
+### Save all
 
 ```{r, echo=FALSE, message= FALSE, warning=FALSE}
 # d_hour is the real data set that is read at the beginning of the script
