@@ -3733,7 +3733,7 @@ pH_delta_plt <- tidyr::drop_na(tmp_delta) %>%
         panel.grid.minor.y = element_blank())
 
 # we look at pCO2  at all depths
-# calculate fCO2 from pH and salinity-derived AT
+# calculate pCO2 from pH and salinity-derived AT
 tmp <- d_all %>%
   dplyr::select(datetime,
                 montht,
@@ -3745,7 +3745,7 @@ tmp <- d_all %>%
   drop_na() %>%
   dplyr::mutate(
     at_sf = (intercept_s_at + slope_s_at * sal_insitu_ctd) * 1e-6,
-    fco2_sf = seacarb::carb(
+    pco2_sf = seacarb::carb(
       flag = 8,
       var1 = pHint_tot_sf,
       var2 = at_sf,
@@ -3760,27 +3760,27 @@ tmp <- d_all %>%
       ks = "d",
       pHscale = "T",
       b = "u74"
-    )$fCO2
+    )$pCO2
   ) %>% 
-  dplyr::select(datetime, fco2_sf)
+  dplyr::select(datetime, pco2_sf)
 d_all <- left_join(d_all, tmp, by = "datetime")
 tmp <- d_all %>% 
-  dplyr::select(montht, fco2_sf, depth_group) %>%
+  dplyr::select(montht, pco2_sf, depth_group) %>%
   tidyr::drop_na() %>% 
   dplyr::filter(depth_group != "NA") %>% 
   group_by(depth_group, montht)
 p <- tmp %>% 
-  ggplot(aes(x=as.factor(depth_group), y = fco2_sf)) +
+  ggplot(aes(x=as.factor(depth_group), y = pco2_sf)) +
   geom_boxplot(notch=FALSE, size=0.2, fill="grey50", outlier.color = "blue", outlier.size = 0.3) +
-  labs(title = "fco2_sf vs depth", x = "Depth (m)", y= "fCO2 (uatm)") +
+  labs(title = "pco2_sf vs depth", x = "Depth (m)", y= "fCO2 (uatm)") +
   scale_x_discrete(labels = depth_labels) +
   facet_wrap(vars(montht), scale = "free_y")
 print(p)
-summary(aov(tmp$fco2_sf ~ tmp$depth_group * tmp$montht))
+summary(aov(tmp$pco2_sf ~ tmp$depth_group * tmp$montht))
 
-# we look at fCO2 0 to 4 m vs more than 8 m
+# we look at pCO2 0 to 4 m vs more than 8 m
 tmp <- d_all %>%
-  dplyr::select(montht, fco2_sf, depth_group) %>%
+  dplyr::select(montht, pco2_sf, depth_group) %>%
   dplyr::mutate(depth_group2 = as.factor(
     case_when(
       depth_group == '0-2' | depth_group == '2-4' ~ '0-4',
@@ -3789,27 +3789,27 @@ tmp <- d_all %>%
   )) %>%
   dplyr::filter(depth_group2 == '0-4' | depth_group2 == '8-12') %>%
   dplyr::group_by(depth_group2, montht)
-summary(aov(tmp$fco2_sf ~ tmp$depth_group2 * tmp$montht))
+summary(aov(tmp$pco2_sf ~ tmp$depth_group2 * tmp$montht))
 
 tmp_delta <- tmp %>%
   group_by(depth_group2, montht) %>%
-  dplyr::summarise(fco2_sf_med = median(fco2_sf, na.rm = TRUE)) %>%
-  tidyr::pivot_wider(names_from = depth_group2, values_from = fco2_sf_med) %>%
+  dplyr::summarise(pco2_sf_med = median(pco2_sf, na.rm = TRUE)) %>%
+  tidyr::pivot_wider(names_from = depth_group2, values_from = pco2_sf_med) %>%
   dplyr::rename(median0_4m = "0-4",
-                median8_12m = "8-12") %>%   dplyr::mutate(fco2_sf_med_delta = median0_4m - median8_12m)
+                median8_12m = "8-12") %>%   dplyr::mutate(pco2_sf_med_delta = median0_4m - median8_12m)
 kable(tmp_delta, digits = 3, caption = "Median seafet fCO2 with (median0_4m - median8_12m)")
 
 p <- tidyr::drop_na(tmp) %>% 
-  ggplot(aes(x=as.factor(depth_group2), y = fco2_sf)) +
+  ggplot(aes(x=as.factor(depth_group2), y = pco2_sf)) +
   geom_boxplot(notch=FALSE, size=0.2, fill="grey50", outlier.color = "blue", outlier.size = 0.3) +
-  labs(title = "pH at 4°C vs depth", x = "Depth (m)", y= "pHint_tot_sf") +
+  labs(title = "pCO2", x = "Depth (m)", y= "pHint_tot_sf") +
   facet_wrap(vars(montht), scale = "free_y")
 print(p)
 
-fco2_delta_plt <- tmp_delta %>%
-  ggplot(aes(x = montht, y = fco2_sf_med_delta)) +
+pco2_delta_plt <- tmp_delta %>%
+  ggplot(aes(x = montht, y = pco2_sf_med_delta)) +
   scale_x_discrete("Month", expand = c(0, 0)) +
-  scale_y_continuous(substitute("fCO"["2"]), limits = c(-45, 10)) +
+  scale_y_continuous(substitute("pCO"["2"]), limits = c(-45, 10)) +
   geom_col(fill = "blue") +
   geom_hline(yintercept = 0) +
   annotate(
@@ -3817,14 +3817,14 @@ fco2_delta_plt <- tmp_delta %>%
     x = 2.5,
     y = 5,
     parse = TRUE,
-    label = "fCO['2 surface'] > fCO['2 deep']"
+    label = "pCO['2 surface'] > pCO['2 deep']"
   ) +
   annotate(
     "text",
     x = 2.5,
     y = -40,
     parse = TRUE,
-    label = "fCO['2 surface'] < fCO['2 deep']"
+    label = "pCO['2 surface'] < pCO['2 deep']"
   ) +
   Mytheme(size_labs = 12) +
   theme(
@@ -3832,9 +3832,9 @@ fco2_delta_plt <- tmp_delta %>%
     panel.grid.major.y = element_blank(),
     panel.grid.minor.y = element_blank()
   )
-fco2_delta_plt
+pco2_delta_plt
 # all deltas
-deltas_plt <- sal_delta_plt / temp_delta_plt / den_delta_plt / fco2_delta_plt
+deltas_plt <- sal_delta_plt / temp_delta_plt / den_delta_plt / pco2_delta_plt
 deltas_plt <- deltas_plt + plot_annotation(tag_levels = 'a')
 print(deltas_plt)
 ggsave(filename = "figures/deltas.png", plot = deltas_plt, width = 15, height = 20, units = "cm")
