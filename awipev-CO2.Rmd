@@ -3773,10 +3773,8 @@ tmp <- d_all %>%
       pHscale = "T",
       b = "u74"
     )$pCO2
-  ) %>% 
-  dplyr::select(datetime, pco2_sf)
-d_all <- left_join(d_all, tmp, by = "datetime")
-tmp <- d_all %>% 
+  )
+tmp <- tmp %>% 
   dplyr::select(montht, pco2_sf, depth_group) %>%
   tidyr::drop_na() %>% 
   dplyr::filter(depth_group != "NA") %>% 
@@ -3791,7 +3789,7 @@ print(p)
 summary(aov(tmp$pco2_sf ~ tmp$depth_group * tmp$montht))
 
 # we look at pCO2 NOT normalized at 4°C 0 to 4 m vs more than 8 m
-tmp <- d_all %>%
+tmp <- tmp %>%
   dplyr::select(montht, pco2_sf, depth_group) %>%
   dplyr::mutate(depth_group2 = as.factor(
     case_when(
@@ -3822,22 +3820,23 @@ print(p)
 pco2_delta_plt <- tmp_delta %>%
   ggplot(aes(x = montht, y = pco2_sf_med_delta)) +
   scale_x_discrete("Month", expand = c(0, 0)) +
-  scale_y_continuous(substitute("pCO"["2"]), limits = c(-45, 10)) +
+  scale_y_continuous(limits = c(-45,10), expand = c(0, 0)) +
+  labs(y = latex2exp::TeX("$pCO_2$ at in situ temperature ($\\mu atm$)")) +
   geom_col(fill = "blue") +
   geom_hline(yintercept = 0) +
   annotate(
     "text",
-    x = 2.5,
-    y = 5,
+    x = 2.2,
+    y = 6,
     parse = TRUE,
-    label = "pCO['2 surface'] > pCO['2 deep']"
+    label = "pCO['2 surface']>pCO['2 deep']"
   ) +
   annotate(
     "text",
-    x = 2.5,
+    x = 2,
     y = -40,
     parse = TRUE,
-    label = "pCO['2 surface'] < pCO['2 deep']"
+    label = "pCO['2 surface']<pCO['2 deep']"
   ) +
   Mytheme(size_labs = 12) +
   theme(
@@ -3845,7 +3844,6 @@ pco2_delta_plt <- tmp_delta %>%
     panel.grid.major.y = element_blank(),
     panel.grid.minor.y = element_blank()
   )
-
 # we look at pCO2 normalized at 4°C at all depths
 # calculate pCO2 from pH and salinity-derived AT
 tmp <- d_all %>%
@@ -3876,10 +3874,8 @@ tmp <- d_all %>%
       b = "u74"
     )$pCO2,
     pco2_sf_4 = seacarb::pCO2insi(pCO2lab = pco2_sf, Tlab = temp_insitu_ctd, SST = 4)
-  ) %>% 
-  dplyr::select(datetime, pco2_sf_4)
-d_all <- left_join(d_all, tmp, by = "datetime")
-tmp <- d_all %>% 
+  )
+tmp <- tmp %>% 
   dplyr::select(montht, pco2_sf_4, depth_group) %>%
   tidyr::drop_na() %>% 
   dplyr::filter(depth_group != "NA") %>% 
@@ -3887,14 +3883,14 @@ tmp <- d_all %>%
 p <- tmp %>% 
   ggplot(aes(x=as.factor(depth_group), y = pco2_sf_4)) +
   geom_boxplot(notch=FALSE, size=0.2, fill="grey50", outlier.color = "blue", outlier.size = 0.3) +
-  labs(title = "pco2_sf at 4°C vs depth", x = "Depth (m)", y= "fCO2 (uatm)") +
+  labs(title = "pco2_sf at 4°C vs depth", x = "Depth (m)", y= "pCO2 (uatm)") +
   scale_x_discrete(labels = depth_labels) +
   facet_wrap(vars(montht), scale = "free_y")
 print(p)
 summary(aov(tmp$pco2_sf_4 ~ tmp$depth_group * tmp$montht))
 
 # we look at pCO2 normalized at 4°C 0 to 4 m vs more than 8 m
-tmp <- d_all %>%
+tmp <- tmp %>%
   dplyr::select(montht, pco2_sf_4, depth_group) %>%
   dplyr::mutate(depth_group2 = as.factor(
     case_when(
@@ -3908,8 +3904,8 @@ summary(aov(tmp$pco2_sf_4 ~ tmp$depth_group2 * tmp$montht))
 
 tmp_delta <- tmp %>%
   group_by(depth_group2, montht) %>%
-  dplyr::summarise(pco2_sf_4_med = median(pco2_sf_4, na.rm = TRUE)) %>%
-  tidyr::pivot_wider(names_from = depth_group2, values_from = pco2_sf_4_med) %>%
+  dplyr::summarise(pco2_sf_4_med = median(pco2_sf_4, na.rm = FALSE)) %>%
+  tidyr::pivot_wider(names_from = depth_group2, values_from = pco2_sf_4_med, values_fill = NA) %>%
   dplyr::rename(median0_4m = "0-4",
                 median8_12m = "8-12") %>%   
   dplyr::mutate(pco2_sf_4_med_delta = median0_4m - median8_12m)
@@ -3925,19 +3921,20 @@ print(p)
 pco2_4_delta_plt <- tmp_delta %>%
   ggplot(aes(x = montht, y = pco2_sf_4_med_delta)) +
   scale_x_discrete("Month", expand = c(0, 0)) +
-  scale_y_continuous(substitute("pCO"["2"]), limits = c(-45, 10)) +
+  scale_y_continuous(limits = c(-45,10), expand = c(0, 0)) +
+  labs(y = latex2exp::TeX("$pCO_2$ at 4°C ($\\mu atm$)")) +
   geom_col(fill = "blue") +
   geom_hline(yintercept = 0) +
   annotate(
     "text",
-    x = 2.5,
-    y = 5,
+    x = 2.2,
+    y = 6,
     parse = TRUE,
-    label = "pCO['2 surface'] > pCO['2 deep']"
+    label = "pCO['2 surface']>pCO['2 deep']"
   ) +
   annotate(
     "text",
-    x = 2.5,
+    x = 2.,
     y = -40,
     parse = TRUE,
     label = "pCO['2 surface'] < pCO['2 deep']"
@@ -3948,12 +3945,20 @@ pco2_4_delta_plt <- tmp_delta %>%
     panel.grid.major.y = element_blank(),
     panel.grid.minor.y = element_blank()
   )
+```
 
-# all deltas
-deltas_plt <- sal_delta_plt / temp_delta_plt / den_delta_plt / pco2_delta_plt
-deltas_plt <- deltas_plt + plot_annotation(tag_levels = 'a')
-print(deltas_plt)
-ggsave(filename = "figures/deltas.png", plot = deltas_plt, width = 15, height = 20, units = "cm")
+# Stratification plots -------------------
+```{r, include=FALSE}
+# main deltas
+g <- sal_delta_plt / temp_delta_plt / den_delta_plt
+g <- g + plot_annotation(tag_levels = 'a')
+print(g)
+ggsave(filename = "figures/deltas.png", plot = g, width = 15, height = 20, units = "cm")
+# pCO2 deltas
+g <-  pco2_delta_plt / pco2_4_delta_plt
+g <- g + plot_annotation(tag_levels = 'a')
+print(g)
+ggsave(filename = "figures/deltas_pco2.png", plot = g, width = 15, height = 20, units = "cm")
 ```
 
 Using the medians because data are missing.
@@ -4143,7 +4148,66 @@ fig_deconv_pCO2 <- ggplot(deconv_melt) + geom_point(aes(x=date, y=value, color=v
 ggsave(file="figures/fig_deconv_pCO2.png", fig_deconv_pCO2, width = 18, height = 20, units = "cm")
 ```
 
-## Air-sea CO2 flux
+# Save all ----------------------------------------------------------------
+
+
+```{r, echo=FALSE, message= FALSE, warning=FALSE}
+# d_hour is the real data set that is read at the beginning of the script
+# d_all comprises additional columns calculated in this script
+d_all$at <- ifelse(is.nan(d_all$at), NA, d_all$at) # replace all NaN by NA
+d_all$ct <- ifelse(is.nan(d_all$at), NA, d_all$ct) # replace all NaN by NA
+#d_all <- dplyr::mutate(d_all, month = as.factor(month(x = datetime, label = TRUE)))
+
+# order columns
+d_all <- d_all %>% 
+  dplyr::select(order(colnames(d_all))) %>% 
+  dplyr::select(datetime, date, year, monthd, montht, everything())
+
+saveRDS(file= paste0(path, "fb_data/d_all.rds"), d_all)
+
+pangaea <- as_tibble(d_all) %>% 
+  dplyr::select(datetime, depth, sal_insitu_ctd, sal_fb, temp_insitu_11m, temp_insitu_ctd, temp_fb, temp_sf, at, ct, ph_s_sf_temp_insi, ph_s_dur_temp_fb, ph_calc_fb, pco2_fb_insi_temp, pco2_calc_fb_insi_temp, at_calc, pH_dur, pHint_tot_sf) %>%
+  dplyr::rename(`pressure [dbar]` = depth,
+                `s_insitu [unit]` = sal_insitu_ctd,
+                `s_fb [unit]` = sal_fb, 
+                `t_11m [°C]` = temp_insitu_11m,
+                `t_ctd [°C]` = temp_insitu_ctd, 
+                `t_fb [°C]` = temp_fb, 
+                `t_sf [°C]` = temp_sf, 
+                `at [umol kg-1]` = at, 
+                `at_calc [umol kg-1]` = at_calc,
+                `ct [umol kg-1]` = ct, 
+                `ph_s_sf_t_insi [total scale]` = ph_s_sf_temp_insi, 
+                `ph_s_dur_t_fb [total scale]` = ph_s_dur_temp_fb,
+                `pco2 [uatm]` = pco2_fb_insi_temp,
+                `pco2_calc [uatm]` = pco2_calc_fb_insi_temp,
+                `pH_sf [total scale]` = pHint_tot_sf,
+                `pH_dur [total scale]` = pH_dur,
+                `pH_calc [total scale]` = ph_calc_fb
+                )
+saveRDS(file= paste0(path, "fb_data/pangaea.rds"), pangaea)
+write_csv(pangaea, file = paste0(path, "fb_data/pangaea.csv"))
+# Metadata Pangaea
+# pressure = pressure in situ (profiler)
+# s_insitu = salinity in situ (profiler)
+# s_fb = salinity (static at 11 m) 
+# t_11m = temperature in situ (static at 11 m)
+# t_ctd = temperature in situ (profiler)
+# t_fb = temperature (FerryBox)
+# t_sf = temperature SeaFET (profiler)
+# at = total alkalinity, discrete measurements (FerryBox)
+# at_calc = total alkalinity, calculated from salinity
+# ct = dissolved inorganic carbon, discrete measurements (FerryBox)
+# ph_s_sf_t_insi = spectrophotometric pH in situ at in situ temperature (profiler)
+# ph_s_dur_t_fb = spectrophotometric pH in FerryBox at FerryBox temperature (FerryBox)
+# pco2 = pCO2 in Ferrybox expressed at in situ temperature (FerryBox)
+# pco2_calc = pCO2 in the FerryBox calculated from discrete measurements of AT and CT and expressed at in situ temperature
+# pH_sf = pH seaFET at in situ temperature (profiler)
+# ph_dur = pH Durafet at FerryBox temperature (FerryBox)
+# ph_calc = pH at FerryBox temperature calculated from CT and AT in the FerryBox
+```
+
+## Air-sea CO2 flux 
 
 To calculate the air-sea CO2 flux, we use:
 
@@ -4325,7 +4389,7 @@ The annual air-sea CO2 flux is
 ## Miscellaneous
 ### OmegaAragonite
 OmegaAragonite is calculated using at_calc and pCO2
-```{r, fig.width=10, fig.height=10, echo=FALSE, message= FALSE}
+```{r, fig.width=10, fig.height=10, echo=FALSE, message= FALSE, warning = FALSE}
 # we calculate it from at_calc and pCO2
 # nuts are not taken into consideration
 tmp <- d_all %>% # just for this chunk
@@ -4343,6 +4407,7 @@ ts_oa <- tmp %>%
   ggplot(aes(x = datetime, y = OmegaAragonite), na.rm = TRUE) +
   scale_x_datetime(breaks = date_breaks("1 year"), labels = date_format("%Y")) +
   geom_point(colour="blue", alpha = alpha, na.rm = TRUE, size = size_point) +
+  ylim(0, 3) +
   labs(title="Aragonite saturation state (11 m)",x="", y=latex2exp::TeX("$\\Omega_{aragonite}$")) +
   Mytheme(size_labs = size_labs)
 print(ts_oa)
@@ -4350,63 +4415,7 @@ ggsave(filename = "figures/OmegaAragonite.png", plot = ts_oa, width = 15, height
 ```
 
 
-### Save all
 
-```{r, echo=FALSE, message= FALSE, warning=FALSE}
-# d_hour is the real data set that is read at the beginning of the script
-# d_all comprises additional columns calculated in this script
-d_all$at <- ifelse(is.nan(d_all$at), NA, d_all$at) # replace all NaN by NA
-d_all$ct <- ifelse(is.nan(d_all$at), NA, d_all$ct) # replace all NaN by NA
-#d_all <- dplyr::mutate(d_all, month = as.factor(month(x = datetime, label = TRUE)))
-
-# order columns
-d_all <- d_all %>% 
-  dplyr::select(order(colnames(d_all))) %>% 
-  dplyr::select(datetime, date, year, monthd, montht, everything())
-
-saveRDS(file= paste0(path, "fb_data/d_all.rds"), d_all)
-
-pangaea <- as_tibble(d_all) %>% 
-  dplyr::select(datetime, depth, sal_insitu_ctd, sal_fb, temp_insitu_11m, temp_insitu_ctd, temp_fb, temp_sf, at, ct, ph_s_sf_temp_insi, ph_s_dur_temp_fb, ph_calc_fb, pco2_fb_insi_temp, pco2_calc_fb_insi_temp, at_calc, pH_dur, pHint_tot_sf) %>%
-  dplyr::rename(`pressure [dbar]` = depth,
-                `s_insitu [unit]` = sal_insitu_ctd,
-                `s_fb [unit]` = sal_fb, 
-                `t_11m [°C]` = temp_insitu_11m,
-                `t_ctd [°C]` = temp_insitu_ctd, 
-                `t_fb [°C]` = temp_fb, 
-                `t_sf [°C]` = temp_sf, 
-                `at [umol kg-1]` = at, 
-                `at_calc [umol kg-1]` = at_calc,
-                `ct [umol kg-1]` = ct, 
-                `ph_s_sf_t_insi [total scale]` = ph_s_sf_temp_insi, 
-                `ph_s_dur_t_fb [total scale]` = ph_s_dur_temp_fb,
-                `pco2 [uatm]` = pco2_fb_insi_temp,
-                `pco2_calc [uatm]` = pco2_calc_fb_insi_temp,
-                `pH_sf [total scale]` = pHint_tot_sf,
-                `pH_dur [total scale]` = pH_dur,
-                `pH_calc [total scale]` = ph_calc_fb
-                )
-saveRDS(file= paste0(path, "fb_data/pangaea.rds"), pangaea)
-write_csv(pangaea, file = paste0(path, "fb_data/pangaea.csv"))
-# Metadata Pangaea
-# pressure = pressure in situ (profiler)
-# s_insitu = salinity in situ (profiler)
-# s_fb = salinity (static at 11 m) 
-# t_11m = temperature in situ (static at 11 m)
-# t_ctd = temperature in situ (profiler)
-# t_fb = temperature (FerryBox)
-# t_sf = temperature SeaFET (profiler)
-# at = total alkalinity, discrete measurements (FerryBox)
-# at_calc = total alkalinity, calculated from salinity
-# ct = dissolved inorganic carbon, discrete measurements (FerryBox)
-# ph_s_sf_t_insi = spectrophotometric pH in situ at in situ temperature (profiler)
-# ph_s_dur_t_fb = spectrophotometric pH in FerryBox at FerryBox temperature (FerryBox)
-# pco2 = pCO2 in Ferrybox expressed at in situ temperature (FerryBox)
-# pco2_calc = pCO2 in the FerryBox calculated from discrete measurements of AT and CT and expressed at in situ temperature
-# pH_sf = pH seaFET at in situ temperature (profiler)
-# ph_dur = pH Durafet at FerryBox temperature (FerryBox)
-# ph_calc = pH at FerryBox temperature calculated from CT and AT in the FerryBox
-```
 
 ### Whole time series plot
 
@@ -4582,12 +4591,12 @@ ts_at_bp <- d_bp %>%
 # Combine plots
 g2 <- (ts_sal_bp / ts_temp_bp / ts_pco2_bp / ts_pH_bp / ts_at_bp)
 g2 <- g2 + plot_annotation(tag_levels = 'A')
+g2
 ggsave(filename = "figures/ts_boxplots.png", plot = g2)
-#rm(list = ls(pattern = "ts_"), d_bp) #delete big ggplot objects and temp data
-#gc() #garbage collection
+
 ```
 
-###Combined plot for paper
+### Combined plot for paper
 
 ```{r, echo=FALSE, message= FALSE, warning=FALSE}
 g <- (at_s | pco2_calc_meas) / (offset_ph | pHspec_pHseafet)
@@ -4596,8 +4605,8 @@ ggsave(filename = "figures/pco2_ph_etc.png", plot = g)
 g
 ```
 
-###Time series and boxplots for paper
-```{r }
+### Time series and boxplots for paper
+```{r, echo=FALSE, message= FALSE, warning=FALSE}
 g <- (ts_sal / ts_temp / ts_pCO2  / ts_pH / ts_at) |
   (ts_sal_bp / ts_temp_bp / ts_pco2_bp / ts_pH_bp / ts_at_bp)
 g <- g + plot_annotation(tag_levels = 'A')
