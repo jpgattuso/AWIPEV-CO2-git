@@ -3807,7 +3807,11 @@ tmp_delta <- tmp %>%
   tidyr::pivot_wider(names_from = depth_group2, values_from = pco2_sf_med) %>%
   dplyr::rename(median0_4m = "0-4",
                 median8_12m = "8-12") %>%   
-  dplyr::mutate(pco2_sf_med_delta = median0_4m - median8_12m)
+  dplyr::mutate(pco2_sf_med_delta = median0_4m - median8_12m) %>% 
+  # this is to bring June back...
+  rbind(data.frame(montht="Jun", median8_12m = NA, median0_4m = NA, pco2_sf_med_delta = NA)) %>% 
+  dplyr::mutate(montht = factor(montht, levels = month.abb)) %>% 
+  dplyr::arrange(montht)
 kable(tmp_delta, digits = 3, caption = "Median seafet pCO2 (median0_4m - median8_12m)")
 
 p <- tidyr::drop_na(tmp) %>% 
@@ -3820,20 +3824,20 @@ print(p)
 pco2_delta_plt <- tmp_delta %>%
   ggplot(aes(x = montht, y = pco2_sf_med_delta)) +
   scale_x_discrete("Month", expand = c(0, 0)) +
-  scale_y_continuous(limits = c(-45,10), expand = c(0, 0)) +
+  scale_y_continuous(limits = c(-46,10), expand = c(0, 0)) +
   labs(y = latex2exp::TeX("$pCO_2$ at in situ temperature ($\\mu atm$)")) +
   geom_col(fill = "blue") +
   geom_hline(yintercept = 0) +
   annotate(
     "text",
-    x = 2.2,
+    x = 10,
     y = 6,
     parse = TRUE,
     label = "pCO['2 surface']>pCO['2 deep']"
   ) +
   annotate(
     "text",
-    x = 2,
+    x = 10,
     y = -40,
     parse = TRUE,
     label = "pCO['2 surface']<pCO['2 deep']"
@@ -3908,7 +3912,11 @@ tmp_delta <- tmp %>%
   tidyr::pivot_wider(names_from = depth_group2, values_from = pco2_sf_4_med, values_fill = NA) %>%
   dplyr::rename(median0_4m = "0-4",
                 median8_12m = "8-12") %>%   
-  dplyr::mutate(pco2_sf_4_med_delta = median0_4m - median8_12m)
+  dplyr::mutate(pco2_sf_4_med_delta = median0_4m - median8_12m) %>% 
+    # this is to bring June back... 
+  rbind(data.frame(montht="Jun", median8_12m = NA, median0_4m = NA, pco2_sf_4_med_delta = NA)) %>% 
+  dplyr::mutate(montht = factor(montht, levels = month.abb)) %>% 
+  dplyr::arrange(montht)
 kable(tmp_delta, digits = 3, caption = "Median seafet pCO2 at 4°C with (median0_4m - median8_12m)")
 
 p <- tidyr::drop_na(tmp) %>% 
@@ -3921,20 +3929,20 @@ print(p)
 pco2_4_delta_plt <- tmp_delta %>%
   ggplot(aes(x = montht, y = pco2_sf_4_med_delta)) +
   scale_x_discrete("Month", expand = c(0, 0)) +
-  scale_y_continuous(limits = c(-45,10), expand = c(0, 0)) +
+  scale_y_continuous(limits = c(-46,10), expand = c(0, 0)) +
   labs(y = latex2exp::TeX("$pCO_2$ at 4°C ($\\mu atm$)")) +
   geom_col(fill = "blue") +
   geom_hline(yintercept = 0) +
   annotate(
     "text",
-    x = 2.2,
+    x = 10,
     y = 6,
     parse = TRUE,
     label = "pCO['2 surface']>pCO['2 deep']"
   ) +
   annotate(
     "text",
-    x = 2.,
+    x = 10,
     y = -40,
     parse = TRUE,
     label = "pCO['2 surface'] < pCO['2 deep']"
