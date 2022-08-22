@@ -3903,7 +3903,7 @@ p <- tmp %>%
   scale_x_discrete(labels = depth_labels) +
   facet_wrap(vars(montht), scale = "free_y")
 print(p)
-summary(aov(tmp$pco2_sf_4 ~ tmp$depth_group * tmp$montht))
+summary(aov(tmp$pco2_remos_4 ~ tmp$depth_group * tmp$montht))
 
 # we look at pCO2 normalized at 4°C 0 to 4 m vs more than 8 m
 tmp <- tmp %>%
@@ -4263,7 +4263,7 @@ Let's look at the stratification tab above (salinity, temperature, density and f
 
 
 ## Atmospheric CO2 Zeppelin
-```{r atmospheric CO2 Zeppelin, echo=FALSE, message= FALSE, warning=FALSE}
+```{r, echo=FALSE, message= FALSE, warning=FALSE}
 # downloaded 2020-08-19 from https://gaw.kishou.go.jp/search/file/0054-6001-1001-01-01-9999
 # value:units : ppm
 # value:long_name : measured_mole_fraction_of_trace_gas_in_dry_air
@@ -4352,26 +4352,59 @@ d_all <- dplyr::left_join(d_all, meteo, by = "datetime") %>%
 pCO2 measured in FerryBox expressed at in situ temp vs pCO2 calculated from REMOS data (S, T, pH, salinity-AT) at 0-2 m only.
 
 ```{r, echo = FALSE, message = FALSE, warning = FALSE}
-pco2_fb_remos <- d_all %>% 
+p_pco2_fb_remos <- d_all %>% 
   dplyr::select(depth, monthd, pco2_fb_ctd_temp, pco2_remos_ctd_temp) %>% 
   dplyr::filter(depth < 4) %>% 
   drop_na() %>% 
-  dpl
   ggplot(aes(x = pco2_fb_ctd_temp, y = pco2_remos_ctd_temp, label = monthd)) +
   geom_point(col="blue", size = 0.5) +
   #geom_text() +
-  xlim(180, 420) + ylim(180, 420) +
+  xlim(250, 400) + ylim(270, 360) +
   labs(title = "pCO2 at ctd temperature",
-       x=latex2exp::TeX("$pCO_{2}$ 11 m $\\phantom{x}(\\muatm)$"),
-       y= latex2exp::TeX("$pCO_{2}$ REMOS at 0-2 m\\phantom{x}($\\muatm)$"))  +
+       x=latex2exp::TeX("$pCO_{2}$ 11 m $\\phantom{x}(\\mu atm)$"),
+       y= latex2exp::TeX("$pCO_{2}$ REMOS at 0-4 m\\phantom{x}($\\mu atm)$"))  +
   ggpmisc::stat_ma_line(method = "lmodel2:MA", se = FALSE, size = 1) +
-  ggpmisc::stat_ma_eq(method = "lmodel2:MA", aes(label = after_stat(eq.label))) +
+  ggpmisc::stat_ma_eq(mapping = use_label(c("R2", "eq"))) +
   geom_abline(slope = 1, intercept = 0, linetype = "dashed") +  
   theme_bw() + Mytheme(size_labs = 9) + theme(aspect.ratio = 1) +
   coord_fixed(ratio = 1, expand = TRUE, clip = "on")
-pco2_fb_remos
-ggsave(filename = "figures/pco2_fb_remos.png", plot = pco2_fb_remos, width = 25, height = 25, units = "cm")
+p_pco2_fb_remos
+ggsave(filename = "figures/pco2_fb_remos.png", plot = p_pco2_fb_remos, width = 25, height = 25, units = "cm")
+
+# Same thing but monthly median; code different because one wants to calculate delta
+tmp <- d_all %>% 
+  dplyr::select(depth, montht, pco2_fb_ctd_temp, pco2_remos_ctd_temp) %>% 
+  dplyr::filter(depth < 4) %>% 
+  drop_na() %>% 
+  dplyr::group_by(montht) %>% 
+  dplyr::summarise(
+    pco2_fb_ctd_temp = median(pco2_fb_ctd_temp, na.rm = TRUE),
+    pco2_remos_ctd_temp = median(pco2_remos_ctd_temp, na.rm = TRUE), 
+    delta_pco2_fb_remos_monthly = pco2_remos_ctd_temp - pco2_fb_ctd_temp
+  )
+p_pco2_fb_remos_month <- tmp %>% 
+  ggplot(aes(x = pco2_fb_ctd_temp, y = pco2_remos_ctd_temp, label = montht)) +
+  geom_point(col="blue", size = 0.5) +
+  #geom_text() +
+  xlim(250, 400) + ylim(250, 400) +
+  labs(title = "pCO2 at ctd temperature",
+       x=latex2exp::TeX("$pCO_{2}$ 11 m $\\phantom{x}(\\mu atm)$"),
+       y= latex2exp::TeX("$pCO_{2}$ REMOS at 0-4 m\\phantom{x}($\\mu atm)$"))  +
+  ggpmisc::stat_ma_line(method = "lmodel2:MA", se = FALSE, size = 1) +
+  ggpmisc::stat_ma_eq(mapping = use_label(c("R2", "eq"))) +
+  geom_abline(slope = 1, intercept = 0, linetype = "dashed") +  
+  theme_bw() + Mytheme(size_labs = 9) + theme(aspect.ratio = 1) +
+  coord_fixed(ratio = 1, expand = TRUE, clip = "on")
+p_pco2_fb_remos_month
+ggsave(filename = "figures/pco2_fb_remos_monthly.png", plot = p_pco2_fb_remos_month, width = 25, height = 25, units = "cm")
+
+# combine
+g <- p_pco2_fb_remos / p_pco2_fb_remos_month
+g <- g + patchwork::plot_annotation(tag_levels = 'A')
+ggsave(filename = "figures/pco2_compare.png", plot = g)
+g
 ```
+The relationship between pCO2 between 0 and 4 m on the REMOS (estimated from pH and S-derived AT) and pCO2 measured at 11 m (both pCO2 at CTD temperature) is much nicer using monthly median values (b) than using all data (a). The mean and median difference between the two pCO2s are `r round(summary(tmp$delta_pco2_fb_remos_monthly), digits=0)`
 
 ```{r air-sea CO2 with measured data, echo=FALSE, message= FALSE, warning=FALSE}
 # calculations as described by de Carlo et al. (2013)
@@ -4381,13 +4414,13 @@ ggsave(filename = "figures/pco2_fb_remos.png", plot = pco2_fb_remos, width = 25,
 ##TO DO: check calculations by Miller et al. (2020); use formulation of Wanninkhof 2014?
 ## TO DO: Dobashi R. & Ho D. T., 2022. Air-sea gas exchange in a seagrass ecosystem. EGUsphere 
 d_all <- d_all %>%
-  dplyr::mutate(delta_pco2 = pco2_fb - co2_air, # ppm
+  dplyr::mutate(delta_pco2 = pco2_fb_ctd_temp - co2_air, # ppm
                 k600 = 0.266 * ws^2, #cm/hr Ho et al. (2006)
-                Sc = 2073.1 - (125.62*temp_insitu_11m) + (3.6276*temp_insitu_11m^2) -
+                Sc = 2073.1 - (125.62*temp_insitu_ctd) + (3.6276*temp_insitu_ctd^2) -
                   (0.043219*temp_insitu_ctd^3), #dimensionless
                 k = k600 * (Sc/600)^-0.5, #cm/h
-                alpha = seacarb::K0(S=sal_fb_mix,T=temp_insitu_11m,P=0,Patm=p_air/1013.25), #mol/(kg/atm)
-                alpha = alpha * (seacarb::rho(S = sal_fb_mix, T = temp_insitu_11m, P = 0)/1000), #mol/(l/atm)
+                alpha = seacarb::K0(S=sal_insitu_ctd,T=temp_insitu_ctd,P=0,Patm=p_air/1013.25), #mol/(kg/atm)
+                alpha = alpha * (seacarb::rho(S = sal_insitu_ctd, T = temp_insitu_ctd, P = 0)/1000), #mol/(l/atm)
                 f_air_sea = k * alpha * delta_pco2 # mmol/(m2 h)
                 )
 
@@ -4420,23 +4453,82 @@ air_sea_month <- d_all %>%
   dplyr::mutate(f_air_sea = days_in_month(monthd) * f_air_sea) %>% 
   dplyr::mutate(montht = month(monthd, label = TRUE, abbr = TRUE))
 #air_sea_month
-p_f_air_sea_m <- ggplot(data = air_sea_month) +
+p_f_air_sea_month <- ggplot(data = air_sea_month) +
   geom_point(aes(x = montht, y = f_air_sea), col = "blue", size = 2, na.rm = TRUE) +
   #scale_x_discrete(breaks=c("Jan", "", "Mar", "", "May", "", "Jul", "", "Sep", "", "Nov", "")) +
-  #lims(y = c(-30, 0)) +
+  lims(y = c(-30, 0)) +
   labs(title = "Air-sea CO2 flux (per month)", x = "Month", y = "CO2 (mmol/(m2 month))") +
   Mytheme(size_labs = 8)
-p_f_air_sea_m
-ggsave(filename = "figures/f_air_sea_m.png", plot = p_f_air_sea_m, width = 20, units = "cm")
+p_f_air_sea_month
+ggsave(filename = "figures/f_air_sea_m.png", plot = p_f_air_sea_month, width = 20, units = "cm")
 
-p <- p_f_air_sea / p_f_air_sea_d / p_f_air_sea_m
+p <- p_f_air_sea / p_f_air_sea_d / p_f_air_sea_month
 ggsave(filename = "figures/air-sea_CO2_flux.png", plot = p, width = 20, units = "cm")
 knitr::include_graphics("figures/air-sea_CO2_flux.png")
 #rm(p, p_f_air_sea, p_f_air_sea_d, p_f_air_sea_m)
 ```
 
+```{r air-sea CO2 with corrected data, echo=FALSE, message= FALSE, warning=FALSE}
+# Same as above but we correct pCO2 by adding 17 uatm as we show above that pCO2 at 11 m
+# underestimates pCO2 at 0-4m (hence overestimates CO2 uptake)
+# round(summary(tmp$delta_pco2_fb_remos_monthly))[[4]]
+d_all <- d_all %>%
+  dplyr::mutate(delta_pco2_corr = (pco2_fb_ctd_temp + 17) - co2_air, # ppm
+                k600 = 0.266 * ws^2, #cm/hr Ho et al. (2006)
+                Sc = 2073.1 - (125.62*temp_insitu_ctd) + (3.6276*temp_insitu_ctd^2) -
+                  (0.043219*temp_insitu_ctd^3), #dimensionless
+                k = k600 * (Sc/600)^-0.5, #cm/h
+                alpha = seacarb::K0(S=sal_insitu_ctd,T=temp_insitu_ctd,P=0,Patm=p_air/1013.25), #mol/(kg/atm)
+                alpha = alpha * (seacarb::rho(S = sal_insitu_ctd, T = temp_insitu_ctd, P = 0)/1000), #mol/(l/atm)
+                f_air_sea_corr = k * alpha * delta_pco2_corr # mmol/(m2 h)
+                )
+
+# p_f_air_sea <- ggplot(data = d_all) +
+#   geom_point(aes(x = datetime, y = f_air_sea), col = "blue", size = 0.15, na.rm = TRUE) +
+#   labs(title = "Air-sea CO2 flux (all data)", x = "Time", y = "CO2 (mmol/(m2 h))") +
+#   Mytheme(size_labs = 8)
+# p_f_air_sea
+# ggsave(filename = "figures/p_f_air_sea.png", plot = p_f_air_sea, width = 20, units = "cm")
+
+# air_sea_day_d <- d_all %>%
+#   dplyr::select(datetime, f_air_sea_corr) %>%
+#   dplyr::group_by(lubridate::yday(datetime)) %>%
+#   dplyr::summarise(f_air_sea_corr = 24 * mean(f_air_sea_corr, na.rm = TRUE)/1000) %>% #mol/(m2 d)
+#   ungroup() %>%
+#   dplyr::rename(day = 1)
+  
+# p_f_air_sea_d <- ggplot(data = air_sea_day) +
+#   geom_point(aes(x = day, y = f_air_sea), col = "blue", size = 0.15, na.rm = TRUE) +
+#   labs(title = "Air-sea CO2 flux (per day)", x = "Julian day", y = "CO2 (mmol/(m2 d))") +
+#   Mytheme(size_labs = 8)
+# p_f_air_sea_d
+# ggsave(filename = "figures/f_air_sea_d.png", plot = p_f_air_sea_d, width = 20, units = "cm")
+# 
+air_sea_corr_month <- d_all %>%
+  dplyr::select(monthd, f_air_sea_corr) %>%
+  dplyr::group_by(monthd) %>%
+  dplyr::summarise(f_air_sea_corr = 24 * mean(f_air_sea_corr, na.rm = TRUE)/1000) %>% #mol/(m2 d)
+  ungroup() %>%
+  dplyr::mutate(f_air_sea_corr = days_in_month(monthd) * f_air_sea_corr) %>% 
+  dplyr::mutate(montht = month(monthd, label = TRUE, abbr = TRUE))
+#air_sea_month
+p_f_air_sea_corr_month <- ggplot(data = air_sea_corr_month) +
+  geom_point(aes(x = montht, y = f_air_sea_corr), col = "blue", size = 2, na.rm = TRUE) +
+  #scale_x_discrete(breaks=c("Jan", "", "Mar", "", "May", "", "Jul", "", "Sep", "", "Nov", "")) +
+  lims(y = c(-30, 0)) +
+  labs(title = "Air-sea CO2 flux (per month)", x = "Month", y = "CO2 (mmol/(m2 month))") +
+  Mytheme(size_labs = 8)
+p_f_air_sea_corr_month
+ggsave(filename = "figures/f_air_sea_corr_month.png", plot = p_f_air_sea_corr_month, width = 20, units = "cm")
+# combine without and with correction
+p <- p_f_air_sea_month / p_f_air_sea_corr_month
+ggsave(filename = "figures/air-sea_CO2_flux_comp.png", plot = p, width = 20, units = "cm")
+knitr::include_graphics("figures/air-sea_CO2_flux_comp.png")
+#rm(p, p_f_air_sea, p_f_air_sea_d, p_f_air_sea_m)
+```
+
 The annual air-sea CO2 flux is
-`r round(sum(air_sea_month$f_air_sea), digits = 0)` mol/(m2 year).
+`r round(sum(air_sea_month$f_air_sea), digits = 0)` and `r round(sum(air_sea_corr_month$f_air_sea_corr), digits = 0)` mol/(m2 year) without and with correction, respectively.
 
 ## Miscellaneous
 ### OmegaAragonite
