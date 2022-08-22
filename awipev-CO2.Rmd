@@ -4354,8 +4354,9 @@ pCO2 measured in FerryBox expressed at in situ temp vs pCO2 calculated from REMO
 ```{r, echo = FALSE, message = FALSE, warning = FALSE}
 pco2_fb_remos <- d_all %>% 
   dplyr::select(depth, monthd, pco2_fb_ctd_temp, pco2_remos_ctd_temp) %>% 
-  dplyr::filter(depth < 2) %>% 
+  dplyr::filter(depth < 4) %>% 
   drop_na() %>% 
+  dpl
   ggplot(aes(x = pco2_fb_ctd_temp, y = pco2_remos_ctd_temp, label = monthd)) +
   geom_point(col="blue", size = 0.5) +
   #geom_text() +
