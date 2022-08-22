@@ -1353,6 +1353,10 @@ d_all <- d_all %>%
       pCO2lab = pco2_fb,
       Tlab = temp_fb,
       SST = temp_insitu_11m),
+    pco2_fb_ctd_temp = seacarb::pCO2insi(
+      pCO2lab = pco2_fb,
+      Tlab = temp_fb,
+      SST = temp_insitu_ctd),
     fco2_fb = seacarb::p2fCO2(
       pCO2 = pco2_fb,
       T = temp_fb,
@@ -3426,18 +3430,22 @@ print(p)
 summary(aov(tmp$sal_insitu_ctd ~ tmp$depth_group * tmp$montht))
 
 # we look at salinity 0 to 4 m vs more than 8 m
-tmp <- d_all %>% 
+tmp <- d_all %>%
   dplyr::select(montht, sal_insitu_ctd, depth_group) %>%
-  dplyr::mutate(depth_group2 = as.factor(case_when(depth_group == '0-2' | depth_group == '2-4' ~ '0-4', 
-                                      depth_group == '>8' ~ '8-12'))) %>% 
-  dplyr::filter(depth_group2 == '0-4' | depth_group2 == '8-12') %>% 
+  dplyr::mutate(depth_group2 = as.factor(
+    case_when(
+      depth_group == '0-2' | depth_group == '2-4' ~ '0-4',
+      depth_group == '>8' ~ '8-12'
+    )
+  )) %>%
+  dplyr::filter(depth_group2 == '0-4' | depth_group2 == '8-12') %>%
   dplyr::group_by(depth_group2, montht)
-tmp_delta <- tidyr::drop_na(tmp) %>% 
-  group_by(depth_group2, montht) %>% 
-  dplyr::summarise(sal_med = median(sal_insitu_ctd, na.rm = TRUE)) %>% 
-  tidyr::pivot_wider(names_from = depth_group2, values_from = sal_med) %>% 
+tmp_delta <- tidyr::drop_na(tmp) %>%
+  group_by(depth_group2, montht) %>%
+  dplyr::summarise(sal_med = median(sal_insitu_ctd, na.rm = TRUE)) %>%
+  tidyr::pivot_wider(names_from = depth_group2, values_from = sal_med) %>%
   dplyr::rename(median0_4m = "0-4",
-                median8_12m = "8-12") %>% 
+                median8_12m = "8-12") %>%
   dplyr::mutate(sal_delta = median0_4m - median8_12m)
 kable(tmp_delta, digits = 2, caption = "Median salinity with (median0_4m - median8_12m)")
 
@@ -3462,6 +3470,7 @@ sal_delta_plt <- tmp_delta %>%
         panel.grid.minor.y = element_blank())
 print(sal_delta_plt)
 ```
+
 ### Stratification temperature
 ```{r, echo=FALSE, message= FALSE, warning=FALSE}
 # we look at temperature all depths
@@ -3479,18 +3488,22 @@ p <- tmp %>%
 print(p)
 summary(aov(tmp$temp_insitu_ctd ~ tmp$depth_group * tmp$montht))
 # we look at temperature 0 to 4 m vs more than 8 m
-tmp <- d_all %>% 
+tmp <- d_all %>%
   dplyr::select(montht, temp_insitu_ctd, depth_group) %>%
-  dplyr::mutate(depth_group2 = as.factor(case_when(depth_group == '0-2' | depth_group == '2-4' ~ '0-4', 
-                                      depth_group == '>8' ~ '8-12'))) %>% 
-  dplyr::filter(depth_group2 == '0-4' | depth_group2 == '8-12') %>% 
+  dplyr::mutate(depth_group2 = as.factor(
+    case_when(
+      depth_group == '0-2' | depth_group == '2-4' ~ '0-4',
+      depth_group == '>8' ~ '8-12'
+    )
+  )) %>%
+  dplyr::filter(depth_group2 == '0-4' | depth_group2 == '8-12') %>%
   dplyr::group_by(depth_group2, montht)
-tmp_delta <- tmp %>% 
-  group_by(depth_group2, montht) %>% 
-  dplyr::summarise(temp_med = median(temp_insitu_ctd, na.rm = TRUE)) %>% 
-  tidyr::pivot_wider(names_from = depth_group2, values_from = temp_med) %>% 
+tmp_delta <- tmp %>%
+  group_by(depth_group2, montht) %>%
+  dplyr::summarise(temp_med = median(temp_insitu_ctd, na.rm = TRUE)) %>%
+  tidyr::pivot_wider(names_from = depth_group2, values_from = temp_med) %>%
   dplyr::rename(median0_4m = "0-4",
-                median8_12m = "8-12") %>% 
+                median8_12m = "8-12") %>%
   dplyr::mutate(temp_delta = median0_4m - median8_12m)
 kable(tmp_delta, digits = 2, caption = "Median temperature with (median0_4m - median8_12m)")
 p <- tmp %>% 
@@ -3756,11 +3769,11 @@ tmp <- d_all %>%
                 temp_insitu_ctd) %>%
   drop_na() %>%
   dplyr::mutate(
-    at_sf = (intercept_s_at + slope_s_at * sal_insitu_ctd) * 1e-6,
-    pco2_sf = seacarb::carb(
+    at_remos = (intercept_s_at + slope_s_at * sal_insitu_ctd) * 1e-6,
+    pco2_remos_ctd_temp = seacarb::carb(
       flag = 8,
       var1 = pHint_tot_sf,
-      var2 = at_sf,
+      var2 = at_remos,
       S = sal_insitu_ctd,
       T = temp_insitu_ctd,
       Patm = 1,
@@ -3774,23 +3787,27 @@ tmp <- d_all %>%
       b = "u74"
     )$pCO2
   )
+# add at_remos and pco2_remos_ctd_temp to d_all
+d_all <-
+  dplyr::left_join(d_all, dplyr::select(tmp, datetime, at_remos, pco2_remos_ctd_temp), by = "datetime") %>%
+  dplyr::select(sort(current_vars()))
 tmp <- tmp %>% 
-  dplyr::select(montht, pco2_sf, depth_group) %>%
+  dplyr::select(montht, pco2_remos_ctd_temp, depth_group) %>%
   tidyr::drop_na() %>% 
   dplyr::filter(depth_group != "NA") %>% 
   group_by(depth_group, montht)
 p <- tmp %>% 
-  ggplot(aes(x=as.factor(depth_group), y = pco2_sf)) +
+  ggplot(aes(x=as.factor(depth_group), y = pco2_remos_ctd_temp)) +
   geom_boxplot(notch=FALSE, size=0.2, fill="grey50", outlier.color = "blue", outlier.size = 0.3) +
   labs(title = "pco2_sf vs depth", x = "Depth (m)", y= "fCO2 (uatm)") +
   scale_x_discrete(labels = depth_labels) +
   facet_wrap(vars(montht), scale = "free_y")
 print(p)
-summary(aov(tmp$pco2_sf ~ tmp$depth_group * tmp$montht))
+summary(aov(tmp$pco2_remos_ctd_temp ~ tmp$depth_group * tmp$montht))
 
 # we look at pCO2 NOT normalized at 4°C 0 to 4 m vs more than 8 m
 tmp <- tmp %>%
-  dplyr::select(montht, pco2_sf, depth_group) %>%
+  dplyr::select(montht, pco2_remos_ctd_temp, depth_group) %>%
   dplyr::mutate(depth_group2 = as.factor(
     case_when(
       depth_group == '0-2' | depth_group == '2-4' ~ '0-4',
@@ -3799,30 +3816,37 @@ tmp <- tmp %>%
   )) %>%
   dplyr::filter(depth_group2 == '0-4' | depth_group2 == '8-12') %>%
   dplyr::group_by(depth_group2, montht)
-summary(aov(tmp$pco2_sf ~ tmp$depth_group2 * tmp$montht))
+summary(aov(tmp$pco2_remos_ctd_temp ~ tmp$depth_group2 * tmp$montht))
 
 tmp_delta <- tmp %>%
   group_by(depth_group2, montht) %>%
-  dplyr::summarise(pco2_sf_med = median(pco2_sf, na.rm = TRUE)) %>%
-  tidyr::pivot_wider(names_from = depth_group2, values_from = pco2_sf_med) %>%
+  dplyr::summarise(pco2_remos_ctd_temp_med = median(pco2_remos_ctd_temp, na.rm = TRUE)) %>%
+  tidyr::pivot_wider(names_from = depth_group2, values_from = pco2_remos_ctd_temp_med) %>%
   dplyr::rename(median0_4m = "0-4",
-                median8_12m = "8-12") %>%   
-  dplyr::mutate(pco2_sf_med_delta = median0_4m - median8_12m) %>% 
+                median8_12m = "8-12") %>%
+  dplyr::mutate(pco2_remos_ctd_temp_med_delta = median0_4m - median8_12m) %>%
   # this is to bring June back...
-  rbind(data.frame(montht="Jun", median8_12m = NA, median0_4m = NA, pco2_sf_med_delta = NA)) %>% 
-  dplyr::mutate(montht = factor(montht, levels = month.abb)) %>% 
+  rbind(
+    data.frame(
+      montht = "Jun",
+      median8_12m = NA,
+      median0_4m = NA,
+      pco2_remos_ctd_temp_med_delta = NA
+    )
+  ) %>%
+  dplyr::mutate(montht = factor(montht, levels = month.abb)) %>%
   dplyr::arrange(montht)
-kable(tmp_delta, digits = 3, caption = "Median seafet pCO2 (median0_4m - median8_12m)")
+kable(tmp_delta, digits = 3, caption = "Median REMOS pCO2 (median0_4m - median8_12m)")
 
 p <- tidyr::drop_na(tmp) %>% 
-  ggplot(aes(x=as.factor(depth_group2), y = pco2_sf)) +
+  ggplot(aes(x=as.factor(depth_group2), y = pco2_remos_ctd_temp)) +
   geom_boxplot(notch=FALSE, size=0.2, fill="grey50", outlier.color = "blue", outlier.size = 0.3) +
   labs(title = "pCO2 at SeaFET temperature", x = "Depth (m)", y= "pCO2") +
   facet_wrap(vars(montht), scale = "free_y")
 print(p)
 
 pco2_delta_plt <- tmp_delta %>%
-  ggplot(aes(x = montht, y = pco2_sf_med_delta)) +
+  ggplot(aes(x = montht, y = pco2_remos_ctd_temp_med_delta)) +
   scale_x_discrete("Month", expand = c(0, 0)) +
   scale_y_continuous(limits = c(-46,10), expand = c(0, 0)) +
   labs(y = latex2exp::TeX("$pCO_2$ at in situ temperature ($\\mu atm$)")) +
@@ -3855,39 +3879,27 @@ tmp <- d_all %>%
                 montht,
                 depth_group,
                 depth,
-                pHint_tot_sf,
+                #pHint_tot_sf,
+                pco2_remos_ctd_temp,
                 sal_insitu_ctd,
                 temp_insitu_ctd) %>%
   drop_na() %>%
-  dplyr::mutate(
-    at_sf = (intercept_s_at + slope_s_at * sal_insitu_ctd) * 1e-6,
-    pco2_sf = seacarb::carb(
-      flag = 8,
-      var1 = pHint_tot_sf,
-      var2 = at_sf,
-      S = sal_insitu_ctd,
-      T = temp_insitu_ctd,
-      Patm = 1,
-      P = depth / 10,
-      Pt = 0,
-      Sit = 0,
-      k1k2 = "l",
-      kf = "dg",
-      ks = "d",
-      pHscale = "T",
-      b = "u74"
-    )$pCO2,
-    pco2_sf_4 = seacarb::pCO2insi(pCO2lab = pco2_sf, Tlab = temp_insitu_ctd, SST = 4)
+  dplyr::mutate(pco2_remos_4 = seacarb::pCO2insi(pCO2lab = pco2_remos_ctd_temp, Tlab = temp_insitu_ctd, SST = 4)
   )
+# add pco2_remos_4 to d_all
+d_all <-
+  dplyr::left_join(d_all, dplyr::select(tmp, datetime, pco2_remos_4), by = "datetime") %>%
+  dplyr::select(sort(current_vars()))
+
 tmp <- tmp %>% 
-  dplyr::select(montht, pco2_sf_4, depth_group) %>%
+  dplyr::select(montht, pco2_remos_4, depth_group) %>%
   tidyr::drop_na() %>% 
   dplyr::filter(depth_group != "NA") %>% 
   group_by(depth_group, montht)
 p <- tmp %>% 
-  ggplot(aes(x=as.factor(depth_group), y = pco2_sf_4)) +
+  ggplot(aes(x=as.factor(depth_group), y = pco2_remos_4)) +
   geom_boxplot(notch=FALSE, size=0.2, fill="grey50", outlier.color = "blue", outlier.size = 0.3) +
-  labs(title = "pco2_sf at 4°C vs depth", x = "Depth (m)", y= "pCO2 (uatm)") +
+  labs(title = "pco2_remos at 4°C vs depth", x = "Depth (m)", y= "pCO2 (uatm)") +
   scale_x_discrete(labels = depth_labels) +
   facet_wrap(vars(montht), scale = "free_y")
 print(p)
@@ -3895,7 +3907,7 @@ summary(aov(tmp$pco2_sf_4 ~ tmp$depth_group * tmp$montht))
 
 # we look at pCO2 normalized at 4°C 0 to 4 m vs more than 8 m
 tmp <- tmp %>%
-  dplyr::select(montht, pco2_sf_4, depth_group) %>%
+  dplyr::select(montht, pco2_remos_4, depth_group) %>%
   dplyr::mutate(depth_group2 = as.factor(
     case_when(
       depth_group == '0-2' | depth_group == '2-4' ~ '0-4',
@@ -3904,30 +3916,39 @@ tmp <- tmp %>%
   )) %>%
   dplyr::filter(depth_group2 == '0-4' | depth_group2 == '8-12') %>%
   dplyr::group_by(depth_group2, montht)
-summary(aov(tmp$pco2_sf_4 ~ tmp$depth_group2 * tmp$montht))
+summary(aov(tmp$pco2_remos_4 ~ tmp$depth_group2 * tmp$montht))
 
 tmp_delta <- tmp %>%
   group_by(depth_group2, montht) %>%
-  dplyr::summarise(pco2_sf_4_med = median(pco2_sf_4, na.rm = FALSE)) %>%
-  tidyr::pivot_wider(names_from = depth_group2, values_from = pco2_sf_4_med, values_fill = NA) %>%
+  dplyr::summarise(pco2_remos_4_med = median(pco2_remos_4, na.rm = FALSE)) %>%
+  tidyr::pivot_wider(names_from = depth_group2,
+                     values_from = pco2_remos_4_med,
+                     values_fill = NA) %>%
   dplyr::rename(median0_4m = "0-4",
-                median8_12m = "8-12") %>%   
-  dplyr::mutate(pco2_sf_4_med_delta = median0_4m - median8_12m) %>% 
-    # this is to bring June back... 
-  rbind(data.frame(montht="Jun", median8_12m = NA, median0_4m = NA, pco2_sf_4_med_delta = NA)) %>% 
+                median8_12m = "8-12") %>%
+  dplyr::mutate(pco2_remos_4_med_delta = median0_4m - median8_12m) %>%
+  # this is to bring June back...
+  rbind(
+    data.frame(
+      montht = "Jun",
+      median8_12m = NA,
+      median0_4m = NA,
+      pco2_remos_4_med_delta = NA
+    )
+  ) %>% 
   dplyr::mutate(montht = factor(montht, levels = month.abb)) %>% 
   dplyr::arrange(montht)
-kable(tmp_delta, digits = 3, caption = "Median seafet pCO2 at 4°C with (median0_4m - median8_12m)")
+kable(tmp_delta, digits = 3, caption = "Median remos pCO2 at 4°C with (median0_4m - median8_12m)")
 
 p <- tidyr::drop_na(tmp) %>% 
-  ggplot(aes(x=as.factor(depth_group2), y = pco2_sf_4)) +
+  ggplot(aes(x=as.factor(depth_group2), y = pco2_remos_4)) +
   geom_boxplot(notch=FALSE, size=0.2, fill="grey50", outlier.color = "blue", outlier.size = 0.3) +
   labs(title = "pCO2 normalized at 4°C", x = "Depth (m)", y= "pCO2") +
   facet_wrap(vars(montht), scale = "free_y")
 print(p)
 
 pco2_4_delta_plt <- tmp_delta %>%
-  ggplot(aes(x = montht, y = pco2_sf_4_med_delta)) +
+  ggplot(aes(x = montht, y = pco2_remos_4_med_delta)) +
   scale_x_discrete("Month", expand = c(0, 0)) +
   scale_y_continuous(limits = c(-46,10), expand = c(0, 0)) +
   labs(y = latex2exp::TeX("$pCO_2$ at 4°C ($\\mu atm$)")) +
@@ -4017,14 +4038,22 @@ taka_year <- taka %>%
   ungroup()
 
 # season 
-taka_season <- taka %>% 
-  group_by(season) %>% 
-  dplyr::mutate(pco2_thermal = 
-                  mean(pco2_fb_insi_temp, na.rm = TRUE) * exp(0.0423 * (temp_insitu_11m - mean(temp_insitu_11m, na.rm = TRUE))),
-                  pco2_nonthermal = pco2_fb_insi_temp * exp(0.0423 * (mean(temp_insitu_11m, na.rm = TRUE) - temp_insitu_11m))) %>% 
-  dplyr::summarise(thermal = max(pco2_thermal, na.rm = TRUE) - min(pco2_thermal, na.rm = TRUE),
-                   nonthermal = max(pco2_nonthermal, na.rm = TRUE) - min(pco2_nonthermal, na.rm = TRUE),
-                   thermal_nonthermal = thermal / nonthermal) %>% 
+taka_season <- taka %>%
+  group_by(season) %>%
+  dplyr::mutate(
+    pco2_thermal =
+      mean(pco2_fb_insi_temp, na.rm = TRUE) * exp(0.0423 * (
+        temp_insitu_11m - mean(temp_insitu_11m, na.rm = TRUE)
+      )),
+    pco2_nonthermal = pco2_fb_insi_temp * exp(0.0423 * (
+      mean(temp_insitu_11m, na.rm = TRUE) - temp_insitu_11m
+    ))
+  ) %>%
+  dplyr::summarise(
+    thermal = max(pco2_thermal, na.rm = TRUE) - min(pco2_thermal, na.rm = TRUE),
+    nonthermal = max(pco2_nonthermal, na.rm = TRUE) - min(pco2_nonthermal, na.rm = TRUE),
+    thermal_nonthermal = thermal / nonthermal
+  ) %>%
   ungroup()
 ```
 
@@ -4271,7 +4300,7 @@ tmp <-
   tmp$datetime <- lubridate::round_date(tmp$datetime, unit="1 minutes")
 atm_co2_new <- bind_rows(atm_co2_new, tmp)
   }
- # combine the two sources of CO2 data
+# combine the two sources of CO2 data
 # the new source has missing data in 2018, so the data from the old source
 # are used for 2018
 atm_co2 <- dplyr::full_join(atm_co2_new, atm_co2_old, by = "datetime")
@@ -4281,7 +4310,6 @@ atm_co2 <- atm_co2 %>%
 
 d_all <- dplyr::left_join(d_all, dplyr::select(atm_co2, datetime, co2_air), by = "datetime") %>% 
   dplyr::select(sort(current_vars()))
-
 
 p_atm_co2 <- d_all %>% 
   #tidyr::pivot_longer(cols = c(pco2_air, pco2_air_old), names_to = "dataset", values_to = "pco2") %>% 
@@ -4320,7 +4348,31 @@ d_all <- dplyr::left_join(d_all, meteo, by = "datetime") %>%
   dplyr::select(sort(current_vars()))
 ```
 
-```{r air-sea CO2, echo=FALSE, message= FALSE, warning=FALSE}
+## Comparison pCO2 ferrybox vs pCO2 REMOS
+pCO2 measured in FerryBox expressed at in situ temp vs pCO2 calculated from REMOS data (S, T, pH, salinity-AT) at 0-2 m only.
+
+```{r, echo = FALSE, message = FALSE, warning = FALSE}
+pco2_fb_remos <- d_all %>% 
+  dplyr::select(depth, monthd, pco2_fb_ctd_temp, pco2_remos_ctd_temp) %>% 
+  dplyr::filter(depth < 2) %>% 
+  drop_na() %>% 
+  ggplot(aes(x = pco2_fb_ctd_temp, y = pco2_remos_ctd_temp, label = monthd)) +
+  geom_point(col="blue", size = 0.5) +
+  #geom_text() +
+  xlim(180, 420) + ylim(180, 420) +
+  labs(title = "pCO2 at ctd temperature",
+       x=latex2exp::TeX("$pCO_{2}$ 11 m $\\phantom{x}(\\muatm)$"),
+       y= latex2exp::TeX("$pCO_{2}$ REMOS at 0-2 m\\phantom{x}($\\muatm)$"))  +
+  ggpmisc::stat_ma_line(method = "lmodel2:MA", se = FALSE, size = 1) +
+  ggpmisc::stat_ma_eq(method = "lmodel2:MA", aes(label = after_stat(eq.label))) +
+  geom_abline(slope = 1, intercept = 0, linetype = "dashed") +  
+  theme_bw() + Mytheme(size_labs = 9) + theme(aspect.ratio = 1) +
+  coord_fixed(ratio = 1, expand = TRUE, clip = "on")
+pco2_fb_remos
+ggsave(filename = "figures/pco2_fb_remos.png", plot = pco2_fb_remos, width = 25, height = 25, units = "cm")
+```
+
+```{r air-sea CO2 with measured data, echo=FALSE, message= FALSE, warning=FALSE}
 # calculations as described by de Carlo et al. (2013)
 # we consider that mole fraction in air = ppm TO CHECK
 # By convention, a negative flux indicates fluxes directed from the atmosphere to the ocean, and a positive flux indicates fluxes directed from the ocean to the atmosphere.
@@ -4333,9 +4385,9 @@ d_all <- d_all %>%
                 Sc = 2073.1 - (125.62*temp_insitu_11m) + (3.6276*temp_insitu_11m^2) -
                   (0.043219*temp_insitu_ctd^3), #dimensionless
                 k = k600 * (Sc/600)^-0.5, #cm/h
-                alp = seacarb::K0(S=sal_fb_mix,T=temp_insitu_11m,P=0,Patm=p_air/1013.25), #mol/(kg/atm)
-                alp = alp * (seacarb::rho(S = sal_fb_mix, T = temp_insitu_11m, P = 0)/1000), #mol/(l/atm)
-                f_air_sea = k * alp * delta_pco2 # mmol/(m2 h)
+                alpha = seacarb::K0(S=sal_fb_mix,T=temp_insitu_11m,P=0,Patm=p_air/1013.25), #mol/(kg/atm)
+                alpha = alpha * (seacarb::rho(S = sal_fb_mix, T = temp_insitu_11m, P = 0)/1000), #mol/(l/atm)
+                f_air_sea = k * alpha * delta_pco2 # mmol/(m2 h)
                 )
 
 p_f_air_sea <- ggplot(data = d_all) +
@@ -4378,15 +4430,6 @@ ggsave(filename = "figures/f_air_sea_m.png", plot = p_f_air_sea_m, width = 20, u
 
 p <- p_f_air_sea / p_f_air_sea_d / p_f_air_sea_m
 ggsave(filename = "figures/air-sea_CO2_flux.png", plot = p, width = 20, units = "cm")
-#p <- cowplot::plot_grid(p_f_air_sea, p_f_air_sea_d, p_f_air_sea_m, ncol = 1)
-#pngfile <- "figures/air-sea_CO2_flux.png"
-# ggsave(
-#   pngfile, 
-#   p, 
-#   device = agg_png, 
-#   width = 6.6, height = 10, units = "cm", res = 300,
-#   scaling = 0.4
-# )
 knitr::include_graphics("figures/air-sea_CO2_flux.png")
 #rm(p, p_f_air_sea, p_f_air_sea_d, p_f_air_sea_m)
 ```
