@@ -4262,7 +4262,9 @@ calculated by day, then by month, then by year.
 Let's look at the stratification tab above (salinity, temperature, density and fCO2): fCO2 is generally higher in the bottom layer than in the surface layer (note that no data is available in May, June and July). Which means that the air-sea CO2 fluxes calculated with pCO2 at 11 m are overestimated.
 
 
-## Atmospheric CO2 Zeppelin
+
+
+### Atmospheric CO2 Zeppelin
 ```{r, echo=FALSE, message= FALSE, warning=FALSE}
 # downloaded 2020-08-19 from https://gaw.kishou.go.jp/search/file/0054-6001-1001-01-01-9999
 # value:units : ppm
@@ -4320,8 +4322,8 @@ p_atm_co2 <- d_all %>%
 p_atm_co2
 ggsave(filename = "figures/atm_co2.png", plot = p_atm_co2, width = 20, units = "cm")
 ```
-
-```{r meteo data, echo=FALSE, message= FALSE, warning=FALSE}
+### Wind data
+```{r, echo=FALSE, message= FALSE, warning=FALSE}
 #[1] "Year"               "Month"              "Day"                "Hour"              
 #[5] "Temperature[degC]"  "Pressure[hPa]"      "WindSpeed[m/s]"     "WindDirection[deg]"
 wind_2020 <-
@@ -4348,7 +4350,7 @@ d_all <- dplyr::left_join(d_all, meteo, by = "datetime") %>%
   dplyr::select(sort(current_vars()))
 ```
 
-## Comparison pCO2 ferrybox vs pCO2 REMOS
+### Comparison pCO2 ferrybox vs pCO2 REMOS
 pCO2 measured in FerryBox expressed at in situ temp vs pCO2 calculated from REMOS data (S, T, pH, salinity-AT) at 0-2 m only.
 
 ```{r, echo = FALSE, message = FALSE, warning = FALSE}
@@ -4368,7 +4370,7 @@ p_pco2_fb_remos <- d_all %>%
   geom_abline(slope = 1, intercept = 0, linetype = "dashed") +  
   theme_bw() + Mytheme(size_labs = 9) + theme(aspect.ratio = 1) +
   coord_fixed(ratio = 1, expand = TRUE, clip = "on")
-p_pco2_fb_remos
+#p_pco2_fb_remos
 ggsave(filename = "figures/pco2_fb_remos.png", plot = p_pco2_fb_remos, width = 25, height = 25, units = "cm")
 
 # Same thing but monthly median; code different because one wants to calculate delta
@@ -4395,7 +4397,7 @@ p_pco2_fb_remos_month <- tmp %>%
   geom_abline(slope = 1, intercept = 0, linetype = "dashed") +  
   theme_bw() + Mytheme(size_labs = 9) + theme(aspect.ratio = 1) +
   coord_fixed(ratio = 1, expand = TRUE, clip = "on")
-p_pco2_fb_remos_month
+#p_pco2_fb_remos_month
 ggsave(filename = "figures/pco2_fb_remos_monthly.png", plot = p_pco2_fb_remos_month, width = 25, height = 25, units = "cm")
 
 # combine
@@ -4404,9 +4406,14 @@ g <- g + patchwork::plot_annotation(tag_levels = 'A')
 ggsave(filename = "figures/pco2_compare.png", plot = g)
 g
 ```
-The relationship between pCO2 between 0 and 4 m on the REMOS (estimated from pH and S-derived AT) and pCO2 measured at 11 m (both pCO2 at CTD temperature) is much nicer using monthly median values (b) than using all data (a). The mean and median difference between the two pCO2s are `r round(summary(tmp$delta_pco2_fb_remos_monthly), digits=0)`
+The relationship between pCO2 between 0 and 4 m on the REMOS (estimated from pH and S-derived AT) and pCO2 measured at 11 m (both pCO2 at CTD temperature) is much nicer using monthly median values (b) than using all data (a). The mean and median difference between the two pCO2s are
 
-```{r air-sea CO2 with measured data, echo=FALSE, message= FALSE, warning=FALSE}
+```{r, echo=FALSE, message= FALSE, warning=FALSE}
+knitr::kable(summary(tmp$delta_pco2_fb_remos_monthly))
+```
+
+### Calculation of fluxes
+```{r With Contros data, echo=FALSE, message= FALSE, warning=FALSE}
 # calculations as described by de Carlo et al. (2013)
 # we consider that mole fraction in air = ppm TO CHECK
 # By convention, a negative flux indicates fluxes directed from the atmosphere to the ocean, and a positive flux indicates fluxes directed from the ocean to the atmosphere.
@@ -4428,7 +4435,7 @@ p_f_air_sea <- ggplot(data = d_all) +
   geom_point(aes(x = datetime, y = f_air_sea), col = "blue", size = 0.15, na.rm = TRUE) +
   labs(title = "Air-sea CO2 flux (all data)", x = "Time", y = "CO2 (mmol/(m2 h))") +
   Mytheme(size_labs = 8)
-p_f_air_sea
+#p_f_air_sea
 ggsave(filename = "figures/p_f_air_sea.png", plot = p_f_air_sea, width = 20, units = "cm")
 
 air_sea_day <- d_all %>%
@@ -4442,7 +4449,7 @@ p_f_air_sea_d <- ggplot(data = air_sea_day) +
   geom_point(aes(x = day, y = f_air_sea), col = "blue", size = 0.15, na.rm = TRUE) +
   labs(title = "Air-sea CO2 flux (per day)", x = "Julian day", y = "CO2 (mmol/(m2 d))") +
   Mytheme(size_labs = 8)
-p_f_air_sea_d
+#p_f_air_sea_d
 ggsave(filename = "figures/f_air_sea_d.png", plot = p_f_air_sea_d, width = 20, units = "cm")
 
 air_sea_month <- d_all %>%
@@ -4459,7 +4466,7 @@ p_f_air_sea_month <- ggplot(data = air_sea_month) +
   lims(y = c(-30, 0)) +
   labs(title = "Air-sea CO2 flux (per month)", x = "Month", y = "CO2 (mmol/(m2 month))") +
   Mytheme(size_labs = 8)
-p_f_air_sea_month
+#p_f_air_sea_month
 ggsave(filename = "figures/f_air_sea_m.png", plot = p_f_air_sea_month, width = 20, units = "cm")
 
 p <- p_f_air_sea / p_f_air_sea_d / p_f_air_sea_month
@@ -4468,7 +4475,7 @@ knitr::include_graphics("figures/air-sea_CO2_flux.png")
 #rm(p, p_f_air_sea, p_f_air_sea_d, p_f_air_sea_m)
 ```
 
-```{r air-sea CO2 with corrected data, echo=FALSE, message= FALSE, warning=FALSE}
+```{r With in situ simulation, echo=FALSE, message= FALSE, warning=FALSE}
 # Same as above but we correct pCO2 by adding 17 uatm as we show above that pCO2 at 11 m
 # underestimates pCO2 at 0-4m (hence overestimates CO2 uptake)
 # round(summary(tmp$delta_pco2_fb_remos_monthly))[[4]]
@@ -4518,7 +4525,7 @@ p_f_air_sea_corr_month <- ggplot(data = air_sea_corr_month) +
   lims(y = c(-30, 0)) +
   labs(title = "Air-sea CO2 flux (per month)", x = "Month", y = "CO2 (mmol/(m2 month))") +
   Mytheme(size_labs = 8)
-p_f_air_sea_corr_month
+#p_f_air_sea_corr_month
 ggsave(filename = "figures/f_air_sea_corr_month.png", plot = p_f_air_sea_corr_month, width = 20, units = "cm")
 # combine without and with correction
 p <- p_f_air_sea_month / p_f_air_sea_corr_month
