@@ -907,11 +907,11 @@ Several salinity sensors are on site, 1 inside the Ferrybox (SBE45) and
 5 outside (ctd183, ctd181, ctd578, ctd964/964b and ctd103) that are
 switched periodically. Salinity from FB is taken in consideration. If
 data gaps are encountered, they are filled with bottom salinity data
-from ctd (> 8 m). New column "sal_fb_mix" is created and is the one used in
-ESSD paper.
+from ctd (\> 8 m). New column "sal_fb_mix" is created and is the one
+used in ESSD paper.
 
 -   1 SBE45 inside the Ferrybox (sal_fb)
--   5 CTD > 8 m depth (sal_insitu_ctd)
+-   5 CTD \> 8 m depth (sal_insitu_ctd)
 
 ```{r Salinity, echo=FALSE, message= FALSE, warning=FALSE, out.width="80%",fig.show='hold', fig.align="center"}
 # SAL FerryBox and sal_fb_mix
@@ -944,6 +944,7 @@ d_all <- d_all %>%
 ```
 
 ### **Depth profile**
+
 This is done later.
 
 ```{r Sal profile, eval=FALSE, echo=FALSE, message= FALSE, warning=FALSE, out.width="80%",fig.show='hold', fig.align="center"}
@@ -992,7 +993,8 @@ There are `r sum(!is.na(tmp$range_diff))` days with salinity values at both 1 m 
 The salinity difference between 1 and 10 m ranges between `r min(tmp$range_diff, na.rm = TRUE)` and `r max(tmp$range_diff, na.rm = TRUE)` (mean: `r mean(tmp$range_diff, na.rm = TRUE)`; `r median(tmp$range_diff, na.rm = TRUE)`). The difference with depth is therefore significant.
 ```
 
-### **Comparison salinity FerryBox vs Salinity CTD REMOS 10 m** 
+### **Comparison salinity FerryBox vs Salinity CTD REMOS 10 m**
+
 ```{r, echo=FALSE, message= FALSE, warning=FALSE, out.width="80%",fig.show='hold', fig.align="center"}
 # REVIEW OK?
 reg <- ggreg(
@@ -1024,9 +1026,9 @@ Several temperature sensors are on site, 1 inside the Ferrybox (SBE45),
 5 outside (ctd183, ctd181, ctd578, ctd964/964b and ctd103) that are
 switched periodically and 1 fixed at 11 m depth (sbe38). Temperature in
 situ at 11 m depth is taken in consideration. If data gaps are
-encountered, they are filled with bottom temperature data from ctd (> 8
-m). New column "temp_insitu_11m_mix" is created. For the moment, no gaps are
-encountered and temp_insitu_11m_mix = temp_insitu_11m.
+encountered, they are filled with bottom temperature data from ctd (\> 8
+m). New column "temp_insitu_11m_mix" is created. For the moment, no gaps
+are encountered and temp_insitu_11m_mix = temp_insitu_11m.
 
 -   1 SBE45 inside the Ferrybox (temp_fb)
 -   5 CTD profiling (temp_insitu_ctd_1m - 3m - 5m - 7m - 10m)
@@ -1094,7 +1096,8 @@ and 9 m ranges between `r min(tmp$range, na.rm = TRUE)`°C and
 The difference with depth is therefore significant.
 ```
 
-### **Temperature Ferrybox vs Temperature in situ 11 m** 
+### **Temperature Ferrybox vs Temperature in situ 11 m**
+
 ```{r, echo=FALSE, message= FALSE, warning=FALSE}
 # Remove temp_fb outliers 
 d_all <- d_all %>%
@@ -1131,7 +1134,7 @@ sd_diff_T_fb_11m <- round(sd(d_all$diff_T_fb_11m, na.rm = TRUE), digits = 2)
 The mean difference between temperature Ferrybox and in situ at 11 m is:
 `r mean_diff_T_fb_11m` ± `r sd_diff_T_fb_11m`°C.
 
-### **T 11 m / T CTD \> 8 m** 
+### **T 11 m / T CTD \> 8 m**
 
 ```{r Temp 11m and ctd comparaison, echo=FALSE, message= FALSE, warning=FALSE}
 reg <- ggreg(
@@ -1165,7 +1168,7 @@ step changes. Last analyser repaired by Contros was installed back in
 the FB on 2018-07-31. This was the 3rd analyser on site. Even with this
 instrument, data collection didn't show satisfaction.
 
-### **Discrete total alkalinity vs salinity **
+### **Discrete total alkalinity vs salinity**
 
 In the previous part, missing TA were interpolated with a linear model.
 This does not reflect the natural variability of TA. For this reason,
@@ -1216,9 +1219,11 @@ d_all$at_calc <- slope_s_at * d_all$sal_fb_mix + intercept_s_at
 
 The relationship between titrated total alkalinity (references) and
 salinity is very good with an r2 of
-`r round(reg$fit$rsquare, digits = 2)` (`r N = reg$fit$n`). Need to compare with other relationships from the literature.
+`r round(reg$fit$rsquare, digits = 2)` (`r N = reg$fit$n`). Need to
+compare with other relationships from the literature.
 
 #### **Is there a seasonal change in the AT vs S relationship**
+
 ```{r, eval=TRUE, echo=FALSE, warning=FALSE, message=FALSE, out.width="100%", fig.align="center"}
 d_all_at_discrete <- d_all_at_discrete %>% 
   dplyr::select(sal_fb_mix, at) %>% 
@@ -1258,7 +1263,10 @@ g <- reg_below$plot | reg_above$plot
 g
 ```
 
-Splitting the data below and above salinity 34.5, as done by Nondal et al. (2009), does not prove useful (data not shown). It degrades r2 (0.74 and 0.3 vs 0.81), degrades rmse or marginally improves the rmse (19 and 13.6 vs 16.8).
+Splitting the data below and above salinity 34.5, as done by Nondal et
+al. (2009), does not prove useful (data not shown). It degrades r2 (0.74
+and 0.3 vs 0.81), degrades rmse or marginally improves the rmse (19 and
+13.6 vs 16.8).
 
 #### **Final TA re-calculated data (Salinity relationship)**
 
@@ -1317,8 +1325,8 @@ first one in case of calibration or problem. Both sensors were set on a
 cycle according to informations given by Contros in March 2015
 ([c.kirbach\@contros.eu](mailto:c.kirbach@contros.eu){.email}):
 
-30 min warm up --> (3 min Zeroing + 15 min Flushing + 702 minutes
-Measuring) --> (3 + 15 + 702)...
+30 min warm up --\> (3 min Zeroing + 15 min Flushing + 702 minutes
+Measuring) --\> (3 + 15 + 702)...
 
 -   **Warm-up**: running without sending data. Done once, after the
     sensor is turned on. Time can vary depending on T water and power
@@ -1426,7 +1434,8 @@ The relationship between the measured (Contros) and calculated pCO2
 (blue line) is relatively poor. It is far from the 1:1 relationship
 (black dashed line). The slope is
 `r signif(reg$fit$regression.results[2,3], 3)`) and its 95% confidence
-interval does include 1; r2 is `r round(reg$fit$rsquare, digits=2)`  (`r N = reg$fit$n`)`.
+interval does include 1; r2 is `r round(reg$fit$rsquare, digits=2)`
+(`r N = reg$fit$n`)\`.
 
 **Figure legend**: pCO2 calculated from AT and CT as a function of pCO2
 measured using a Contros sensor. All data are normalized at in situ
@@ -1434,7 +1443,6 @@ temperature. The black dotted line is the 1:1 line while the blue solid
 line shows the line obtained by a major axis regression (Legendre, 2018-
 Pierre Legendre (2018). lmodel2: Model II Regression. R package version
 1.7-3. <https://CRAN.R-project.org/package=lmodel2>
-
 
 ### **pCO~2~ time series**
 
@@ -1817,7 +1825,10 @@ d_all <- d_all %>%
   dplyr::select(order(colnames(d_all)))
 ```
 
-Below are the seafet calibration parameters using all data (irrespective of the depth of the seafet) and with the seafet data collected below 8 m. They are very close but we nevertheless use the calibration data below 8 m (easier to explain in the manuscript).
+Below are the seafet calibration parameters using all data (irrespective
+of the depth of the seafet) and with the seafet data collected below 8
+m. They are very close but we nevertheless use the calibration data
+below 8 m (easier to explain in the manuscript).
 
 ```{r seaFET pH plot sf_calib , echo=FALSE, message= FALSE, warning=FALSE}
 #### plot
@@ -2006,9 +2017,18 @@ offset_ph <- ph_sf %>%
   coord_fixed()
 ggsave(filename = "figures/offset_ph.png", plot = offset_ph, width = 25, height = 25, units = "cm")
 ```
-Offset between calibrated seaFET data and pH spectro. The offset must be between -0.2 and 0.2 pH units. "differences between calibrated sensor pH values and values obtained from discrete, check samples can be expected to be as small as 0.02 pH units, and perhaps less." (McLaughlin et al. 2017).
 
-Initially (before 2022-08-09), there was 2 outliers on 2019-07-12 and 2018-09-11. On 2022-08-09, code was added above to put a no good qf (3) in order to eliminate those two outliers. Now we are fine. The average offset is `r round(average_offset, digits = 4)`. It considerably improve the plot "pH spectro vs pH seafet (at in situ temperature)".
+Offset between calibrated seaFET data and pH spectro. The offset must be
+between -0.2 and 0.2 pH units. "differences between calibrated sensor pH
+values and values obtained from discrete, check samples can be expected
+to be as small as 0.02 pH units, and perhaps less." (McLaughlin et al.
+2017).
+
+Initially (before 2022-08-09), there was 2 outliers on 2019-07-12 and
+2018-09-11. On 2022-08-09, code was added above to put a no good qf (3)
+in order to eliminate those two outliers. Now we are fine. The average
+offset is `r round(average_offset, digits = 4)`. It considerably improve
+the plot "pH spectro vs pH seafet (at in situ temperature)".
 
 ```{r seaFET quality control pH 2, echo=FALSE, warning = FALSE, message = FALSE, out.width='100%'}
 # # COMMENTED BECAUSE INT-EXT NOT NEEDED
@@ -2031,7 +2051,11 @@ Initially (before 2022-08-09), there was 2 outliers on 2019-07-12 and 2018-09-11
 #   dyRangeSelector(height = 30, dateWindow= c("2017-10-21 00:00:00", "2021-01-11 00:00:00"))
 ```
 
-pH INT - pH EXT was plotted here. From now on, one uses seaFET pH from the internal electrode calibrated with spec pH and seaFET data when the REMOS was below 8 m (pHint_tot_sf_10m). This unique pH variable is called pHint_tot_sf. All other pH variables are cleaned up. We also calculate pHint_tot_sf at 4°C: pHint_tot_sf_temp_4.
+pH INT - pH EXT was plotted here. From now on, one uses seaFET pH from
+the internal electrode calibrated with spec pH and seaFET data when the
+REMOS was below 8 m (pHint_tot_sf_10m). This unique pH variable is
+called pHint_tot_sf. All other pH variables are cleaned up. We also
+calculate pHint_tot_sf at 4°C: pHint_tot_sf_temp_4.
 
 ```{r seafet clean up, echo=FALSE, message= FALSE, warning=FALSE, out.width="80%",fig.show='hold', fig.align="center"}
 d_all <- d_all %>%
@@ -2099,18 +2123,27 @@ d_all <- d_all %>%
 ```
 
 <!-- **Conclusion**: The range is significantly larger during some months -->
+
 <!-- when the data deeper than 8 m are considered. Also, pH is sometimes -->
+
 <!-- higher at the surface, at other times it is higher on the bottom (June). -->
+
 <!-- No data are available at 1 m (actually 0 to 2 m). So, to compare surface -->
+
 <!-- and bottom, I combine 1 and 3 m (0 to 4 m) and 9 m (below 8 m). -->
 
 <!-- Depth and month of the year have a statistically significant effect on -->
+
 <!-- pH. The interaction is also significant, indicating that the effect of -->
+
 <!-- depth differs depending on the month. -->
 
 <!-- -   To compare with pCO2/pCO2 measured in the Ferrybox seems therefore -->
+
 <!--     better to stick with pH_10m, that is at depths deeper than 8 m. -->
+
 <!-- -   pCO2 would have the same behaviour as pH. For air-sea CO2 fluxes, -->
+
 <!--     one should use data from 0 to 4 m. -->
 
 ## pH durafet
@@ -2410,6 +2443,7 @@ tmp$pH_dur_temp_4 <- seacarb::pHinsi(pH=tmp$pH_dur, ALK=tmp$at, Tinsi=4, Tlab=tm
 d_all <- d_all %>% 
   left_join(tmp %>% dplyr::select(datetime, pH_dur_temp_4), by="datetime")
 ```
+
 ## Range per month
 
 ```{r Range per month, echo = FALSE, warning = FALSE}
@@ -2438,7 +2472,7 @@ alkalinity of `r mean(d_all$at, na.rm = TRUE)` µmoles kg-1 (mean data).
 For information, mean temperatures in Ferrybox and *in situ* are
 respectively 3.5°C and 2.5°C.
 
-### **seaFET vs durafet pHs at 4°C (all > 8 m)**
+### **seaFET vs durafet pHs at 4°C (all \> 8 m)**
 
 ```{r, echo=FALSE, message= FALSE, warning=FALSE}
 reg <- ggreg(
@@ -2507,6 +2541,7 @@ rm(seafet_calc_contros_xts)
 ```
 
 ### **Spectro vs durafet**
+
 ```{r, echo=FALSE, message= FALSE, warning=FALSE}
 # Spectro / durafet
 reg <- ggreg(
@@ -2523,6 +2558,7 @@ print(reg$plot + xlim(c(7.8, 8.35)) + ylim(c(7.8, 8.35)))
 ```
 
 ### **Spectro vs seafet**
+
 ```{r, echo=FALSE, message= FALSE, warning=FALSE}
 # Spectro / seafet
 reg <- ggreg(
@@ -2555,12 +2591,15 @@ pHspec_pHseafet <- d_all %>%
   coord_fixed(ratio = 1, expand = TRUE, clip = "on")
 ggsave(filename = "figures/pHspec_pHseafet.png", plot = pHspec_pHseafet, width = 25, height = 25, units = "cm")
 ```
-The relationship between spectrophotometric pH and SeaFET pH) and 
-(blue line) is relatively good The slope is
+
+The relationship between spectrophotometric pH and SeaFET pH) and (blue
+line) is relatively good The slope is
 `r signif(reg$fit$regression.results[2,3], 3)`) and its 95% confidence
-interval does include 1; r2 is `r round(reg$fit$rsquare, digits=2)`  (`r N = reg$fit$n`)`.
+interval does include 1; r2 is `r round(reg$fit$rsquare, digits=2)`
+(`r N = reg$fit$n`)\`.
 
 ### **Spectro vs calculated AT-CT**
+
 ```{r, eval=FALSE, echo=FALSE, message= FALSE, warning=FALSE}
 # do not run because only 2 data points available...
 dplyr::select(d_all, datetime, ph_s_sf_temp_4) %>% drop_na()
@@ -3079,6 +3118,7 @@ diff_lm_quant <- tibble(pH = as.numeric(summary(diff_lm$delta_ph)),
 
 ggsave(filename = "figures/k1k2_all_pco2_at.png", plot = p, width = 25, height = 20, units = "cm")
 ```
+
 `r knitr::kable(diff_ls_quant, digits = c(0, rep(3, 5)), caption = "Lueker minus Sulpis using all pCO2 data.", format = "simple")`
 `r knitr::kable(diff_lp_quant, digits = c(0, rep(3, 5)), caption = "Lueker minus Papadimitriou using all pCO2 data.", format = "simple")`
 `r knitr::kable(diff_lm_quant, digits = c(0, rep(3, 5)), caption = "Lueker minus Millero using all pCO2 data.", format = "simple")`
@@ -3220,15 +3260,15 @@ induced by the choice of the carbonic acid constants are:
 
 -   large for pH (`r round(diff_ls_quant[4, 2], digits = 3)` pH units on
     average; ; median is `r round(diff_ls_quant[3, 2], digits = 3)`)
-    compared with the uncertainty calculated with seacarb
-    (see above; `r round(errors[1, 7], digits = 3)`). In general, pH is
-    higher with Sulpis than with Lueker.
-    
+    compared with the uncertainty calculated with seacarb (see above;
+    `r round(errors[1, 7], digits = 3)`). In general, pH is higher with
+    Sulpis than with Lueker.
+
 -   small for CT (`r round(diff_ls_quant[4, 3], digits = 1)` umol/kg on
     average; always lower with Sulpis than with Lueker) compared with
     the uncertainty calculated with seacarb
     (`r round(errors[1, 9], digits = 1)`)
-    
+
 -   negligible for OmegaAragonite
 
 `r knitr::kable(diff_ls_quant, digits = c(0, rep(3, 5)), caption = "Lueker minus Sulpis using all discrete Ferrybox data.", format = "simple")`
@@ -3239,12 +3279,13 @@ were normalized to a temperature of 4°C. The absolute differences are
 generally large, up to
 `r round(max(abs(diff_table_pco2_at[, 2:5])), digits=3)` pH units. In
 general, all formulations overestimate spectrophotometric pH. pH
-calculated using the formulation of Lueker et al. (2018) is
-closer to measured pH, with a mean difference of
+calculated using the formulation of Lueker et al. (2018) is closer to
+measured pH, with a mean difference of
 `r round(diff_table_pco2_at[4, 2], digits=3)` pH units. This difference
 is `r abs(round(diff_table_pco2_at[4, 2]/errors_pco2_at$pH, digits=1))`
 times larger than the uncertainty for pH calculated from pCO2 and AT
-according to seacarb (see above; `r round(errors_pco2_at$pH, digits=4)`).
+according to seacarb (see above;
+`r round(errors_pco2_at$pH, digits=4)`).
 
 `r knitr::kable(diff_table_pco2_at, digits = 3, caption = "Difference between spectrophotometric pH and pH calculated with pCO2 and AT using different formulations for K1 and K2.", format = "simple")`
 `r include_graphics("figures/k1k2_discrete_pco2_at.png")`
@@ -3370,22 +3411,22 @@ k1k2_at_ct <- list(errors_at_ct = errors_at_ct,
 save(k1k2_at_ct, file="reports/k1k2_at_ct.RData")
 ```
 
-The discrete values of AT, CT, salinity and temperature in the
-FerryBox were used to calculate pH using the formulations for K1 and K2
-of Lueker et al. (2000) and Sulpis et al. (2020). The differences
-induced by the choice of the carbonic acid constants are:
+The discrete values of AT, CT, salinity and temperature in the FerryBox
+were used to calculate pH using the formulations for K1 and K2 of Lueker
+et al. (2000) and Sulpis et al. (2020). The differences induced by the
+choice of the carbonic acid constants are:
 
 -   large for pH (`r round(diff_ls_quant[4, 2], digits = 3)` pH units on
     average; ; median is `r round(diff_ls_quant[3, 2], digits = 3)`)
     compared with the uncertainty calculated with seacarb
-    (`r round(errors[1, 7], digits = 3)`). In general, pH is
-    higher with Sulpis than with Lueker.
+    (`r round(errors[1, 7], digits = 3)`). In general, pH is higher with
+    Sulpis than with Lueker.
 
 -   small for CT (`r round(diff_ls_quant[4, 3], digits = 1)` umol/kg on
     average; always lower with Sulpis than with Lueker) compared with
     the uncertainty calculated with seacarb
     (`r round(errors[1, 9], digits = 1)`)
-    
+
 -   negligible for OmegaAragonite
 
 `r knitr::kable(diff_ls_quant, digits = c(0, 4, rep(3, 4)), caption = "Lueker minus Sulpis using all discrete Ferrybox data.", format = "simple")`
@@ -3410,7 +3451,9 @@ for pH calculated from AT and CT according to seacarb.
 `r include_graphics("figures/k1k2_discrete_at_ct.png")`
 
 ## Stratification
+
 ### Stratification salinity
+
 ```{r, echo=FALSE, message= FALSE, warning=FALSE}
 # we look at the distribution of data
 depth_labels <- c("0-2", "2-4", "4-6", "6-8", ">8")
@@ -3472,6 +3515,7 @@ print(sal_delta_plt)
 ```
 
 ### Stratification temperature
+
 ```{r, echo=FALSE, message= FALSE, warning=FALSE}
 # we look at temperature all depths
 tmp <- d_all %>% 
@@ -3530,6 +3574,7 @@ print(temp_delta_plt)
 ```
 
 ### Stratification density
+
 ```{r, echo=FALSE, message= FALSE, warning=FALSE}
 # we look at density at all depths
 tmp <- d_all %>% 
@@ -3594,7 +3639,9 @@ den_delta_plt <- tmp_delta %>%
         panel.grid.minor.y = element_blank())
 print(den_delta_plt)
 ```
+
 ### Stratification seafet pH
+
 ```{r, echo=FALSE, message= FALSE, warning=FALSE}
 # we look at pHint_tot_sf at all depths
 tmp <- d_all %>% 
@@ -3755,7 +3802,9 @@ pH_delta_plt <- tidyr::drop_na(tmp_delta) %>%
   theme(panel.grid.major.x = element_blank(), panel.grid.major.y = element_blank(),
         panel.grid.minor.y = element_blank())
 ```
+
 ### Stratification pCO2
+
 ```{r, echo=FALSE, message= FALSE, warning=FALSE}
 # we look at pCO2 NOT normalized at 4°C at all depths
 # calculate pCO2 from pH and salinity-derived AT
@@ -3976,7 +4025,8 @@ pco2_4_delta_plt <- tmp_delta %>%
   )
 ```
 
-# Stratification plots -------------------
+---- Stratification plots -------------------
+
 ```{r, include=FALSE}
 # main deltas
 g <- sal_delta_plt / temp_delta_plt / den_delta_plt
@@ -3995,11 +4045,12 @@ Using the medians because data are missing.
 -   Salinity
 -   Temperature is always colder at 0-4 m than below 8 m (0.15 to 2°C).
 
-**Conclusion for pH**: The range is significantly larger during some months
-when the data deeper than 8 m are considered. Also, pH is sometimes
-higher at the surface, at other times it is higher on the bottom (June).
-No data are available at 1 m (actually 0 to 2 m). So, to compare surface
-and bottom, I combine 1 and 3 m (0 to 4 m) and 9 m (below 8 m).
+**Conclusion for pH**: The range is significantly larger during some
+months when the data deeper than 8 m are considered. Also, pH is
+sometimes higher at the surface, at other times it is higher on the
+bottom (June). No data are available at 1 m (actually 0 to 2 m). So, to
+compare surface and bottom, I combine 1 and 3 m (0 to 4 m) and 9 m
+(below 8 m).
 
 Depth and month of the year have a statistically significant effect on
 pH. The interaction is also significant, indicating that the effect of
@@ -4012,7 +4063,7 @@ depth differs depending on the month.
 
 ## Takahashi thermal vs non-thermal
 
-```{r Takahashi thermal vs non-thermal, include=FALSE}
+```{r, include=FALSE}
 # According to Takahashi et al. (2002) and McCutcheon et al. (2021)
 # Select data
 taka <- d_all %>% # just for this chunk
@@ -4070,7 +4121,9 @@ lowest in summer.
 
 ## Deconvolution of pCO2 changes
 
-```{r pCO2 changes due to changes in T, S, AT and CT, include=FALSE}
+pCO2 changes due to changes in T, S, AT and CT
+
+```{r, include=FALSE}
 # First we prepare data. CT is needed for deconvolution
 # we calculate it from at_calc and pCO2
 # nuts are not taken into consideration
@@ -4185,10 +4238,9 @@ fig_deconv_pCO2 <- ggplot(deconv_melt) + geom_point(aes(x=date, y=value, color=v
 ggsave(file="figures/fig_deconv_pCO2.png", fig_deconv_pCO2, width = 18, height = 20, units = "cm")
 ```
 
-# Save all ----------------------------------------------------------------
+Save all ----
 
-
-```{r, echo=FALSE, message= FALSE, warning=FALSE}
+```{r save all, echo=FALSE, message= FALSE, warning=FALSE}
 # d_hour is the real data set that is read at the beginning of the script
 # d_all comprises additional columns calculated in this script
 d_all$at <- ifelse(is.nan(d_all$at), NA, d_all$at) # replace all NaN by NA
@@ -4244,7 +4296,7 @@ write_csv(pangaea, file = paste0(path, "fb_data/pangaea.csv"))
 # ph_calc = pH at FerryBox temperature calculated from CT and AT in the FerryBox
 ```
 
-## Air-sea CO2 flux 
+## Air-sea CO2 flux
 
 To calculate the air-sea CO2 flux, we use:
 
@@ -4259,12 +4311,14 @@ To calculate the air-sea CO2 flux, we use:
 Since there are many gaps, a climatological year is used: air-sea flux
 calculated by day, then by month, then by year.
 
-Let's look at the stratification tab above (salinity, temperature, density and fCO2): fCO2 is generally higher in the bottom layer than in the surface layer (note that no data is available in May, June and July). Which means that the air-sea CO2 fluxes calculated with pCO2 at 11 m are overestimated.
-
-
-
+Let's look at the stratification tab above (salinity, temperature,
+density and fCO2): fCO2 is generally higher in the bottom layer than in
+the surface layer (note that no data is available in May, June and
+July). Which means that the air-sea CO2 fluxes calculated with pCO2 at
+11 m are overestimated.
 
 ### Atmospheric CO2 Zeppelin
+
 ```{r, echo=FALSE, message= FALSE, warning=FALSE}
 # downloaded 2020-08-19 from https://gaw.kishou.go.jp/search/file/0054-6001-1001-01-01-9999
 # value:units : ppm
@@ -4322,7 +4376,9 @@ p_atm_co2 <- d_all %>%
 p_atm_co2
 ggsave(filename = "figures/atm_co2.png", plot = p_atm_co2, width = 20, units = "cm")
 ```
+
 ### Wind data
+
 ```{r, echo=FALSE, message= FALSE, warning=FALSE}
 #[1] "Year"               "Month"              "Day"                "Hour"              
 #[5] "Temperature[degC]"  "Pressure[hPa]"      "WindSpeed[m/s]"     "WindDirection[deg]"
@@ -4351,7 +4407,9 @@ d_all <- dplyr::left_join(d_all, meteo, by = "datetime") %>%
 ```
 
 ### Comparison pCO2 ferrybox vs pCO2 REMOS
-pCO2 measured in FerryBox expressed at in situ temp vs pCO2 calculated from REMOS data (S, T, pH, salinity-AT) at 0-2 m only.
+
+pCO2 measured in FerryBox expressed at in situ temp vs pCO2 calculated
+from REMOS data (S, T, pH, salinity-AT) at 0-2 m only.
 
 ```{r, echo = FALSE, message = FALSE, warning = FALSE}
 p_pco2_fb_remos <- d_all %>% 
@@ -4406,13 +4464,17 @@ g <- g + patchwork::plot_annotation(tag_levels = 'A')
 ggsave(filename = "figures/pco2_compare.png", plot = g)
 g
 ```
-The relationship between pCO2 between 0 and 4 m on the REMOS (estimated from pH and S-derived AT) and pCO2 measured at 11 m (both pCO2 at CTD temperature) is much nicer using monthly median values (b) than using all data (a). The mean and median difference between the two pCO2s are
 
-```{r, echo=FALSE, message= FALSE, warning=FALSE}
-knitr::kable(summary(tmp$delta_pco2_fb_remos_monthly))
-```
+The relationship between pCO2 [0-4 m] on the REMOS (estimated from pH
+and S-derived AT) and pCO2 measured at 11 m (both pCO2 at CTD
+temperature) is much nicer using monthly median values (b) than using
+all data (a). The mean and median difference between the two pCO2s are
+`r round(median(tmp$delta_pco2_fb_remos_monthly, na.rm = TRUE), digits=1)`
+and
+`r round(mean(tmp$delta_pco2_fb_remos_monthly, na.rm = TRUE), digits=1)`.
 
 ### Calculation of fluxes
+
 ```{r With Contros data, echo=FALSE, message= FALSE, warning=FALSE}
 # calculations as described by de Carlo et al. (2013)
 # we consider that mole fraction in air = ppm TO CHECK
@@ -4535,11 +4597,16 @@ knitr::include_graphics("figures/air-sea_CO2_flux_comp.png")
 ```
 
 The annual air-sea CO2 flux is
-`r round(sum(air_sea_month$f_air_sea), digits = 0)` and `r round(sum(air_sea_corr_month$f_air_sea_corr), digits = 0)` mol/(m2 year) without and with correction, respectively.
+`r round(sum(air_sea_month$f_air_sea), digits = 0)` and
+`r round(sum(air_sea_corr_month$f_air_sea_corr), digits = 0)` mol/(m2
+year) without and with correction, respectively.
 
 ## Miscellaneous
+
 ### OmegaAragonite
+
 OmegaAragonite is calculated using at_calc and pCO2
+
 ```{r, fig.width=10, fig.height=10, echo=FALSE, message= FALSE, warning = FALSE}
 # we calculate it from at_calc and pCO2
 # nuts are not taken into consideration
@@ -4564,9 +4631,6 @@ ts_oa <- tmp %>%
 print(ts_oa)
 ggsave(filename = "figures/OmegaAragonite.png", plot = ts_oa, width = 15, height = 10, units = "cm")
 ```
-
-
-
 
 ### Whole time series plot
 
@@ -4757,6 +4821,7 @@ g
 ```
 
 ### Time series and boxplots for paper
+
 ```{r, echo=FALSE, message= FALSE, warning=FALSE}
 g <- (ts_sal / ts_temp / ts_pCO2  / ts_pH / ts_at) |
   (ts_sal_bp / ts_temp_bp / ts_pco2_bp / ts_pH_bp / ts_at_bp)
@@ -5178,22 +5243,29 @@ database](https://dashboard.awi.de/?dashboard=9736)
 -   reads locally
     fb_awipev-co2_server/ny-alesund/data/NRT_data/nydata_hour.rds
 
--   sal_fb_mix: when ferrybox data (sal_fb) are missing, they are replaced
-    by data from the profiling ctd for depths > 8 m (sal_insitu_ctd_10m)
+-   sal_fb_mix: when ferrybox data (sal_fb) are missing, they are
+    replaced by data from the profiling ctd for depths \> 8 m
+    (sal_insitu_ctd_10m)
 
--   sal_fb_mix_interp: interpolated salinity sal_fb_mix. It is used to have as
-    many spec pH to display (some are during missing data)
-
--   temp_insitu_11m_mix: when data of in situ temperature at 11 m (temp_insitu_11m)
-    are missing, they are replaced by data from the profiling ctd for
-    depths > 8 m
-
--   temp_insitu_11m_mix_interp: interpolated temperature temp_insitu_11m_mix. It is used to
+-   sal_fb_mix_interp: interpolated salinity sal_fb_mix. It is used to
     have as many spec pH to display (some are during missing data)
 
--   sal_insitu_ctd_mix: when CTD salinity data from the REMOS are missing, they are replaced by data from sal_fb_mix (hence at FerryBox from 11 m and REMOS below 8 m). This is not ideal because differences of up to 1 salinity unit occur in the water column. But needed as there are many missing REMOS data.
+-   temp_insitu_11m_mix: when data of in situ temperature at 11 m
+    (temp_insitu_11m) are missing, they are replaced by data from the
+    profiling ctd for depths \> 8 m
 
--   pco2_calc_fb: pco2 calc from AT/CT ferrybox = carb avec temp_fb + sal_fb_mix
+-   temp_insitu_11m_mix_interp: interpolated temperature
+    temp_insitu_11m_mix. It is used to have as many spec pH to display
+    (some are during missing data)
+
+-   sal_insitu_ctd_mix: when CTD salinity data from the REMOS are
+    missing, they are replaced by data from sal_fb_mix (hence at
+    FerryBox from 11 m and REMOS below 8 m). This is not ideal because
+    differences of up to 1 salinity unit occur in the water column. But
+    needed as there are many missing REMOS data.
+
+-   pco2_calc_fb: pco2 calc from AT/CT ferrybox = carb avec temp_fb +
+    sal_fb_mix
 
 -   calibrate seafet pH
 
@@ -5273,14 +5345,14 @@ commandes : \# m h dom mon dow command
     script ny-alesund/R/ny-alesund_cc.R. This script essentially appends
     the daily files from AWI-NRT database and cleans the data)
 
-    -   00 *//1*  \* \* cd \$HOME; USER=awipev R --vanilla \<
-        ny-alesund/R/ny-alesund_cc.R >
-        ny-alesund/R/log_ny-alesund_cc.txt 2>&1
+    -   00 *//1* \* \* cd \$HOME; USER=awipev R --vanilla \<
+        ny-alesund/R/ny-alesund_cc.R \>
+        ny-alesund/R/log_ny-alesund_cc.txt 2\>&1
 
 -   (Every 4 hour at 10 min past the hour, the web page is generated)
 
-    -   10 *//1*  \* \* cd web; USER=awipev bash awipev-co2.sh >
-        awipev-web.log 2>&1
+    -   10 *//1* \* \* cd web; USER=awipev bash awipev-co2.sh \>
+        awipev-web.log 2\>&1
 
 -   (At 05:00 the files from server/web are copied to gattuso's iMac in
     pCloud ... Exp168)
