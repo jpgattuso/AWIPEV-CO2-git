@@ -4538,12 +4538,27 @@ p_f_air_sea_month <- ggplot(data = air_sea_month) +
   lims(y = c(-30, 0)) +
   labs(title = "Air-sea CO2 flux (per month)", x = "Month", y = "CO2 (mmol/(m2 month))") +
   Mytheme(size_labs = 8)
-#p_f_air_sea_month
 ggsave(filename = "figures/f_air_sea_m.png", plot = p_f_air_sea_month, width = 20, units = "cm")
 
 p <- p_f_air_sea / p_f_air_sea_d / p_f_air_sea_month
 ggsave(filename = "figures/air-sea_CO2_flux.png", plot = p, width = 20, units = "cm")
 knitr::include_graphics("figures/air-sea_CO2_flux.png")
+
+# For paper
+size_point <- 1.5 # size of data points
+alpha <- 1 #transparency
+size_labs <- 12 # font size labels
+# temp_insitu_11m
+ts_air_sea <- air_sea_month %>%
+  ggplot(aes(x = montht, y = f_air_sea), na.rm = TRUE) +
+  geom_col(colour="blue", fill = "blue",  alpha = alpha, stat="identity") +
+  lims(y = c(-30, 0)) +
+  geom_hline(yintercept = 0)+
+  labs(title="",x="Month", y=latex2exp::TeX("Air-sea CO$_2$ flux (mmol $m^{-2}$ month$^{-1}$)")) +
+  Mytheme(size_labs = size_labs)
+ts_air_sea
+ggsave(filename = "figures/ts_air_sea.png", plot = ts_air_sea, width = 20, units = "cm")
+
 #rm(p, p_f_air_sea, p_f_air_sea_d, p_f_air_sea_m)
 ```
 
