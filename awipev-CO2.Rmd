@@ -4394,6 +4394,7 @@ wind_2020 <-
                 wd = mean_direction) %>% 
   dplyr::mutate(datetime = as.POSIXct(datetime, format = "%d-%m-%Y %H"))
 
+# TODO: update this dataset
 load(file = paste0(path, "meteo_awi/wind_nyalesund.RData")) 
 meteo <- dplyr::tibble(windnyalesund) %>% 
   dplyr::slice_head(n = nrow(windnyalesund) - 1) %>% # remove last row which only contains NAs
@@ -4409,6 +4410,7 @@ d_all <- dplyr::left_join(d_all, meteo, by = "datetime") %>%
 ```
 
 ### Comparison pCO2 ferrybox vs pCO2 REMOS
+
 pCO2 measured in FerryBox expressed at in situ temp vs pCO2 calculated
 from REMOS data (S, T, pH, salinity-AT) at 0-2 m only.
 
@@ -4467,13 +4469,16 @@ g
 The relationship between pCO2 [0-4 m] on the REMOS (estimated from pH
 and S-derived AT) and pCO2 measured at 11 m (both pCO2 at CTD
 temperature) is much nicer using monthly median values (b) than using
-all data (a). The mean and median difference between the two pCO2s (pco2_remos_ctd_temp - pco2_fb_ctd_temp) are
+all data (a). The mean and median difference between the two pCO2s
+(pco2_remos_ctd_temp - pco2_fb_ctd_temp) are
 `r round(median(tmp$delta_pco2_fb_remos_monthly, na.rm = TRUE), digits=1)`
 and
 `r round(mean(tmp$delta_pco2_fb_remos_monthly, na.rm = TRUE), digits=1)`.
 
 ### Calculation of fluxes
+
 #### With Contros data
+
 ```{r, echo=FALSE, message= FALSE, warning=FALSE}
 # calculations as described by de Carlo et al. (2013)
 # we consider that mole fraction in air = ppm TO CHECK
@@ -4481,42 +4486,37 @@ and
 
 d_all <- d_all %>%
   dplyr::mutate(
-    delta_pco2 = pco2_fb_ctd_temp - co2_air,
-    # ppm
-    k600 = 0.266 * ws ^ 2,
-    #cm/hr Ho et al. (2006)
+    delta_pco2 = pco2_fb_ctd_temp - co2_air, # uatm
+    k600 = 0.266 * ws ^ 2, # cm/h Ho et al. (2006)
     Sc = 2073.1 - (125.62 * temp_insitu_ctd) + (3.6276 * temp_insitu_ctd^2) -
-      (0.043219 * temp_insitu_ctd ^ 3),
-    #dimensionless
-    #k = k600 * (Sc / 600) ^ -0.5,
-    ##cm/h
-    k = (k600 * (Sc / 600) ^ -0.5)/10,
-    # m/h
+      (0.043219 * temp_insitu_ctd^3),    #dimensionless
+    k = (k600 * (Sc / 600) ^ -0.5), #cm/h
+    k = k/10, #m/h
     alpha = seacarb::K0(
       S = sal_insitu_ctd,
       T = temp_insitu_ctd,
       P = 0,
-      Patm = p_air / 1013.25
-    ),
-    #mol/(kg/atm)
+      Patm = p_air / 1013.25 # from hPa to atm
+    ), #mol/(kg atm)
     alpha = alpha * (seacarb::rho(
       S = sal_insitu_ctd, T = temp_insitu_ctd, P = 0
-    ) / 1000),
-    #mol/(l/atm)
-    f_air_sea = k * alpha * delta_pco2 /1000 # mmol/(m2 h)
+    ) / 1000), # mol/(l atm)
+    alpha = alpha * 1000 , # mol/(m3 atm)
+    f_air_sea = k * alpha * delta_pco2, # mol/(m2 h 1e6)
+    f_air_sea = k * alpha * delta_pco2 * 1e-6 * 1000 # mmol/(m2 h)
   )
 
 p_f_air_sea <- ggplot(data = d_all) +
   geom_point(aes(x = datetime, y = f_air_sea), col = "blue", size = 0.15, na.rm = TRUE) +
   labs(title = "Air-sea CO2 flux (all data)", x = "Time", y = "CO2 (mmol/(m2 h))") +
   Mytheme(size_labs = 8)
-#p_f_air_sea
+p_f_air_sea
 ggsave(filename = "figures/p_f_air_sea.png", plot = p_f_air_sea, width = 20, units = "cm")
 
 air_sea_day <- d_all %>%
   dplyr::select(datetime, f_air_sea) %>%
   dplyr::group_by(lubridate::yday(datetime)) %>%
-  dplyr::summarise(f_air_sea = 24 * mean(f_air_sea, na.rm = TRUE)) %>% #nmol/(m2 d)
+  dplyr::summarise(f_air_sea = 24 * mean(f_air_sea, na.rm = TRUE)) %>% #mmol/(m2 d)
   ungroup() %>%
   dplyr::rename(day = 1)
   
@@ -4537,7 +4537,7 @@ air_sea_month <- d_all %>%
 #air_sea_month
 p_f_air_sea_month <- ggplot(data = air_sea_month) +
   geom_point(aes(x = montht, y = f_air_sea), col = "blue", size = 2, na.rm = TRUE) +
-  lims(y = c(-3, 0)) +
+  lims(y = c(-3000, 0)) +
   labs(title = "Air-sea CO2 flux (per month)", x = "Month", y = "CO2 (mmol/(m2 month))") +
   Mytheme(size_labs = 8)
 ggsave(filename = "figures/f_air_sea_m.png", plot = p_f_air_sea_month, width = 20, units = "cm")
@@ -4552,11 +4552,11 @@ alpha <- 1 #transparency
 size_labs <- 12 # font size labels
 # temp_insitu_11m
 ts_air_sea <- air_sea_month %>%
-  ggplot(aes(x = montht, y = f_air_sea), na.rm = TRUE) +
+  ggplot(aes(x = montht, y = f_air_sea / 1000), na.rm = TRUE) +
   geom_col(colour="blue", fill = "blue",  alpha = alpha, stat="identity") +
   lims(y = c(-3, 0)) +
   geom_hline(yintercept = 0)+
-  labs(title="",x="Month", y=latex2exp::TeX("Air-sea CO$_2$ flux (mmol $m^{-2}$ month$^{-1}$)")) +
+  labs(title="",x="Month", y=latex2exp::TeX("Air-sea CO$_2$ flux (mol $m^{-2}$ month$^{-1}$)")) +
   Mytheme(size_labs = size_labs)
 ts_air_sea
 ggsave(filename = "figures/ts_air_sea.png", plot = ts_air_sea, width = 20, units = "cm")
@@ -4564,7 +4564,10 @@ ggsave(filename = "figures/ts_air_sea.png", plot = ts_air_sea, width = 20, units
 ```
 
 #### With in situ simulation
-Same as above but we correct pCO2 by adding 17 uatm as we show above that pCO2 at 11 m underestimates pCO2 at 0-4m (hence overestimates CO2 uptake)
+
+Same as above but we correct pCO2 by adding 17 uatm as we show above
+that pCO2 at 11 m underestimates pCO2 at 0-4m (hence overestimates CO2
+uptake)
 
 ```{r, echo=FALSE, message= FALSE, warning=FALSE}
 # Same as above but we correct pCO2 by adding 17 uatm as we show above that pCO2 at 11 m
@@ -4573,28 +4576,23 @@ Same as above but we correct pCO2 by adding 17 uatm as we show above that pCO2 a
 d_all <- d_all %>%
   dplyr::mutate(
     delta_pco2_corr = (pco2_fb_ctd_temp + 17) - co2_air,
-    # ppm
-    k600 = 0.266 * ws ^ 2,
-    #cm/hr Ho et al. (2006)
+    k600 = 0.266 * ws ^ 2, # cm/h Ho et al. (2006)
     Sc = 2073.1 - (125.62 * temp_insitu_ctd) + (3.6276 * temp_insitu_ctd^2) -
-      (0.043219 * temp_insitu_ctd ^ 3),
-    #dimensionless
-    #k = k600 * (Sc / 600) ^ -0.5,
-    ##cm/h
-    k = (k600 * (Sc / 600) ^ -0.5)/10,
-    # m/h
+      (0.043219 * temp_insitu_ctd^3),    #dimensionless
+    k = (k600 * (Sc / 600) ^ -0.5), #cm/h
+    k = k/10, #m/h
     alpha = seacarb::K0(
       S = sal_insitu_ctd,
       T = temp_insitu_ctd,
       P = 0,
-      Patm = p_air / 1013.25
-    ),
-    #mol/(kg/atm)
+      Patm = p_air / 1013.25 # from hPa to atm
+    ), #mol/(kg atm)
     alpha = alpha * (seacarb::rho(
       S = sal_insitu_ctd, T = temp_insitu_ctd, P = 0
-    ) / 1000),
-    #mol/(l/atm)
-    f_air_sea_corr = k * alpha * delta_pco2_corr /1000 # mmol/(m2 h)
+    ) / 1000), # mol/(l atm)
+    alpha = alpha * 1000 , # mol/(m3 atm)
+    f_air_sea_corr = k * alpha * delta_pco2, # mol/(m2 h 1e6)
+    f_air_sea_corr = k * alpha * delta_pco2 * 1e-6 * 1000 # mmol/(m2 h)
   )
 air_sea_corr_month <- d_all %>%
   dplyr::select(monthd, f_air_sea_corr) %>%
@@ -4607,7 +4605,7 @@ air_sea_corr_month <- d_all %>%
 p_f_air_sea_corr_month <- ggplot(data = air_sea_corr_month) +
   geom_point(aes(x = montht, y = f_air_sea_corr), col = "blue", size = 2, na.rm = TRUE) +
   #scale_x_discrete(breaks=c("Jan", "", "Mar", "", "May", "", "Jul", "", "Sep", "", "Nov", "")) +
-  lims(y = c(-3, 0)) +
+  #lims(y = c(-3, 0)) +
   labs(title = "Air-sea CO2 flux (per month) with corrected data", x = "Month", y = "CO2 (mmol/(m2 month))") +
   Mytheme(size_labs = 8)
 p_f_air_sea_corr_month
@@ -4620,12 +4618,11 @@ ggsave(filename = "figures/f_air_sea_corr_month.png", plot = p_f_air_sea_corr_mo
 # Figure with and without correction on same plot
 ```
 
-
 ```{r monthly air-sea for paper, echo=FALSE, message= FALSE, warning=FALSE}
 air_sea_month$corr <- rep("no", length=12)
 air_sea_corr_month$corr <- rep("yes", length=12)
 
-air_sea <- dplyr::left_join(air_sea_month, air_sea_corr_month, by = "montht") %>% 
+air_sea <- dplyr::left_join(air_sea_month, air_sea_corr_month/1000, by = "montht") %>% 
   dplyr::select(montht, f_air_sea, f_air_sea_corr) %>% 
   tidyr::pivot_longer(!montht, names_to = "corr", values_to = "air_sea")
 ggplot(data = air_sea) +
@@ -4633,8 +4630,8 @@ ggplot(data = air_sea) +
 ```
 
 The annual air-sea CO2 flux is
-`r round(sum(air_sea_month$f_air_sea), digits = 0)` and
-`r round(sum(air_sea_corr_month$f_air_sea_corr), digits = 0)` mmol/(m2
+`r round(sum(air_sea_month$f_air_sea/1000), digits = 0)` and
+`r round(sum(air_sea_corr_month$f_air_sea_corr/1000), digits = 0)` mol/(m2
 year) without and with correction, respectively.
 
 ## Miscellaneous
