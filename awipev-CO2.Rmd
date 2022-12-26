@@ -2159,7 +2159,7 @@ and spectro data per periods.
 
 ```{r durafet calibration, echo=FALSE, message= FALSE, warning=FALSE}
 # deployment period between 2 spectro measurements.
-# TODO the following throws a warning but seems to work
+# the following thrown an error fixed 2022-12-26
 durPeriod <- d_all %>%
   dplyr::select(datetime, ph_s_dur_temp_fb) %>%
   dplyr::filter(!is.na(ph_s_dur_temp_fb))
@@ -2171,10 +2171,6 @@ durPeriod <- durPeriod %>%
   #dplyr::mutate(dur_interval = datetime + middle[2:nrow(durPeriod)])
   dplyr::mutate(dur_interval = datetime + middle)
 
-# tmp <- durPeriod$datetime
-# dur_interv <- tmp + c(diff(tmp)/2, 0)
-# durPeriod <- durPeriod %>% 
-#   dplyr::mutate(dur_interv = dur_interv)
 
 #put interval in a list with the start date of durafet measurements
 durinterv <- c( as_datetime("2017-08-24 13:00:00"), durPeriod[,4])
