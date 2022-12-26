@@ -986,11 +986,11 @@ rm(sal_xts)
 
 ```{r, eval=FALSE, echo=FALSE}
 # skipped because it is done in the "stratification tab"
-Extreme differences: `r dplyr::filter(tmp, range_diff < -3 | range_diff > 2)`.
-
-There are `r sum(!is.na(tmp$range_diff))` days with salinity values at both 1 m (0-2 m) and 10 m (8-12 m).
-
-The salinity difference between 1 and 10 m ranges between `r min(tmp$range_diff, na.rm = TRUE)` and `r max(tmp$range_diff, na.rm = TRUE)` (mean: `r mean(tmp$range_diff, na.rm = TRUE)`; `r median(tmp$range_diff, na.rm = TRUE)`). The difference with depth is therefore significant.
+# Extreme differences: `r dplyr::filter(tmp, range_diff < -3 | range_diff > 2)`.
+# 
+# There are `r sum(!is.na(tmp$range_diff))` days with salinity values at both 1 m (0-2 m) and 10 m (8-12 m).
+# 
+# The salinity difference between 1 and 10 m ranges between `r min(tmp$range_diff, na.rm = TRUE)` and `r max(tmp$range_diff, na.rm = TRUE)` (mean: `r mean(tmp$range_diff, na.rm = TRUE)`; `r median(tmp$range_diff, na.rm = TRUE)`). The difference with depth is therefore significant.
 ```
 
 ### **Comparison salinity FerryBox vs Salinity CTD REMOS 10 m**
@@ -1088,12 +1088,12 @@ rm(temp_xts)
 
 ```{r, eval=FALSE, echo=FALSE}
 # skipped because it is done in the "stratification tab"
-There are `r sum(!is.na(tmp$range))` days with temperature values at
-both 1 m (0-2 m) and 9 m (> 8 m). The temperature difference between 1
-and 9 m ranges between `r min(tmp$range, na.rm = TRUE)`°C and
-`r max(tmp$range, na.rm = TRUE)`°C (mean:
-`r mean(tmp$range, na.rm = TRUE)`°C; `r median(tmp$range, na.rm = TRUE)`°C).
-The difference with depth is therefore significant.
+# There are `r sum(!is.na(tmp$range))` days with temperature values at
+# both 1 m (0-2 m) and 9 m (> 8 m). The temperature difference between 1
+# and 9 m ranges between `r min(tmp$range, na.rm = TRUE)`°C and
+# `r max(tmp$range, na.rm = TRUE)`°C (mean:
+# `r mean(tmp$range, na.rm = TRUE)`°C; `r median(tmp$range, na.rm = TRUE)`°C).
+# The difference with depth is therefore significant.
 ```
 
 ### **Temperature Ferrybox vs Temperature in situ 11 m**
