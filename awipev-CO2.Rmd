@@ -3425,10 +3425,10 @@ choice of the carbonic acid constants are:
     (`r round(errors[1, 7], digits = 3)`). In general, pH is higher with
     Sulpis than with Lueker.
 
--   small for CT (`r round(diff_ls_quant[4, 3], digits = 1)` umol/kg on
+-   small for pCO2 (`r round(diff_ls_quant[4, 3], digits = 1)` uatm on
     average; always lower with Sulpis than with Lueker) compared with
     the uncertainty calculated with seacarb
-    (`r round(errors[1, 9], digits = 1)`)
+    (`r round(errors[2, 8], digits = 1)`)
 
 -   negligible for OmegaAragonite
 
