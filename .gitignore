@@ -37,7 +37,7 @@ presentation_old/
 #*.png
 *.log
 figures/*.png
-#reports/
+reports/
 # Ignore others
 .DS_Store
 *.js
