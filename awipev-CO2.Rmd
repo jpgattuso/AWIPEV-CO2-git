@@ -3255,6 +3255,8 @@ k1k2_pco2_at <- list(mean_discrete = mean_discrete, tmp2 = tmp2,
 save(k1k2_pco2_at, file="reports/k1k2_pco2_at.RData")
 ```
 
+**_Comparison of various formulations compared to Lueker et al. (2000)_**
+
 The discrete values of pCO2, AT, salinity and temperature in the
 FerryBox were used to calculate pH using the formulations for K1 and K2
 of Lueker et al. (2000) and Sulpis et al. (2020). The differences
@@ -3275,6 +3277,8 @@ induced by the choice of the carbonic acid constants are:
 
 
 `r knitr::kable(diff_ls_quant, digits = c(0, rep(3, 5)), caption = "Lueker minus Sulpis using all discrete Ferrybox data.", format = "simple")`
+
+**_Comparison of measured vs calculated pH_**
 
 Here we compare pH measured spectrophotometrically with pH calculated
 from pCO2 and AT using various formulations of K1 and K2. All pH values
@@ -3450,23 +3454,10 @@ k1k2_at_ct <- list(errors_at_ct = errors_at_ct,
 save(k1k2_at_ct, file="reports/k1k2_at_ct.RData")
 ```
 
+**_Comparison of various formulations compared to Lueker et al. (2000)_**
 The discrete values of AT, CT, salinity and temperature in the FerryBox
-were used to calculate pH and pCO2 using the formulations for K1 and K2 of Lueker
-et al. (2000) and Sulpis et al. (2020). The differences induced by the
-choice of the carbonic acid constants are:
-
--   large for pH (`r round(diff_ls_quant[4, 2], digits = 3)` pH units on
-    average; ; median is `r round(diff_ls_quant[3, 2], digits = 3)`)
-    compared with the uncertainty calculated with seacarb
-    (`r round(errors[1, 7], digits = 3)`). In general, pH is higher with
-    Sulpis than with Lueker.
-
--   small for pCO2 (`r round(diff_ls_quant[4, 3], digits = 1)` uatm on
-    average; always lower with Sulpis than with Lueker) compared with
-    the uncertainty calculated with seacarb
-    (`r round(errors[2, 8], digits = 1)`)
-
--   negligible for OmegaAragonite
+were used to calculate pH and pCO2 using various formulations for K1 and K2. The median 
+differences induced by the choice of the carbonic acid constants are shiown below.
 
 `r knitr::kable(diff_ls2_quant, digits = c(0, rep(3, 5)), caption = "Lueker minus Sulpis using discrete CT and AT.", format = "simple")`
 `r knitr::kable(diff_lp2_quant, digits = c(0, rep(3, 5)), caption = "Lueker minus Papadimitriou discrete CT and AT.", format = "simple")`
@@ -3474,6 +3465,7 @@ choice of the carbonic acid constants are:
 `r include_graphics("figures/k1k2_ct_at.png")`
 
 
+**_Comparison of measured vs calculated pH_**
 Here we compare pH measured spectrophotometrically with pH calculated
 from AT and CT using various formulations of K1 and K2. All pH values
 were normalized to a temperature of 4°C. The absolute differences are
