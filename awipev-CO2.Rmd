@@ -1209,7 +1209,7 @@ at_s <- d_all_at_discrete %>%
   #ggpmisc::stat_ma_eq(method = "lmodel2:OLS", aes(label = after_stat(eq.label))) +
   theme_bw() + Mytheme(size_labs = 9) + theme(aspect.ratio=1) + 
   coord_fixed()
-ggsave(filename = "figures/figures/at_s.png", plot = at_s, width = 25, height = 25, units = "cm")
+ggsave(filename = "figures/at_s.png", plot = at_s, width = 25, height = 25, units = "cm")
 
 # Salinity is a predictor of AT -> using the regression defined above
 slope_s_at <- slope_s_at <- reg$fit$regression.results[3][[1]][1] # OLS
@@ -3160,53 +3160,89 @@ tmp <- d_all %>%
 # it is too high compared with ph_s_dur. Looking at the dygraph suggests that there has been a peak just before that time and that the values were coming back down. This is this in accordance with pco2_calc_fb calculated from 
 dplyr::mutate(pco2_fb = ifelse(datetime == as.POSIXct("2019-06-07 09:00:00"), 203, pco2_fb))
 # Using Lueker  
-carb_l <- carb(flag = 24, var1 = tmp$pco2_fb, var2 = tmp$at * 1e-6, S = tmp$sal_fb_mix, 
+carb_l1 <- carb(flag = 24, var1 = tmp$pco2_fb, var2 = tmp$at * 1e-6, S = tmp$sal_fb_mix, 
                T = tmp$temp_fb, P = 0, Pt = 0, Sit = 0, k1k2 = "l", kf = "dg", ks = "d", 
                pHscale = "T", b = "u74")
 # normalize Lueker-derived pH at 4°C
-carb_l$pH <- pHinsi(pH = carb_l$pH, ALK = carb_l$ALK, Tinsi = 4, Tlab = carb_l$T, Pinsi = 0, 
-                         S = carb_l$S, Pt = 0, Sit = 0, k1k2 = "l", kf = "dg", ks="d", 
+carb_l1$pH <- pHinsi(pH = carb_l1$pH, ALK = carb_l1$ALK, Tinsi = 4, Tlab = carb_l1$T, Pinsi = 0, 
+                         S = carb_l1$S, Pt = 0, Sit = 0, k1k2 = "l", kf = "dg", ks="d", 
                          pHscale = "T", b="u74")
 # Using Sulpis
-carb_s <- carb(flag = 24, var1 = tmp$pco2_fb, var2 = tmp$at * 1e-6, S = tmp$sal_fb_mix, 
+carb_s1 <- carb(flag = 24, var1 = tmp$pco2_fb, var2 = tmp$at * 1e-6, S = tmp$sal_fb_mix, 
                T = tmp$temp_fb, P = 0, Pt = 0, Sit = 0, k1k2 = "s20", kf = "dg", ks = "d", 
                pHscale = "T", b = "u74")
 # normalize Sulpis-derived pH at 4°C
-carb_s$pH <- pHinsi(pH = carb_s$pH, ALK = carb_s$ALK, Tinsi = 4, Tlab = carb_s$T, Pinsi = 0, 
-                         S = carb_s$S, Pt = 0, Sit = 0, k1k2 = "s20", kf = "dg", ks="d", 
+carb_s1$pH <- pHinsi(pH = carb_s1$pH, ALK = carb_s1$ALK, Tinsi = 4, Tlab = carb_s1$T, Pinsi = 0, 
+                         S = carb_s1$S, Pt = 0, Sit = 0, k1k2 = "s20", kf = "dg", ks="d", 
                          pHscale = "T", b="u74")
 # Using Papadimitriou
-carb_p <- carb(flag = 24, var1 = tmp$pco2_fb, var2 = tmp$at * 1e-6, S = tmp$sal_fb_mix, 
+carb_p1 <- carb(flag = 24, var1 = tmp$pco2_fb, var2 = tmp$at * 1e-6, S = tmp$sal_fb_mix, 
                T = tmp$temp_fb, P = 0, Pt = 0, Sit = 0, k1k2 = "p18", kf = "dg", ks = "d", 
                pHscale = "T", b = "u74")
 # normalize Papadimitriou-derived pH at 4°C
-carb_p$pH <- pHinsi(pH = carb_p$pH, ALK = carb_p$ALK, Tinsi = 4, Tlab = carb_p$T, Pinsi = 0, 
-                         S = carb_p$S, Pt = 0, Sit = 0, k1k2 = "p18", kf = "dg", ks="d", 
+carb_p1$pH <- pHinsi(pH = carb_p1$pH, ALK = carb_p1$ALK, Tinsi = 4, Tlab = carb_p1$T, Pinsi = 0, 
+                         S = carb_p1$S, Pt = 0, Sit = 0, k1k2 = "p18", kf = "dg", ks="d", 
                          pHscale = "T", b="u74")
 # Using Millero et al. (2002)
-carb_m <- carb(flag = 24, var1 = tmp$pco2_fb, var2 = tmp$at * 1e-6, S = tmp$sal_fb_mix, 
+carb_m1 <- carb(flag = 24, var1 = tmp$pco2_fb, var2 = tmp$at * 1e-6, S = tmp$sal_fb_mix, 
                T = tmp$temp_fb, P = 0, Pt = 0, Sit = 0, k1k2 = "m02", kf = "dg", ks = "d", 
                pHscale = "T", b = "u74")
 # normalize Millero et al. (2002)-derived pH at 4°C
-carb_m$pH <- pHinsi(pH = carb_m$pH, ALK = carb_m$ALK, Tinsi = 4, Tlab = carb_m$T, Pinsi = 0, 
-                         S = carb_m$S, Pt = 0, Sit = 0, k1k2 = "m02", kf = "dg", ks="d", 
+carb_m1$pH <- pHinsi(pH = carb_m1$pH, ALK = carb_m1$ALK, Tinsi = 4, Tlab = carb_m1$T, Pinsi = 0, 
+                         S = carb_m1$S, Pt = 0, Sit = 0, k1k2 = "m02", kf = "dg", ks="d", 
                          pHscale = "T", b="u74")
 # calculate difference Lueker - Sulpis
-diff_ls <- as_tibble(carb_l - carb_s) %>% 
+diff_ls1 <- as_tibble(carb_l1 - carb_s1) %>% 
   dplyr::rename(delta_ph = pH, delta_ct = DIC, delta_OmegaAragonite = OmegaAragonite) %>%
-  dplyr::select(delta_ph, delta_ct, delta_OmegaAragonite)
-# calculate descriptive statistics Lueker - Sulpis
-diff_ls_quant <- tibble(pH = as.numeric(summary(diff_ls$delta_ph)),
-                        CT = as.numeric(summary(diff_ls$delta_ct * 1e6)),
-                        OmegaAragonite = as.numeric(summary(diff_ls$delta_OmegaAragonite))) %>%
+  dplyr::select(delta_ph, delta_ct, delta_OmegaAragonite) %>% 
+  dplyr::mutate(deltas = "L00-S20", .before = 1)
+# calculate difference Lueker - Papadimitriou
+diff_lp1 <- as_tibble(carb_l1 - carb_p1) %>% 
+  dplyr::rename(delta_ph = pH, delta_ct = DIC, delta_OmegaAragonite = OmegaAragonite) %>%
+  dplyr::select(delta_ph, delta_ct, delta_OmegaAragonite) %>% 
+  dplyr::mutate(deltas = "L00-P18", .before = 1)
+# calculate difference Lueker - Millero
+diff_lm1 <- as_tibble(carb_l1 - carb_m1) %>% 
+  dplyr::rename(delta_ph = pH, delta_ct = DIC, delta_OmegaAragonite = OmegaAragonite) %>%
+  dplyr::select(delta_ph, delta_ct, delta_OmegaAragonite) %>% 
+  dplyr::mutate(deltas = "L00-M02", .before = 1)
+
+# bind and plot
+diff_all <- dplyr::bind_rows(diff_ls1, diff_lp1, diff_lm1) %>% 
+    dplyr::mutate(delta_ct = delta_ct * 1e6)
+diff_all_long <- diff_all %>% 
+  tidyr::pivot_longer(-deltas, names_to = "variable") %>% 
+  dplyr::mutate(variable = forcats::fct_relevel(variable, 'delta_ph', 'delta_ct', 'delta_OmegaAragonite'), variable = fct_recode(variable, 'pH' = "delta_ph", 'C[T]' = "delta_ct",'Omega[a]' = "delta_OmegaAragonite"))
+
+p <- ggplot(diff_all_long, aes(x = forcats::fct_relevel(deltas, 'L00-S20', 'L00-P18', 'L00-M02'), y=value))+
+  geom_boxplot(notch=FALSE, size=0.2, fill="grey50", outlier.color = "blue", outlier.size = 0.3) +
+  geom_hline(yintercept = 0) +
+  labs(title = "", x = "", y= "") +
+  facet_wrap(vars(variable), scales = "free_y", labeller = label_parsed) +
+  Mytheme(size_labs = 10)
+ggsave(filename = "figures/k1k2_pco2_at.png", plot = p, width = 25, height = 20, units = "cm")
+
+# calculate descriptive statistics
+diff_ls1_quant <- tibble(pH = as.numeric(summary(diff_ls1$delta_ph)),
+                        CT = as.numeric(summary(diff_ls1$delta_ct * 1e6)),
+                        OmegaAragonite = as.numeric(summary(diff_ls1$delta_OmegaAragonite))) %>%
   dplyr::mutate(var = c("Min", "Q1", "Median", "Mean", "Q3", "Max"), .before = 1)
+diff_lp1_quant <- tibble(pH = as.numeric(summary(diff_lp1$delta_ph)),
+                        CT = as.numeric(summary(diff_lp1$delta_ct * 1e6)),
+                        OmegaAragonite = as.numeric(summary(diff_lp1$delta_OmegaAragonite))) %>%
+  dplyr::mutate(var = c("Min", "Q1", "Median", "Mean", "Q3", "Max"), .before = 1)
+diff_lm1_quant <- tibble(pH = as.numeric(summary(diff_lm1$delta_ph)),
+                        CT = as.numeric(summary(diff_lm1$delta_ct * 1e6)),
+                        OmegaAragonite = as.numeric(summary(diff_lm1$delta_OmegaAragonite))) %>%
+  dplyr::mutate(var = c("Min", "Q1", "Median", "Mean", "Q3", "Max"), .before = 1)
+
 # prepare tibble to compare calculated pH and spec pH
 tmp2 <- tibble(datetime = tmp$datetime, ph_s_dur_temp_4_l = tmp$ph_s_dur_temp_4_l, 
                ph_s_dur_temp_4_s20 = tmp$ph_s_dur_temp_4_s20,
                ph_s_dur_temp_4_p18 = tmp$ph_s_dur_temp_4_p18,
                ph_s_dur_temp_4_m02 = tmp$ph_s_dur_temp_4_m02, 
-               pH_l = carb_l$pH, pH_s = carb_s$pH, 
-               pH_p = carb_p$pH, pH_m = carb_m$pH, temp_fb = tmp$temp_fb) %>% 
+               pH_l = carb_l1$pH, pH_s = carb_s1$pH, 
+               pH_p = carb_p1$pH, pH_m = carb_m1$pH, temp_fb = tmp$temp_fb) %>% 
   tidyr::drop_na(ph_s_dur_temp_4_l)
 # summary of differences
 lueker <- as.numeric(summary(tmp2$ph_s_dur_temp_4_l - tmp2$pH_l))
@@ -3257,26 +3293,17 @@ save(k1k2_pco2_at, file="reports/k1k2_pco2_at.RData")
 
 **_Comparison of various formulations compared to Lueker et al. (2000)_**
 
-The discrete values of pCO2, AT, salinity and temperature in the
-FerryBox were used to calculate pH using the formulations for K1 and K2
-of Lueker et al. (2000) and Sulpis et al. (2020). The differences
-induced by the choice of the carbonic acid constants are:
+The **discrete** values of pCO2, AT, salinity and temperature in the
+FerryBox were used to calculate pH and CT with the v arious formulations for K1 and K2
 
--   large for pH (`r round(diff_ls_quant[4, 2], digits = 3)` pH units on
-    average; ; median is `r round(diff_ls_quant[3, 2], digits = 3)`)
-    compared with the uncertainty calculated with seacarb (see above;
-    `r round(errors[1, 7], digits = 3)`). In general, pH is higher with
-    Sulpis than with Lueker.
-
--   small for CT (`r round(diff_ls_quant[4, 3], digits = 1)` umol/kg on
-    average; always lower with Sulpis than with Lueker) compared with
-    the uncertainty calculated with seacarb
-    (`r round(errors[1, 9], digits = 1)`)
-
--   negligible for OmegaAragonite
+**Results are shown below but it does not make sense to udse them in the manuscript. Btter to use all pCO2-AT data as above.**
 
 
-`r knitr::kable(diff_ls_quant, digits = c(0, rep(3, 5)), caption = "Lueker minus Sulpis using all discrete Ferrybox data.", format = "simple")`
+`r knitr::kable(diff_ls1_quant, digits = c(0, rep(3, 5)), caption = "Lueker minus Sulpis using discrete pCO2 data.", format = "simple")`
+`r knitr::kable(diff_lp1_quant, digits = c(0, rep(3, 5)), caption = "Lueker minus Papadimitriou using discrete pCO2 data.", format = "simple")`
+`r knitr::kable(diff_lm1_quant, digits = c(0, rep(3, 5)), caption = "Lueker minus Millero using discrete pCO2 data.", format = "simple")`
+`r include_graphics("figures/k1k2_all_pco2_at.png")`
+
 
 **_Comparison of measured vs calculated pH_**
 
@@ -3384,7 +3411,7 @@ p <- ggplot(diff_all_long, aes(x = forcats::fct_relevel(deltas, 'L00-S20', 'L00-
   labs(title = "", x = "", y= "") +
   facet_wrap(vars(variable), scales = "free_y", labeller = label_parsed) +
   Mytheme(size_labs = 10)
-p
+
 # calculate descriptive statistics
 diff_ls2_quant <- tibble(pH = as.numeric(summary(diff_ls2$delta_ph)),
                         pCO2 = as.numeric(summary(diff_ls2$delta_pCO2)),
