@@ -3637,7 +3637,7 @@ tmp <- d_all %>%
   dplyr::select(montht, sal_insitu_ctd, temp_insitu_ctd, depth_group, pressure_insitu_ctd) %>%
   dplyr::filter(depth_group != "NA") %>% 
   dplyr::mutate(depth_group = factor(depth_group, levels = depth_labels)) %>% 
-  dplyr::mutate(density = seacarb::rho(S = sal_insitu_ctd, T = temp_insitu_ctd, P = pressure_insitu_ctd)) %>%
+  dplyr::mutate(density = seacarb::rho(S = sal_insitu_ctd, T = temp_insitu_ctd, P = pressure_insitu_ctd))
 p <- tidyr::drop_na(tmp) %>% 
   ggplot(aes(x=as.factor(depth_group), y = sal_insitu_ctd)) +
   geom_boxplot(notch=FALSE, size=0.2, fill="grey50", outlier.color = "blue", outlier.size = 0.3) +
@@ -3721,11 +3721,11 @@ tmp <- d_all %>%
       depth_group == '>8' ~ '8-12'
     )
   )) %>%
-  dplyr::filter(depth_group2 == '0-4' | depth_group2 == '8-12') %>%
-  dplyr::group_by(depth_group2, montht)
+  dplyr::filter(depth_group2 == '0-4' | depth_group2 == '8-12')
 summary(aov(tmp$pHint_tot_sf ~ tmp$depth_group2 * tmp$montht))
 
 tmp_delta <- tmp %>%
+  dplyr::group_by(depth_group2, montht) %>% 
   dplyr::summarise(pH_tot_sf_med = median(pHint_tot_sf, na.rm = TRUE)) %>%
   tidyr::pivot_wider(names_from = depth_group2, values_from = pH_tot_sf_med) %>%
   dplyr::rename(median0_4m = "0-4",
@@ -3768,19 +3768,21 @@ p <- tmp %>%
 print(p)
 summary(aov(tmp$pHint_tot_sf_temp_4 ~ tmp$depth_group * tmp$montht))
 
-# we look at pHint_tot_sf normalized at 4°C  0 to 4 m vs more than 8 m
+# we look at pHint_tot_sf normalized at 4°C  0 to 4 m vs more than 8 m ###
 tmp <- d_all %>% 
   dplyr::select(montht, pHint_tot_sf_temp_4, depth_group) %>%
   dplyr::mutate(depth_group2 = as.factor(case_when(depth_group == '0-2' | depth_group == '2-4' ~ '0-4',
                                                    depth_group == '>8' ~ '8-12'))) %>% 
-  dplyr::filter(depth_group2 == '0-4' | depth_group2 == '8-12') %>% 
+  dplyr::filter(depth_group2 == '0-4' | depth_group2 == '8-12')
 summary(aov(tmp$pHint_tot_sf_temp_4 ~ tmp$depth_group2 * tmp$montht))
 
 tmp_delta <- tmp %>% 
+  dplyr::group_by(depth_group2, montht) %>% 
   dplyr::summarise(pH_tot_sf_med = median(pHint_tot_sf_temp_4, na.rm = TRUE)) %>% 
   tidyr::pivot_wider(names_from = depth_group2, values_from = pH_tot_sf_med) %>% 
   dplyr::rename(median0_4m = "0-4",
-                median8_12m = "8-12") %>%   dplyr::mutate(pH_tot_sf_med_delta = median0_4m - median8_12m)
+                median8_12m = "8-12") %>%   
+  dplyr::mutate(pH_tot_sf_med_delta = median0_4m - median8_12m)
 kable(tmp_delta, digits = 3, caption = "Median seafet pH at 4°C with (median0_4m - median8_12m)")
 
 p <- tidyr::drop_na(tmp) %>% 
@@ -3822,7 +3824,7 @@ tmp <- d_all %>%
   dplyr::select(montht, pHint_tot_sf_temp_4, depth_group) %>%
   dplyr::mutate(depth_group2 = as.factor(case_when(depth_group == '0-2' | depth_group == '2-4' ~ '0-4',
                                                    depth_group == '>8' ~ '8-12'))) %>% 
-  dplyr::filter(depth_group2 == '0-4' | depth_group2 == '8-12') %>% 
+  dplyr::filter(depth_group2 == '0-4' | depth_group2 == '8-12')
 summary(aov(tmp$pHint_tot_sf_temp_4 ~ tmp$depth_group2 * tmp$montht))
 
 tmp_delta <- tmp %>% 
@@ -3916,6 +3918,7 @@ tmp <- tmp %>%
 summary(aov(tmp$pco2_remos_ctd_temp ~ tmp$depth_group2 * tmp$montht))
 
 tmp_delta <- tmp %>%
+  dplyr::group_by(depth_group2, montht) %>% 
   dplyr::summarise(pco2_remos_ctd_temp_med = median(pco2_remos_ctd_temp, na.rm = TRUE)) %>%
   tidyr::pivot_wider(names_from = depth_group2, values_from = pco2_remos_ctd_temp_med) %>%
   dplyr::rename(median0_4m = "0-4",
