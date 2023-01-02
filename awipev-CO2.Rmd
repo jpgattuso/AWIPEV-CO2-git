@@ -4078,7 +4078,7 @@ pco2_4_delta_plt <- tmp_delta %>%
 pco2_4_delta_plt
 ```
 
----- Stratification plots -------------------
+### Stratification plots
 
 ```{r, include=FALSE}
 # main deltas
@@ -4353,8 +4353,7 @@ write_csv(pangaea, file = paste0(path, "fb_data/pangaea.csv"))
 
 To calculate the air-sea CO2 flux, we use:
 
--   seawater pCO2 measured in the FerryBox on water pumped from 11 m
-    depth.
+-   seawater pCO2 measured in the FerryBox on water pumped from 11 m depth.
 -   atmospheric CO2 measured at the Zeppelin station and downloaded on
     2020-08-19 from
     <https://gaw.kishou.go.jp/search/file/0054-6001-1001-01-01-9999>
@@ -4471,8 +4470,7 @@ p_pco2_fb_remos <- d_all %>%
   dplyr::filter(depth < 4) %>% 
   drop_na() %>% 
   ggplot(aes(x = pco2_fb_ctd_temp, y = pco2_remos_ctd_temp, label = monthd)) +
-  geom_point(col="blue", size = 0.5) +
-  #geom_text() +
+  geom_point(col="blue", size = 1) +
   xlim(250, 400) + ylim(250, 400) +
   labs(title = "pCO2 at ctd temperature",
        x=latex2exp::TeX("$pCO_{2}$ 11 m $\\phantom{x}(\\mu atm)$"),
@@ -4480,7 +4478,7 @@ p_pco2_fb_remos <- d_all %>%
   ggpmisc::stat_ma_line(method = "lmodel2:MA", se = FALSE, size = 1) +
   ggpmisc::stat_ma_eq(mapping = use_label(c("R2", "eq"))) +
   geom_abline(slope = 1, intercept = 0, linetype = "dashed") +  
-  theme_bw() + Mytheme(size_labs = 9) + theme(aspect.ratio = 1) +
+  theme_bw() + Mytheme(size_labs = 11) + theme(aspect.ratio = 1) +
   coord_fixed(ratio = 1, expand = TRUE, clip = "on")
 #p_pco2_fb_remos
 ggsave(filename = "figures/pco2_fb_remos.png", plot = p_pco2_fb_remos, width = 25, height = 25, units = "cm")
@@ -4498,18 +4496,17 @@ tmp <- d_all %>%
   )
 p_pco2_fb_remos_month <- tmp %>% 
   ggplot(aes(x = pco2_fb_ctd_temp, y = pco2_remos_ctd_temp, label = montht)) +
-  geom_point(col="blue", size = 0.5) +
-  #xlim(250, 400) + ylim(250, 400) +
+  geom_point(col="blue", size = 5) +
+  xlim(270, 355) + ylim(270, 355) +
   labs(title = "pCO2 at ctd temperature",
        x=latex2exp::TeX("$pCO_{2}$ 11 m $\\phantom{x}(\\mu atm)$"),
        y= latex2exp::TeX("$pCO_{2}$ REMOS at 0-4 m\\phantom{x}($\\mu atm)$"))  +
   ggpmisc::stat_ma_line(method = "lmodel2:MA", se = FALSE, size = 1) +
   ggpmisc::stat_ma_eq(mapping = use_label(c("R2", "eq"))) +
   geom_abline(slope = 1, intercept = 0, linetype = "dashed") +  
-  theme_bw() + Mytheme(size_labs = 9) + theme(aspect.ratio = 1) +
+  theme_bw() + Mytheme(size_labs = 12) + theme(aspect.ratio = 1) +
   coord_fixed(ratio = 1, expand = TRUE, clip = "on")
-#p_pco2_fb_remos_month
-ggsave(filename = "figures/pco2_fb_remos_monthly.png", plot = p_pco2_fb_remos_month, width = 25, height = 25, units = "cm")
+ggsave(filename = "figures/pco2_fb_remos_monthly.png", plot = p_pco2_fb_remos_month, width = 15, height = 15, units = "cm")
 # combine
 g <- p_pco2_fb_remos / p_pco2_fb_remos_month
 g <- g + patchwork::plot_annotation(tag_levels = 'A')
@@ -4532,9 +4529,9 @@ and
 
 ```{r, echo=FALSE, message= FALSE, warning=FALSE}
 # calculations as described by de Carlo et al. (2013)
-# we consider that mole fraction in air = ppm TO CHECK
-# By convention, a negative flux indicates fluxes directed from the atmosphere to the ocean, and a positive flux indicates fluxes directed from the ocean to the atmosphere.
-
+# we consider that mole fraction in air = ppm
+# By convention, a negative flux indicates fluxes directed from the atmosphere to the 
+# ocean, and a positive flux indicates fluxes directed from the ocean to the atmosphere.
 d_all <- d_all %>%
   dplyr::mutate(
     delta_pco2 = pco2_fb_ctd_temp - co2_air, # uatm
