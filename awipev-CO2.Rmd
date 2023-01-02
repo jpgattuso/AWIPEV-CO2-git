@@ -3522,14 +3522,12 @@ depth_labels <- c("0-2", "2-4", "4-6", "6-8", ">8")
 # we look at salinity all depths
 tmp <- d_all %>% 
   dplyr::select(montht, sal_insitu_ctd, depth_group) %>%
-  tidyr::drop_na() %>% 
   dplyr::filter(depth_group != "NA") %>% 
-  group_by(depth_group, montht)
+  dplyr::mutate(depth_group = factor(depth_group, levels = depth_labels))
 p <- tmp %>% 
   ggplot(aes(x=as.factor(depth_group), y = sal_insitu_ctd)) +
   geom_boxplot(notch=FALSE, size=0.2, fill="grey50", outlier.color = "blue", outlier.size = 0.3) +
   labs(title = "Salinity vs depth", x = "Depth (m)", y= "Salinity") +
-  scale_x_discrete(labels = depth_labels) +
   facet_wrap(vars(montht), scale = "free_y")
 print(p)
 summary(aov(tmp$sal_insitu_ctd ~ tmp$depth_group * tmp$montht))
@@ -3543,8 +3541,7 @@ tmp <- d_all %>%
       depth_group == '>8' ~ '8-12'
     )
   )) %>%
-  dplyr::filter(depth_group2 == '0-4' | depth_group2 == '8-12') %>%
-  dplyr::group_by(depth_group2, montht)
+  dplyr::filter(depth_group2 == '0-4' | depth_group2 == '8-12') #%>%
 tmp_delta <- tidyr::drop_na(tmp) %>%
   group_by(depth_group2, montht) %>%
   dplyr::summarise(sal_med = median(sal_insitu_ctd, na.rm = TRUE)) %>%
@@ -3582,9 +3579,8 @@ print(sal_delta_plt)
 # we look at temperature all depths
 tmp <- d_all %>% 
   dplyr::select(montht, temp_insitu_ctd, depth_group) %>%
-  tidyr::drop_na() %>% 
   dplyr::filter(depth_group != "NA") %>% 
-  group_by(depth_group, montht)
+  dplyr::mutate(depth_group = factor(depth_group, levels = depth_labels))
 p <- tmp %>% 
   ggplot(aes(x=as.factor(depth_group), y = temp_insitu_ctd)) +
   geom_boxplot(notch=FALSE, size=0.2, fill="grey50", outlier.color = "blue", outlier.size = 0.3) +
@@ -3605,7 +3601,7 @@ tmp <- d_all %>%
   dplyr::filter(depth_group2 == '0-4' | depth_group2 == '8-12') %>%
   dplyr::group_by(depth_group2, montht)
 tmp_delta <- tmp %>%
-  group_by(depth_group2, montht) %>%
+  #group_by(depth_group2, montht) %>%
   dplyr::summarise(temp_med = median(temp_insitu_ctd, na.rm = TRUE)) %>%
   tidyr::pivot_wider(names_from = depth_group2, values_from = temp_med) %>%
   dplyr::rename(median0_4m = "0-4",
@@ -3620,9 +3616,7 @@ p <- tmp %>%
   facet_wrap(vars(montht), scale = "free_y")
 print(p)
 temp_delta_plt <- tmp_delta %>% 
-  #tidyr::drop_na() %>% 
   ggplot(aes(x = montht, y = temp_delta)) +
-  #scale_x_discrete(expand = c(0, 0)) +
   scale_x_discrete("Month") +
   scale_y_continuous("Temperature", limits = c(-2.1, 0.5), expand = c(0, 0)) +
   geom_col(fill="blue") +
@@ -3641,10 +3635,9 @@ print(temp_delta_plt)
 # we look at density at all depths
 tmp <- d_all %>% 
   dplyr::select(montht, sal_insitu_ctd, temp_insitu_ctd, depth_group, pressure_insitu_ctd) %>%
-  tidyr::drop_na() %>% 
   dplyr::filter(depth_group != "NA") %>% 
-  dplyr::mutate(density = seacarb::rho(S = sal_insitu_ctd, T = temp_insitu_ctd, P = pressure_insitu_ctd)) %>% 
-  group_by(depth_group, montht)
+  dplyr::mutate(depth_group = factor(depth_group, levels = depth_labels)) %>% 
+  dplyr::mutate(density = seacarb::rho(S = sal_insitu_ctd, T = temp_insitu_ctd, P = pressure_insitu_ctd)) %>%
 p <- tidyr::drop_na(tmp) %>% 
   ggplot(aes(x=as.factor(depth_group), y = sal_insitu_ctd)) +
   geom_boxplot(notch=FALSE, size=0.2, fill="grey50", outlier.color = "blue", outlier.size = 0.3) +
@@ -3657,7 +3650,6 @@ summary(aov(tmp$density ~ tmp$depth_group * tmp$montht))
 # we look at density 0 to 4 m vs more than 8 m
 tmp <- d_all %>% 
   dplyr::select(montht, sal_insitu_ctd, temp_insitu_ctd, depth_group, pressure_insitu_ctd) %>%
-  tidyr::drop_na() %>% 
   dplyr::filter(depth_group != "NA") %>% 
   dplyr::mutate(depth_group2 = as.factor(case_when(depth_group == '0-2' | depth_group == '2-4' ~ '0-4', 
                                       depth_group == '>8' ~ '8-12')), 
@@ -3710,7 +3702,7 @@ tmp <- d_all %>%
   dplyr::select(montht, pHint_tot_sf, depth_group) %>%
   tidyr::drop_na() %>% 
   dplyr::filter(depth_group != "NA") %>% 
-  group_by(depth_group, montht)
+  dplyr::mutate(depth_group = factor(depth_group, levels = depth_labels))
 p <- tmp %>% 
   ggplot(aes(x = as.factor(depth_group), y = pHint_tot_sf)) +
   geom_boxplot(notch=FALSE, size=0.2, fill="grey50", outlier.color = "blue", outlier.size = 0.3) +
@@ -3734,7 +3726,6 @@ tmp <- d_all %>%
 summary(aov(tmp$pHint_tot_sf ~ tmp$depth_group2 * tmp$montht))
 
 tmp_delta <- tmp %>%
-  group_by(depth_group2, montht) %>%
   dplyr::summarise(pH_tot_sf_med = median(pHint_tot_sf, na.rm = TRUE)) %>%
   tidyr::pivot_wider(names_from = depth_group2, values_from = pH_tot_sf_med) %>%
   dplyr::rename(median0_4m = "0-4",
@@ -3765,10 +3756,10 @@ print(pHinsi_delta_plt)
 # we look at pHint_tot_sf normalized at 4°C at all depths
 tmp <- d_all %>% 
   dplyr::select(montht, pHint_tot_sf_temp_4, depth_group) %>%
-  tidyr::drop_na() %>% 
   dplyr::filter(depth_group != "NA") %>% 
-  group_by(depth_group, montht)
+  dplyr::mutate(depth_group = factor(depth_group, levels = depth_labels))
 p <- tmp %>% 
+  drop_na() %>% 
   ggplot(aes(x=as.factor(depth_group), y = pHint_tot_sf_temp_4)) +
   geom_boxplot(notch=FALSE, size=0.2, fill="grey50", outlier.color = "blue", outlier.size = 0.3) +
   labs(title = "pHint_tot_sf at 4°C vs depth", x = "Depth (m)", y= "pH at 4°C (units)") +
@@ -3783,11 +3774,9 @@ tmp <- d_all %>%
   dplyr::mutate(depth_group2 = as.factor(case_when(depth_group == '0-2' | depth_group == '2-4' ~ '0-4',
                                                    depth_group == '>8' ~ '8-12'))) %>% 
   dplyr::filter(depth_group2 == '0-4' | depth_group2 == '8-12') %>% 
-  dplyr::group_by(depth_group2, montht)
 summary(aov(tmp$pHint_tot_sf_temp_4 ~ tmp$depth_group2 * tmp$montht))
 
 tmp_delta <- tmp %>% 
-  group_by(depth_group2, montht) %>% 
   dplyr::summarise(pH_tot_sf_med = median(pHint_tot_sf_temp_4, na.rm = TRUE)) %>% 
   tidyr::pivot_wider(names_from = depth_group2, values_from = pH_tot_sf_med) %>% 
   dplyr::rename(median0_4m = "0-4",
@@ -3816,10 +3805,10 @@ pH_delta_plt <- tidyr::drop_na(tmp_delta) %>%
 # we look at pHint_tot_sf normalized at 4°C at all depths
 tmp <- d_all %>% 
   dplyr::select(montht, pHint_tot_sf_temp_4, depth_group) %>%
-  tidyr::drop_na() %>% 
   dplyr::filter(depth_group != "NA") %>% 
-  group_by(depth_group, montht)
+  dplyr::mutate(depth_group = factor(depth_group, levels = depth_labels))
 p <- tmp %>% 
+  tidyr::drop_na() %>% 
   ggplot(aes(x=as.factor(depth_group), y = pHint_tot_sf_temp_4)) +
   geom_boxplot(notch=FALSE, size=0.2, fill="grey50", outlier.color = "blue", outlier.size = 0.3) +
   labs(title = "pHint_tot_sf at 4°C vs depth", x = "Depth (m)", y= "pH at 4°C (units)") +
@@ -3834,7 +3823,6 @@ tmp <- d_all %>%
   dplyr::mutate(depth_group2 = as.factor(case_when(depth_group == '0-2' | depth_group == '2-4' ~ '0-4',
                                                    depth_group == '>8' ~ '8-12'))) %>% 
   dplyr::filter(depth_group2 == '0-4' | depth_group2 == '8-12') %>% 
-  dplyr::group_by(depth_group2, montht)
 summary(aov(tmp$pHint_tot_sf_temp_4 ~ tmp$depth_group2 * tmp$montht))
 
 tmp_delta <- tmp %>% 
@@ -3904,9 +3892,8 @@ d_all <-
   dplyr::select(sort(current_vars()))
 tmp <- tmp %>% 
   dplyr::select(montht, pco2_remos_ctd_temp, depth_group) %>%
-  tidyr::drop_na() %>% 
   dplyr::filter(depth_group != "NA") %>% 
-  group_by(depth_group, montht)
+  dplyr::mutate(depth_group = factor(depth_group, levels = depth_labels))
 p <- tmp %>% 
   ggplot(aes(x=as.factor(depth_group), y = pco2_remos_ctd_temp)) +
   geom_boxplot(notch=FALSE, size=0.2, fill="grey50", outlier.color = "blue", outlier.size = 0.3) +
@@ -3925,12 +3912,10 @@ tmp <- tmp %>%
       depth_group == '>8' ~ '8-12'
     )
   )) %>%
-  dplyr::filter(depth_group2 == '0-4' | depth_group2 == '8-12') %>%
-  dplyr::group_by(depth_group2, montht)
+  dplyr::filter(depth_group2 == '0-4' | depth_group2 == '8-12')
 summary(aov(tmp$pco2_remos_ctd_temp ~ tmp$depth_group2 * tmp$montht))
 
 tmp_delta <- tmp %>%
-  group_by(depth_group2, montht) %>%
   dplyr::summarise(pco2_remos_ctd_temp_med = median(pco2_remos_ctd_temp, na.rm = TRUE)) %>%
   tidyr::pivot_wider(names_from = depth_group2, values_from = pco2_remos_ctd_temp_med) %>%
   dplyr::rename(median0_4m = "0-4",
@@ -4007,7 +3992,8 @@ tmp <- tmp %>%
   dplyr::select(montht, pco2_remos_4, depth_group) %>%
   tidyr::drop_na() %>% 
   dplyr::filter(depth_group != "NA") %>% 
-  group_by(depth_group, montht)
+  dplyr::mutate(depth_group = factor(depth_group, levels = depth_labels))
+
 p <- tmp %>% 
   ggplot(aes(x=as.factor(depth_group), y = pco2_remos_4)) +
   geom_boxplot(notch=FALSE, size=0.2, fill="grey50", outlier.color = "blue", outlier.size = 0.3) +
