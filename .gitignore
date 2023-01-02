@@ -36,8 +36,10 @@ presentation_old/
 #*.tex
 #*.png
 *.log
-figures/*.png
-reports/*.RData
+figures/
+reports/
+#figures/*.png
+#reports/*.RData
 # Ignore others
 .DS_Store
 *.js
