@@ -38,6 +38,7 @@ presentation_old/
 *.log
 figures/
 reports/
+awipev-CO2_files/
 #figures/*.png
 #reports/*.RData
 # Ignore others
