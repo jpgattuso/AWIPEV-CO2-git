@@ -86,6 +86,16 @@ which.closest <- function(x, table, ...) {
   round(approx(x=table, y=1:length(table), xout=x, ...)$y)
 }
 
+#################### Function cunit
+#test <- readr::read_csv(file="test_file")
+cunit <- function(d = 65, i = "g", o = "mol") {
+    if (i == "g" & o == "mol") {
+      out <- d/12
+      attributes(out) <- list(unit = "mol CO2")
+    }
+  return(round(out, digits=2))
+}
+
 ######## function to calculate min, max 3 quantiles
 qq <- function (data, digits) { 
   as.numeric(formatC(quantile(x = data, probs = c(0, 0.025, 0.50, 0.975, 1), na.rm = TRUE),
