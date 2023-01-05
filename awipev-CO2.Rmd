@@ -94,6 +94,10 @@ cunit <- function(d = 65, i = "gC", o = "molCO2") {
       out <- d/12
       attributes(out) <- list(unit = "mol CO2")
     }
+    if (i == "molC" & o == "molCO2") {
+      out <- d*44/12
+      attributes(out) <- list(unit = "mol CO2")
+    }
   return(round(out, digits=2))
 }
 
@@ -4131,18 +4135,50 @@ depth differs depending on the month.
 # According to Takahashi et al. (2002) and McCutcheon et al. (2021)
 # Select data
 taka <- d_all %>% # just for this chunk
-  dplyr::select(datetime, monthd, sal_fb_mix, temp_insitu_11m, pco2_fb_insi_temp) %>% 
+  dplyr::select(datetime, montht, monthd, sal_fb_mix, temp_insitu_11m, pco2_fb_insi_temp) %>% 
   dplyr::mutate(year = lubridate::year(datetime),
                 season = dplyr::case_when(monthd %in% c(12, 1, 2) ~ "winter",
                                           monthd %in% c(3, 4, 5) ~ "spring",
                                           monthd %in% c(6, 7, 8) ~ "summer",
-                                          monthd %in% c(9, 10, 11) ~ "fall")) %>% 
-  # eliminate years 2015 and 2021 which are incomplete
-  dplyr::filter(datetime > as.POSIXct("2016-01-01 00:00:00") &
-                  datetime < as.POSIXct("2021-01-01 00:00:00")) 
+                                          monthd %in% c(9, 10, 11) ~ "fall")) #%>% 
+  # # eliminate years 2015 and 2021 which are incomplete
+  # dplyr::filter(datetime > as.POSIXct("2016-01-01 00:00:00") &
+  #                 datetime < as.POSIXct("2021-01-01 00:00:00")) 
+
+# monthly 
+taka_month <- taka %>%
+  group_by(montht) %>%
+  dplyr::mutate(
+    pco2_thermal =
+      mean(pco2_fb_insi_temp, na.rm = TRUE) * exp(0.0423 * (
+        temp_insitu_11m - mean(temp_insitu_11m, na.rm = TRUE)
+      )),
+    pco2_nonthermal = pco2_fb_insi_temp * exp(0.0423 * (
+      mean(temp_insitu_11m, na.rm = TRUE) - temp_insitu_11m
+    ))
+  ) %>%
+  dplyr::summarise(
+    thermal = max(pco2_thermal, na.rm = TRUE) - min(pco2_thermal, na.rm = TRUE),
+    nonthermal = max(pco2_nonthermal, na.rm = TRUE) - min(pco2_nonthermal, na.rm = TRUE),
+    thermal_nonthermal = thermal / nonthermal
+  ) %>%
+  ungroup()
+# monthly plot
+taka_month_plt <- taka_month %>% 
+  ggplot() +
+  geom_point(aes(x = montht, y = thermal_nonthermal), col="blue", size = 2) +
+  labs(x="Month", y= "Thermal/non-thermal control of pCO2")  +
+  geom_hline(yintercept = 1, linetype = "dashed") +  
+  theme_bw() + Mytheme(size_labs = 12) + theme(aspect.ratio = 1) +
+  coord_fixed(ratio = 1, expand = TRUE, clip = "on")
+taka_month_plt
+ggsave(filename = "figures/taka_month.png", plot = taka_month_plt, width = 25, height = 25, units = "cm")
 
 # annual 
-taka_year <- taka %>% 
+taka_year <- taka %>%
+  # eliminate years 2015 and 2021 which are incomplete
+  dplyr::filter(datetime > as.POSIXct("2016-01-01 00:00:00") &
+                  datetime < as.POSIXct("2021-01-01 00:00:00")) %>% 
   group_by(year) %>% 
   dplyr::mutate(pco2_thermal = 
                   mean(pco2_fb_insi_temp, na.rm = TRUE) * exp(0.0423 * (temp_insitu_11m - mean(temp_insitu_11m, na.rm = TRUE))),
@@ -4174,14 +4210,18 @@ taka_season <- taka %>%
 
 `r knitr::kable(taka_year, digits = c(0, 1, 1, 2), caption = "Thermal vs non-thermal control of pCO2. Yearly estimate.", format = "simple")`
 `r knitr::kable(taka_season, digits = c(0, 1, 1, 2), caption = "Thermal vs non-thermal control of pCO2. Seasonal estimate.", format = "simple")`
-For seasonal analysis, December to February was considered winter, March
-to May was considered spring, June to August was considered summer, and
+`r knitr::kable(taka_month, digits = c(0, 1, 1, 2), caption = "Thermal vs non-thermal control of pCO2. Monthly estimate.", format = "simple")`
+![Monthly analysis of the thermal vs non-thermal control of pCO2](figures/taka_month.png)
+
+The relative importance of the temperature and biological effects maybe expressed in terms of the ratio,(temperature effect)/(biology effect) or difference [(temperature effect)-(biological effect)].
+
+For annual analysis, only complete years were used. For seasonal analysis, December to February was considered winter, March to May was considered spring, June to August was considered summer, and
 September to November was considered fall.
 
 The control of pCO2 by non-thermal (physical and biological processes)
 drivers is always greater than the control from temperature on both
 annual and seasonal basis. Thermal control is highest in winter and
-lowest in summer.
+lowest in summer. This is very clear with the monthly analysis.
 
 ## Deconvolution of pCO2 changes
 
