@@ -87,9 +87,10 @@ which.closest <- function(x, table, ...) {
 }
 
 #################### Function cunit
-#test <- readr::read_csv(file="test_file")
-cunit <- function(d = 65, i = "g", o = "mol") {
-    if (i == "g" & o == "mol") {
+# cunit(d = 65,i = "g", o = "mol")
+# cunit(d = 65,i = "g", o = "mol")
+cunit <- function(d = 65, i = "gC", o = "molCO2") {
+    if (i == "gC" & o == "molCO2") {
       out <- d/12
       attributes(out) <- list(unit = "mol CO2")
     }
