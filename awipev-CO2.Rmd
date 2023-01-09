@@ -878,12 +878,24 @@ p_avail <- pivot_longer(z, -Flag) %>%
   drop_na() %>% 
   ggplot(aes(x = name, y = value, fill = Flag)) +
   geom_bar(position = position_stack(reverse = TRUE), stat="identity", width = 0.3) +
-  scale_fill_discrete(labels = labels) + 
+  scale_x_discrete(
+    labels = c(
+      "Flag",
+      'pCO2' = parse(text = TeX('$pCO_2$')),
+      "Salinity FerryBox",
+      "In situ salinity",
+      "Temperature FerryBox",
+      "In situ temperature",
+      "Durafet pH",
+      "seaFET pH"
+    )
+  ) +
   coord_flip() +
-  labs(x="", y="", title = "Distribution (%) of quality flags") +
-  Mytheme(size_labs = 8) #+
-  theme(plot.margin = margin(t = -8, r = 0.0, b = -8, l = 0.0, unit = "cm"))
-kable(z, digits = 1)
+  labs(x="", y = "Distribution of quality flags (%)") +
+  Mytheme(size_labs = 10) +
+  theme(legend.title = element_text(colour="black", size=10, face="bold")) #+
+  #theme(plot.margin = margin(t = -8, r = 0.0, b = -8, l = 0.0, unit = "cm"))
+#kable(z, digits = 1)
 # Monthly distribution of hourly data
 d2 <- d_all %>% 
   dplyr::select(montht, pco2_fb, phINT)
@@ -902,18 +914,18 @@ p_avail_month <- d2_summary %>%
   tidyr::pivot_longer(cols = c(pco2, pH)) %>% 
   ggplot() +
   geom_col(aes(x = montht, y = value, fill = name), position = "dodge", width = 0.75) +
-  scale_fill_discrete(name = "", labels = c("pCO2", "pH")) + 
+  scale_fill_discrete(name = "", labels = c(expression(paste(pCO[2])), "pH")) + 
   labs(x="Month", y="Number of data (thousands)", title = "") +
-  Mytheme(size_labs = 8) #+
+  Mytheme(size_labs = 10) #+
   #theme(plot.margin = margin(t = 0, r = 0, b = 0, l = 0.5, unit = "cm"))
 # Combine plots
 p <- (p_avail / p_avail_month)
-p <- p + plot_annotation(tag_levels = 'A')
-p
+p <- p + plot_annotation(tag_levels = 'A') & theme(plot.tag = element_text(face = "bold"))
 ggsave(filename = "figures/availability.png", plot = p, width = 20, height = 15, units = "cm")
+ggsave(filename = "figures/availability.pdf", plot = p, width = 20, height = 15, units = "cm")
 
 # deleted unneeded data
-rm(x, d_min, list=ls(pattern="^d2"))
+#rm(x, d_min, list=ls(pattern="^d2"))
 ```
 
 ## Salinities
