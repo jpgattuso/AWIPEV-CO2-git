@@ -892,18 +892,10 @@ p_avail <- pivot_longer(z, -Flag) %>%
   ) +
   coord_flip() +
   labs(x="", y = "Distribution of quality flags (%)") +
-<<<<<<< HEAD
-  Mytheme(size_labs = 10) +
-  theme(legend.title = element_text(colour="black", size=10, face="bold")) #+
+  Mytheme(size_labs = 12) +
+  theme(legend.title = element_text(colour="black", size=12, face="bold")) #+
   #theme(plot.margin = margin(t = -8, r = 0.0, b = -8, l = 0.0, unit = "cm"))
 #kable(z, digits = 1)
-=======
-  Mytheme(size_labs = 8) #+
-  theme(plot.margin = margin(t = -8, r = 0.0, b = -8, l = 0.0, unit = "cm"))
-  p_avail
-kable(z, digits = 1)
->>>>>>> bffabf73a65b33762af07941a6cf636257c67247
-# Monthly distribution of hourly data
 d2 <- d_all %>% 
   dplyr::select(montht, pco2_fb, phINT)
 count_pco2_fb_no_NA <- sum(!is.na(d2$pco2_fb)) # total non-NA pCO2 values
@@ -923,13 +915,12 @@ p_avail_month <- d2_summary %>%
   geom_col(aes(x = montht, y = value, fill = name), position = "dodge", width = 0.75) +
   scale_fill_discrete(name = "", labels = c(expression(paste(pCO[2])), "pH")) + 
   labs(x="Month", y="Number of data (thousands)", title = "") +
-  Mytheme(size_labs = 10) #+
-  #theme(plot.margin = margin(t = 0, r = 0, b = 0, l = 0.5, unit = "cm"))
+  Mytheme(size_labs = 12) #+
 # Combine plots
 p <- (p_avail / p_avail_month)
 p <- p + plot_annotation(tag_levels = 'A') & theme(plot.tag = element_text(face = "bold"))
 ggsave(filename = "figures/availability.png", plot = p, width = 20, height = 15, units = "cm")
-ggsave(filename = "figures/availability.pdf", plot = p, width = 20, height = 15, units = "cm")
+ggsave(filename = "figures/essd/fig01.pdf", plot = p, width = 20, height = 15, units = "cm")
 
 # deleted unneeded data
 #rm(x, d_min, list=ls(pattern="^d2"))
@@ -1236,12 +1227,12 @@ at_s <- d_all_at_discrete %>%
   dplyr::select(sal_fb_mix, at) %>% 
   drop_na() %>% 
   ggplot(aes(x = sal_fb_mix, y = at)) +
-  geom_point(col="blue", size = 0.5) +
+  geom_point(col="blue", size = 1) +
   labs(x= latex2exp::TeX("Salinity"),
        y= latex2exp::TeX("Total alkalinity ($\\mu mol\\phantom{x}kg^{-1})$"))  +
   ggpmisc::stat_ma_line(method = "lmodel2:OLS", se = FALSE, size = 1) +
   #ggpmisc::stat_ma_eq(method = "lmodel2:OLS", aes(label = after_stat(eq.label))) +
-  theme_bw() + Mytheme(size_labs = 9) + theme(aspect.ratio=1) + 
+  theme_bw() + Mytheme(size_labs = 12) + theme(aspect.ratio=1) + 
   coord_fixed()
 ggsave(filename = "figures/at_s.png", plot = at_s, width = 25, height = 25, units = "cm")
 
@@ -1452,14 +1443,14 @@ pco2_calc_meas <- d_all %>%
   dplyr::select(pco2_fb_insi_temp, pco2_calc_fb_insi_temp) %>% 
   drop_na() %>% 
   ggplot(aes(x = pco2_fb_insi_temp, y = pco2_calc_fb_insi_temp)) +
-  geom_point(col="blue", size = 0.5) +
+  geom_point(col="blue", size = 1) +
   xlim(180, 420) + ylim(180, 420) +
   labs(x=latex2exp::TeX("Measured $pCO_{2}\\phantom{x}(\\mu atm)$"),
        y= latex2exp::TeX("Calculated $pCO_{2}\\phantom{x}(\\mu atm)$"))  +
   ggpmisc::stat_ma_line(method = "lmodel2:MA", se = FALSE, size = 1) +
   #ggpmisc::stat_ma_eq(method = "lmodel2:MA", aes(label = after_stat(eq.label))) +
   geom_abline(slope = 1, intercept = 0, linetype = "dashed") +  
-  theme_bw() + Mytheme(size_labs = 9) + theme(aspect.ratio = 1) +
+  theme_bw() + Mytheme(size_labs = 12) + theme(aspect.ratio = 1) +
   coord_fixed(ratio = 1, expand = TRUE, clip = "on")
 ggsave(filename = "figures/pco2_calc_meas.png", plot = pco2_calc_meas, width = 25, height = 25, units = "cm")
 ```
@@ -2046,7 +2037,7 @@ offset_ph <- ph_sf %>%
   geom_hline(yintercept=-0.02, size=0.3, linetype = "dashed") +
   geom_hline(yintercept=0.02, size=0.3, linetype = "dashed") +
   labs(x = "Date", y=expression(paste(pH[T], " difference")), title = NULL) +
-  Mytheme(size_labs = 9, face_font = "plain") + theme(aspect.ratio=1)  + 
+  Mytheme(size_labs = 12, face_font = "plain") + theme(aspect.ratio=1)  + 
   scale_colour_discrete(guide="none") + 
   coord_fixed()
 ggsave(filename = "figures/offset_ph.png", plot = offset_ph, width = 25, height = 25, units = "cm")
@@ -2617,14 +2608,14 @@ pHspec_pHseafet <- d_all %>%
   dplyr::select(ph_s_sf_temp_insi, pHint_tot_sf) %>% 
   drop_na() %>% 
   ggplot(aes(x = ph_s_sf_temp_insi, y = pHint_tot_sf)) +
-  geom_point(col="blue", size = 0.5) +
+  geom_point(col="blue", size = 1) +
   xlim(8.05, 8.18) + ylim(8.05, 8.18) +
   labs(x="Spectrophotometric pH",
        y= "SeaFET pH")  +
   ggpmisc::stat_ma_line(method = "lmodel2:MA", se = FALSE, size = 1) +
   #ggpmisc::stat_ma_eq(method = "lmodel2:MA", aes(label = after_stat(eq.label), digits = 4)) +
   geom_abline(slope = 1, intercept = 0, linetype = "dashed") +  
-  theme_bw() + Mytheme(size_labs = 9) + theme(aspect.ratio = 1) +
+  theme_bw() + Mytheme(size_labs = 12) + theme(aspect.ratio = 1) +
   coord_fixed(ratio = 1, expand = TRUE, clip = "on")
 ggsave(filename = "figures/pHspec_pHseafet.png", plot = pHspec_pHseafet, width = 25, height = 25, units = "cm")
 ```
@@ -3130,14 +3121,11 @@ diff_all_long <- diff_all %>%
   dplyr::mutate(variable = forcats::fct_relevel(variable, 'delta_ph', 'delta_ct', 'delta_OmegaAragonite'), variable = fct_recode(variable, 'pH' = "delta_ph", 'C[T]' = "delta_ct",'Omega[a]' = "delta_OmegaAragonite"))
 
 p <- ggplot(diff_all_long, aes(x = forcats::fct_relevel(deltas, 'L00-S20', 'L00-P18', 'L00-M02'), y=value))+
-  geom_boxplot(notch=FALSE, size=0.2, fill="grey50", outlier.color = "blue", outlier.size = 0.3) +
+  geom_boxplot(notch=FALSE, size=0.2, fill="grey70", outlier.color = "blue", outlier.size = 1) +
   geom_hline(yintercept = 0) +
   labs(title = "", x = "", y= "") +
   facet_wrap(vars(variable), scales = "free_y", labeller = label_parsed) +
-  Mytheme(size_labs = 10)
-# diff_all_long$variable <- factor(diff_all_long$variable, levels = c('C[T]','Omega[a]', 'pH'))
-# fct_relevel(diff_all_long$variable, 'delta_ph', 'delta_ct', 'delta_OmegaAragonite')
-
+  Mytheme(size_labs = 12)
 # calculate descriptive statistics
 diff_ls_quant <- tibble(pH = as.numeric(summary(diff_ls$delta_ph)),
                         CT = as.numeric(summary(diff_ls$delta_ct * 1e6)),
@@ -3153,6 +3141,8 @@ diff_lm_quant <- tibble(pH = as.numeric(summary(diff_lm$delta_ph)),
   dplyr::mutate(var = c("Min", "Q1", "Median", "Mean", "Q3", "Max"), .before = 1)
 
 ggsave(filename = "figures/k1k2_all_pco2_at.png", plot = p, width = 25, height = 20, units = "cm")
+ggsave(filename = "figures/essd/fig02.pdf", plot = p, width = 25, height = 20, units = "cm")
+
 ```
 
 `r knitr::kable(diff_ls_quant, digits = c(0, rep(3, 5)), caption = "Lueker minus Sulpis using all pCO2 data.", format = "simple")`
@@ -3440,12 +3430,11 @@ diff_all_long <- diff_all %>%
   dplyr::mutate(variable = forcats::fct_relevel(variable, 'delta_ph', 'delta_pCO2', 'delta_OmegaAragonite'), variable = fct_recode(variable, 'pH' = "delta_ph", 'pCO[2]' = "delta_pCO2",'Omega[a]' = "delta_OmegaAragonite"))
 
 p <- ggplot(diff_all_long, aes(x = forcats::fct_relevel(deltas, 'L00-S20', 'L00-P18', 'L00-M02'), y=value))+
-  geom_boxplot(notch=FALSE, size=0.2, fill="grey50", outlier.color = "blue", outlier.size = 0.3) +
+  geom_boxplot(notch=FALSE, size=0.2, fill="grey70", outlier.color = "blue", outlier.size = 1) +
   geom_hline(yintercept = 0) +
   labs(title = "", x = "", y= "") +
   facet_wrap(vars(variable), scales = "free_y", labeller = label_parsed) +
-  Mytheme(size_labs = 10)
-
+  Mytheme(size_labs = 12)
 # calculate descriptive statistics
 diff_ls2_quant <- tibble(pH = as.numeric(summary(diff_ls2$delta_ph)),
                         pCO2 = as.numeric(summary(diff_ls2$delta_pCO2)),
@@ -3461,8 +3450,7 @@ diff_lm2_quant <- tibble(pH = as.numeric(summary(diff_lm2$delta_ph)),
   dplyr::mutate(var = c("Min", "Q1", "Median", "Mean", "Q3", "Max"), .before = 1)
 # boxplot
 ggsave(filename = "figures/k1k2_ct_at.png", plot = p, width = 25, height = 20, units = "cm")
-
-
+ggsave(filename = "figures/essd/fig03.pdf", plot = p, width = 25, height = 20, units = "cm")
 # prepare tibble to compare calculated pH and spec pH
 tmp2 <- tibble(datetime = tmp$datetime, ph_s_dur_temp_4_l = tmp$ph_s_dur_temp_4_l, 
                ph_s_dur_temp_4_s20 = tmp$ph_s_dur_temp_4_s20,
@@ -4965,9 +4953,9 @@ ggsave(filename = "figures/ts_boxplots.png", plot = g2)
 
 ```{r, echo=FALSE, message= FALSE, warning=FALSE}
 g <- (at_s | pco2_calc_meas) / (offset_ph | pHspec_pHseafet)
-g <- g + patchwork::plot_annotation(tag_levels = 'A')
+g <- g + patchwork::plot_annotation(tag_levels = 'A' & theme(plot.tag = element_text(face = "bold")))
 ggsave(filename = "figures/pco2_ph_etc.png", plot = g)
-g
+ggsave(filename = "figures/essd/fig04.pdf", plot = g)
 ```
 
 ### Time series and boxplots for paper
