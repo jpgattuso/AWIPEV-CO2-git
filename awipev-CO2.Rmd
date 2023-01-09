@@ -892,10 +892,17 @@ p_avail <- pivot_longer(z, -Flag) %>%
   ) +
   coord_flip() +
   labs(x="", y = "Distribution of quality flags (%)") +
+<<<<<<< HEAD
   Mytheme(size_labs = 10) +
   theme(legend.title = element_text(colour="black", size=10, face="bold")) #+
   #theme(plot.margin = margin(t = -8, r = 0.0, b = -8, l = 0.0, unit = "cm"))
 #kable(z, digits = 1)
+=======
+  Mytheme(size_labs = 8) #+
+  theme(plot.margin = margin(t = -8, r = 0.0, b = -8, l = 0.0, unit = "cm"))
+  p_avail
+kable(z, digits = 1)
+>>>>>>> bffabf73a65b33762af07941a6cf636257c67247
 # Monthly distribution of hourly data
 d2 <- d_all %>% 
   dplyr::select(montht, pco2_fb, phINT)
