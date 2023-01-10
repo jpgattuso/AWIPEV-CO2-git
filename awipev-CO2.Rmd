@@ -4174,12 +4174,13 @@ taka_month <- taka %>%
 taka_month_plt <- taka_month %>% 
   ggplot() +
   geom_point(aes(x = montht, y = thermal_nonthermal), col="blue", size = 2) +
-  labs(x="Month", y= "Thermal/non-thermal control of pCO2")  +
+  labs(x="Month", y= latex2exp::TeX("Thermal/non-thermal control of $pCO_{2}"))  +
   geom_hline(yintercept = 1, linetype = "dashed") +  
   theme_bw() + Mytheme(size_labs = 12) + theme(aspect.ratio = 1) +
   coord_fixed(ratio = 1, expand = TRUE, clip = "on")
 taka_month_plt
 ggsave(filename = "figures/taka_month.png", plot = taka_month_plt, width = 25, height = 25, units = "cm")
+ggsave(filename = "figures/essd/fig05.pdf", plot = taka_month_plt, width = 25, height = 25, units = "cm")
 
 # annual 
 taka_year <- taka %>%
@@ -4775,15 +4776,22 @@ ggsave(filename = "figures/OmegaAragonite.png", plot = ts_oa, width = 15, height
 ### Whole time series plot
 
 ```{r, fig.width=10, fig.height=10, echo=FALSE, message= FALSE}
+# legend:
+# - Salinity below 8m
+# - In situ temperature (11m)
+# - pCO2 at 11 m and insitu Temperature, measued in blue, calculated from CT an AT in red
+# - In situ pH below 8 m at in situ Temperature, seaFET in blue, spectrophotometric in red
+# - Total alkalinity calculated from salinity in blue, discrete measurement in red
+
 size_point <- 0.3 # size of data points
 alpha <- 1 #transparency
-size_labs <- 6 # font size labels
+size_labs <- 12 # font size labels
 
 ts_sal <- d_all %>%
   ggplot(aes(x = datetime, y = sal_fb_mix), na.rm = TRUE) +
   scale_x_datetime(breaks = date_breaks("1 year"), labels = date_format("%Y")) +
   geom_point(colour="blue", alpha = alpha, na.rm = TRUE, size = size_point) +
-  labs(title="Salinity (below 8 m)",x="", y="Salinity") +
+  labs(title=NULL,x="", y="Salinity") +
   Mytheme(size_labs = size_labs)
 
 # temp_insitu_11m
@@ -4791,7 +4799,7 @@ ts_temp <- d_all %>%
   ggplot(aes(x = datetime, y = temp_insitu_11m), na.rm = TRUE) +
   scale_x_datetime(breaks = date_breaks("1 year"), labels = date_format("%Y")) +
   geom_point(colour="blue", alpha = alpha, na.rm = TRUE, size = size_point) +
-  labs(title="In situ temperature (11 m)",x="", y="Temperature (°C)") +
+  labs(title=NULL,x="", y="Temperature (°C)") +
   Mytheme(size_labs = size_labs)
 
 # PAR
@@ -4799,7 +4807,8 @@ ts_par_air <- d_all %>%
   ggplot(aes(x = datetime, y = par_air), na.rm = TRUE) +
   scale_x_datetime(breaks = date_breaks("1 year"), labels = date_format("%Y")) +
   geom_point(colour="blue", alpha = alpha, na.rm = TRUE, size = size_point) +
-  labs(title="Atmospheric PAR",x="", y="PAR (umol m-2 s-1)") +
+  labs(title="Atmospheric PAR",x="", 
+       y=latex2exp::TeX("PAR ($\\mu mol\\phantom{x}m^{-2}\\phantom{x}s^{-1})$")) +
   Mytheme(size_labs = size_labs)
 
 # PCO2 
@@ -4809,8 +4818,8 @@ ts_pCO2 <- d_all %>%
   geom_point(aes(x = datetime, y = pco2_fb_insi_temp), 
              colour="blue", alpha = alpha, na.rm = TRUE, size = size_point) +
   geom_point(aes(x = datetime, y = pco2_calc_fb_insi_temp), colour="red", alpha = alpha, na.rm = TRUE, size = size_point*3) + 
-  labs(title=expression(paste(pCO[2], " at 11 m and in situ temperature")),
-       subtitle = "measured in blue; calculated from CT and AT in red",
+  labs(title=NULL,
+       subtitle = NULL,
        x="", y=TeX("pCO$_2$ ($\\mu atm$)")) +
   Mytheme(size_labs = size_labs)
 
@@ -4822,8 +4831,8 @@ ts_pH <- d_all %>%
   geom_point(aes(x = datetime, y = pHint_tot_sf), 
              colour="blue", alpha = alpha, na.rm = TRUE, size = size_point) + 
   geom_point(aes(x = datetime, y = ph_s_sf_temp_insi), colour="red", alpha = alpha, na.rm = TRUE, size = size_point*3) + 
-  labs(title="In situ pH below 8 m at in situ temperature", 
-       subtitle = "seaFET in blue; spectrophotometric in red",
+  labs(title=NULL, 
+       subtitle =NULL,
        x = "", y=expression(paste(pH[T]))) +
   Mytheme(size_labs = size_labs) +
   theme(legend.position = c(0.1, 0.5),
@@ -4835,15 +4844,16 @@ ts_at <- d_all %>%
   scale_x_datetime(breaks = date_breaks("1 year"), labels = date_format("%Y")) +
   geom_point(colour="blue", alpha = alpha, na.rm = TRUE, size = size_point) +
   geom_point(aes(x = datetime, y = at), colour="red", alpha = alpha, na.rm = TRUE, size = size_point*3) + 
-  labs(title="Total alkalinity", 
-       subtitle = "calculated from salinity in blue; discrete measurements in red",
+  labs(title=NULL, 
+       subtitle = NULL,
        x="", y=TeX("$A_T$ ($\\mu mol\\phantom{x}kg^{-1})$")) +
   Mytheme(size_labs = size_labs)
 
 # Combine plots
 g1 <- (ts_sal / ts_temp / ts_pCO2  / ts_pH / ts_at)
-g1 <- g1 + plot_annotation(tag_levels = 'A')
+g1 <- g1 + plot_annotation(tag_levels = 'A' & theme(plot.tag = element_text(face = "bold")))
 ggsave(filename = "figures/time_series.png", plot = g1, width = 15, height = 30, units = "cm")
+
 #rm(list = ls(pattern = "ts_")) #delete big ggplot objects
 #gc() #garbage collection
 ```
@@ -4853,6 +4863,7 @@ ggsave(filename = "figures/time_series.png", plot = g1, width = 15, height = 30,
 ```{r, fig.width=10, fig.height=10, echo=FALSE, message= FALSE}
 size_point <- 0.5 # size of data points
 alpha <- 1 #transparency
+size_labs <- 12 # font size labels
 d_bp <- d_all %>% # just for this chunk
   dplyr::select(datetime, sal_fb_mix, temp_insitu_11m, pco2_fb, pHint_tot_sf, at_calc)
 
@@ -4907,45 +4918,45 @@ ts_sal_bp <- d_bp %>%
   ggplot(aes(x = month(x = datetime, label = TRUE, abbr = TRUE), y = sal_fb_mix)) +
   geom_boxplot(notch=FALSE, size=0.2, fill="blue", outlier.shape = NA, na.rm = TRUE) +
   geom_point(aes(x = month(x = datetime, label = TRUE, abbr = TRUE), y = ext_sal_fb_mix), col = "lightblue", size = size_point, na.rm = TRUE) +
-  labs(title="Salinity (< 8 m)", y = "Salinity", x=NULL) +
-  Mytheme() +
+  labs(title="", y = "Salinity", x=NULL) +
+  Mytheme(size_labs = size_labs) +
   theme(panel.grid.major.x = element_blank(),
         aspect.ratio=0.5)
 ts_temp_bp <- d_bp %>%
   ggplot(aes(x = month(x = datetime, label = TRUE, abbr = TRUE), y = temp_insitu_11m)) +
   geom_boxplot(notch=FALSE, size=0.2, fill="blue", outlier.shape = NA, na.rm = TRUE) +
   geom_point(aes(x = month(x = datetime, label = TRUE, abbr = TRUE), y = ext_temp_insitu_11m), col = "lightblue", size = size_point, na.rm = TRUE) +
-  labs(title="In situ temperature (11 m)", y = "Temperature (°C)", x=NULL) +
-  Mytheme() +
+  labs(title=NULL, y = "Temperature (°C)", x=NULL) +
+  Mytheme(size_labs = size_labs) +
   theme(panel.grid.major.x = element_blank(),
         aspect.ratio=0.5)
 ts_pco2_bp <- d_bp %>%
   ggplot(aes(x = month(x = datetime, label = TRUE, abbr = TRUE), y = pco2_fb)) +
   geom_boxplot(notch=FALSE, size=0.2, fill="blue", outlier.shape = NA, na.rm = TRUE) +
   geom_point(aes(x = month(x = datetime, label = TRUE, abbr = TRUE), y = ext_pco2_fb), col = "lightblue", size = size_point, na.rm = TRUE) +
-  labs(title=expression(paste(pCO[2], " at 11 m and in situ temperature")), y = TeX("pCO$_2$ ($\\mu atm$)"), x=NULL) +
-  Mytheme() +
+  labs(title=NULL, y = TeX("pCO$_2$ ($\\mu atm$)"), x=NULL) +
+  Mytheme(size_labs = size_labs)+
   theme(panel.grid.major.x = element_blank(),
         aspect.ratio=0.5)
 ts_pH_bp <- d_bp %>%
   ggplot(aes(x = month(x = datetime, label = TRUE, abbr = TRUE), y = pHint_tot_sf)) +
   geom_boxplot(notch=FALSE, size=0.2, fill="blue", outlier.shape = NA, na.rm = TRUE) +
   geom_point(aes(x = month(x = datetime, label = TRUE, abbr = TRUE), y = ext_pHint_tot_sf), col = "lightblue", size = size_point, na.rm = TRUE) +
-  labs(title="In situ pH below 8 m at in situ temperature", y = expression(paste(pH[T])), x=NULL) +
-  Mytheme() +
+  labs(title=NULL, y = TeX("$pH_T$"), x=NULL) +
+  Mytheme(size_labs = size_labs) +
   theme(panel.grid.major.x = element_blank(),
         aspect.ratio=0.5)
 ts_at_bp <- d_bp %>%
   ggplot(aes(x = month(x = datetime, label = TRUE, abbr = TRUE), y = at_calc)) +
   geom_boxplot(notch=FALSE, size=0.2, fill="blue", outlier.shape = NA, na.rm = TRUE) +
   geom_point(aes(x = month(x = datetime, label = TRUE, abbr = TRUE), y = ext_at_calc), col = "lightblue", size = size_point, na.rm = TRUE) +
-  labs(title="Total alkalinity calculated from salinity", y = TeX("$A_T$ ($\\mu mol\\phantom{x}kg^{-1})$"), x=NULL) +
-  Mytheme() +
+  labs(title=NULL, y = TeX("$A_T$ ($\\mu mol\\phantom{x}kg^{-1})$"), x=NULL) +
+  Mytheme(size_labs = size_labs) +
   theme(panel.grid.major.x = element_blank(),
         aspect.ratio=0.5)
 # Combine plots
 g2 <- (ts_sal_bp / ts_temp_bp / ts_pco2_bp / ts_pH_bp / ts_at_bp)
-g2 <- g2 + plot_annotation(tag_levels = 'A')
+g2 <- g2 + plot_annotation(tag_levels = 'A' & theme(plot.tag = element_text(face = "bold")))
 ggsave(filename = "figures/ts_boxplots.png", plot = g2)
 ```
 
@@ -4963,9 +4974,16 @@ ggsave(filename = "figures/essd/fig04.pdf", plot = g)
 ```{r, echo=FALSE, message= FALSE, warning=FALSE}
 g <- (ts_sal / ts_temp / ts_pCO2  / ts_pH / ts_at) |
   (ts_sal_bp / ts_temp_bp / ts_pco2_bp / ts_pH_bp / ts_at_bp)
-g <- g + plot_annotation(tag_levels = 'A')
-ggsave(filename = "figures/ts_ts_boxplots.png", plot = g)
-rm(list = ls(pattern = "ts_"), d_bp) #delete big ggplot objects and temp data
+g <- g + plot_annotation(tag_levels = 'A' & theme(plot.tag = element_text(face = "bold")))
+ggsave(filename = "figures/essd/fig06.pdf", plot = g)
+# legend:
+# - Salinity below 8m
+# - In situ temperature (11m)
+# - pCO2 at 11 m and insitu Temperature, measued in blue, calculated from CT an AT in red
+# - In situ pH below 8 m at in situ Temperature, seaFET in blue, spectrophotometric in red
+# - Total alkalinity calculated from salinity in blue, discrete measurement in red
+
+#rm(list = ls(pattern = "ts_"), d_bp) #delete big ggplot objects and temp data
 #gc() #garbage collection
 ```
 
