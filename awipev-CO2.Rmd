@@ -4917,11 +4917,13 @@ d_bp <- d_bp %>%
 ts_sal_bp <- d_bp %>%
   ggplot(aes(x = month(x = datetime, label = TRUE, abbr = TRUE), y = sal_fb_mix)) +
   geom_boxplot(notch=FALSE, size=0.2, fill="blue", outlier.shape = NA, na.rm = TRUE) +
-  geom_point(aes(x = month(x = datetime, label = TRUE, abbr = TRUE), y = ext_sal_fb_mix), col = "lightblue", size = size_point, na.rm = TRUE) +
+  geom_point(aes(x = month(x = datetime, label = TRUE, abbr = TRUE), y = sal_fb_mix), col = "lightblue", size = size_point, na.rm = TRUE) +
   labs(title="", y = "Salinity", x=NULL) +
   Mytheme(size_labs = size_labs) +
   theme(panel.grid.major.x = element_blank(),
-        aspect.ratio=0.5)
+        aspect.ratio=0.5) +
+  scale_x_discrete(breaks = c("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"), 
+                   labels = c("Jan", "", "Mar", "", "May", "", "Jul", "", "Sep", "", "Nov", ""))
 ts_temp_bp <- d_bp %>%
   ggplot(aes(x = month(x = datetime, label = TRUE, abbr = TRUE), y = temp_insitu_11m)) +
   geom_boxplot(notch=FALSE, size=0.2, fill="blue", outlier.shape = NA, na.rm = TRUE) +
@@ -4929,7 +4931,9 @@ ts_temp_bp <- d_bp %>%
   labs(title=NULL, y = "Temperature (°C)", x=NULL) +
   Mytheme(size_labs = size_labs) +
   theme(panel.grid.major.x = element_blank(),
-        aspect.ratio=0.5)
+        aspect.ratio=0.5) +
+  scale_x_discrete(breaks = c("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"), 
+                   labels = c("Jan", "", "Mar", "", "May", "", "Jul", "", "Sep", "", "Nov", ""))
 ts_pco2_bp <- d_bp %>%
   ggplot(aes(x = month(x = datetime, label = TRUE, abbr = TRUE), y = pco2_fb)) +
   geom_boxplot(notch=FALSE, size=0.2, fill="blue", outlier.shape = NA, na.rm = TRUE) +
@@ -4937,7 +4941,9 @@ ts_pco2_bp <- d_bp %>%
   labs(title=NULL, y = TeX("pCO$_2$ ($\\mu atm$)"), x=NULL) +
   Mytheme(size_labs = size_labs)+
   theme(panel.grid.major.x = element_blank(),
-        aspect.ratio=0.5)
+        aspect.ratio=0.5) +
+  scale_x_discrete(breaks = c("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"), 
+                   labels = c("Jan", "", "Mar", "", "May", "", "Jul", "", "Sep", "", "Nov", ""))
 ts_pH_bp <- d_bp %>%
   ggplot(aes(x = month(x = datetime, label = TRUE, abbr = TRUE), y = pHint_tot_sf)) +
   geom_boxplot(notch=FALSE, size=0.2, fill="blue", outlier.shape = NA, na.rm = TRUE) +
@@ -4945,7 +4951,9 @@ ts_pH_bp <- d_bp %>%
   labs(title=NULL, y = TeX("$pH_T$"), x=NULL) +
   Mytheme(size_labs = size_labs) +
   theme(panel.grid.major.x = element_blank(),
-        aspect.ratio=0.5)
+        aspect.ratio=0.5) +
+  scale_x_discrete(breaks = c("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"), 
+                   labels = c("Jan", "", "Mar", "", "May", "", "Jul", "", "Sep", "", "Nov", ""))
 ts_at_bp <- d_bp %>%
   ggplot(aes(x = month(x = datetime, label = TRUE, abbr = TRUE), y = at_calc)) +
   geom_boxplot(notch=FALSE, size=0.2, fill="blue", outlier.shape = NA, na.rm = TRUE) +
@@ -4953,7 +4961,9 @@ ts_at_bp <- d_bp %>%
   labs(title=NULL, y = TeX("$A_T$ ($\\mu mol\\phantom{x}kg^{-1})$"), x=NULL) +
   Mytheme(size_labs = size_labs) +
   theme(panel.grid.major.x = element_blank(),
-        aspect.ratio=0.5)
+        aspect.ratio=0.5) +
+  scale_x_discrete(breaks = c("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"), 
+                   labels = c("Jan", "", "Mar", "", "May", "", "Jul", "", "Sep", "", "Nov", ""))
 # Combine plots
 g2 <- (ts_sal_bp / ts_temp_bp / ts_pco2_bp / ts_pH_bp / ts_at_bp)
 g2 <- g2 + plot_annotation(tag_levels = 'A' & theme(plot.tag = element_text(face = "bold")))
