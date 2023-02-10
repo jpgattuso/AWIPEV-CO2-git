@@ -69,6 +69,8 @@ if (!require("todor")) install.packages("todor")
 library("todor")
 if (!require("ggpmisc")) install.packages("ggpmisc")
 library("ggpmisc")
+if (!require("tidyselect")) install.packages("tidyselect")
+library("tidyselect")
 # todor::todor_file("awipev-CO2.Rmd")
 
 knitr::opts_chunk$set(echo = TRUE)
@@ -1413,7 +1415,7 @@ d_all <- d_all %>%
       Tlab = temp_fb,
       SST = temp_insitu_11m)
 ) %>% 
-  dplyr::select(sort(current_vars()))
+  dplyr::select(sort(everything()))
 
 set.caption("Difference fco2_fb - fco2_fb_insi_temp")
 pander(summary(d_all$fco2_fb - d_all$fco2_fb_insi_temp))
@@ -2475,21 +2477,23 @@ d_all <- d_all %>%
 ## Range per month
 
 ```{r Range per month, echo = FALSE, warning = FALSE}
-range_month <-
-  d_all %>%
-  dplyr::select(montht, sal_fb_mix, temp_insitu_11m_mix, temp_insitu_11m, pHint_tot_sf_10m) %>% 
-tbl_summary(by = montht,
-            missing = "no",
-            type = all_continuous() ~ "continuous2",
-            statistic = all_continuous() ~ c(
-              "{mean}",
-              "{median}",
-              "{p25}",
-              "{p75}",
-              "{min}",
-              "{max}"),
-            digits = list(sal_fb_mix ~ 1, temp_insitu_11m_mix ~ 1, temp_insitu_11m ~ 1, pHint_tot_sf_10m ~ 3))
-range_month
+# TODO
+# range_month <-
+#   d_all %>%
+#   dplyr::select(montht, sal_fb_mix, temp_insitu_11m_mix, temp_insitu_11m, pHint_tot_sf_10m) %>% 
+# tbl_summary(by = montht,
+#             missing = "no",
+#             type = all_continuous() ~ "continuous2"),
+#             statistic = all_continuous() ~ c(
+#               "{mean}",
+#               "{median}",
+#               "{p25}",
+#               "{p75}",
+#               "{min}",
+#               "{max}"
+#               ),
+#             digits = list(sal_fb_mix ~ 1, temp_insitu_11m_mix ~ 1, temp_insitu_11m ~ 1, pHint_tot_sf_10m ~ 3))
+# range_month
 ```
 
 ## pHs
@@ -3913,7 +3917,7 @@ tmp <- d_all %>%
 # add at_remos and pco2_remos_ctd_temp to d_all
 d_all <-
   dplyr::left_join(d_all, dplyr::select(tmp, datetime, at_remos, pco2_remos_ctd_temp), by = "datetime") %>%
-  dplyr::select(sort(current_vars()))
+  dplyr::select(sort(everything()))
 tmp <- tmp %>% 
   dplyr::select(montht, pco2_remos_ctd_temp, depth_group) %>%
   dplyr::filter(depth_group != "NA") %>% 
@@ -4011,7 +4015,7 @@ tmp <- d_all %>%
 # add pco2_remos_4 to d_all
 d_all <-
   dplyr::left_join(d_all, dplyr::select(tmp, datetime, pco2_remos_4), by = "datetime") %>%
-  dplyr::select(sort(current_vars()))
+  dplyr::select(sort(everything()))
 
 tmp <- tmp %>% 
   dplyr::select(montht, pco2_remos_4, depth_group) %>%
@@ -4476,7 +4480,7 @@ atm_co2 <- atm_co2 %>%
   dplyr::mutate(co2_air = ifelse(year(atm_co2$datetime) == 2020, co2_air_new, co2_air_old))
 
 d_all <- dplyr::left_join(d_all, dplyr::select(atm_co2, datetime, co2_air), by = "datetime") %>% 
-  dplyr::select(sort(current_vars()))
+  dplyr::select(sort(everything()))
 
 p_atm_co2 <- d_all %>% 
   #tidyr::pivot_longer(cols = c(pco2_air, pco2_air_old), names_to = "dataset", values_to = "pco2") %>% 
@@ -4515,7 +4519,7 @@ meteo <- dplyr::tibble(windnyalesund) %>%
         ) %>%
   dplyr::select(datetime, temp_air, p_air, ws, wd)
 d_all <- dplyr::left_join(d_all, meteo, by = "datetime") %>% 
-  dplyr::select(sort(current_vars()))
+  dplyr::select(sort(everything()))
 ```
 
 ### Comparison pCO2 ferrybox vs pCO2 REMOS
@@ -4527,7 +4531,7 @@ from REMOS data (S, T, pH, salinity-AT) at 0-2 m only.
 p_pco2_fb_remos <- d_all %>% 
   dplyr::select(depth, monthd, pco2_fb_ctd_temp, pco2_remos_ctd_temp) %>% 
   dplyr::filter(depth < 4) %>% 
-  drop_na() %>% 
+  dplyr::filter(if_all(everything(), is.finite)) %>% 
   ggplot(aes(x = pco2_fb_ctd_temp, y = pco2_remos_ctd_temp, label = monthd)) +
   geom_point(col="blue", size = 1) +
   xlim(250, 400) + ylim(250, 400) +
@@ -4757,6 +4761,7 @@ tmp <- d_all %>% # just for this chunk
   dplyr::mutate(OmegaAragonite = seacarb::carb(
     flag = 24, var1 = pco2_fb, var2 = at_calc*1e-6, S=sal_fb_mix, T=temp_fb, 
     Patm=1, P=1.1, Pt=0, Sit=0, k1k2="l", kf="dg", ks="d", pHscale="T", b="u74")$OmegaAragonite)
+summary(tmp$OmegaAragonite)
 #plot
 size_point <- 0.3 # size of data points
 alpha <- 1 #transparency
@@ -4769,10 +4774,8 @@ ts_oa <- tmp %>%
   ylim(0, 3) +
   labs(title="Aragonite saturation state (11 m)",x="", y=latex2exp::TeX("$\\Omega_{aragonite}$")) +
   Mytheme(size_labs = size_labs)
-ts_oa
 ggsave(filename = "figures/OmegaAragonite.png", plot = ts_oa, width = 15, height = 10, units = "cm")
 ```
-
 ### Whole time series plot
 
 ```{r, fig.width=10, fig.height=10, echo=FALSE, message= FALSE}
