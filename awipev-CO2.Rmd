@@ -517,13 +517,13 @@ pH_seafet <- pH_seafet %>%
                          Tlab = pH_seafet$temp_s_lab, Pinsi = 11/10, 
                          S = pH_seafet$sal_fb_mix_interp, Pt = 0, Sit = 0, 
                          k1k2 = "l", kf = "dg", ks="d", 
-                         pHscale = "T", b="u74"),
+                         pHscale = "T", b="l10"),
    ph_s_sf_temp_4 = pHinsi(pH = pH_seafet$ph_s_sf, # with Lueker
                          ALK = pH_seafet$at_mean_interp*1e-6, Tinsi = 4, 
                          Tlab = pH_seafet$temp_s_lab, Pinsi = 11/10, 
                          S = pH_seafet$sal_fb_mix_interp, Pt = 0, Sit = 0, 
                          k1k2 = "l", kf = "dg", ks="d", 
-                         pHscale = "T", b="u74")
+                         pHscale = "T", b="l10")
   )
 # Conversion of spec pH of FerryBox samples to FerryBox temp
 pH_durafet <- d %>%
@@ -533,13 +533,13 @@ pH_durafet <- pH_durafet %>%
     ph_s_dur_temp_fb = pHinsi(pH = pH_durafet$ph_s_dur, 
                               ALK = pH_durafet$at_mean_interp*1e-6, Tinsi = pH_durafet$temp_fb, 
                               Tlab = pH_durafet$temp_s_lab, Pinsi = 0, S = pH_durafet$sal_fb, 
-                              Pt = 0, Sit = 0, k1k2 = "l", kf = "dg", ks="d", pHscale = "T", b="u74"),
+                              Pt = 0, Sit = 0, k1k2 = "l", kf = "dg", ks="d", pHscale = "T", b="l10"),
     ph_s_dur_temp_4 = pHinsi(pH = pH_durafet$ph_s_dur,
                              ALK = pH_durafet$at_mean_interp * 1e-6, Tinsi = 4,
                              Tlab = pH_durafet$temp_s_lab, Pinsi = 0,
                              S = pH_durafet$sal_fb, Pt = 0, Sit = 0, k1k2 = "l", 
                              kf = "dg", ks = "d",
-                             pHscale = "T", b = "u74")
+                             pHscale = "T", b = "l10")
    )
 
 # Make mean for replicates + SD
@@ -590,7 +590,7 @@ discrete_no_na <- discrete %>%
   dplyr::filter(!is.na(sal_fb)  & !is.na(temp_fb) & !is.na(at) & !is.na(ct))
 discrete_is_na <- discrete %>%
   dplyr::filter(is.na(sal_fb)  | is.na(temp_fb) | is.na(at) | is.na(ct))
-carb <- carb(15, discrete_no_na$at_mean_interp*1e-6, discrete_no_na$ct_mean_interp*1e-6, S = discrete_no_na$sal_fb, T = discrete_no_na$temp_fb, P = 0, Pt = 0, Sit = 0, k1k2 = "l", kf = "dg", ks = "d", pHscale = "T", b = "u74")
+carb <- carb(15, discrete_no_na$at_mean_interp*1e-6, discrete_no_na$ct_mean_interp*1e-6, S = discrete_no_na$sal_fb, T = discrete_no_na$temp_fb, P = 0, Pt = 0, Sit = 0, k1k2 = "l", kf = "dg", ks = "d", pHscale = "T", b = "l10")
 discrete_no_na$ph_calc_fb <- carb$pH # pH to compare with durafet pH (at Ferrybox temp and sal)
 discrete_no_na$pco2_calc_fb <- carb$pCO2
 
@@ -2103,7 +2103,7 @@ tmp <- d_all %>%
   dplyr::select(datetime, depth, at, sal_insitu_ctd_mix, temp_sf, pHint_tot_sf) %>%
   tidyr::drop_na() %>%
   dplyr::filter(datetime < as.POSIXct("2018-01-01") | datetime > as.POSIXct("2018-02-03"))
-tmp$pHint_tot_sf_temp_4 <- seacarb::pHinsi(pH=tmp$pHint_tot_sf, ALK=mean(tmp$at*1e-6, na.rm = TRUE), Tinsi=4, Tlab=tmp$temp_sf, Pinsi=tmp$depth/10, S=tmp$sal_insitu_ctd_mix, Pt=0, Sit=0, k1k2 = "l", kf = "dg", ks="d", pHscale = "T", b="u74")
+tmp$pHint_tot_sf_temp_4 <- seacarb::pHinsi(pH=tmp$pHint_tot_sf, ALK=mean(tmp$at*1e-6, na.rm = TRUE), Tinsi=4, Tlab=tmp$temp_sf, Pinsi=tmp$depth/10, S=tmp$sal_insitu_ctd_mix, Pt=0, Sit=0, k1k2 = "l", kf = "dg", ks="d", pHscale = "T", b="l10")
 d_all <- d_all %>% 
   left_join(tmp %>% dplyr::select(datetime, pHint_tot_sf_temp_4), by="datetime")
 ```
@@ -2469,7 +2469,7 @@ d_all <- d_all %>%
 tmp <- d_all %>%
   dplyr::select(datetime, at, sal_fb_mix, temp_fb, pH_dur) %>%
   tidyr::drop_na()
-tmp$pH_dur_temp_4 <- seacarb::pHinsi(pH=tmp$pH_dur, ALK=tmp$at, Tinsi=4, Tlab=tmp$temp_fb, Pinsi=11/10, S=tmp$sal_fb_mix, Pt=0, Sit=0, k1k2 = "l", kf = "dg", ks="d", pHscale = "T", b="u74")
+tmp$pH_dur_temp_4 <- seacarb::pHinsi(pH=tmp$pH_dur, ALK=tmp$at, Tinsi=4, Tlab=tmp$temp_fb, Pinsi=11/10, S=tmp$sal_fb_mix, Pt=0, Sit=0, k1k2 = "l", kf = "dg", ks="d", pHscale = "T", b="l10")
 d_all <- d_all %>% 
   left_join(tmp %>% dplyr::select(datetime, pH_dur_temp_4), by="datetime")
 ```
@@ -2538,7 +2538,7 @@ rm(durafet_sf_contros_xts)
 tmp <- discrete %>%
   dplyr::select(datetime, sal_fb_mix, temp_fb, ph_calc_fb, at) %>%
   tidyr::drop_na()
-tmp$pH_calc_fb_temp_4 <- pHinsi(pH = tmp$ph_calc_fb, ALK=tmp$at*1e-6, Tinsi=4, Tlab=tmp$temp_fb, Pinsi=11/10, S=tmp$sal_fb_mix, Pt=0, Sit=0, k1k2 = "l", kf = "dg", ks="d", pHscale = "T", b="u74")
+tmp$pH_calc_fb_temp_4 <- pHinsi(pH = tmp$ph_calc_fb, ALK=tmp$at*1e-6, Tinsi=4, Tlab=tmp$temp_fb, Pinsi=11/10, S=tmp$sal_fb_mix, Pt=0, Sit=0, k1k2 = "l", kf = "dg", ks="d", pHscale = "T", b="l10")
 
 # join pH calc norm + pH dur/sf norm in d_all
 d_all <- left_join(d_all, tmp %>% dplyr::select(datetime, pH_calc_fb_temp_4), by="datetime")
@@ -2913,32 +2913,32 @@ mean_temp <-  mean(means$mean_temp)
 # then check impacts of 0, min and max nutrient values using pco2 and AT
 carb_po4_1 <- carb(24, mean_pco2_calc, mean_at_calc*1e-6, S = mean_sal, T = mean_temp, P = 0, 
                  Pt = c(0, min(d_all$po4/1e6, na.rm = TRUE), max(d_all$po4/1e6, na.rm = TRUE)), Sit = 0,
-                 k1k2 = "l", kf = "dg", ks = "d", pHscale = "T", b = "u74")
+                 k1k2 = "l", kf = "dg", ks = "d", pHscale = "T", b = "l10")
 diff_po4_0a <- carb_po4_1[1,] - carb_po4_1[3,] # diff between no PO4 and max PO4
 diff_po4_1a <- carb_po4_1[2,] - carb_po4_1[3,] # diff between min PO4 and max PO4
 carb_Si_1 <- carb(24, mean_pco2_calc, mean_at_calc*1e-6, S = mean_sal, T = mean_temp, P = 0,
                 Pt = 0, Sit = c(0, min(d_all$si/1e6, na.rm = TRUE), max(d_all$si/1e6, na.rm = TRUE)), 
-                k1k2 = "l", kf = "dg", ks = "d", pHscale = "T", b = "u74")
+                k1k2 = "l", kf = "dg", ks = "d", pHscale = "T", b = "l10")
 diff_Si_0a <- carb_Si_1[1,] - carb_Si_1[3,] # diff between no Si and max Si
 diff_Si_1a <- carb_Si_1[2,] - carb_Si_1[3,] # diff between no Si and max Si
 # then check impacts of O, min and max nutrient values using AT-DIC pair
 carb_po4_2 <- carb(15, mean_at_calc*1e-6, mean_ct*1e-6, S = mean_sal, T = mean_temp, P = 0, 
                  Pt = c(0, min(d_all$po4/1e6, na.rm = TRUE), max(d_all$po4/1e6, na.rm = TRUE)), Sit = 0,
-                 k1k2 = "l", kf = "dg", ks = "d", pHscale = "T", b = "u74")
+                 k1k2 = "l", kf = "dg", ks = "d", pHscale = "T", b = "l10")
 diff_po4_0b <- carb_po4_2[1,] - carb_po4_2[3,] # diff between no PO4 and max PO4
 diff_po4_1b <- carb_po4_2[2,] - carb_po4_2[3,] # diff between min PO4 and max PO4
 carb_Si_2 <- carb(15, mean_at_calc*1e-6, mean_ct*1e-6, S = mean_sal, T = mean_temp, P = 0,
                 Pt = 0, Sit = c(0, min(d_all$si/1e6, na.rm = TRUE), max(d_all$si/1e6, na.rm = TRUE)), 
-                k1k2 = "l", kf = "dg", ks = "d", pHscale = "T", b = "u74")
+                k1k2 = "l", kf = "dg", ks = "d", pHscale = "T", b = "l10")
 diff_Si_0b <- carb_Si_2[1,] - carb_Si_2[3,] # diff between no Si and max Si
 diff_Si_1b <- carb_Si_2[2,] - carb_Si_2[3,] # diff between no Si and max Si
 # then check impacts of O, max PO4 and NO3 values using pCO2 and AT as well as AT-DIC pair
 carb_1 <- carb(24, mean_pco2_calc, mean_at_calc*1e-6, S = mean_sal, T = mean_temp, P = 0, 
                  Pt = c(0, max(d_all$po4/1e6, na.rm = TRUE)), Sit = c(0, max(d_all$si/1e6, na.rm = TRUE)),
-                 k1k2 = "l", kf = "dg", ks = "d", pHscale = "T", b = "u74")
+                 k1k2 = "l", kf = "dg", ks = "d", pHscale = "T", b = "l10")
 carb_2 <- carb(15, mean_at_calc*1e-6, mean_ct*1e-6, S = mean_sal, T = mean_temp, P = 0, 
                  Pt = c(0, max(d_all$po4/1e6, na.rm = TRUE)), Sit = c(0, max(d_all$si/1e6, na.rm = TRUE)),
-                 k1k2 = "l", kf = "dg", ks = "d", pHscale = "T", b = "u74")
+                 k1k2 = "l", kf = "dg", ks = "d", pHscale = "T", b = "l10")
 diff_max_0a <- carb_1[1,] - carb_1[2,] # pco2-AT: diff between (0 PO4 and Si) and (max PO4 and Si)
 diff_max_0b <- carb_2[1,] - carb_2[2,] # AT-CT: diff between (0 PO4 and Si) and (max PO4 and Si)
 
@@ -3022,10 +3022,10 @@ mean_discrete <- tibble(mean_ct = mean_ct, mean_at = mean_at, mean_pco2 = mean_p
 # calculate typical uncertainty assuming uncertainties of 3 uatm for pCO2 and 4 umol/kg for AT and CT
 errors_pco2_at <- seacarb::errors(flag=24, var1=mean_pco2, var2=1e-6*mean_at, S=mean_sal,
                           T=mean_temp, P=0, Pt=0, Sit=0, k1k2="l", kf="dg", ks="d", pHscale="T",
-                          b="u74", evar1=3, evar2 = 4e-6)
+                          b="l10", evar1=3, evar2 = 4e-6)
 errors_at_ct <- seacarb::errors(flag=15, var1=1e-6*mean_at, var2=1e-6*mean_ct, S=mean_sal,
                           T=mean_temp, P=0, Pt=0, Sit=0, k1k2="l", kf="dg", ks="d", pHscale="T",
-                          b="u74", evar1=4e-6, evar2 = 4e-6)
+                          b="l10", evar1=4e-6, evar2 = 4e-6)
 errors <- tibble(
   flag = c("pCO2-AT", "AT-CT"),
   S = c(mean_discrete$mean_sal, mean_discrete$mean_sal),
@@ -3043,18 +3043,18 @@ errors <- tibble(
 # # impacts using pco2 and AT pair
 # carb_l_1 <- carb(24, mean_pco2, mean_at*1e-6, S = mean_sal, T = mean_temp, P = 0, 
 #                  Pt = 0, Sit = 0,
-#                  k1k2 = "l", kf = "dg", ks = "d", pHscale = "T", b = "u74")
+#                  k1k2 = "l", kf = "dg", ks = "d", pHscale = "T", b = "l10")
 # carb_s_1 <- carb(24, mean_pco2, mean_at*1e-6, S = mean_sal, T = mean_temp, P = 0, 
 #                  Pt = 0, Sit = 0,
-#                  k1k2 = "s20", kf = "dg", ks = "d", pHscale = "T", b = "u74")
+#                  k1k2 = "s20", kf = "dg", ks = "d", pHscale = "T", b = "l10")
 # diff_ls_1 <- carb_l_1 - carb_s_1
 # # impacts using AT-CT pair
 # carb_l_2 <- carb(15, mean_at*1e-6, mean_ct*1e-6, S = mean_sal, T = mean_temp, P = 0, 
 #                  Pt = 0, Sit = 0,
-#                  k1k2 = "l", kf = "dg", ks = "d", pHscale = "T", b = "u74")
+#                  k1k2 = "l", kf = "dg", ks = "d", pHscale = "T", b = "l10")
 # carb_s_2 <- carb(15, mean_at*1e-6, mean_ct*1e-6, S = mean_sal, T = mean_temp, P = 0,
 #                 Pt = 0, Sit = 0, 
-#                 k1k2 = "s20", kf = "dg", ks = "d", pHscale = "T", b = "u74")
+#                 k1k2 = "s20", kf = "dg", ks = "d", pHscale = "T", b = "l10")
 # diff_ls_2 <- carb_l_2 - carb_s_2
 # summary
 ```
@@ -3073,35 +3073,35 @@ dplyr::mutate(pco2_fb = ifelse(datetime == as.POSIXct("2019-06-07 09:00:00"), 20
 # Using Lueker  
 carb_l <- carb(flag = 24, var1 = tmp$pco2_fb, var2 = tmp$at * 1e-6, S = tmp$sal_fb_mix, 
                T = tmp$temp_fb, P = 0, Pt = 0, Sit = 0, k1k2 = "l", kf = "dg", ks = "d", 
-               pHscale = "T", b = "u74")
+               pHscale = "T", b = "l10")
 # normalize Lueker-derived pH at 4°C
 carb_l$pH <- pHinsi(pH = carb_l$pH, ALK = carb_l$ALK, Tinsi = 4, Tlab = carb_l$T, Pinsi = 0, 
                          S = carb_l$S, Pt = 0, Sit = 0, k1k2 = "l", kf = "dg", ks="d", 
-                         pHscale = "T", b="u74")
+                         pHscale = "T", b="l10")
 # Using Sulpis
 carb_s <- carb(flag = 24, var1 = tmp$pco2_fb, var2 = tmp$at * 1e-6, S = tmp$sal_fb_mix, 
                T = tmp$temp_fb, P = 0, Pt = 0, Sit = 0, k1k2 = "s20", kf = "dg", ks = "d", 
-               pHscale = "T", b = "u74")
+               pHscale = "T", b = "l10")
 # normalize Sulpis-derived pH at 4°C
 carb_s$pH <- pHinsi(pH = carb_s$pH, ALK = carb_s$ALK, Tinsi = 4, Tlab = carb_s$T, Pinsi = 0, 
                          S = carb_s$S, Pt = 0, Sit = 0, k1k2 = "s20", kf = "dg", ks="d", 
-                         pHscale = "T", b="u74")
+                         pHscale = "T", b="l10")
 # Using Papadimitriou
 carb_p <- carb(flag = 24, var1 = tmp$pco2_fb, var2 = tmp$at * 1e-6, S = tmp$sal_fb_mix, 
                T = tmp$temp_fb, P = 0, Pt = 0, Sit = 0, k1k2 = "p18", kf = "dg", ks = "d", 
-               pHscale = "T", b = "u74")
+               pHscale = "T", b = "l10")
 # normalize Papadimitriou-derived pH at 4°C
 carb_p$pH <- pHinsi(pH = carb_p$pH, ALK = carb_p$ALK, Tinsi = 4, Tlab = carb_p$T, Pinsi = 0, 
                          S = carb_p$S, Pt = 0, Sit = 0, k1k2 = "p18", kf = "dg", ks="d", 
-                         pHscale = "T", b="u74")
+                         pHscale = "T", b="l10")
 # Using Millero et al. (2002)
 carb_m <- carb(flag = 24, var1 = tmp$pco2_fb, var2 = tmp$at * 1e-6, S = tmp$sal_fb_mix, 
                T = tmp$temp_fb, P = 0, Pt = 0, Sit = 0, k1k2 = "m02", kf = "dg", ks = "d", 
-               pHscale = "T", b = "u74")
+               pHscale = "T", b = "l10")
 # normalize Millero et al. (2002)-derived pH at 4°C
 carb_m$pH <- pHinsi(pH = carb_m$pH, ALK = carb_m$ALK, Tinsi = 4, Tlab = carb_m$T, Pinsi = 0, 
                          S = carb_m$S, Pt = 0, Sit = 0, k1k2 = "m02", kf = "dg", ks="d", 
-                         pHscale = "T", b="u74")
+                         pHscale = "T", b="l10")
 # calculate difference Lueker - Sulpis
 diff_ls <- as_tibble(carb_l - carb_s) %>% 
   dplyr::rename(delta_ph = pH, delta_ct = DIC, delta_OmegaAragonite = OmegaAragonite) %>%
@@ -3165,22 +3165,22 @@ tmp <- d_all %>%
                          ALK = at*1e-6, Tinsi = 4,
                          Tlab = temp_fb, Pinsi = 0,
                          S = sal_fb_mix, Pt = 0, Sit = 0, k1k2 = "l", kf = "dg", ks="d",
-                         pHscale = "T", b="u74"),
+                         pHscale = "T", b="l10"),
    ph_s_dur_temp_4_s20 = pHinsi(pH = ph_s_dur_temp_fb, # Sulpis
                          ALK = at*1e-6, Tinsi = 4,
                          Tlab = temp_fb, Pinsi = 0,
                          S = sal_fb_mix, Pt = 0, Sit = 0, k1k2 = "s20", kf = "dg", ks="d",
-                         pHscale = "T", b="u74"),       # Millero 02
+                         pHscale = "T", b="l10"),       # Millero 02
    ph_s_dur_temp_4_p18 = pHinsi(pH = ph_s_dur_temp_fb, # Papadimitriou
                          ALK = at*1e-6, Tinsi = 4,
                          Tlab = temp_fb, Pinsi = 0,
                          S = sal_fb_mix, Pt = 0, Sit = 0, k1k2 = "p18", kf = "dg", ks="d",
-                         pHscale = "T", b="u74"),
+                         pHscale = "T", b="l10"),
    ph_s_dur_temp_4_m02 = pHinsi(pH = ph_s_dur_temp_fb,  # Millero 02
                          ALK = at*1e-6, Tinsi = 4,
                          Tlab = temp_fb, Pinsi = 0,
                          S = sal_fb_mix, Pt = 0, Sit = 0, k1k2 = "m02", kf = "dg", ks="d",
-                         pHscale = "T", b="u74")
+                         pHscale = "T", b="l10")
    ) %>% 
   # dplyr::select(datetime, ph_s_dur_temp_4_l, ph_s_dur_temp_4_s20,
   #               ph_s_dur_temp_4_p18, ph_s_dur_temp_4_m02, pco2_fb, at, sal_fb_mix, temp_fb) %>%
@@ -3190,35 +3190,35 @@ dplyr::mutate(pco2_fb = ifelse(datetime == as.POSIXct("2019-06-07 09:00:00"), 20
 # Using Lueker  
 carb_l1 <- carb(flag = 24, var1 = tmp$pco2_fb, var2 = tmp$at * 1e-6, S = tmp$sal_fb_mix, 
                T = tmp$temp_fb, P = 0, Pt = 0, Sit = 0, k1k2 = "l", kf = "dg", ks = "d", 
-               pHscale = "T", b = "u74")
+               pHscale = "T", b = "l10")
 # normalize Lueker-derived pH at 4°C
 carb_l1$pH <- pHinsi(pH = carb_l1$pH, ALK = carb_l1$ALK, Tinsi = 4, Tlab = carb_l1$T, Pinsi = 0, 
                          S = carb_l1$S, Pt = 0, Sit = 0, k1k2 = "l", kf = "dg", ks="d", 
-                         pHscale = "T", b="u74")
+                         pHscale = "T", b="l10")
 # Using Sulpis
 carb_s1 <- carb(flag = 24, var1 = tmp$pco2_fb, var2 = tmp$at * 1e-6, S = tmp$sal_fb_mix, 
                T = tmp$temp_fb, P = 0, Pt = 0, Sit = 0, k1k2 = "s20", kf = "dg", ks = "d", 
-               pHscale = "T", b = "u74")
+               pHscale = "T", b = "l10")
 # normalize Sulpis-derived pH at 4°C
 carb_s1$pH <- pHinsi(pH = carb_s1$pH, ALK = carb_s1$ALK, Tinsi = 4, Tlab = carb_s1$T, Pinsi = 0, 
                          S = carb_s1$S, Pt = 0, Sit = 0, k1k2 = "s20", kf = "dg", ks="d", 
-                         pHscale = "T", b="u74")
+                         pHscale = "T", b="l10")
 # Using Papadimitriou
 carb_p1 <- carb(flag = 24, var1 = tmp$pco2_fb, var2 = tmp$at * 1e-6, S = tmp$sal_fb_mix, 
                T = tmp$temp_fb, P = 0, Pt = 0, Sit = 0, k1k2 = "p18", kf = "dg", ks = "d", 
-               pHscale = "T", b = "u74")
+               pHscale = "T", b = "l10")
 # normalize Papadimitriou-derived pH at 4°C
 carb_p1$pH <- pHinsi(pH = carb_p1$pH, ALK = carb_p1$ALK, Tinsi = 4, Tlab = carb_p1$T, Pinsi = 0, 
                          S = carb_p1$S, Pt = 0, Sit = 0, k1k2 = "p18", kf = "dg", ks="d", 
-                         pHscale = "T", b="u74")
+                         pHscale = "T", b="l10")
 # Using Millero et al. (2002)
 carb_m1 <- carb(flag = 24, var1 = tmp$pco2_fb, var2 = tmp$at * 1e-6, S = tmp$sal_fb_mix, 
                T = tmp$temp_fb, P = 0, Pt = 0, Sit = 0, k1k2 = "m02", kf = "dg", ks = "d", 
-               pHscale = "T", b = "u74")
+               pHscale = "T", b = "l10")
 # normalize Millero et al. (2002)-derived pH at 4°C
 carb_m1$pH <- pHinsi(pH = carb_m1$pH, ALK = carb_m1$ALK, Tinsi = 4, Tlab = carb_m1$T, Pinsi = 0, 
                          S = carb_m1$S, Pt = 0, Sit = 0, k1k2 = "m02", kf = "dg", ks="d", 
-                         pHscale = "T", b="u74")
+                         pHscale = "T", b="l10")
 # calculate difference Lueker - Sulpis
 diff_ls1 <- as_tibble(carb_l1 - carb_s1) %>% 
   dplyr::rename(delta_ph = pH, delta_ct = DIC, delta_OmegaAragonite = OmegaAragonite) %>%
@@ -3363,55 +3363,55 @@ tmp <- d_all %>%
                          ALK = at*1e-6, Tinsi = 4,
                          Tlab = temp_fb, Pinsi = 0,
                          S = sal_fb_mix, Pt = 0, Sit = 0, k1k2 = "l", kf = "dg", ks="d",
-                         pHscale = "T", b="u74"),
+                         pHscale = "T", b="l10"),
    ph_s_dur_temp_4_s20 = pHinsi(pH = ph_s_dur_temp_fb, # Sulpis
                          ALK = at*1e-6, Tinsi = 4,
                          Tlab = temp_fb, Pinsi = 0,
                          S = sal_fb_mix, Pt = 0, Sit = 0, k1k2 = "s20", kf = "dg", ks="d",
-                         pHscale = "T", b="u74"),       # Millero 02
+                         pHscale = "T", b="l10"),       # Millero 02
    ph_s_dur_temp_4_p18 = pHinsi(pH = ph_s_dur_temp_fb, # Papadimitriou
                          ALK = at*1e-6, Tinsi = 4,
                          Tlab = temp_fb, Pinsi = 0,
                          S = sal_fb_mix, Pt = 0, Sit = 0, k1k2 = "p18", kf = "dg", ks="d",
-                         pHscale = "T", b="u74"),
+                         pHscale = "T", b="l10"),
    ph_s_dur_temp_4_m02 = pHinsi(pH = ph_s_dur_temp_fb,  # Millero 02
                          ALK = at*1e-6, Tinsi = 4,
                          Tlab = temp_fb, Pinsi = 0,
                          S = sal_fb_mix, Pt = 0, Sit = 0, k1k2 = "m02", kf = "dg", ks="d",
-                         pHscale = "T", b="u74")
+                         pHscale = "T", b="l10")
    )
 # Using Lueker  
 carb_l2 <- carb(flag = 15, var1 = tmp$at * 1e-6, var2 = tmp$ct * 1e-6, S = tmp$sal_fb_mix, 
                T = tmp$temp_fb, P = 0, Pt = 0, Sit = 0, k1k2 = "l", kf = "dg", ks = "d", 
-               pHscale = "T", b = "u74")
+               pHscale = "T", b = "l10")
 # normalize Lueker-derived pH at 4°C
 carb_l2$pH <- pHinsi(pH = carb_l2$pH, ALK = carb_l2$ALK, Tinsi = 4, Tlab = carb_l2$T, Pinsi = 0, 
                          S = carb_l2$S, Pt = 0, Sit = 0, k1k2 = "l", kf = "dg", ks="d", 
-                         pHscale = "T", b="u74")
+                         pHscale = "T", b="l10")
 # Using Sulpis
 carb_s2 <- carb(flag = 15, var1 = tmp$at * 1e-6, var2 = tmp$ct * 1e-6, S = tmp$sal_fb_mix, 
                T = tmp$temp_fb, P = 0, Pt = 0, Sit = 0, k1k2 = "s20", kf = "dg", ks = "d", 
-               pHscale = "T", b = "u74")
+               pHscale = "T", b = "l10")
 # normalize Sulpis-derived pH at 4°C
 carb_s2$pH <- pHinsi(pH = carb_s2$pH, ALK = carb_s2$ALK, Tinsi = 4, Tlab = carb_s2$T, Pinsi = 0, 
                          S = carb_s2$S, Pt = 0, Sit = 0, k1k2 = "s20", kf = "dg", ks="d", 
-                         pHscale = "T", b="u74")
+                         pHscale = "T", b="l10")
 # Using Papadimitriou
 carb_p2 <- carb(flag = 15, var1 = tmp$at * 1e-6, var2 = tmp$ct * 1e-6, S = tmp$sal_fb_mix, 
                T = tmp$temp_fb, P = 0, Pt = 0, Sit = 0, k1k2 = "p18", kf = "dg", ks = "d", 
-               pHscale = "T", b = "u74")
+               pHscale = "T", b = "l10")
 # normalize Papadimitriou-derived pH at 4°C
 carb_p2$pH <- pHinsi(pH = carb_p2$pH, ALK = carb_p2$ALK, Tinsi = 4, Tlab = carb_p2$T, Pinsi = 0, 
                          S = carb_p2$S, Pt = 0, Sit = 0, k1k2 = "p18", kf = "dg", ks="d", 
-                         pHscale = "T", b="u74")
+                         pHscale = "T", b="l10")
 # Using Millero et al. (2002)
 carb_m2 <- carb(flag = 15, var1 = tmp$at * 1e-6, var2 = tmp$ct * 1e-6, S = tmp$sal_fb_mix, 
                T = tmp$temp_fb, P = 0, Pt = 0, Sit = 0, k1k2 = "m02", kf = "dg", ks = "d", 
-               pHscale = "T", b = "u74")
+               pHscale = "T", b = "l10")
 # normalize Millero et al. (2002)-derived pH at 4°C
 carb_m2$pH <- pHinsi(pH = carb_m2$pH, ALK = carb_m2$ALK, Tinsi = 4, Tlab = carb_m2$T, Pinsi = 0, 
                          S = carb_m2$S, Pt = 0, Sit = 0, k1k2 = "m02", kf = "dg", ks="d", 
-                         pHscale = "T", b="u74")
+                         pHscale = "T", b="l10")
 # calculate difference Lueker - Sulpis
 diff_ls2 <- as_tibble(carb_l2 - carb_s2) %>% 
   dplyr::rename(delta_ph = pH, delta_pCO2 = pCO2, delta_OmegaAragonite = OmegaAragonite) %>%
@@ -3911,7 +3911,7 @@ tmp <- d_all %>%
       kf = "dg",
       ks = "d",
       pHscale = "T",
-      b = "u74"
+      b = "l10"
     )$pCO2
   )
 # add at_remos and pco2_remos_ctd_temp to d_all
@@ -4250,7 +4250,7 @@ deconv_tmp <- deconv_tmp %>%
   dplyr::mutate(ct_calc = seacarb::carb(
     flag = 24, var1 = deconv_tmp$pco2_fb, var2 = deconv_tmp$at_calc*1e-6, S=deconv_tmp$sal_fb_mix, T=deconv_tmp$temp_fb, 
     Patm=1, P=1.1, Pt=0, Sit=0, 
-    k1k2="l", kf="dg", ks="d", pHscale="T", b="u74")$DIC * 1e6
+    k1k2="l", kf="dg", ks="d", pHscale="T", b="l10")$DIC * 1e6
     )
 deconv_monthly <-  deconv_tmp %>% 
   dplyr::group_by(monthd) %>% 
@@ -4272,20 +4272,20 @@ deconv <- tibble(date=as.POSIXct(deconv_tmp$datetime))
 d <- filter(deconv_dat, !is.na(mAT), !is.na(mCT), !is.na(mS), !is.na(T)) # we eliminate date with NAs
 
 deconv_pCO2_T <- tibble(date = d$date,
-                        deconv_pCO2_T=carb(flag=15, var1=d$mAT, var2=d$mCT, S=d$mS, T=d$T, P=d$P, Pt=d$Pt, Sit=d$Sit, k1k2="l", kf="dg", ks="d", pHscale="T", b="u74")$pCO2
+                        deconv_pCO2_T=carb(flag=15, var1=d$mAT, var2=d$mCT, S=d$mS, T=d$T, P=d$P, Pt=d$Pt, Sit=d$Sit, k1k2="l", kf="dg", ks="d", pHscale="T", b="l10")$pCO2
 )
 d <- filter(deconv_dat, !is.na(mAT), !is.na(mCT), !is.na(S), !is.na(mT)) # we eliminate date with NAs
 deconv_pCO2_S <- tibble(date=d$date,
                      deconv_pCO2_S=carb(flag=15, var1=d$mAT, var2=d$mCT, S=d$S, T=d$mT, P=d$P, Pt=d$Pt, 
-                                      Sit=d$Sit, k1k2="l", kf="dg", ks="d", pHscale="T", b="u74")$pCO2
+                                      Sit=d$Sit, k1k2="l", kf="dg", ks="d", pHscale="T", b="l10")$pCO2
                      )
 d <- filter(deconv_dat, !is.na(AT), !is.na(mCT), !is.na(mS), !is.na(mT)) # we eliminate date with NAs
 deconv_pCO2_AT <- tibble(date=d$date,
-                     deconv_pCO2_AT=carb(flag=15, var1=d$AT, var2=d$mCT, S=d$mS, T=d$mT, P=d$P, Pt=d$Pt, Sit=d$Sit, k1k2="l", kf="dg", ks="d", pHscale="T", b="u74")$pCO2
+                     deconv_pCO2_AT=carb(flag=15, var1=d$AT, var2=d$mCT, S=d$mS, T=d$mT, P=d$P, Pt=d$Pt, Sit=d$Sit, k1k2="l", kf="dg", ks="d", pHscale="T", b="l10")$pCO2
 )
 d <- filter(deconv_dat, !is.na(mAT), !is.na(CT), !is.na(mS), !is.na(mT)) # we eliminate date with NAs
 deconv_pCO2_CT <- tibble(date=d$date,
-                     deconv_pCO2_CT=carb(flag=15, var1=d$mAT, var2=d$CT, S=d$mS, T=d$mT, P=d$P, Pt=d$Pt, Sit=d$Sit, k1k2="l", kf="dg", ks="d", pHscale="T", b="u74")$pCO2
+                     deconv_pCO2_CT=carb(flag=15, var1=d$mAT, var2=d$CT, S=d$mS, T=d$mT, P=d$P, Pt=d$Pt, Sit=d$Sit, k1k2="l", kf="dg", ks="d", pHscale="T", b="l10")$pCO2
 )
 
 # Bring all results together
@@ -4760,7 +4760,7 @@ tmp <- d_all %>% # just for this chunk
   tidyr::drop_na() %>% 
   dplyr::mutate(OmegaAragonite = seacarb::carb(
     flag = 24, var1 = pco2_fb, var2 = at_calc*1e-6, S=sal_fb_mix, T=temp_fb, 
-    Patm=1, P=1.1, Pt=0, Sit=0, k1k2="l", kf="dg", ks="d", pHscale="T", b="u74")$OmegaAragonite)
+    Patm=1, P=1.1, Pt=0, Sit=0, k1k2="l", kf="dg", ks="d", pHscale="T", b="l10")$OmegaAragonite)
 summary(tmp$OmegaAragonite)
 #plot
 size_point <- 0.3 # size of data points
