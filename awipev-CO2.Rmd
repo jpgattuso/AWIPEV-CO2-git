@@ -71,7 +71,14 @@ if (!require("ggpmisc")) install.packages("ggpmisc")
 library("ggpmisc")
 if (!require("tidyselect")) install.packages("tidyselect")
 library("tidyselect")
+if (!require("usethis")) install.packages("usethis")
+library("usethis")
+if (!require("ggOceanMaps")) install.packages("ggOceanMaps")
+library("ggOceanMapsData")
+
 # todor::todor_file("awipev-CO2.Rmd")
+#usethis::edit_r_profile()
+# to add to .Rprofile file: {.ggOceanMapsenv <- new.env(); .ggOceanMapsenv$datapath <- 'YourCustomPath'}
 
 knitr::opts_chunk$set(echo = TRUE)
 
@@ -206,6 +213,13 @@ ggplot(fit$model, aes_string(x = names(fit$model)[2], y = names(fit$model)[1])) 
 }
 
 ```
+
+```{r make location map}
+kong_map <- basemap(limits = c(11.00, 12.69, 78.86, 79.10), bathymetry = TRUE, shapefiles = "Svalbard",
+        legends = FALSE, glaciers = TRUE, lat.interval = 0.1, lon.interval = 0.5)
+ggsave(filename = "figures/kong_map.eps", plot = kong_map, width = 25, height = 25, units = "cm")
+```
+
 
 ```{r read observatory data, cleanup and prepare ferrybox data, echo=FALSE, warning=FALSE, message=FALSE}
 d_hour <-
