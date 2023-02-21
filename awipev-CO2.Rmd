@@ -215,10 +215,17 @@ ggplot(fit$model, aes_string(x = names(fit$model)[2], y = names(fit$model)[1])) 
 ```
 
 ```{r make location map}
+svalbard_map <- basemap(limits = c(10.00, 22.00, 76.3, 80.9), bathymetry = FALSE, shapefiles = "Arctic",
+        legends = FALSE, glaciers = FALSE)
+ggsave(filename = "figures/svalbard_map.png", plot = svalbard_map, width = 25, height = 25, units = "cm")
+ggsave(filename = "figures/svalbard_map.eps", plot = svalbard_map, width = 25, height = 25, units = "cm")
 kong_map <- basemap(limits = c(11.00, 12.69, 78.86, 79.10), bathymetry = TRUE, shapefiles = "Svalbard",
         legends = FALSE, glaciers = TRUE, lat.interval = 0.1, lon.interval = 0.5)
+ggsave(filename = "figures/kong_map.png", plot = kong_map, width = 25, height = 25, units = "cm")
 ggsave(filename = "figures/kong_map.eps", plot = kong_map, width = 25, height = 25, units = "cm")
 ```
+
+#`r include_graphics("figures/kong_map.png")`
 
 
 ```{r read observatory data, cleanup and prepare ferrybox data, echo=FALSE, warning=FALSE, message=FALSE}
