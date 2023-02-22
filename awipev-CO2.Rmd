@@ -225,7 +225,7 @@ ggsave(filename = "figures/kong_map.png", plot = kong_map, width = 25, height = 
 ggsave(filename = "figures/kong_map.eps", plot = kong_map, width = 25, height = 25, units = "cm")
 ```
 
-#`r include_graphics("figures/kong_map.png")`
+<!-- `r include_graphics("figures/kong_map.png")` -->
 
 
 ```{r read observatory data, cleanup and prepare ferrybox data, echo=FALSE, warning=FALSE, message=FALSE}
