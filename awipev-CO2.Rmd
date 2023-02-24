@@ -74,7 +74,7 @@ library("tidyselect")
 if (!require("usethis")) install.packages("usethis")
 library("usethis")
 if (!require("ggOceanMaps")) install.packages("ggOceanMaps")
-library("ggOceanMapsData")
+library("ggOceanMaps")
 
 # todor::todor_file("awipev-CO2.Rmd")
 #usethis::edit_r_profile()
@@ -214,18 +214,18 @@ ggplot(fit$model, aes_string(x = names(fit$model)[2], y = names(fit$model)[1])) 
 
 ```
 
-```{r make location map}
-svalbard_map <- basemap(limits = c(10.00, 22.00, 76.3, 80.9), bathymetry = FALSE, shapefiles = "Arctic",
-        legends = FALSE, glaciers = FALSE)
-ggsave(filename = "figures/svalbard_map.png", plot = svalbard_map, width = 25, height = 25, units = "cm")
-ggsave(filename = "figures/svalbard_map.eps", plot = svalbard_map, width = 25, height = 25, units = "cm")
-kong_map <- basemap(limits = c(11.00, 12.69, 78.86, 79.10), bathymetry = TRUE, shapefiles = "Svalbard",
-        legends = FALSE, glaciers = TRUE, lat.interval = 0.1, lon.interval = 0.5)
-ggsave(filename = "figures/kong_map.png", plot = kong_map, width = 25, height = 25, units = "cm")
-ggsave(filename = "figures/kong_map.eps", plot = kong_map, width = 25, height = 25, units = "cm")
-```
+# ```{r make location map}
+# svalbard_map <- basemap(limits = c(10.00, 22.00, 76.3, 80.9), bathymetry = FALSE, shapefiles = "Arctic",
+#         legends = FALSE, glaciers = FALSE)
+# ggsave(filename = "figures/svalbard_map.png", plot = svalbard_map, width = 25, height = 25, units = "cm")
+# ggsave(filename = "figures/svalbard_map.eps", plot = svalbard_map, width = 25, height = 25, units = "cm")
+# kong_map <- basemap(limits = c(11.00, 12.69, 78.86, 79.10), bathymetry = TRUE, shapefiles = "Svalbard",
+#         legends = FALSE, glaciers = TRUE, lat.interval = 0.1, lon.interval = 0.5)
+# ggsave(filename = "figures/kong_map.png", plot = kong_map, width = 25, height = 25, units = "cm")
+# ggsave(filename = "figures/kong_map.eps", plot = kong_map, width = 25, height = 25, units = "cm")
+# ```
 
-<!-- `r include_graphics("figures/kong_map.png")` -->
+
 
 
 ```{r read observatory data, cleanup and prepare ferrybox data, echo=FALSE, warning=FALSE, message=FALSE}
@@ -3338,8 +3338,12 @@ k1k2_pco2_at <- list(mean_discrete = mean_discrete, tmp2 = tmp2,
              # errors_pco2_at = errors_pco2_at, diff_table_pco2_at = diff_table_pco2_at, 
              # diff_ls_quant = diff_ls_quant)
 save(k1k2_pco2_at, file="reports/k1k2_pco2_at.RData")
-```
 
+#export latex table
+tables_path <- "~/kDrive/Documents/publications/publications_inpreparation/gattuso_etal_awipev-CO2/paper/tables/"
+knitr::kable(diff_table_pco2_at, digits = 3, caption = "Difference between spectrophotometric pH and pH calculated with pCO2 and AT using different formulations for K1 and K2.", format = "latex") %>% 
+save_kable(file=paste0(tables_path,"diff_table_pco2_at.tex"))
+```
 **_Comparison of various formulations compared to Lueker et al. (2000)_**
 
 The **discrete** values of pCO2, AT, salinity and temperature in the
@@ -3526,6 +3530,11 @@ ggsave(filename = "figures/k1k2_discrete_at_ct.png", plot = p, width = 25, heigh
 k1k2_at_ct <- list(errors_at_ct = errors_at_ct,
                    diff_table_at_ct = diff_table_at_ct)
 save(k1k2_at_ct, file="reports/k1k2_at_ct.RData")
+
+#export latex table
+tables_path <- "~/kDrive/Documents/publications/publications_inpreparation/gattuso_etal_awipev-CO2/paper/tables/"
+knitr::kable(diff_table_at_ct, digits = 3, caption = "Difference between spectrophotometric pH and pH calculated with AT and CT using different formulations for K1 and K2.", format = "latex") %>% 
+save_kable(file=paste0(tables_path,"diff_table_at_ct"))
 ```
 
 **_Comparison of various formulations compared to Lueker et al. (2000)_**
