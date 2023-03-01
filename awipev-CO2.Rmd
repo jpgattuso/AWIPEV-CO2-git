@@ -4405,8 +4405,8 @@ d_all <- d_all %>%
 saveRDS(file= paste0(path, "fb_data/d_all.rds"), d_all)
 
 pangaea <- as_tibble(d_all) %>% 
-  dplyr::select(datetime, depth, sal_insitu_ctd, sal_fb, temp_insitu_11m, temp_insitu_ctd, temp_fb, temp_sf, at, ct, ph_s_sf_temp_insi, ph_s_dur_temp_fb, ph_calc_fb, pco2_fb_insi_temp, pco2_calc_fb_insi_temp, at_calc, pHint_tot_sf) %>%
-  dplyr::rename(`pressure [dbar]` = depth, #        hydrostatic pressure (profiler)
+  dplyr::select(datetime, depth, sal_insitu_ctd, sal_fb, temp_insitu_11m, temp_insitu_ctd, temp_sf, temp_fb, pco2_fb_insi_temp, pHint_tot_sf, at, ct, ph_s_sf_temp_insi) %>%
+  dplyr::rename(`pressure [dbar]` = depth,          # hydrostatic pressure (profiler)
                 `s_insitu [unit]` = sal_insitu_ctd, # salinity in situ (profiler)
                 `s_fb [unit]` = sal_fb,             # salinity (FerryBox)
                 `t_11m [°C]` = temp_insitu_11m,     # temperature in situ (static at 11 m)
@@ -4414,11 +4414,11 @@ pangaea <- as_tibble(d_all) %>%
                 `t_fb [°C]` = temp_fb,              # temperature (FerryBox)
                 `t_sf [°C]` = temp_sf,              # temperature SeaFET (profiler)
                 `at [umol kg-1]` = at,              # total alkalinity in situ, discrete measurements
-                `at_calc [umol kg-1]` = at_calc,    # total alkalinity calculated from salinity
-                `ct [umol kg-1]` = ct,              # dissolved inotganic carbon in situ, discrete measurements
+                #`at_calc [umol kg-1]` = at_calc,    # total alkalinity calculated from salinity
+                `ct [umol kg-1]` = ct,              # dissolved inorganic carbon in situ, discrete measurements
                 `ph_discrete [total scale]` = ph_s_sf_temp_insi, # spectrophotometric pH in situ (total scale) at in situ temperature (discrete)
                 #`ph_s_dur_t_fb [total scale]` = ph_s_dur_temp_fb,
-                `pco2 [uatm]` = pco2_fb_insi_temp,  # Partial pressure of CO2 (FerryBox)
+                `pco2 [uatm]` = pco2_fb_insi_temp,  # partial pressure of CO2 (FerryBox)
                 #`pco2_calc [uatm]` = pco2_calc_fb_insi_temp,
                 `pH_sensor [total scale]` = pHint_tot_sf, # pH in situ at in situ temperature (profiler)
                 #`pH_dur [total scale]` = pH_dur,
@@ -4432,9 +4432,14 @@ pangaea <- as_tibble(d_all) %>%
                          starts_with("ct") |
                          starts_with("pco2"), ~ round(.x, digits = 1)),
                 )
+# replace NaNs by NAs
+pangaea <- pangaea %>% 
+  mutate_all(~ifelse(is.nan(.), NA, .)) 
 
-saveRDS(file= paste0(path, "fb_data/pangaea.rds"), pangaea)
-write_csv(pangaea, file = paste0(path, "fb_data/pangaea.csv"))
+#saveRDS(file= paste0(path, "fb_data/pangaea.rds"), pangaea)
+#write_csv(pangaea, file = paste0(path, "fb_data/pangaea.csv"))
+saveRDS(file= "data/AWIPEV-CO2_v1.rds", pangaea)
+write_csv(pangaea, file = "data/AWIPEV-CO2_v1.csv")
 # Metadata Pangaea
 # pressure = pressure in situ (profiler)
 # s_insitu = salinity in situ (profiler)
