@@ -3342,7 +3342,7 @@ save(k1k2_pco2_at, file="reports/k1k2_pco2_at.RData")
 #export latex table
 tables_path <- "~/kDrive/Documents/publications/publications_inpreparation/gattuso_etal_awipev-CO2/paper/tables/"
 knitr::kable(diff_table_pco2_at, digits = 3, caption = "Difference between spectrophotometric pH and pH calculated with pCO2 and AT using different formulations for K1 and K2.", format = "latex") %>% 
-save_kable(file=paste0(tables_path,"diff_table_pco2_at.tex"))
+kableExtra::save_kable(file=paste0(tables_path,"diff_table_pco2_at.tex"))
 ```
 **_Comparison of various formulations compared to Lueker et al. (2000)_**
 
@@ -3534,7 +3534,7 @@ save(k1k2_at_ct, file="reports/k1k2_at_ct.RData")
 #export latex table
 tables_path <- "~/kDrive/Documents/publications/publications_inpreparation/gattuso_etal_awipev-CO2/paper/tables/"
 knitr::kable(diff_table_at_ct, digits = 3, caption = "Difference between spectrophotometric pH and pH calculated with AT and CT using different formulations for K1 and K2.", format = "latex") %>% 
-save_kable(file=paste0(tables_path,"diff_table_at_ct"))
+kableExtra::save_kable(file=paste0(tables_path,"diff_table_at_ct.tex"))
 ```
 
 **_Comparison of various formulations compared to Lueker et al. (2000)_**
@@ -4139,14 +4139,20 @@ pco2_4_delta_plt
 ```{r, include=FALSE}
 # main deltas
 g <- sal_delta_plt / temp_delta_plt / den_delta_plt
-g <- g + plot_annotation(tag_levels = 'a')
+g <- g + plot_annotation(tag_levels = 'A')& 
+                             theme(plot.tag = element_text(face = "bold"))
 print(g)
 ggsave(filename = "figures/deltas.png", plot = g, width = 15, height = 20, units = "cm")
+ggsave(filename = "figures/essd/deltas.pdf", plot = g, width = 15, height = 20, units = "cm")
+
 # pCO2 deltas
 g <-  pco2_delta_plt / pco2_4_delta_plt
-g <- g + plot_annotation(tag_levels = 'a')
+g <- g + plot_annotation(tag_levels = 'A') & 
+                             theme(plot.tag = element_text(face = "bold"))
 g
 ggsave(filename = "figures/deltas_pco2.png", plot = g, width = 15, height = 20, units = "cm")
+ggsave(filename = "figures/essd/deltas_pco2.pdf", plot = g, width = 15, height = 20, units = "cm")
+
 ```
 
 Using the medians because data are missing.
@@ -4600,9 +4606,12 @@ p_pco2_fb_remos_month <- tmp %>%
   theme_bw() + Mytheme(size_labs = 12) + theme(aspect.ratio = 1) +
   coord_fixed(ratio = 1, expand = TRUE, clip = "on")
 ggsave(filename = "figures/pco2_fb_remos_monthly.png", plot = p_pco2_fb_remos_month, width = 15, height = 15, units = "cm")
+ggsave(filename = "figures/essd/pco2_fb_remos_month.pdf", plot = p_pco2_fb_remos_month, width = 15, height = 15, units = "cm")
+
 # combine
 g <- p_pco2_fb_remos / p_pco2_fb_remos_month
-g <- g + patchwork::plot_annotation(tag_levels = 'A')
+g <- g + patchwork::plot_annotation(tag_levels = 'A')  & 
+                             theme(plot.tag = element_text(face = "bold"))
 ggsave(filename = "figures/pco2_compare.png", plot = g)
 g
 ```
@@ -4701,6 +4710,8 @@ ts_air_sea <- air_sea_month %>%
   Mytheme(size_labs = size_labs)
 ts_air_sea
 ggsave(filename = "figures/ts_air_sea.png", plot = ts_air_sea, width = 20, units = "cm")
+ggsave(filename = "figures/essd/ts_air_sea.pdf", plot = ts_air_sea, width = 20, units = "cm")
+
 #rm(p, p_f_air_sea, p_f_air_sea_d, p_f_air_sea_m)
 ```
 
@@ -4805,6 +4816,8 @@ ts_oa <- tmp %>%
   labs(title="Aragonite saturation state (11 m)",x="", y=latex2exp::TeX("$\\Omega_{aragonite}$")) +
   Mytheme(size_labs = size_labs)
 ggsave(filename = "figures/OmegaAragonite.png", plot = ts_oa, width = 15, height = 10, units = "cm")
+ggsave(filename = "figures/essd/OmegaAragonite.pdf", plot = ts_oa, width = 15, height = 10, units = "cm")
+
 ```
 ### Whole time series plot
 
@@ -4884,7 +4897,7 @@ ts_at <- d_all %>%
 
 # Combine plots
 g1 <- (ts_sal / ts_temp / ts_pCO2  / ts_pH / ts_at)
-g1 <- g1 + plot_annotation(tag_levels = 'A' & theme(plot.tag = element_text(face = "bold")))
+g1 <- g1 + plot_annotation(tag_levels = 'A') & theme(plot.tag = element_text(face = "bold"))
 ggsave(filename = "figures/time_series.png", plot = g1, width = 15, height = 30, units = "cm")
 
 #rm(list = ls(pattern = "ts_")) #delete big ggplot objects
@@ -4999,7 +5012,8 @@ ts_at_bp <- d_bp %>%
                    labels = c("Jan", "", "Mar", "", "May", "", "Jul", "", "Sep", "", "Nov", ""))
 # Combine plots
 g2 <- (ts_sal_bp / ts_temp_bp / ts_pco2_bp / ts_pH_bp / ts_at_bp)
-g2 <- g2 + plot_annotation(tag_levels = 'A' & theme(plot.tag = element_text(face = "bold")))
+g2 <- g2 + plot_annotation(tag_levels = 'A') & 
+                             theme(plot.tag = element_text(face = "bold"))
 ggsave(filename = "figures/ts_boxplots.png", plot = g2)
 ```
 
@@ -5007,7 +5021,8 @@ ggsave(filename = "figures/ts_boxplots.png", plot = g2)
 
 ```{r, echo=FALSE, message= FALSE, warning=FALSE}
 g <- (at_s | pco2_calc_meas) / (offset_ph | pHspec_pHseafet)
-g <- g + patchwork::plot_annotation(tag_levels = 'A' & theme(plot.tag = element_text(face = "bold")))
+g <- g + patchwork::plot_annotation(tag_levels = 'A') & 
+  theme(plot.tag = element_text(face = "bold"))
 ggsave(filename = "figures/pco2_ph_etc.png", plot = g)
 ggsave(filename = "figures/essd/fig04.pdf", plot = g)
 ```
@@ -5017,8 +5032,8 @@ ggsave(filename = "figures/essd/fig04.pdf", plot = g)
 ```{r, echo=FALSE, message= FALSE, warning=FALSE}
 g <- (ts_sal / ts_temp / ts_pCO2  / ts_pH / ts_at) |
   (ts_sal_bp / ts_temp_bp / ts_pco2_bp / ts_pH_bp / ts_at_bp)
-g <- g + plot_annotation(tag_levels = 'A' & theme(plot.tag = element_text(face = "bold")))
-ggsave(filename = "figures/essd/fig06.pdf", plot = g)
+g <- g + plot_annotation(tag_levels = 'A') & theme(plot.tag = element_text(face = "bold"))
+ggsave(filename = "figures/essd/ts.pdf", plot = g)
 # legend:
 # - Salinity below 8m
 # - In situ temperature (11m)
