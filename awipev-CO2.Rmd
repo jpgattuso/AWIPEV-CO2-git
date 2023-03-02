@@ -3347,7 +3347,7 @@ kableExtra::save_kable(file=paste0(tables_path,"diff_table_pco2_at.tex"))
 The **discrete** values of pCO2, AT, salinity and temperature in the
 FerryBox were used to calculate pH and CT with the v arious formulations for K1 and K2
 
-**Results are shown below but it does not make sense to udse them in the manuscript. Btter to use all pCO2-AT data as above.**
+**Results are shown below but it does not make sense to use them in the manuscript. Btter to use all pCO2-AT data as above.**
 
 
 `r knitr::kable(diff_ls1_quant, digits = c(0, rep(3, 5)), caption = "Lueker minus Sulpis using discrete pCO2 data.", format = "simple")`
@@ -4406,32 +4406,49 @@ saveRDS(file= paste0(path, "fb_data/d_all.rds"), d_all)
 
 pangaea <- as_tibble(d_all) %>% 
   dplyr::select(datetime, depth, sal_insitu_ctd, sal_fb, temp_insitu_11m, temp_insitu_ctd, temp_sf, temp_fb, pco2_fb_insi_temp, pHint_tot_sf, at, ct, ph_s_sf_temp_insi) %>%
-  dplyr::rename(`pressure [dbar]` = depth,          # hydrostatic pressure (profiler)
-                `s_insitu [unit]` = sal_insitu_ctd, # salinity in situ (profiler)
-                `s_fb [unit]` = sal_fb,             # salinity (FerryBox)
-                `t_11m [°C]` = temp_insitu_11m,     # temperature in situ (static at 11 m)
-                `t_ctd [°C]` = temp_insitu_ctd,     # temperature in situ (profiler)
-                `t_fb [°C]` = temp_fb,              # temperature (FerryBox)
-                `t_sf [°C]` = temp_sf,              # temperature SeaFET (profiler)
-                `at [umol kg-1]` = at,              # total alkalinity in situ, discrete measurements
-                #`at_calc [umol kg-1]` = at_calc,    # total alkalinity calculated from salinity
-                `ct [umol kg-1]` = ct,              # dissolved inorganic carbon in situ, discrete measurements
-                `ph_discrete [total scale]` = ph_s_sf_temp_insi, # spectrophotometric pH in situ (total scale) at in situ temperature (discrete)
-                #`ph_s_dur_t_fb [total scale]` = ph_s_dur_temp_fb,
-                `pco2 [uatm]` = pco2_fb_insi_temp,  # partial pressure of CO2 (FerryBox)
-                #`pco2_calc [uatm]` = pco2_calc_fb_insi_temp,
-                `pH_sensor [total scale]` = pHint_tot_sf, # pH in situ at in situ temperature (profiler)
-                #`pH_dur [total scale]` = pH_dur,
-                #`pH_calc [total scale]` = ph_calc_fb
-                ) %>% 
-  dplyr::mutate(across(starts_with("pressure"), ~ round(.x, digits = 2)),
-                across(starts_with("s_"), ~ round(.x, digits = 2)),
-                across(starts_with("t_"), ~ round(.x, digits = 2)),
-                across(starts_with("ph"), ~ round(.x, digits = 3)),
-                across(starts_with("at") | 
-                         starts_with("ct") |
-                         starts_with("pco2"), ~ round(.x, digits = 1)),
-                )
+  dplyr::rename(
+    `pressure_profiler [dbar]` = depth,
+    # hydrostatic pressure
+    `salinity_PSS78_profiler [unit]` = sal_insitu_ctd,
+    # salinity in situ
+    `salinity_PSS78_ferrybox [unit]` = sal_fb,
+    # salinity (FerryBox)
+    `temperature_ITS90_11m [°C]` = temp_insitu_11m,
+    # temperature in situ (static at 11 m)
+    `temperature_ITS90_profiler [°C]` = temp_insitu_ctd,
+    # temperature in situ (profiler)
+    `temperature_ITS90_ferrybox [°C]` = temp_fb,
+    # temperature (FerryBox)
+    `temperature_ITS90_seafet_profiler [°C]` = temp_sf,
+    # temperature SeaFET (profiler)
+    `ta_discrete [umol kg-1]` = at,
+    # total alkalinity in situ, discrete measurements
+    #`at_calc [umol kg-1]` = at_calc,    # total alkalinity calculated from salinity
+    `dic_discrete [umol kg-1]` = ct,
+    # dissolved inorganic carbon in situ, discrete measurements
+    `ph_insitu_temperature_discrete [total scale]` = ph_s_sf_temp_insi,
+    # spectrophotometric pH in situ (total scale) at in situ temperature (discrete)
+    #`ph_s_dur_t_fb [total scale]` = ph_s_dur_temp_fb,
+    `pco2_insitu_temperature_ferrybox [uatm]` = pco2_fb_insi_temp,
+    # partial pressure of CO2 at in situ temperature (FerryBox)
+    #`pco2_calc [uatm]` = pco2_calc_fb_insi_temp,
+    `ph_insitu_temperature_profiler [total scale]` = pHint_tot_sf,
+    # pH in situ at in situ temperature (profiler)
+    #`pH_dur [total scale]` = pH_dur,
+    #`pH_calc [total scale]` = ph_calc_fb
+  ) %>% 
+  dplyr::mutate(
+    across(starts_with("pressure"), ~ round(.x, digits = 2)),
+    across(starts_with("salinity"), ~ round(.x, digits = 2)),
+    across(starts_with("temperature"), ~ round(.x, digits = 2)),
+    across(starts_with("ph"), ~ round(.x, digits = 3)),
+    across(
+      starts_with("ta") |
+        starts_with("dic") |
+        starts_with("pco2"),
+      ~ round(.x, digits = 1)
+    ),
+  )
 # replace NaNs by NAs
 pangaea <- pangaea %>% 
   mutate_all(~ifelse(is.nan(.), NA, .)) 
@@ -4583,7 +4600,8 @@ p_pco2_fb_remos <- d_all %>%
   ggplot(aes(x = pco2_fb_ctd_temp, y = pco2_remos_ctd_temp, label = monthd)) +
   geom_point(col="blue", size = 1) +
   xlim(250, 400) + ylim(250, 400) +
-  labs(title = "pCO2 at ctd temperature",
+  #labs(title = "pCO2 at ctd temperature",
+  labs(title = NULL,
        x=latex2exp::TeX("$pCO_{2}$ 11 m $\\phantom{x}(\\mu atm)$"),
        y= latex2exp::TeX("$pCO_{2}$ REMOS at 0-4 m\\phantom{x}($\\mu atm)$"))  +
   ggpmisc::stat_ma_line(method = "lmodel2:MA", se = FALSE, size = 1) +
@@ -4609,7 +4627,8 @@ p_pco2_fb_remos_month <- tmp %>%
   ggplot(aes(x = pco2_fb_ctd_temp, y = pco2_remos_ctd_temp, label = montht)) +
   geom_point(col="blue", size = 5) +
   xlim(270, 355) + ylim(270, 355) +
-  labs(title = "pCO2 at ctd temperature",
+  #labs(title = "pCO2 at ctd temperature",
+  labs(title = NULL,
        x=latex2exp::TeX("$pCO_{2}$ 11 m $\\phantom{x}(\\mu atm)$"),
        y= latex2exp::TeX("$pCO_{2}$ REMOS at 0-4 m\\phantom{x}($\\mu atm)$"))  +
   ggpmisc::stat_ma_line(method = "lmodel2:MA", se = FALSE, size = 1) +
@@ -4825,7 +4844,7 @@ ts_oa <- tmp %>%
   scale_x_datetime(breaks = date_breaks("1 year"), labels = date_format("%Y")) +
   geom_point(colour="blue", alpha = alpha, na.rm = TRUE, size = size_point) +
   ylim(0, 3) +
-  labs(title="Aragonite saturation state (11 m)",x="", y=latex2exp::TeX("$\\Omega_{aragonite}$")) +
+  labs(title="",x="", y=latex2exp::TeX("$\\Omega_{aragonite}$")) +
   Mytheme(size_labs = size_labs)
 ggsave(filename = "figures/OmegaAragonite.png", plot = ts_oa, width = 15, height = 10, units = "cm")
 ggsave(filename = "figures/essd/OmegaAragonite.pdf", plot = ts_oa, width = 15, height = 10, units = "cm")

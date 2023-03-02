@@ -1,4 +1,4 @@
-datetime,pressure [dbar],s_insitu [unit],s_fb [unit],t_11m [°C],t_ctd [°C],t_sf [°C],t_fb [°C],pco2 [uatm],pH_sensor [total scale],at [umol kg-1],ct [umol kg-1],ph_discrete [total scale]
+datetime,pressure_profiler [dbar],salinity_PSS78_profiler [unit],salinity_PSS78_ferrybox [unit],temperature_ITS90_11m [°C],temperature_ITS90_profiler [°C],temperature_ITS90_seafet_profiler [°C],temperature_ITS90_ferrybox [°C],pco2_insitu_temperature_ferrybox [uatm],pH_insitu_temperature_profiler [total scale],ta_discrete [umol kg-1],dic_discrete [umol kg-1],ph_insitu_temperature_discrete [total scale]
 1436504400,NA,NA,34.32,NA,NA,NA,4.78,NA,NA,NA,NA,NA
 1436508000,NA,NA,34.31,NA,NA,NA,4.83,NA,NA,NA,NA,NA
 1436511600,NA,NA,34.29,NA,NA,NA,4.85,NA,NA,NA,NA,NA
