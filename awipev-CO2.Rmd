@@ -4472,7 +4472,7 @@ pangaea <- as_tibble(d_all) %>%
       ~ round(.x, digits = 1)
     ),
   )
-# replace NaNs by NAs
+# replace NaNs by NAs, then remove NAs
 pangaea <- pangaea %>% 
   mutate_all(~ifelse(is.nan(.), NA, .)) %>% 
   mutate(datetime = as.POSIXct(datetime, origin = "1970-01-01")) |>
@@ -4482,11 +4482,12 @@ pangaea <- pangaea %>%
   mutate_at(1:13, ~as.character(.)) |>
   mutate_at(1:13, ~replace_na(., ""))
 
-#saveRDS(file= paste0(path, "fb_data/pangaea.rds"), pangaea)
-#write_csv(pangaea, file = paste0(path, "fb_data/pangaea.csv"))
+
+
 saveRDS(file= "data/AWIPEV-CO2_v1.rds", pangaea)
 write_csv(pangaea, file = "data/AWIPEV-CO2_v1.csv")
-# Metadata Pangaea
+# Metadata Pangaea (see manuscript)
+# datetime (UTC)
 # pressure = pressure in situ (profiler)
 # s_insitu = salinity in situ (profiler)
 # s_fb = salinity (static at 11 m) 
@@ -4778,7 +4779,6 @@ ts_air_sea <- air_sea_month %>%
 ts_air_sea
 ggsave(filename = "figures/ts_air_sea.png", plot = ts_air_sea, width = 20, units = "cm")
 ggsave(filename = "figures/essd/ts_air_sea.pdf", plot = ts_air_sea, width = 20, units = "cm")
-
 #rm(p, p_f_air_sea, p_f_air_sea_d, p_f_air_sea_m)
 ```
 
@@ -4850,9 +4850,11 @@ ggplot(data = air_sea) +
 ```
 
 The annual air-sea CO2 flux is
-`r round(sum(air_sea_month$f_air_sea/1000), digits = 0)` and
-`r round(sum(air_sea_corr_month$f_air_sea_corr/1000), digits = 0)` mol/(m2
-year) without and with correction, respectively.
+`r round(sum(air_sea_month$f_air_sea/1000), digits = 1)` and
+`r round(sum(air_sea_corr_month$f_air_sea_corr/1000), digits = 1)` mol CO2/(m2
+year) without and with correction, respectively. Or `r round(sum(air_sea_month$f_air_sea*(12/44)/1000), digits = 1)` and
+`r round(sum(air_sea_corr_month$f_air_sea_corr*(12/44)/1000), digits = 1)` mol C/(m2
+year) 
 
 ## Miscellaneous
 
