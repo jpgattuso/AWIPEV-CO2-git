@@ -4474,7 +4474,13 @@ pangaea <- as_tibble(d_all) %>%
   )
 # replace NaNs by NAs
 pangaea <- pangaea %>% 
-  mutate_all(~ifelse(is.nan(.), NA, .)) 
+  mutate_all(~ifelse(is.nan(.), NA, .)) %>% 
+  mutate(datetime = as.POSIXct(datetime, origin = "1970-01-01")) |>
+  separate(datetime, into = c("Date", "Time"), sep = " ") |>
+  mutate(`date/time [UTC+0]` = paste(Date, Time, sep = "T")) |>
+  dplyr::select(`date/time [UTC+0]`, everything(), -Date, -Time) |>
+  mutate_at(1:13, ~as.character(.)) |>
+  mutate_at(1:13, ~replace_na(., ""))
 
 #saveRDS(file= paste0(path, "fb_data/pangaea.rds"), pangaea)
 #write_csv(pangaea, file = paste0(path, "fb_data/pangaea.csv"))
