@@ -5112,7 +5112,7 @@ g <- (at_s | pco2_calc_meas) / (offset_ph | pHspec_pHseafet)
 g <- g + patchwork::plot_annotation(tag_levels = 'A') & 
   theme(plot.tag = element_text(face = "bold"))
 ggsave(filename = "figures/pco2_ph_etc.png", plot = g)
-ggsave(filename = "figures/essd/fig04.pdf", plot = g)
+ggsave(filename = "figures/essd/pco2_ph_etc.pdf", plot = g)
 ```
 
 ### Time series and boxplots for paper
