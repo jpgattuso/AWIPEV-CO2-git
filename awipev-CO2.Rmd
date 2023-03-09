@@ -3187,14 +3187,17 @@ diff_all <- dplyr::bind_rows(diff_ls, diff_lp, diff_lm) %>%
   dplyr::mutate(delta_ct = delta_ct * 1e6)
 diff_all_long <- diff_all %>% 
   tidyr::pivot_longer(-deltas, names_to = "variable") %>% 
-  dplyr::mutate(variable = forcats::fct_relevel(variable, 'delta_ph', 'delta_ct', 'delta_OmegaAragonite'), variable = fct_recode(variable, 'pH' = "delta_ph", 'C[T]' = "delta_ct",'Omega[a]' = "delta_OmegaAragonite"))
+#  dplyr::mutate(variable = forcats::fct_relevel(variable, 'delta_ph', 'delta_ct', 'delta_OmegaAragonite'), variable = fct_recode(variable, 'pH' = "delta_ph", 'C[T]' = "delta_ct",'Omega[a]' = "delta_OmegaAragonite"))
+  dplyr::mutate(variable = forcats::fct_relevel(variable, 'delta_ph', 'delta_ct', 'delta_OmegaAragonite'), 
+                variable = fct_recode(variable, "`pH at 4 °C`" = "delta_ph", 'C[T]' = "delta_ct",'Omega[a]' = "delta_OmegaAragonite"))
+
 
 p <- ggplot(diff_all_long, aes(x = forcats::fct_relevel(deltas, 'L00-S20', 'L00-P18', 'L00-M02'), y=value))+
-  geom_boxplot(notch=FALSE, size=0.2, fill="grey70", outlier.color = "blue", outlier.size = 2) +
+  geom_boxplot(notch=FALSE, size=0.2, fill="grey70", outlier.color = "grey70", outlier.size = 2) +
   geom_hline(yintercept = 0) +
   labs(title = "", x = "", y= "") +
   facet_wrap(vars(variable), scales = "free_y", labeller = label_parsed) +
-  Mytheme(size_labs = 12)
+  Mytheme(size_labs = 14)
 # calculate descriptive statistics
 diff_ls_quant <- tibble(pH = as.numeric(summary(diff_ls$delta_ph)),
                         CT = as.numeric(summary(diff_ls$delta_ct * 1e6)),
@@ -3210,7 +3213,7 @@ diff_lm_quant <- tibble(pH = as.numeric(summary(diff_lm$delta_ph)),
   dplyr::mutate(var = c("Min", "Q1", "Median", "Mean", "Q3", "Max"), .before = 1)
 
 ggsave(filename = "figures/k1k2_all_pco2_at.png", plot = p, width = 25, height = 20, units = "cm")
-ggsave(filename = "figures/essd/fig02.pdf", plot = p, width = 25, height = 20, units = "cm")
+ggsave(filename = "figures/essd/k1k2_all_pco2_at.pdf", plot = p, width = 25, height = 20, units = "cm")
 
 ```
 
@@ -3305,17 +3308,19 @@ diff_all <- dplyr::bind_rows(diff_ls1, diff_lp1, diff_lm1) %>%
     dplyr::mutate(delta_ct = delta_ct * 1e6)
 diff_all_long <- diff_all %>% 
   tidyr::pivot_longer(-deltas, names_to = "variable") %>% 
-  dplyr::mutate(variable = forcats::fct_relevel(variable, 'delta_ph', 'delta_ct', 'delta_OmegaAragonite'), variable = fct_recode(variable, 'pH' = "delta_ph", 'C[T]' = "delta_ct",'Omega[a]' = "delta_OmegaAragonite"))
+  dplyr::mutate(variable = forcats::fct_relevel(variable, 'delta_ph', 'delta_ct', 'delta_OmegaAragonite'), 
+                variable = fct_recode(variable, "`pH at 4 °C`" = "delta_ph", 'C[T]' = "delta_ct",'Omega[a]' = "delta_OmegaAragonite"))
 
 p <- ggplot(diff_all_long, aes(x = forcats::fct_relevel(deltas, 'L00-S20', 'L00-P18', 'L00-M02'), y=value))+
-  geom_boxplot(notch=FALSE, size=0.2, fill="grey50", outlier.color = "blue", outlier.size = 0.3) +
+  geom_boxplot(notch=FALSE, size=0.2, fill="grey70", outlier.color = "grey70", outlier.size = 0.3) +
   geom_hline(yintercept = 0) +
   labs(title = "", x = "", y= "") +
   facet_wrap(vars(variable), scales = "free_y", labeller = label_parsed) +
   Mytheme(size_labs = 14) +
-  theme(strip.text.x = element_text(size = 14))
+  theme(strip.text.x = element_text(size = 14),
+        plot.margin = margin(t = 0, r = 10, b = 0, l = 0, unit = "pt"))
 ggsave(filename = "figures/k1k2_pco2_at.png", plot = p, width = 30, height = 20, units = "cm")
-ggsave(filename = "figures/essd/k1k2_pco2_at.pdf", plot = p, width = 25, height = 20, units = "cm")
+ggsave(filename = "figures/essd/k1k2_pco2_at.pdf", plot = p, width = 25, height = 15, units = "cm")
 
 
 # calculate descriptive statistics
@@ -3440,7 +3445,7 @@ tmp <- d_all %>%
                          ALK = at*1e-6, Tinsi = 4,
                          Tlab = temp_fb, Pinsi = 0,
                          S = sal_fb_mix, Pt = 0, Sit = 0, k1k2 = "s20", kf = "dg", ks="d",
-                         pHscale = "T", b="l10"),       # Millero 02
+                         pHscale = "T", b="l10"),      # Millero 02
    ph_s_dur_temp_4_p18 = pHinsi(pH = ph_s_dur_temp_fb, # Papadimitriou
                          ALK = at*1e-6, Tinsi = 4,
                          Tlab = temp_fb, Pinsi = 0,
@@ -3503,15 +3508,17 @@ diff_lm2 <- as_tibble(carb_l2 - carb_m2) %>%
 diff_all <- dplyr::bind_rows(diff_ls2, diff_lp2, diff_lm2)
 diff_all_long <- diff_all %>% 
   tidyr::pivot_longer(-deltas, names_to = "variable") %>% 
-  dplyr::mutate(variable = forcats::fct_relevel(variable, 'delta_ph', 'delta_pCO2', 'delta_OmegaAragonite'), variable = fct_recode(variable, 'pH' = "delta_ph", 'pCO[2]' = "delta_pCO2",'Omega[a]' = "delta_OmegaAragonite"))
+  dplyr::mutate(variable = forcats::fct_relevel(variable, 'delta_ph', 'delta_pCO2', 'delta_OmegaAragonite'), 
+                variable = fct_recode(variable, "`pH at 4 °C`" = "delta_ph", 'pCO[2]' = "delta_pCO2",'Omega[a]' = "delta_OmegaAragonite"))
 
 p <- ggplot(diff_all_long, aes(x = forcats::fct_relevel(deltas, 'L00-S20', 'L00-P18', 'L00-M02'), y=value))+
-  geom_boxplot(notch=FALSE, size=0.2, fill="grey70", outlier.color = "blue", outlier.size = 2) +
+  geom_boxplot(notch=FALSE, size=0.2, fill="grey70", outlier.color = "grey70", outlier.size = 2) +
   geom_hline(yintercept = 0) +
   labs(title = "", x = "", y= "") +
   facet_wrap(vars(variable), scales = "free_y", labeller = label_parsed) +
   Mytheme(size_labs = 14) +
-  theme(strip.text.x = element_text(size = 14))
+  theme(strip.text.x = element_text(size = 14),
+        plot.margin = margin(t = 0, r = 10, b = 0, l = 0, unit = "pt"))
 # calculate descriptive statistics
 diff_ls2_quant <- tibble(pH = as.numeric(summary(diff_ls2$delta_ph)),
                         pCO2 = as.numeric(summary(diff_ls2$delta_pCO2)),
@@ -3527,7 +3534,7 @@ diff_lm2_quant <- tibble(pH = as.numeric(summary(diff_lm2$delta_ph)),
   dplyr::mutate(var = c("Min", "Q1", "Median", "Mean", "Q3", "Max"), .before = 1)
 # boxplot
 ggsave(filename = "figures/k1k2_ct_at.png", plot = p, width = 25, height = 20, units = "cm")
-ggsave(filename = "figures/essd/k1k2_ct_at.pdf", plot = p, width = 25, height = 20, units = "cm")
+ggsave(filename = "figures/essd/k1k2_ct_at.pdf", plot = p, width = 25, height = 15, units = "cm")
 # prepare tibble to compare calculated pH and spec pH
 tmp2 <- tibble(datetime = tmp$datetime, ph_s_dur_temp_4_l = tmp$ph_s_dur_temp_4_l, 
                ph_s_dur_temp_4_s20 = tmp$ph_s_dur_temp_4_s20,
