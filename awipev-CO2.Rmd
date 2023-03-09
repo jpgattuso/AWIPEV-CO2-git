@@ -75,6 +75,7 @@ if (!require("usethis")) install.packages("usethis")
 library("usethis")
 if (!require("ggOceanMaps")) install.packages("ggOceanMaps")
 library("ggOceanMaps")
+library(ggtext)  # remotes::install_github("clauswilke/ggtext")
 
 # todor::todor_file("awipev-CO2.Rmd")
 #usethis::edit_r_profile()
@@ -872,6 +873,7 @@ flags
 -   Despike using oce::despike with n=2, k=5761
 
 ```{r, echo=FALSE, message= FALSE, warning=FALSE, out.width="80%",fig.show='hold', fig.align="center"}
+# Continuous data first
 d_min <- readRDS(file = paste0(path, "fb_awipev-co2_server/ny-alesund/data/NRT_data/all_nydata_minute.rds")) %>%
 dplyr::select(datetime, c(pco2_corr_qf, sal_fb_qf, sal_insitu_ctd_qf, 
                           temp_fb_qf, temp_insitu_11m_qf, ph_dur_qf, phINT_qf))
@@ -887,14 +889,15 @@ x <- filter(d_min, datetime >= as.POSIXct("2017-08-29 10:00:00"))
 s7 <- summary(as.factor(x$ph_dur_qf))*100/length(x$ph_dur_qf)
 x <- filter(d_min, datetime >= as.POSIXct("2017-08-24 19:00:00"))
 s8 <- summary(as.factor(x$phINT_qf))*100/length(x$phINT_qf)
-z <- t(bind_rows(s1,s2,s3,s4,s5,s7,s8)) %>%
+# s7 not bound because durafet not in ESSD paper
+z <- t(bind_rows(s1,s2,s3,s4,s5,s8)) %>%
   as.data.frame() %>%
          rownames_to_column(var = "flag") %>% 
          as_tibble()
 labels <- c("Good", "Not usable", "Outside regional range", "Outliers (despike)", 
             "Failed visual inspection", "Not deployed or operated", "Acid flush", "Failed visual inspection")
 colnames(z) <- c("Flag", "pCO2", "Salinity FerryBox", "In situ salinity", 
-                 "Temperature FerryBox", "In situ temperature", "Durafet pH", "seaFET pH")
+                 "Temperature FerryBox", "In situ temperature", "seaFET pH")
 p_avail <- pivot_longer(z, -Flag) %>% 
   drop_na() %>% 
   ggplot(aes(x = name, y = value, fill = Flag)) +
@@ -902,22 +905,21 @@ p_avail <- pivot_longer(z, -Flag) %>%
   scale_x_discrete(
     labels = c(
       "Flag",
-      'pCO2' = parse(text = TeX('$pCO_2$')),
-      "Salinity FerryBox",
-      "In situ salinity",
+      'pCO2' = parse(text = latex2exp::TeX('$pCO_2$')),
+      'In situ salinity' = "Salinity profiler",
+      "Salinity Ferrybox",
       "Temperature FerryBox",
-      "In situ temperature",
-      "Durafet pH",
-      "seaFET pH"
+      'In situ temperature' = "Temperature 11 m",
+      "seaFET pH" = "pH profiler"
     )
   ) +
   coord_flip() +
-  labs(x="", y = "Distribution of quality flags (%)") +
+  labs(title = "A", x="", y = "Distribution of quality flags (%)") +
   Mytheme(size_labs = 14) +
   theme(legend.title = element_text(colour="black", size=14, face="bold"),
-        axis.title.x = element_text(colour="black", size=14, face="bold")) #+
-  #theme(plot.margin = margin(t = -8, r = 0.0, b = -8, l = 0.0, unit = "cm"))
-#kable(z, digits = 1)
+        axis.title.x = element_text(colour="black", size=14, face="bold"),
+        title = element_text(colour="black", size=14, face="bold")
+        )
 d2 <- d_all %>% 
   dplyr::select(montht, pco2_fb, phINT)
 count_pco2_fb_no_NA <- sum(!is.na(d2$pco2_fb)) # total non-NA pCO2 values
@@ -935,21 +937,61 @@ p_avail_month <- d2_summary %>%
   tidyr::pivot_longer(cols = c(pco2, pH)) %>% 
   ggplot() +
   geom_col(aes(x = montht, y = value, fill = name), position = "dodge", width = 0.75) +
-  scale_fill_discrete(name = "", labels = c(expression(paste(pCO[2])), "pH")) + 
-  labs(x="Month", y="Number of data (thousands)", title = "") +
+  scale_fill_discrete(name = "Continuous data", labels = c(expression(paste(pCO[2])), "pH")) + 
+  scale_x_discrete(breaks = c("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"), 
+                   labels = c("Jan", "", "Mar", "", "May", "", "Jul", "", "Sep", "", "Nov", "")) +
+  labs(x="Month", y="Number of data (thousands)", title = "B") +
   Mytheme(size_labs = 14,) +
-  theme(axis.title.x = element_text(colour="black", size=14, face="bold"),
-        axis.title.y = element_text(colour="black", size=14, face="bold")
+  theme(legend.title = element_text(colour="black", size=14, face="bold"),
+        axis.title.x = element_text(colour="black", size=14, face="bold"),
+        axis.title.y = element_text(colour="black", size=14, face="bold", margin = margin(r = -220)),
+        title = element_text(colour="black", size=14, face="bold")
   )
+
+# Discrete data now, only the monthly distribution
+d3 <- d_all %>% 
+  dplyr::select(montht, at, ct, ph_s_sf_temp_insi)
+
+# calculate the distribution of non-NA values per month
+d3_summary <- d3 %>% 
+  dplyr::group_by(montht) %>% 
+  dplyr::summarise(at = sum(!is.na(at)),
+                   ct = sum(!is.na(ct)),
+                   pH = sum(!is.na(ph_s_sf_temp_insi))
+  )
+# plot the distribution of non-NA pCO2 and pH values per month
+p_discrete_avail_month <- d3_summary %>% 
+  tidyr::pivot_longer(cols = c(at, ct, pH)) %>% 
+  ggplot() +
+  geom_col(aes(x = montht, y = value, fill = name), position = "dodge", width = 0.75) +
+#  scale_fill_discrete(name = "Discrete data", labels = c(expression(paste(A[T]), C[T]), "pH")) + 
+  scale_fill_discrete(name = "Discrete data", 
+                      labels = c(TeX("\\textit{A}$_T$"), TeX("\\textit{C}$_T$"), "pH")) + 
+  scale_x_discrete(breaks = c("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"), 
+                   labels = c("Jan", "", "Mar", "", "May", "", "Jul", "", "Sep", "", "Nov", "")) +
+  labs(x="Month", y="Number of data", title = "C") +
+  Mytheme(size_labs = 14,) +
+  theme(legend.title = element_text(colour="black", size=14, face="bold"),
+        axis.title.x = element_text(colour="black", size=14, face="bold"),
+        axis.title.y = element_text(colour="black", size=14, face="bold", margin = margin(r = -220)),
+        title = element_text(colour="black", size=14, face="bold")
+  )
+
 # Combine plots
-p <- (p_avail / p_avail_month)
-p <- p + plot_annotation(tag_levels = 'A') & theme(plot.tag = element_text(size=14, face = "bold"))
+p <- (p_avail / p_avail_month / p_discrete_avail_month)
+#p <- p  #plot_annotation(tag_levels = 'A') & theme(plot.tag = element_text(size=14, face = "bold"))
 ggsave(filename = "figures/availability.png", plot = p, width = 20, height = 15, units = "cm")
-ggsave(filename = "figures/essd/availability.pdf", plot = p, width = 20, height = 15, units = "cm")
+ggsave(filename = "figures/essd/availability.pdf", plot = p, width = 20, height = 20, units = "cm")
 
 # deleted unneeded data
 #rm(x, d_min, list=ls(pattern="^d2"))
 ```
+Number of discrete data:
+
+- AT: `r sum(!is.na(d_all$at))`
+- CT: `sum(!is.na(d_all$ct))`
+- Spectrophotometric pH: `sum(!is.na(d_all$ph_s_sf_temp_insi))`
+
 
 ## Salinities
 
