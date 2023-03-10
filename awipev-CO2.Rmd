@@ -1295,11 +1295,15 @@ at_s <- d_all_at_discrete %>%
   drop_na() %>% 
   ggplot(aes(x = sal_fb_mix, y = at)) +
   geom_point(col="blue", size = 1) +
-  labs(x= latex2exp::TeX("Salinity"),
-       y= latex2exp::TeX("Total alkalinity ($\\mu mol\\phantom{x}kg^{-1})$"))  +
+  labs(title = "A",
+       x= latex2exp::TeX("\\textbf{Salinity}"),
+       y= latex2exp::TeX("\\textbf{Total alkalinity ($\\mu mol\\phantom{x}kg^{-1})$}"))  +
   ggpmisc::stat_ma_line(method = "lmodel2:OLS", se = FALSE, size = 1) +
   #ggpmisc::stat_ma_eq(method = "lmodel2:OLS", aes(label = after_stat(eq.label))) +
-  theme_bw() + Mytheme(size_labs = 12) + theme(aspect.ratio=1) + 
+  theme_bw() + 
+  Mytheme(size_labs = 12) +
+  theme(aspect.ratio=1, plot.title = element_text(face = "bold"),
+        plot.margin = margin(t = 0, r = 10, b = 0, l = 0, unit = "pt")) + 
   coord_fixed()
 ggsave(filename = "figures/at_s.png", plot = at_s, width = 25, height = 25, units = "cm")
 
@@ -1512,12 +1516,16 @@ pco2_calc_meas <- d_all %>%
   ggplot(aes(x = pco2_fb_insi_temp, y = pco2_calc_fb_insi_temp)) +
   geom_point(col="blue", size = 1) +
   xlim(180, 420) + ylim(180, 420) +
-  labs(x=latex2exp::TeX("Measured $pCO_{2}\\phantom{x}(\\mu atm)$"),
-       y= latex2exp::TeX("Calculated $pCO_{2}\\phantom{x}(\\mu atm)$"))  +
+  labs(title = "B",
+       x=latex2exp::TeX("\\textbf{Measured $pCO_{2}\\phantom{x}(\\mu atm)$}"),
+       y= latex2exp::TeX("\\textbf{Calculated $pCO_{2}\\phantom{x}(\\mu atm)$}"))  +
   ggpmisc::stat_ma_line(method = "lmodel2:MA", se = FALSE, size = 1) +
   #ggpmisc::stat_ma_eq(method = "lmodel2:MA", aes(label = after_stat(eq.label))) +
   geom_abline(slope = 1, intercept = 0, linetype = "dashed") +  
-  theme_bw() + Mytheme(size_labs = 12) + theme(aspect.ratio = 1) +
+  theme_bw() + Mytheme(size_labs = 12) + 
+  Mytheme(size_labs = 12) +
+  theme(aspect.ratio=1, plot.title = element_text(face = "bold"),
+        plot.margin = margin(t = 0, r = 10, b = 0, l = 0, unit = "pt")) + 
   coord_fixed(ratio = 1, expand = TRUE, clip = "on")
 ggsave(filename = "figures/pco2_calc_meas.png", plot = pco2_calc_meas, width = 25, height = 25, units = "cm")
 ```
@@ -2103,8 +2111,14 @@ offset_ph <- ph_sf %>%
   geom_hline(yintercept=0, size=0.3) +
   geom_hline(yintercept=-0.02, size=0.3, linetype = "dashed") +
   geom_hline(yintercept=0.02, size=0.3, linetype = "dashed") +
-  labs(x = "Date", y=expression(paste(pH[T], " difference")), title = NULL) +
-  Mytheme(size_labs = 12, face_font = "plain") + theme(aspect.ratio=1)  + 
+  labs(title = "C",
+       x = "Date", y=latex2exp::TeX("\\textbf{pH$_T$ difference}")) +
+  #Mytheme(size_labs = 12, face_font = "plain") + 
+  Mytheme(size_labs = 12) +
+  theme(aspect.ratio=1, plot.title = element_text(face = "bold"),
+        plot.margin = margin(t = 0, r = 10, b = 0, l = 0, unit = "pt"),
+        axis.title.x = element_text(face = "bold"),
+        axis.title.y = element_text(face = "bold")) + 
   scale_colour_discrete(guide="none") + 
   coord_fixed()
 ggsave(filename = "figures/offset_ph.png", plot = offset_ph, width = 25, height = 25, units = "cm")
@@ -2679,12 +2693,18 @@ pHspec_pHseafet <- d_all %>%
   ggplot(aes(x = ph_s_sf_temp_insi, y = pHint_tot_sf)) +
   geom_point(col="blue", size = 1) +
   xlim(8.05, 8.18) + ylim(8.05, 8.18) +
-  labs(x="Spectrophotometric pH",
+  labs(title = "D",
+       x="Spectrophotometric pH",
        y= "SeaFET pH")  +
   ggpmisc::stat_ma_line(method = "lmodel2:MA", se = FALSE, size = 1) +
   #ggpmisc::stat_ma_eq(method = "lmodel2:MA", aes(label = after_stat(eq.label), digits = 4)) +
   geom_abline(slope = 1, intercept = 0, linetype = "dashed") +  
-  theme_bw() + Mytheme(size_labs = 12) + theme(aspect.ratio = 1) +
+  theme_bw() + 
+  Mytheme(size_labs = 12) +
+  theme(aspect.ratio=1, plot.title = element_text(face = "bold"),
+        axis.title.x = element_text(face = "bold"),
+        axis.title.y = element_text(face = "bold"),
+        plot.margin = margin(t = 0, r = 10, b = 0, l = 0, unit = "pt")) + 
   coord_fixed(ratio = 1, expand = TRUE, clip = "on")
 ggsave(filename = "figures/pHspec_pHseafet.png", plot = pHspec_pHseafet, width = 25, height = 25, units = "cm")
 ```
@@ -4955,21 +4975,24 @@ ts_sal <- d_all %>%
   ggplot(aes(x = datetime, y = sal_fb_mix), na.rm = TRUE) +
   scale_x_datetime(breaks = date_breaks("1 year"), labels = date_format("%Y")) +
   geom_point(colour="blue", alpha = alpha, na.rm = TRUE, size = size_point) +
-  labs(title=NULL,x="", y="Salinity") +
+  labs(title="A",x="", y="Salinity") +
   Mytheme(size_labs = size_labs) +
   theme(axis.title.x = element_text(face = "bold", size = size_labs),
-        axis.title.y = element_text(face = "bold", size = size_labs))
+        axis.title.y = element_text(face = "bold", size = size_labs),
+        title = element_text(colour="black", size=14, face="bold")
+        )
 
 # temp_insitu_11m
 ts_temp <- d_all %>%
   ggplot(aes(x = datetime, y = temp_insitu_11m), na.rm = TRUE) +
   scale_x_datetime(breaks = date_breaks("1 year"), labels = date_format("%Y")) +
   geom_point(colour="blue", alpha = alpha, na.rm = TRUE, size = size_point) +
-  labs(title=NULL,x="", y="Temperature (°C)") +
+  labs(title="B",x="", y="Temperature (°C)") +
   Mytheme(size_labs = size_labs) +
   theme(axis.title.x = element_text(face = "bold", size = size_labs),
-        axis.title.y = element_text(face = "bold", size = size_labs))
-
+        axis.title.y = element_text(face = "bold", size = size_labs),
+        title = element_text(colour="black", size=14, face="bold")
+        )
 # PAR
 ts_par_air <- d_all %>%
   ggplot(aes(x = datetime, y = par_air), na.rm = TRUE) +
@@ -4988,13 +5011,14 @@ ts_pCO2 <- d_all %>%
   geom_point(aes(x = datetime, y = pco2_fb_insi_temp), 
              colour="blue", alpha = alpha, na.rm = TRUE, size = size_point) +
   geom_point(aes(x = datetime, y = pco2_calc_fb_insi_temp), colour="red", alpha = alpha, na.rm = TRUE, size = size_point*3) + 
-  labs(title=NULL,
+  labs(title="C",
        subtitle = NULL,
        x="", y=latex2exp::TeX("pCO$_2$ ($\\mu atm$)", bold=TRUE)) +
   Mytheme(size_labs = size_labs) +
   theme(axis.title.x = element_text(face = "bold", size = size_labs),
-        axis.title.y = element_text(face = "bold", size = size_labs))
-
+        axis.title.y = element_text(face = "bold", size = size_labs),
+        title = element_text(colour="black", size=14, face="bold")
+        )
 # SEAFET pH
 ts_pH <- d_all %>% 
   dplyr::filter(depth > 8) %>% 
@@ -5003,31 +5027,34 @@ ts_pH <- d_all %>%
   geom_point(aes(x = datetime, y = pHint_tot_sf), 
              colour="blue", alpha = alpha, na.rm = TRUE, size = size_point) + 
   geom_point(aes(x = datetime, y = ph_s_sf_temp_insi), colour="red", alpha = alpha, na.rm = TRUE, size = size_point*3) + 
-  labs(title=NULL, 
+  labs(title="D", 
        subtitle =NULL,
        x = "", y=latex2exp::TeX("pH$_T$", bold=TRUE)) +
   Mytheme(size_labs = size_labs) +
   theme(legend.position = c(0.1, 0.5),
         legend.key.height = unit(0.5, 'cm')) +
   theme(axis.title.x = element_text(face = "bold", size = size_labs),
-        axis.title.y = element_text(face = "bold", size = size_labs))
-
+        axis.title.y = element_text(face = "bold", size = size_labs),
+        title = element_text(colour="black", size=14, face="bold")
+        )
 # AT
 ts_at <- d_all %>%
   ggplot(aes(x = datetime, y = at_calc), na.rm = TRUE) +
   scale_x_datetime(breaks = date_breaks("1 year"), labels = date_format("%Y")) +
   geom_point(colour="blue", alpha = alpha, na.rm = TRUE, size = size_point) +
   geom_point(aes(x = datetime, y = at), colour="red", alpha = alpha, na.rm = TRUE, size = size_point*3) + 
-  labs(title=NULL, 
+  labs(title="E", 
        subtitle = NULL,
        x="", y=latex2exp::TeX("$A_T$ ($\\mu mol\\phantom{x}kg^{-1})$", bold = TRUE)) +
   Mytheme(size_labs = size_labs) +
   theme(axis.title.x = element_text(face = "bold", size = size_labs),
-        axis.title.y = element_text(face = "bold", size = size_labs))
+        axis.title.y = element_text(face = "bold", size = size_labs),
+        title = element_text(colour="black", size=14, face="bold")
+        )
 
 # Combine plots
 g1 <- (ts_sal / ts_temp / ts_pCO2  / ts_pH / ts_at)
-g1 <- g1 + plot_annotation(tag_levels = 'A') & theme(plot.tag = element_text(face = "bold"))
+#g1 <- g1 + plot_annotation(tag_levels = 'A') & theme(plot.tag = element_text(face = "bold"))
 ggsave(filename = "figures/time_series.png", plot = g1, width = 15, height = 30, units = "cm")
 
 #rm(list = ls(pattern = "ts_")) #delete big ggplot objects
@@ -5094,12 +5121,13 @@ ts_sal_bp <- d_bp %>%
   ggplot(aes(x = month(x = datetime, label = TRUE, abbr = TRUE), y = sal_fb_mix)) +
   geom_boxplot(notch=FALSE, size=0.2, fill="blue", outlier.shape = NA, na.rm = TRUE) +
   geom_point(aes(x = month(x = datetime, label = TRUE, abbr = TRUE), y = sal_fb_mix), col = "lightblue", size = size_point, na.rm = TRUE) +
-  labs(title="", y = "Salinity", x=NULL) +
+  labs(title="F", y = "Salinity", x=NULL) +
   Mytheme(size_labs = size_labs) +
   theme(panel.grid.major.x = element_blank(),
-        aspect.ratio=0.5,
+#        aspect.ratio=0.5,
         axis.title.x = element_text(face = "bold", size = size_labs),
-        axis.title.y = element_text(face = "bold", size = size_labs)
+        axis.title.y = element_text(face = "bold", size = size_labs),
+        title = element_text(colour="black", size=14, face="bold")
         ) +
   scale_x_discrete(breaks = c("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"), 
                    labels = c("Jan", "", "Mar", "", "May", "", "Jul", "", "Sep", "", "Nov", ""))
@@ -5107,12 +5135,13 @@ ts_temp_bp <- d_bp %>%
   ggplot(aes(x = month(x = datetime, label = TRUE, abbr = TRUE), y = temp_insitu_11m)) +
   geom_boxplot(notch=FALSE, size=0.2, fill="blue", outlier.shape = NA, na.rm = TRUE) +
   geom_point(aes(x = month(x = datetime, label = TRUE, abbr = TRUE), y = ext_temp_insitu_11m), col = "lightblue", size = size_point, na.rm = TRUE) +
-  labs(title=NULL, y = "Temperature (°C)", x=NULL) +
+  labs(title="G", y = "Temperature (°C)", x=NULL) +
   Mytheme(size_labs = size_labs) +
   theme(panel.grid.major.x = element_blank(),
-        aspect.ratio=0.5,
+#        aspect.ratio=0.5,
         axis.title.x = element_text(face = "bold", size = size_labs),
-        axis.title.y = element_text(face = "bold", size = size_labs)
+        axis.title.y = element_text(face = "bold", size = size_labs),
+        title = element_text(colour="black", size=14, face="bold")
         ) +
   scale_x_discrete(breaks = c("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"), 
                    labels = c("Jan", "", "Mar", "", "May", "", "Jul", "", "Sep", "", "Nov", ""))
@@ -5120,12 +5149,13 @@ ts_pco2_bp <- d_bp %>%
   ggplot(aes(x = month(x = datetime, label = TRUE, abbr = TRUE), y = pco2_fb)) +
   geom_boxplot(notch=FALSE, size=0.2, fill="blue", outlier.shape = NA, na.rm = TRUE) +
   geom_point(aes(x = month(x = datetime, label = TRUE, abbr = TRUE), y = ext_pco2_fb), col = "lightblue", size = size_point, na.rm = TRUE) +
-  labs(title=NULL, y = latex2exp::TeX("pCO$_2$ ($\\mu atm$)", bold = TRUE), x=NULL) +
+  labs(title="H", y = latex2exp::TeX("pCO$_2$ ($\\mu atm$)", bold = TRUE), x=NULL) +
   Mytheme(size_labs = size_labs)+
   theme(panel.grid.major.x = element_blank(),
-        aspect.ratio=0.5,
+#        aspect.ratio=0.5,
         axis.title.x = element_text(face = "bold", size = size_labs),
-        axis.title.y = element_text(face = "bold", size = size_labs)
+        axis.title.y = element_text(face = "bold", size = size_labs),
+        title = element_text(colour="black", size=14, face="bold")
         ) +
   scale_x_discrete(breaks = c("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"), 
                    labels = c("Jan", "", "Mar", "", "May", "", "Jul", "", "Sep", "", "Nov", ""))
@@ -5133,12 +5163,13 @@ ts_pH_bp <- d_bp %>%
   ggplot(aes(x = month(x = datetime, label = TRUE, abbr = TRUE), y = pHint_tot_sf)) +
   geom_boxplot(notch=FALSE, size=0.2, fill="blue", outlier.shape = NA, na.rm = TRUE) +
   geom_point(aes(x = month(x = datetime, label = TRUE, abbr = TRUE), y = ext_pHint_tot_sf), col = "lightblue", size = size_point, na.rm = TRUE) +
-  labs(title=NULL, y = latex2exp::TeX("$pH_T$", bold = TRUE), x=NULL) +
+  labs(title="I", y = latex2exp::TeX("$pH_T$", bold = TRUE), x=NULL) +
   Mytheme(size_labs = size_labs) +
   theme(panel.grid.major.x = element_blank(),
-        aspect.ratio=0.5,
+#        aspect.ratio=0.5,
         axis.title.x = element_text(face = "bold", size = size_labs),
-        axis.title.y = element_text(face = "bold", size = size_labs)
+        axis.title.y = element_text(face = "bold", size = size_labs),
+        title = element_text(colour="black", size=14, face="bold")
         ) +
   scale_x_discrete(breaks = c("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"), 
                    labels = c("Jan", "", "Mar", "", "May", "", "Jul", "", "Sep", "", "Nov", ""))
@@ -5146,12 +5177,13 @@ ts_at_bp <- d_bp %>%
   ggplot(aes(x = month(x = datetime, label = TRUE, abbr = TRUE), y = at_calc)) +
   geom_boxplot(notch=FALSE, size=0.2, fill="blue", outlier.shape = NA, na.rm = TRUE) +
   geom_point(aes(x = month(x = datetime, label = TRUE, abbr = TRUE), y = ext_at_calc), col = "lightblue", size = size_point, na.rm = TRUE) +
-  labs(title=NULL, y = TeX("$A_T$ ($\\mu mol\\phantom{x}kg^{-1})$", bold = TRUE), x=NULL) +
+  labs(title="J", y = TeX("$A_T$ ($\\mu mol\\phantom{x}kg^{-1})$", bold = TRUE), x=NULL) +
   Mytheme(size_labs = size_labs) +
   theme(panel.grid.major.x = element_blank(),
-        aspect.ratio=0.5,
+#        aspect.ratio=0.5,
         axis.title.x = element_text(face = "bold", size = size_labs),
-        axis.title.y = element_text(face = "bold", size = size_labs)
+        axis.title.y = element_text(face = "bold", size = size_labs),
+        title = element_text(colour="black", size=14, face="bold")
         ) +
   scale_x_discrete(breaks = c("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"), 
                    labels = c("Jan", "", "Mar", "", "May", "", "Jul", "", "Sep", "", "Nov", ""))
@@ -5159,17 +5191,18 @@ ts_at_bp <- d_bp %>%
 g2 <- (ts_sal_bp / ts_temp_bp / ts_pco2_bp / ts_pH_bp / ts_at_bp)
 g2 <- g2 + plot_annotation(tag_levels = 'A') & 
                              theme(plot.tag = element_text(face = "bold"))
-ggsave(filename = "figures/ts_boxplots.png", plot = g2)
+ggsave(filename = "figures/ts_boxplots.png", plot = g2, width = 12)
 ```
 
 ### Combined plot for paper
 
 ```{r, echo=FALSE, message= FALSE, warning=FALSE}
-g <- (at_s | pco2_calc_meas) / (offset_ph | pHspec_pHseafet)
-g <- g + patchwork::plot_annotation(tag_levels = 'A') & 
-  theme(plot.tag = element_text(face = "bold"))
+g <- (at_s | pco2_calc_meas) / (offset_ph | pHspec_pHseafet) #+
+  #plot_layout(heights = c(6,6,6,6)) 
+# g <- g + patchwork::plot_annotation(tag_levels = 'A') & 
+#   theme(plot.tag = element_text(face = "bold"))
 ggsave(filename = "figures/pco2_ph_etc.png", plot = g)
-ggsave(filename = "figures/essd/pco2_ph_etc.pdf", plot = g)
+ggsave(filename = "figures/essd/pco2_ph_etc.pdf", plot = g, width = 18, height = 18, units = "cm")
 ```
 
 ### Time series and boxplots for paper
@@ -5177,8 +5210,8 @@ ggsave(filename = "figures/essd/pco2_ph_etc.pdf", plot = g)
 ```{r, echo=FALSE, message= FALSE, warning=FALSE}
 g <- (ts_sal / ts_temp / ts_pCO2  / ts_pH / ts_at) |
   (ts_sal_bp / ts_temp_bp / ts_pco2_bp / ts_pH_bp / ts_at_bp)
-g <- g + patchwork::plot_annotation(tag_levels = 'A') & theme(plot.tag = element_text(face = "bold", size = 14))
-ggsave(filename = "figures/essd/ts.pdf", plot = g, width = 20, height = 30)
+#g <- g + patchwork::plot_annotation(tag_levels = 'A') & theme(plot.tag = element_text(face = "bold", size = 14))
+ggsave(filename = "figures/essd/ts.pdf", plot = g, width = 12)
 # legend:
 # - Salinity below 8m
 # - In situ temperature (11m)
