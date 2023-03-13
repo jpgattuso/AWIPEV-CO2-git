@@ -4239,7 +4239,7 @@ g <- g + plot_annotation(tag_levels = 'A') &
                              theme(plot.tag = element_text(face = "bold"))
 g
 ggsave(filename = "figures/deltas_pco2.png", plot = g, width = 15, height = 20, units = "cm")
-ggsave(filename = "figures/essd/deltas_pco2.pdf", plot = g, width = 20, height = 20, units = "cm")
+ggsave(filename = "figures/essd/deltas_pco2.pdf", plot = g, width = 15, height = 20, units = "cm")
 ```
 
 Using the medians because data are missing.
@@ -4863,7 +4863,8 @@ ts_air_sea <- air_sea_month %>%
        x="Month", 
        y=latex2exp::TeX("Air-sea CO$_2$ flux (mol $m^{-2}$ month$^{-1}$)", bold = TRUE)) +
   Mytheme(size_labs = size_labs) +
-  theme(plot.margin = margin(t = 0.2, r = 0.2, b = 0.2, l = 0.2, unit = "cm"),
+  theme(aspect.ratio=0.5,
+        plot.margin = margin(t = -10, r = 0.2, b = -10, l = 0.2, unit = "cm"),
         axis.title.x = element_text(face = "bold", size = 14),
         axis.title.y = element_text(face = "bold", size = 14),
         axis.text.x = element_text(size=14),
@@ -4873,7 +4874,7 @@ ts_air_sea <- air_sea_month %>%
                    labels = c("Jan", "", "Mar", "", "May", "", "Jul", "", "Sep", "", "Nov", ""))
 ts_air_sea
 ggsave(filename = "figures/ts_air_sea.png", plot = ts_air_sea, width = 20, units = "cm")
-ggsave(filename = "figures/essd/ts_air_sea.pdf", plot = ts_air_sea, width = 20, units = "cm")
+ggsave(filename = "figures/essd/ts_air_sea.pdf", plot = ts_air_sea, width = 15, height = 10, units = "cm")
 #rm(p, p_f_air_sea, p_f_air_sea_d, p_f_air_sea_m)
 ```
 
@@ -4977,11 +4978,18 @@ ts_oa <- tmp %>%
   scale_x_datetime(breaks = date_breaks("1 year"), labels = date_format("%Y")) +
   geom_point(colour="blue", alpha = alpha, na.rm = TRUE, size = size_point) +
   ylim(0, 3) +
-  labs(title="",x="", y=latex2exp::TeX("$\\Omega_{aragonite}$")) +
-  Mytheme(size_labs = size_labs)
+  labs(title=NULL,x="Time", y=latex2exp::TeX("\\textbf{$\\Omega_{aragonite}$}")) +
+  Mytheme(size_labs = size_labs) +
+    theme(aspect.ratio=0.5,
+        plot.margin = margin(t = 0, r = 0.2, b = 0, l = 0.2, unit = "cm"),
+        axis.title.x = element_text(face = "bold", size = 14),
+        axis.title.y = element_text(face = "bold", size = 14),
+        axis.text.x = element_text(size=14),
+        axis.text.y = element_text(size=14)
+        )
+ts_oa
 ggsave(filename = "figures/OmegaAragonite.png", plot = ts_oa, width = 15, height = 10, units = "cm")
 ggsave(filename = "figures/essd/OmegaAragonite.pdf", plot = ts_oa, width = 15, height = 10, units = "cm")
-
 ```
 ### Whole time series plot
 
