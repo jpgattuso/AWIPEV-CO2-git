@@ -4105,11 +4105,12 @@ pco2_delta_plt <- tmp_delta %>%
   ) +
   Mytheme(size_labs = size_labs) +
   theme(
+    plot.margin = margin(t = 0, r = 0.2, b = 0, l = 0, unit = "cm"),
     panel.grid.major.x = element_blank(),
     panel.grid.major.y = element_blank(),
     panel.grid.minor.y = element_blank(),
     axis.title.x = element_text(face = "bold", size = size_labs),
-        axis.title.y = element_text(face = "bold", size = size_labs)
+    axis.title.y = element_text(face = "bold", size = size_labs)
   )
 pco2_delta_plt
 # we look at pCO2 normalized at 4°C at all depths
@@ -4297,20 +4298,38 @@ taka_month <- taka %>%
   ) %>%
   ungroup()
 # monthly plot
-taka_month_plt <- taka_month %>% 
+taka_month_plt <- taka_month %>%
   ggplot() +
-  geom_point(aes(x = montht, y = thermal_nonthermal), col="blue", size = 2) +
-  labs(x="Month", y= latex2exp::TeX("Thermal/non-thermal control of $pCO_{2}",
-                                    bold = TRUE))  +
-  geom_hline(yintercept = 1, linetype = "dashed") +  
-  theme_bw() + Mytheme(size_labs = 14) + 
-  theme(aspect.ratio = 1,
-        axis.title.x = element_text(size = 14, face = "bold"),
-        axis.title.y = element_text(size = 14, face = "bold")) +
-  coord_fixed(ratio = 1, expand = TRUE, clip = "on")
+  geom_point(aes(x = montht, y = thermal_nonthermal),
+             col = "blue",
+             size = 2) +
+  labs(
+    x = "Month",
+    y = latex2exp::TeX("Thermal/non-thermal control of $pCO_{2}",
+                       bold = TRUE)
+  )  +
+  geom_hline(yintercept = 1, linetype = "dashed") +
+  theme_bw() + Mytheme(size_labs = 14) +
+  scale_x_discrete(breaks = c("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"), 
+                   labels = c("Jan", "", "Mar", "", "May", "", "Jul", "", "Sep", "", "Nov", ""))+
+  coord_fixed(ratio = 1,
+              expand = TRUE,
+              clip = "on") +
+  theme(
+    plot.margin = margin(
+      t = 0.2,
+      r = 0.2,
+      b = 0.2,
+      l = 0.2,
+      unit = "cm"
+    ),
+    aspect.ratio = 1,
+    axis.title.x = element_text(size = 14, face = "bold"),
+    axis.title.y = element_text(size = 14, face = "bold")
+  )
 taka_month_plt
 ggsave(filename = "figures/taka_month.png", plot = taka_month_plt, width = 25, height = 25, units = "cm")
-ggsave(filename = "figures/essd/taka_month.pdf", plot = taka_month_plt, width = 25, height = 25, units = "cm")
+ggsave(filename = "figures/essd/taka_month.pdf", plot = taka_month_plt, width = 12, height = 12, units = "cm")
 
 # annual 
 taka_year <- taka %>%
@@ -4837,14 +4856,21 @@ size_labs <- 14 # font size labels
 # temp_insitu_11m
 ts_air_sea <- air_sea_month %>%
   ggplot(aes(x = montht, y = f_air_sea / 1000), na.rm = TRUE) +
-  geom_col(colour="blue", fill = "blue",  alpha = alpha, stat="identity") +
+  geom_col(colour="blue", fill = "blue",  alpha = alpha) +
   lims(y = c(-3, 0)) +
   geom_hline(yintercept = 0) +
   labs(title=NULL, 
        x="Month", 
        y=latex2exp::TeX("Air-sea CO$_2$ flux (mol $m^{-2}$ month$^{-1}$)", bold = TRUE)) +
   Mytheme(size_labs = size_labs) +
-  theme(axis.title.x = element_text(face = "bold", size = size_labs))
+  theme(plot.margin = margin(t = 0.2, r = 0.2, b = 0.2, l = 0.2, unit = "cm"),
+        axis.title.x = element_text(face = "bold", size = 14),
+        axis.title.y = element_text(face = "bold", size = 14),
+        axis.text.x = element_text(size=14),
+        axis.text.y = element_text(size=14)
+        ) +
+  scale_x_discrete(breaks = c("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"), 
+                   labels = c("Jan", "", "Mar", "", "May", "", "Jul", "", "Sep", "", "Nov", ""))
 ts_air_sea
 ggsave(filename = "figures/ts_air_sea.png", plot = ts_air_sea, width = 20, units = "cm")
 ggsave(filename = "figures/essd/ts_air_sea.pdf", plot = ts_air_sea, width = 20, units = "cm")
