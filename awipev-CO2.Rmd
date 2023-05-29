@@ -3412,7 +3412,7 @@ k1k2_pco2_at <- list(mean_discrete = mean_discrete, tmp2 = tmp2,
 save(k1k2_pco2_at, file="reports/k1k2_pco2_at.RData")
 
 #export latex table
-tables_path <- "~/kDrive/Documents/publications/publications_inpreparation/gattuso_etal_awipev-CO2/paper/tables/"
+tables_path <- "/Users/gattuso/kDrive/Documents/publications/publications_submitted/2023_gattuso_etal_essd/revised/tables"
 knitr::kable(diff_table_pco2_at, digits = 3, caption = "Difference between spectrophotometric pH and pH calculated with pCO2 and AT using different formulations for K1 and K2.", format = "latex") %>% 
 kableExtra::save_kable(file=paste0(tables_path,"diff_table_pco2_at.tex"))
 ```
@@ -3607,7 +3607,7 @@ k1k2_at_ct <- list(errors_at_ct = errors_at_ct,
 save(k1k2_at_ct, file="reports/k1k2_at_ct.RData")
 
 #export latex table
-tables_path <- "~/kDrive/Documents/publications/publications_inpreparation/gattuso_etal_awipev-CO2/paper/tables/"
+tables_path <- "/Users/gattuso/kDrive/Documents/publications/publications_submitted/2023_gattuso_etal_essd/revised/tables"
 knitr::kable(diff_table_at_ct, digits = 3, caption = "Difference between spectrophotometric pH and pH calculated with AT and CT using different formulations for K1 and K2.", format = "latex") %>% 
 kableExtra::save_kable(file=paste0(tables_path,"diff_table_at_ct.tex"))
 ```
