@@ -3657,11 +3657,38 @@ for pH calculated from AT and CT according to seacarb.
 
 ```{r, echo=FALSE, message= FALSE, warning=FALSE}
 # we calculate the duration of each stop 
+
+# Function written by Robert Schlegel
+depth_time <- function(df){
+  # Get proto event info
+  ex1 <- rle(as.numeric(df$depth_group))
+  ind1 <- rep(seq_along(ex1$lengths), ex1$lengths)
+  s1 <- base::split(base::seq_len(nrow(df)), ind1)
+  # Extract the start and end times per depth group
+  depth_count <- do.call(rbind, lapply(s1, function(x)
+    data.frame(depth_group = tmp$depth_group[min(x)],
+               time_start = tmp$datetime[min(x)], 
+               time_end = tmp$datetime[max(x)])))
+  # Calculate the time spent there in seconds
+  depth_count$time_spent <- depth_count$time_end-depth_count$time_start+3600
+  # Convert to hours if desired
+  depth_count$hours_spent <- as.numeric(depth_count$time_spent)/3600
+  # Exit
+  return(depth_count)
+}
+
+# First create the tibble
 depth_labels <- c("0-2", "2-4", "4-6", "6-8", ">8")
 tmp <- d_all %>% 
   dplyr::select(datetime, depth_group) %>%
   dplyr::filter(depth_group != "NA") %>% 
   dplyr::mutate(depth_group = factor(depth_group, levels = depth_labels))
+
+count_depth <- depth_time(tmp) 
+plot_all_depths <- count_depth %>% 
+  ggplot() +
+  geom_bar(aes(x=hours_spent))
+plot_all_depths
 ```
 
 ```{r, echo=FALSE, message= FALSE, warning=FALSE}
