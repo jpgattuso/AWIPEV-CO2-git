@@ -3656,6 +3656,15 @@ for pH calculated from AT and CT according to seacarb.
 ### Stratification salinity
 
 ```{r, echo=FALSE, message= FALSE, warning=FALSE}
+# we calculate the duration of each stop 
+depth_labels <- c("0-2", "2-4", "4-6", "6-8", ">8")
+tmp <- d_all %>% 
+  dplyr::select(datetime, depth_group) %>%
+  dplyr::filter(depth_group != "NA") %>% 
+  dplyr::mutate(depth_group = factor(depth_group, levels = depth_labels))
+```
+
+```{r, echo=FALSE, message= FALSE, warning=FALSE}
 size_labs = 14
 # we look at the distribution of data
 depth_labels <- c("0-2", "2-4", "4-6", "6-8", ">8")
