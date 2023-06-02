@@ -3689,11 +3689,10 @@ count_depth <- depth_time(tmp) %>%
 p <- ggplot(count_depth) +
   geom_bar(aes(x=log10(hours_spent)))
 ggsave(filename = "figures/REMOS.png", plot = p, width = 15, height = 10, units = "cm")
-
+summary(count_depth$hours_spent)
 ```
 The REMOS spent a highly variable period of time in each depth group.
 ![Distribution of the number of hours spent by the REMOS at depth](figures/REMOS.png)
-`r knitr::kable(summary(count_depth$hours_spent))`
 
 ### Stratification salinity
 ```{r, echo=FALSE, message= FALSE, warning=FALSE}
@@ -4839,11 +4838,14 @@ and
 d_all <- d_all %>%
   dplyr::mutate(
     delta_pco2 = pco2_fb_ctd_temp - co2_air, # uatm
-    k600 = 0.266 * ws ^ 2, # cm/h Ho et al. (2006)
+    k600h = 0.266 * ws ^ 2, # cm/h Ho et al. (2006)
+    k600d = 0.143 * ws ^ 2, # cm/h Dobashi and Ho (2023)
     Sc = 2073.1 - (125.62 * temp_insitu_ctd) + (3.6276 * temp_insitu_ctd^2) -
       (0.043219 * temp_insitu_ctd^3),    #dimensionless
-    k = (k600 * (Sc / 600) ^ -0.5), #cm/h
-    k = k/10, #m/h
+    kh = (k600h * (Sc / 600) ^ -0.5), #cm/h
+    kd = (k600d * (Sc / 600) ^ -0.5), #cm/h
+   kh = kh/10, #m/h
+   kd = kd/10, #m/h
     alpha = seacarb::K0(
       S = sal_insitu_ctd,
       T = temp_insitu_ctd,
@@ -4851,62 +4853,65 @@ d_all <- d_all %>%
       Patm = p_air / 1013.25 # from hPa to atm
     ), #mol/(kg atm)
     alpha = alpha * (seacarb::rho(
-      S = sal_insitu_ctd, T = temp_insitu_ctd, P = 0
-    ) / 1000), # mol/(l atm)
+      S = sal_insitu_ctd, T = temp_insitu_ctd, P = 0) / 1000), # mol/(l atm)
     alpha = alpha * 1000 , # mol/(m3 atm)
-    f_air_sea = k * alpha * delta_pco2, # mol/(m2 h 1e6)
-    f_air_sea = k * alpha * delta_pco2 * 1e-6 * 1000 # mmol/(m2 h)
+    f_air_sea_h = kh * alpha * delta_pco2, # mol/(m2 h 1e6)
+    f_air_sea_h = kh * alpha * delta_pco2 * 1e-6 * 1000, # mmol/(m2 h)
+    f_air_sea_d = kd * alpha * delta_pco2, # mol/(m2 h 1e6)
+    f_air_sea_d = kd * alpha * delta_pco2 * 1e-6 * 1000 # mmol/(m2 h)
   )
 
-p_f_air_sea <- ggplot(data = d_all) +
-  geom_point(aes(x = datetime, y = f_air_sea), col = "blue", size = 0.15, na.rm = TRUE) +
-  labs(title = "Air-sea CO2 flux (all data)", x = "Time", y = "CO2 (mmol/(m2 h))") +
+p_f_air_sea_h <- ggplot(data = d_all) +
+  geom_point(aes(x = datetime, y = f_air_sea_h), col = "blue", size = 0.15, na.rm = TRUE) +
+  labs(title = "Air-sea CO2 flux (all data) with Ho's formulation", x = "Time", y = "CO2 (mmol/(m2 h))") +
   Mytheme(size_labs = 8)
-p_f_air_sea
-ggsave(filename = "figures/p_f_air_sea.png", plot = p_f_air_sea, width = 20, units = "cm")
+p_f_air_sea_h
+ggsave(filename = "figures/p_f_air_sea_h.png", plot = p_f_air_sea_h, width = 20, units = "cm")
 
-air_sea_day <- d_all %>%
-  dplyr::select(datetime, f_air_sea) %>%
+air_sea_day_h <- d_all %>%
+  dplyr::select(datetime, f_air_sea_h) %>%
   dplyr::group_by(lubridate::yday(datetime)) %>%
-  dplyr::summarise(f_air_sea = 24 * mean(f_air_sea, na.rm = TRUE)) %>% #mmol/(m2 d)
+  dplyr::summarise(f_air_sea = 24 * mean(f_air_sea_h, na.rm = TRUE)) %>% #mmol/(m2 d)
   ungroup() %>%
   dplyr::rename(day = 1)
   
-p_f_air_sea_d <- ggplot(data = air_sea_day) +
+p_f_air_sea_day_h <- ggplot(data = air_sea_day_h) +
   geom_point(aes(x = day, y = f_air_sea), col = "blue", size = 0.15, na.rm = TRUE) +
-  labs(title = "Air-sea CO2 flux (per day)", x = "Julian day", y = "CO2 (mmol/(m2 d))") +
+  labs(title = "Air-sea CO2 flux (per day) with Ho's formulation", x = "Julian day", y = "CO2 (mmol/(m2 d))") +
   Mytheme(size_labs = 8)
 #p_f_air_sea_d
-ggsave(filename = "figures/f_air_sea_d.png", plot = p_f_air_sea_d, width = 20, units = "cm")
+ggsave(filename = "figures/f_air_sea_day_h.png", plot = p_f_air_sea_day_h, width = 20, units = "cm")
 
-air_sea_month <- d_all %>%
-  dplyr::select(monthd, f_air_sea) %>%
+air_sea_month_h <- d_all %>%
+  dplyr::select(monthd, f_air_sea_h) %>%
   dplyr::group_by(monthd) %>%
-  dplyr::summarise(f_air_sea = 24 * mean(f_air_sea, na.rm = TRUE)) %>% #mmol/(m2 d)
+  dplyr::summarise(f_air_sea = 24 * mean(f_air_sea_h, na.rm = TRUE)) %>% #mmol/(m2 d)
   ungroup() %>%
   dplyr::mutate(f_air_sea = days_in_month(monthd) * f_air_sea) %>% 
   dplyr::mutate(montht = month(monthd, label = TRUE, abbr = TRUE))
 #air_sea_month
-p_f_air_sea_month <- ggplot(data = air_sea_month) +
+p_f_air_sea_month_h <- ggplot(data = air_sea_month_h) +
   geom_point(aes(x = montht, y = f_air_sea), col = "blue", size = 2, na.rm = TRUE) +
   lims(y = c(-3000, 0)) +
-  labs(title = "Air-sea CO2 flux (per month)", x = "Month", y = "CO2 (mmol/(m2 month))") +
+  labs(title = "Air-sea CO2 flux (per month) with Ho's formulation", x = "Month", y = "CO2 (mmol/(m2 month))") +
   Mytheme(size_labs = 8)
-ggsave(filename = "figures/f_air_sea_m.png", plot = p_f_air_sea_month, width = 20, units = "cm")
+ggsave(filename = "figures/f_air_sea_m_h.png", plot = p_f_air_sea_month_h, width = 20, units = "cm")
 
-p <- p_f_air_sea / p_f_air_sea_d / p_f_air_sea_month
-ggsave(filename = "figures/air-sea_CO2_flux.png", plot = p, width = 20, units = "cm")
-knitr::include_graphics("figures/air-sea_CO2_flux.png")
+p <- p_f_air_sea_h / p_f_air_sea_day_h / p_f_air_sea_month_h
+ggsave(filename = "figures/air-sea_CO2_flux_h.png", plot = p, width = 20, units = "cm")
+knitr::include_graphics("figures/air-sea_CO2_flux_h.png")
 
-# For paper
+# For paper Ho only
 size_point <- 1.5 # size of data points
 alpha <- 1 #transparency
 size_labs <- 14 # font size labels
 # temp_insitu_11m
-ts_air_sea <- air_sea_month %>%
-  ggplot(aes(x = montht, y = f_air_sea / 1000), na.rm = TRUE) +
+tmp <- d_all %>% 
+  dplyr::select(montht, f_air_sea_h)
+ts_air_sea_h <- tmp %>%
+  ggplot(aes(x = montht, y = f_air_sea_h / 1000), na.rm = TRUE) +
   geom_col(colour="blue", fill = "blue",  alpha = alpha) +
-  lims(y = c(-3, 0)) +
+  lims(y = c(-5, 0)) +
   geom_hline(yintercept = 0) +
   labs(title=NULL, 
        x="Month", 
@@ -4921,10 +4926,65 @@ ts_air_sea <- air_sea_month %>%
         ) +
   scale_x_discrete(breaks = c("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"), 
                    labels = c("Jan", "", "Mar", "", "May", "", "Jul", "", "Sep", "", "Nov", ""))
+ts_air_sea_h
+ggsave(filename = "figures/ts_air_sea_h.png", plot = ts_air_sea_h, width = 20, units = "cm")
+ggsave(filename = "figures/essd/ts_air_sea_h.pdf", plot = ts_air_sea_h, width = 15, height = 10, units = "cm")
+
+# For paper Dobashi & Ho 
+# Above, only Ho's formulation is dealt with
+# make tibble for Dobashi's formulation to be used in plot
+air_sea_month_d <- d_all %>%
+  dplyr::select(monthd, f_air_sea_d) %>%
+  dplyr::group_by(monthd) %>%
+  dplyr::summarise(f_air_sea = 24 * mean(f_air_sea_d, na.rm = TRUE)) %>% #mmol/(m2 d)
+  ungroup() %>%
+  dplyr::mutate(f_air_sea = days_in_month(monthd) * f_air_sea) %>% 
+  dplyr::mutate(montht = month(monthd, label = TRUE, abbr = TRUE))
+# air_sea_month_d <- d_all %>%
+#   dplyr::select(monthd, f_air_sea_d) %>%
+#   dplyr::group_by(monthd) %>%
+#   dplyr::summarise(f_air_sea = 24 * mean(f_air_sea_d, na.rm = TRUE)) %>% #mmol/(m2 d)
+#   ungroup() %>%
+#   dplyr::mutate(f_air_sea = days_in_month(monthd) * f_air_sea) %>% 
+#   dplyr::mutate(montht = month(monthd, label = TRUE, abbr = TRUE))
+
+# Now we combine Ho's and Dobashi's formulations
+air_sea_month_h <- air_sea_month_h %>% 
+  dplyr::rename(f_air_sea_h = f_air_sea) %>% 
+  dplyr::select(-monthd)
+air_sea_month_d <- air_sea_month_d %>% 
+  dplyr::rename(f_air_sea_d = f_air_sea) %>% 
+  dplyr::select(-monthd)
+air_sea <- dplyr::left_join(air_sea_month_h, air_sea_month_d) 
+air_sea_long <- air_sea %>% 
+  pivot_longer(!montht, names_to = "Formulation", values_to = "f_air_sea")
+
+size_point <- 1.5 # size of data points
+alpha <- 1 #transparency
+size_labs <- 14 # font size labels
+# temp_insitu_11m
+ts_air_sea <- air_sea_long %>%
+  ggplot(aes(x = montht, y = f_air_sea / 1000, fill = Formulation), na.rm = TRUE) +
+  geom_col(alpha = alpha, position = "dodge") +
+  lims(y = c(-3, 0)) +
+  geom_hline(yintercept = 0) +
+  labs(title=NULL, 
+       x="Month", 
+       y=latex2exp::TeX("Air-sea CO$_2$ flux (mol $m^{-2}$ month$^{-1}$)", bold = TRUE)) +
+  scale_fill_discrete(name = "", labels = c("Dobashi & Ho (2023)", "Ho et al. (2006)")) +
+  Mytheme(size_labs = size_labs) +
+  theme(aspect.ratio=0.5,
+        plot.margin = margin(t = -10, r = 0.2, b = -10, l = 0.2, unit = "cm"),
+        axis.title.x = element_text(face = "bold", size = 14),
+        axis.title.y = element_text(face = "bold", size = 14),
+        axis.text.x = element_text(size=14),
+        axis.text.y = element_text(size=14)
+        ) 
+  # scale_x_discrete(breaks = c("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"),
+  #                  labels = c("Jan", "", "Mar", "", "May", "", "Jul", "", "Sep", "", "Nov", ""))
 ts_air_sea
 ggsave(filename = "figures/ts_air_sea.png", plot = ts_air_sea, width = 20, units = "cm")
 ggsave(filename = "figures/essd/ts_air_sea.pdf", plot = ts_air_sea, width = 15, height = 10, units = "cm")
-#rm(p, p_f_air_sea, p_f_air_sea_d, p_f_air_sea_m)
 ```
 
 #### With in situ simulation
@@ -4939,12 +4999,15 @@ uptake)
 # round(summary(tmp$delta_pco2_fb_remos_monthly))[[4]]
 d_all <- d_all %>%
   dplyr::mutate(
-    delta_pco2_corr = (pco2_fb_ctd_temp + 17) - co2_air,
-    k600 = 0.266 * ws ^ 2, # cm/h Ho et al. (2006)
+    delta_pco2_corr = (pco2_fb_ctd_temp + 17) - co2_air, # uatm
+    k600h = 0.266 * ws ^ 2, # cm/h Ho et al. (2006)
+    k600d = 0.143 * ws ^ 2, # cm/h Dobashi and Ho (2023)
     Sc = 2073.1 - (125.62 * temp_insitu_ctd) + (3.6276 * temp_insitu_ctd^2) -
       (0.043219 * temp_insitu_ctd^3),    #dimensionless
-    k = (k600 * (Sc / 600) ^ -0.5), #cm/h
-    k = k/10, #m/h
+    kh = (k600h * (Sc / 600) ^ -0.5), #cm/h
+    kd = (k600d * (Sc / 600) ^ -0.5), #cm/h
+   kh = kh/10, #m/h
+   kd = kd/10, #m/h
     alpha = seacarb::K0(
       S = sal_insitu_ctd,
       T = temp_insitu_ctd,
@@ -4952,53 +5015,149 @@ d_all <- d_all %>%
       Patm = p_air / 1013.25 # from hPa to atm
     ), #mol/(kg atm)
     alpha = alpha * (seacarb::rho(
-      S = sal_insitu_ctd, T = temp_insitu_ctd, P = 0
-    ) / 1000), # mol/(l atm)
+      S = sal_insitu_ctd, T = temp_insitu_ctd, P = 0) / 1000), # mol/(l atm)
     alpha = alpha * 1000 , # mol/(m3 atm)
-    f_air_sea_corr = k * alpha * delta_pco2_corr, # mol/(m2 h 1e6)
-    f_air_sea_corr = k * alpha * delta_pco2_corr * 1e-6 * 1000 # mmol/(m2 h)
+    f_air_sea_h_corr = kh * alpha * delta_pco2_corr, # mol/(m2 h 1e6)
+    f_air_sea_h_corr = kh * alpha * delta_pco2_corr * 1e-6 * 1000, # mmol/(m2 h)
+    f_air_sea_d_corr = kd * alpha * delta_pco2_corr, # mol/(m2 h 1e6)
+    f_air_sea_d_corr = kd * alpha * delta_pco2_corr * 1e-6 * 1000 # mmol/(m2 h)
   )
-air_sea_corr_month <- d_all %>%
-  dplyr::select(monthd, f_air_sea_corr) %>%
+
+air_sea_month_h_corr <- d_all %>%
+  dplyr::select(monthd, f_air_sea_h_corr) %>%
   dplyr::group_by(monthd) %>%
-  dplyr::summarise(f_air_sea_corr = 24 * mean(f_air_sea_corr, na.rm = TRUE)) %>% #mol/(m2 d)
+  dplyr::summarise(f_air_sea = 24 * mean(f_air_sea_h_corr, na.rm = TRUE)) %>% #mmol/(m2 d)
   ungroup() %>%
-  dplyr::mutate(f_air_sea_corr = days_in_month(monthd) * f_air_sea_corr) %>% 
+  dplyr::mutate(f_air_sea = days_in_month(monthd) * f_air_sea) %>% 
   dplyr::mutate(montht = month(monthd, label = TRUE, abbr = TRUE))
-#air_sea_month
-p_f_air_sea_corr_month <- ggplot(data = air_sea_corr_month) +
-  geom_point(aes(x = montht, y = f_air_sea_corr), col = "blue", size = 2, na.rm = TRUE) +
-  #scale_x_discrete(breaks=c("Jan", "", "Mar", "", "May", "", "Jul", "", "Sep", "", "Nov", "")) +
-  #lims(y = c(-3, 0)) +
-  labs(title = "Air-sea CO2 flux (per month) with corrected data", x = "Month", y = "CO2 (mmol/(m2 month))") +
-  Mytheme(size_labs = 8)
-p_f_air_sea_corr_month
-ggsave(filename = "figures/f_air_sea_corr_month.png", plot = p_f_air_sea_corr_month, width = 20, units = "cm")
-# # combine without and with correction
-# p <- p_f_air_sea_month / p_f_air_sea_corr_month
-# ggsave(filename = "figures/air-sea_CO2_flux_comp.png", plot = p, width = 20, units = "cm")
-# knitr::include_graphics("figures/air-sea_CO2_flux_comp.png")
-#rm(p, p_f_air_sea, p_f_air_sea_d, p_f_air_sea_m)
-# Figure with and without correction on same plot
+
+# For paper Dobashi & Ho 
+# Above, only Ho's formulation is dealt with
+# make tibble for Dobashi's formulation to be used in plot
+air_sea_month_d_corr <- d_all %>%
+  dplyr::select(monthd, f_air_sea_d_corr) %>%
+  dplyr::group_by(monthd) %>%
+  dplyr::summarise(f_air_sea = 24 * mean(f_air_sea_d_corr, na.rm = TRUE)) %>% #mmol/(m2 d)
+  ungroup() %>%
+  dplyr::mutate(f_air_sea = days_in_month(monthd) * f_air_sea) %>% 
+  dplyr::mutate(montht = month(monthd, label = TRUE, abbr = TRUE))
+
+# air_sea_month_d <- d_all %>%
+#   dplyr::select(monthd, f_air_sea_d) %>%
+#   dplyr::group_by(monthd) %>%
+#   dplyr::summarise(f_air_sea = 24 * mean(f_air_sea_d, na.rm = TRUE)) %>% #mmol/(m2 d)
+#   ungroup() %>%
+#   dplyr::mutate(f_air_sea = days_in_month(monthd) * f_air_sea) %>% 
+#   dplyr::mutate(montht = month(monthd, label = TRUE, abbr = TRUE))
+
+# Now we combine Ho's and Dobashi's formulations
+air_sea_month_h_corr <- air_sea_month_h_corr %>% 
+  dplyr::rename(f_air_sea_h_corr = f_air_sea) %>% 
+  dplyr::select(-monthd)
+air_sea_month_d_corr <- air_sea_month_d_corr %>% 
+  dplyr::rename(f_air_sea_d_corr = f_air_sea) %>% 
+  dplyr::select(-monthd)
+air_sea <- dplyr::left_join(air_sea_month_h_corr, air_sea_month_d_corr) 
+air_sea_long <- air_sea %>% 
+  pivot_longer(!montht, names_to = "Formulation", values_to = "f_air_sea")
+
+size_point <- 1.5 # size of data points
+alpha <- 1 #transparency
+size_labs <- 14 # font size labels
+# temp_insitu_11m
+ts_air_sea_corr <- air_sea_long %>%
+  ggplot(aes(x = montht, y = f_air_sea / 1000, fill = Formulation), na.rm = TRUE) +
+  geom_col(alpha = alpha, position = "dodge") +
+  lims(y = c(-3, 0)) +
+  geom_hline(yintercept = 0, size = 0.5) +
+  labs(title=NULL, 
+       x="Month", 
+       y=latex2exp::TeX("Air-sea CO$_2$ flux (mol $m^{-2}$ month$^{-1}$)", bold = TRUE)) +
+  scale_fill_discrete(name = "", labels = c("Dobashi & Ho (2023)", "Ho et al. (2006)")) +
+  Mytheme(size_labs = size_labs) +
+  theme(aspect.ratio=0.5,
+        plot.margin = margin(t = -10, r = 0.2, b = -10, l = 0.2, unit = "cm"),
+        axis.title.x = element_text(face = "bold", size = 14),
+        axis.title.y = element_text(face = "bold", size = 14),
+        axis.text.x = element_text(size=14),
+        axis.text.y = element_text(size=14)
+        ) 
+  # scale_x_discrete(breaks = c("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"),
+  #                  labels = c("Jan", "", "Mar", "", "May", "", "Jul", "", "Sep", "", "Nov", ""))
+ts_air_sea_corr
+ggsave(filename = "figures/ts_air_sea_corr.png", plot = ts_air_sea_corr, width = 20, units = "cm")
+ggsave(filename = "figures/essd/ts_air_sea_corr.pdf", plot = ts_air_sea_corr, width = 15, height = 10, units = "cm")
+
+
+# d_all <- d_all %>%
+#   dplyr::mutate(
+#     delta_pco2_corr = (pco2_fb_ctd_temp + 17) - co2_air,
+#     k600 = 0.266 * ws ^ 2, # cm/h Ho et al. (2006)
+#     Sc = 2073.1 - (125.62 * temp_insitu_ctd) + (3.6276 * temp_insitu_ctd^2) -
+#       (0.043219 * temp_insitu_ctd^3),    #dimensionless
+#     k = (k600 * (Sc / 600) ^ -0.5), #cm/h
+#     k = k/10, #m/h
+#     alpha = seacarb::K0(
+#       S = sal_insitu_ctd,
+#       T = temp_insitu_ctd,
+#       P = 0,
+#       Patm = p_air / 1013.25 # from hPa to atm
+#     ), #mol/(kg atm)
+#     alpha = alpha * (seacarb::rho(
+#       S = sal_insitu_ctd, T = temp_insitu_ctd, P = 0
+#     ) / 1000), # mol/(l atm)
+#     alpha = alpha * 1000 , # mol/(m3 atm)
+#     f_air_sea_corr = k * alpha * delta_pco2_corr, # mol/(m2 h 1e6)
+#     f_air_sea_corr = k * alpha * delta_pco2_corr * 1e-6 * 1000 # mmol/(m2 h)
+#   )
+# air_sea_corr_month <- d_all %>%
+#   dplyr::select(monthd, f_air_sea_corr) %>%
+#   dplyr::group_by(monthd) %>%
+#   dplyr::summarise(f_air_sea_corr = 24 * mean(f_air_sea_corr, na.rm = TRUE)) %>% #mol/(m2 d)
+#   ungroup() %>%
+#   dplyr::mutate(f_air_sea_corr = days_in_month(monthd) * f_air_sea_corr) %>% 
+#   dplyr::mutate(montht = month(monthd, label = TRUE, abbr = TRUE))
+# #air_sea_month
+# p_f_air_sea_corr_month <- ggplot(data = air_sea_corr_month) +
+#   geom_point(aes(x = montht, y = f_air_sea_corr), col = "blue", size = 2, na.rm = TRUE) +
+#   #scale_x_discrete(breaks=c("Jan", "", "Mar", "", "May", "", "Jul", "", "Sep", "", "Nov", "")) +
+#   #lims(y = c(-3, 0)) +
+#   labs(title = "Air-sea CO2 flux (per month) with corrected data", x = "Month", y = "CO2 (mmol/(m2 month))") +
+#   Mytheme(size_labs = 8)
+# p_f_air_sea_corr_month
+# ggsave(filename = "figures/f_air_sea_corr_month.png", plot = p_f_air_sea_corr_month, width = 20, units = "cm")
+# # # combine without and with correction
+# # p <- p_f_air_sea_month / p_f_air_sea_corr_month
+# # ggsave(filename = "figures/air-sea_CO2_flux_comp.png", plot = p, width = 20, units = "cm")
+# # knitr::include_graphics("figures/air-sea_CO2_flux_comp.png")
+# #rm(p, p_f_air_sea, p_f_air_sea_d, p_f_air_sea_m)
+# # Figure with and without correction on same plot
 ```
 
 ```{r monthly air-sea for paper, echo=FALSE, message= FALSE, warning=FALSE}
-air_sea_month$corr <- rep("no", length=12)
-air_sea_corr_month$corr <- rep("yes", length=12)
-
-air_sea <- dplyr::left_join(air_sea_month, air_sea_corr_month, by = "montht") %>% 
-  #dplyr::mutate(air_sea_corr_month = air_sea_corr_month/1000) %>% 
-  dplyr::select(montht, f_air_sea, f_air_sea_corr) %>% 
-  tidyr::pivot_longer(!montht, names_to = "corr", values_to = "air_sea")
-ggplot(data = air_sea) +
-  geom_point(aes(x = montht, y = air_sea, colour = factor(corr)))
+# air_sea_month$corr <- rep("no", length=12)
+# air_sea_corr_month$corr <- rep("yes", length=12)
+# 
+# air_sea <- dplyr::left_join(air_sea_month, air_sea_corr_month, by = "montht") %>% 
+#   #dplyr::mutate(air_sea_corr_month = air_sea_corr_month/1000) %>% 
+#   dplyr::select(montht, f_air_sea, f_air_sea_corr) %>% 
+#   tidyr::pivot_longer(!montht, names_to = "corr", values_to = "air_sea")
+# ggplot(data = air_sea) +
+#   geom_point(aes(x = montht, y = air_sea, colour = factor(corr)))
 ```
 
-The annual air-sea CO2 flux is
-`r round(sum(air_sea_month$f_air_sea/1000), digits = 1)` and
-`r round(sum(air_sea_corr_month$f_air_sea_corr/1000), digits = 1)` mol CO2/(m2
-year) without and with correction, respectively. Or `r round(sum(air_sea_month$f_air_sea*(12/44)/1000), digits = 1)` and
-`r round(sum(air_sea_corr_month$f_air_sea_corr*(12/44)/1000), digits = 1)` mol C/(m2
+The annual air-sea CO2 flux with the Ho et al. (2006) formulation is
+`r round(sum(air_sea_month_h$f_air_sea_h/1000), digits = 1)` and
+`r round(sum(air_sea_month_h_corr$f_air_sea_h_corr/1000), digits = 1)` mol CO2/(m2
+year) without and with correction, respectively. Or `r round(sum(air_sea_month_h$f_air_sea_h*(12/44)/1000), digits = 1)` and
+`r round(sum(air_sea_month_h_corr$f_air_sea_h_corr*(12/44)/1000), digits = 1)` mol C/(m2
+year) 
+
+The annual air-sea CO2 flux with the Dobashi et al. (2023) formulation is
+`r round(sum(air_sea_month_d$f_air_sea_d/1000), digits = 1)` and
+`r round(sum(air_sea_month_d_corr$f_air_sea_d_corr/1000), digits = 1)` mol CO2/(m2
+year) without and with correction, respectively. Or `r round(sum(air_sea_month_d$f_air_sea_d*(12/44)/1000), digits = 1)` and
+`r round(sum(air_sea_month_d_corr$f_air_sea_d_corr*(12/44)/1000), digits = 1)` mol C/(m2
 year) 
 
 ## Miscellaneous
