@@ -3651,9 +3651,9 @@ for pH calculated from AT and CT according to seacarb.
 
 `r include_graphics("figures/k1k2_discrete_at_ct.png")`
 
-## Stratification
+## Stratification {.tabset .tabset-pills}
 
-### Stratification salinity
+### REMOS
 
 ```{r, echo=FALSE, message= FALSE, warning=FALSE}
 # we calculate the duration of each stop 
@@ -3681,16 +3681,21 @@ depth_time <- function(df){
 depth_labels <- c("0-2", "2-4", "4-6", "6-8", ">8")
 tmp <- d_all %>% 
   dplyr::select(datetime, depth_group) %>%
-  dplyr::filter(depth_group != "NA") %>% 
+#  dplyr::filter(depth_group != "NA") %>% 
   dplyr::mutate(depth_group = factor(depth_group, levels = depth_labels))
 
-count_depth <- depth_time(tmp) 
-plot_all_depths <- count_depth %>% 
-  ggplot() +
-  geom_bar(aes(x=hours_spent))
-plot_all_depths
-```
+count_depth <- depth_time(tmp) %>% 
+  dplyr::filter(depth_group != "NA")
+p <- ggplot(count_depth) +
+  geom_bar(aes(x=log10(hours_spent)))
+ggsave(filename = "figures/REMOS.png", plot = p, width = 15, height = 10, units = "cm")
 
+```
+The REMOS spent a highly variable period of time in each depth group.
+![Distribution of the number of hours spent by the REMOS at depth](figures/REMOS.png)
+`r knitr::kable(summary(count_depth$hours_spent))`
+
+### Stratification salinity
 ```{r, echo=FALSE, message= FALSE, warning=FALSE}
 size_labs = 14
 # we look at the distribution of data
@@ -5053,7 +5058,7 @@ ts_sal <- d_all %>%
   ggplot(aes(x = datetime, y = sal_fb_mix), na.rm = TRUE) +
   scale_x_datetime(breaks = date_breaks("1 year"), labels = date_format("%Y")) +
   geom_point(colour="blue", alpha = alpha, na.rm = TRUE, size = size_point) +
-  labs(title="A",x=NULL, y="Salinity") +
+  labs(title="A",x=NULL, y="Salinity (< 8 m)") +
   scale_y_continuous(limits = c(31.8, 35.5)) +
   Mytheme(size_labs = size_labs) +
   theme(#axis.title.x = element_text(face = "bold", size = size_labs),
@@ -5241,7 +5246,13 @@ ts_sal_bp <- d_bp %>%
         axis.ticks.length.x = unit(.2, "cm"),
         axis.ticks.x = element_line(size = 0.5),
         axis.ticks.y = element_line(size = 0.5)
-        ) #+
+        )
+# to change color of median line
+tmp <- ggplot_build(ts_sal_bp)$data[[1]]
+ts_sal_bp <- ts_sal_bp + geom_segment(data=tmp, aes(x=xmin, xend=xmax, 
+                               y=middle, yend=middle), colour="cyan", size=1)
+
+#+
   # scale_x_discrete(breaks = c("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"), 
   #                  labels = c("Jan", "", "Mar", "", "May", "", "Jul", "", "Sep", "", "Nov", "")) +
   # scale_y_continuous(limits = c(31.8, 35.5))
@@ -5267,7 +5278,10 @@ ts_temp_bp <- d_bp %>%
         ) #+
   # scale_x_discrete(breaks = c("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"), 
   #                  labels = c("Jan", "", "Mar", "", "May", "", "Jul", "", "Sep", "", "Nov", ""))
-
+# to change color of median line
+tmp <- ggplot_build(ts_temp_bp)$data[[1]]
+ts_temp_bp <- ts_temp_bp + geom_segment(data=tmp, aes(x=xmin, xend=xmax, 
+                               y=middle, yend=middle), colour="cyan", size=1)
 ts_pco2_bp <- d_bp %>%
   ggplot(aes(x = month(x = datetime, label = TRUE, abbr = TRUE), y = pco2_fb)) +
   geom_boxplot(notch=FALSE, size=0.2, fill="blue", outlier.shape = NA, na.rm = TRUE) +
@@ -5289,6 +5303,11 @@ ts_pco2_bp <- d_bp %>%
         ) #+
   # scale_x_discrete(breaks = c("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"), 
   #                  labels = c("Jan", "", "Mar", "", "May", "", "Jul", "", "Sep", "", "Nov", ""))
+# to change color of median line
+tmp <- ggplot_build(ts_pco2_bp)$data[[1]]
+ts_pco2_bp <- ts_pco2_bp + geom_segment(data=tmp, aes(x=xmin, xend=xmax, 
+                               y=middle, yend=middle), colour="cyan", size=1)
+
 ts_pH_bp <- d_bp %>%
   ggplot(aes(x = month(x = datetime, label = TRUE, abbr = TRUE), y = pHint_tot_sf)) +
   geom_boxplot(notch=FALSE, size=0.2, fill="blue", outlier.shape = NA, na.rm = TRUE) +
@@ -5310,7 +5329,10 @@ ts_pH_bp <- d_bp %>%
         ) #+
   # scale_x_discrete(breaks = c("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"), 
   #                  labels = c("Jan", "", "Mar", "", "May", "", "Jul", "", "Sep", "", "Nov", ""))
-
+# to change color of median line
+tmp <- ggplot_build(ts_pH_bp)$data[[1]]
+ts_pH_bp <- ts_pH_bp + geom_segment(data=tmp, aes(x=xmin, xend=xmax, 
+                               y=middle, yend=middle), colour="cyan", size=1)
 ts_at_bp <- d_bp %>%
   ggplot(aes(x = month(x = datetime, label = TRUE, abbr = TRUE), y = at_calc)) +
   geom_boxplot(notch=FALSE, size=0.2, fill="blue", outlier.shape = NA, na.rm = TRUE) +
@@ -5332,6 +5354,11 @@ ts_at_bp <- d_bp %>%
         ) +
   scale_x_discrete(breaks = c("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"), 
                    labels = c("Jan", "", "Mar", "", "May", "", "Jul", "", "Sep", "", "Nov", ""))
+# to change color of median line
+tmp <- ggplot_build(ts_at_bp)$data[[1]]
+ts_at_bp <- ts_at_bp + geom_segment(data=tmp, aes(x=xmin, xend=xmax, 
+                               y=middle, yend=middle), colour="cyan", size=1)
+
 # Combine plots
 g2 <- (ts_sal_bp / ts_temp_bp / ts_pco2_bp / ts_pH_bp / ts_at_bp)
 g2 <- g2 + plot_annotation(tag_levels = 'A') & 
