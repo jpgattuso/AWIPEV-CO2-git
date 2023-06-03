@@ -5086,7 +5086,7 @@ ts_air_sea_corr <- air_sea_long %>%
   #                  labels = c("Jan", "", "Mar", "", "May", "", "Jul", "", "Sep", "", "Nov", ""))
 ts_air_sea_corr
 ggsave(filename = "figures/ts_air_sea_corr.png", plot = ts_air_sea_corr, width = 20, units = "cm")
-ggsave(filename = "figures/essd/ts_air_sea_corr.pdf", plot = ts_air_sea_corr, width = 15, height = 10, units = "cm")
+#ggsave(filename = "figures/essd/ts_air_sea_corr.pdf", plot = ts_air_sea_corr, units = "cm")
 
 
 # d_all <- d_all %>%
@@ -5135,15 +5135,27 @@ ggsave(filename = "figures/essd/ts_air_sea_corr.pdf", plot = ts_air_sea_corr, wi
 ```
 
 ```{r monthly air-sea for paper, echo=FALSE, message= FALSE, warning=FALSE}
-# air_sea_month$corr <- rep("no", length=12)
-# air_sea_corr_month$corr <- rep("yes", length=12)
-# 
-# air_sea <- dplyr::left_join(air_sea_month, air_sea_corr_month, by = "montht") %>% 
-#   #dplyr::mutate(air_sea_corr_month = air_sea_corr_month/1000) %>% 
-#   dplyr::select(montht, f_air_sea, f_air_sea_corr) %>% 
-#   tidyr::pivot_longer(!montht, names_to = "corr", values_to = "air_sea")
-# ggplot(data = air_sea) +
-#   geom_point(aes(x = montht, y = air_sea, colour = factor(corr)))
+ts_air_sea <- air_sea_long %>%
+  ggplot(aes(x = montht, y = f_air_sea / 1000, fill = Formulation), na.rm = TRUE) +
+  geom_col(alpha = alpha, position = "dodge") +
+  lims(y = c(-3, 0)) +
+  geom_hline(yintercept = 0, size = 0.5) +
+  labs(title=NULL, 
+       x="Month", 
+       y=latex2exp::TeX("Air-sea CO$_2$ flux (mol $m^{-2}$ month$^{-1}$)", bold = TRUE)) +
+  scale_fill_discrete(name = "", labels = c("Dobashi & Ho (2023)", "Ho et al. (2006)")) +
+  Mytheme(size_labs = size_labs) +
+  theme(aspect.ratio=0.5,
+        plot.margin = margin(t = -10, r = 0.2, b = -10, l = 0.2, unit = "cm"),
+        axis.title.x = element_text(face = "bold", size = 14),
+        axis.title.y = element_text(face = "bold", size = 14),
+        axis.text.x = element_text(size=14),
+        axis.text.y = element_text(size=14)
+        ) 
+  # scale_x_discrete(breaks = c("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"),
+  #                  labels = c("Jan", "", "Mar", "", "May", "", "Jul", "", "Sep", "", "Nov", ""))
+ts_air_sea_corr
+ggsave(filename = "figures/essd/ts_air_sea.pdf", plot = ts_air_sea_corr, units = "cm")
 ```
 
 The annual air-sea CO2 flux with the Ho et al. (2006) formulation is
